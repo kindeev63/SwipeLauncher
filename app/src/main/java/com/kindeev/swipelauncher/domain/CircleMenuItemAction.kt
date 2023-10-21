@@ -1,0 +1,3 @@
+package com.kindeev.swipelauncher.domain
+
+interface CircleMenuItemAction
