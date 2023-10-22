@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher
 
+import android.content.Context
 import android.view.MotionEvent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -19,18 +20,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.CircleMenu
+import com.kindeev.swipelauncher.domain.CircleMenuItemAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.NoneAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.OpenCircleMenu
+import android.os.Vibrator
+import androidx.compose.ui.platform.LocalContext
 
 data class ScreenSizes(val width: Int, val height: Int)
 data class MenuItemCords(val x: Float, val y: Float)
+data class CordsAndAction(val cords: Offset, val action: CircleMenuItemAction)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -39,7 +43,7 @@ fun SwipeBox() {
         width = LocalConfiguration.current.screenWidthDp,
         height = LocalConfiguration.current.screenHeightDp
     )
-    val menuSize = remember { screenSize.width / 2f }
+    val menuSize = remember { screenSize.width / 3f * 2f }
     val menuItemSize = remember { menuSize / 5f }
     val menuItemCords = remember {
         MenuItemCords(
@@ -57,20 +61,14 @@ fun SwipeBox() {
     var circleMenuItem by remember {
         mutableStateOf(
             CircleMenu(
-                upAction = OpenCircleMenu(
-                    circleMenu = CircleMenu(
-                        upAction = NoneAction,
-                        downAction = NoneAction,
-                        rightAction = NoneAction,
-                        leftAction = NoneAction,
-                    )
-                ),
+                upAction = NoneAction,
                 downAction = NoneAction,
                 rightAction = NoneAction,
                 leftAction = NoneAction,
             )
         )
     }
+    val vibrator = LocalContext.current.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -87,26 +85,39 @@ fun SwipeBox() {
                     MotionEvent.ACTION_MOVE -> {
                         val cordsX = swipeMenuOffset.x - (startMenuOffset?.x ?: 0f)
                         val cordsY = swipeMenuOffset.y - (startMenuOffset?.y ?: 0f)
-                        val action = checkCords(
+                        val cordsAndAction = checkCords(
                             cordsX = cordsX,
                             cordsY = cordsY,
                             menuItemCords = menuItemCords,
                             menuItemSize = menuItemSize,
                             circleMenu = circleMenuItem
                         )
-                        when(val item = action) {
+                        when (cordsAndAction?.action) {
                             null -> {
                                 swipeMenuOffset = Offset(
                                     x = event.x / d.density,
                                     y = event.y / d.density
                                 )
                             }
+
                             is NoneAction -> {
-                                startMenuOffset = swipeMenuOffset
+                                startMenuOffset?.let { cords ->
+                                    startMenuOffset = startMenuOffset?.copy(
+                                        x = cords.x + cordsAndAction.cords.x,
+                                        y = cords.y + cordsAndAction.cords.y
+                                    )
+                                    vibrator.vibrate(20)
+                                }
                             }
+
                             is OpenCircleMenu -> {
-//                                circleMenuItem = item.circleMenu
-                                startMenuOffset = swipeMenuOffset
+                                startMenuOffset?.let { cords ->
+                                    startMenuOffset = startMenuOffset?.copy(
+                                        x = cords.x + cordsAndAction.cords.x,
+                                        y = cords.y + cordsAndAction.cords.y
+                                    )
+                                    vibrator.vibrate(20)
+                                }
                             }
                         }
                     }
@@ -133,22 +144,47 @@ private fun checkCords(
     menuItemSize: Float,
     circleMenu: CircleMenu
 ) =
-    if (-menuItemSize / 2 <= cordsX && cordsX <= menuItemSize / 2) {
-        if (menuItemCords.y - menuItemSize / 2 <= cordsY) {
-            circleMenu.downAction
+    if (-menuItemSize / 3 <= cordsX && cordsX <= menuItemSize / 3) {
+        if (menuItemCords.y - menuItemSize / 3 <= cordsY) {
+            CordsAndAction(
+                cords = Offset(
+                    x=0f,
+                    y=menuItemCords.y
+                ),
+                action = circleMenu.downAction
+            )
         } else
-            if (cordsY <= -(menuItemCords.y - menuItemSize / 2)) {
-                circleMenu.upAction
+            if (cordsY <= -(menuItemCords.y - menuItemSize / 3)) {
+                CordsAndAction(
+                    cords = Offset(
+                        x=0f,
+                        y=-menuItemCords.y
+                    ),
+                    action = circleMenu.upAction
+                )
             } else null
     } else
-        if (-menuItemSize / 2 <= cordsY && cordsY <= menuItemSize / 2) {
-            if (menuItemCords.x - menuItemSize / 2 <= cordsX) {
-                circleMenu.rightAction
+        if (-menuItemSize / 3 <= cordsY && cordsY <= menuItemSize / 3) {
+            if (menuItemCords.x - menuItemSize / 3 <= cordsX) {
+                CordsAndAction(
+                    cords = Offset(
+                        x=menuItemCords.x,
+                        y=0f
+                    ),
+                    action = circleMenu.rightAction
+                )
             } else
-                if (cordsX <= -(menuItemCords.x - menuItemSize / 2)) {
-                    circleMenu.leftAction
+                if (cordsX <= -(menuItemCords.x - menuItemSize / 3)) {
+                    CordsAndAction(
+                        cords = Offset(
+                            x=-menuItemCords.x,
+                            y=0f
+                        ),
+                        action = circleMenu.leftAction
+                    )
                 } else null
         } else null
+
 
 @Composable
 fun CircleMenuUI(
@@ -166,27 +202,17 @@ fun CircleMenuUI(
                 y = startOffset.y.dp - (menuSize / 2).dp
             )
             .size(menuSize.dp)
-            .drawBehind {
-                drawLine(
-                    color = Color.Blue,
-                    start = Offset(
-                        x = menuSize / 2 * d.density,
-                        y = menuSize / 2 * d.density
-                    ),
-                    end = Offset(
-                        x = (menuSize / 2 + swipeOffset.x - startOffset.x) * d.density,
-                        y = (menuSize / 2 + swipeOffset.y - startOffset.y) * d.density
-                    ),
-                    cap = StrokeCap.Round,
-                    strokeWidth = 20f
-                )
-            }
     ) {
+        val cords = circleCords(
+            menuSize = menuSize,
+            x = swipeOffset.x - startOffset.x,
+            y = swipeOffset.y - startOffset.y
+        )
         Box(
             modifier = Modifier
                 .offset(
-                    x = (menuSize / 3).dp,
-                    y = (menuSize / 3).dp
+                    x = cords.x.dp,
+                    y = cords.y.dp
                 )
                 .size((menuSize / 3).dp)
                 .drawBehind {
@@ -230,6 +256,28 @@ fun CircleMenuUI(
             size = menuSize / 5
         )
     }
+}
+
+private fun circleCords(
+    menuSize: Float,
+    x: Float,
+    y: Float
+): Offset {
+    var xCords = menuSize / 3 + x
+    if (xCords < 0) {
+        xCords = 0f
+    }
+    if (xCords > menuSize / 3 * 2) {
+        xCords = menuSize / 3 * 2
+    }
+    var yCords = menuSize / 3 + y
+    if (yCords < 0) {
+        yCords = 0f
+    }
+    if (yCords > menuSize / 3 * 2) {
+        yCords = menuSize / 3 * 2
+    }
+    return Offset(xCords, yCords)
 }
 
 @Composable
