@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher
+package com.kindeev.swipelauncher.presentation
 
 import android.content.Context
 import android.content.Intent
@@ -12,15 +12,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.kindeev.swipelauncher.ui.theme.SwipeLauncherTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val mainAppViewModel = (application as MainApp).mainAppViewModel
         setContent {
-            SwipeBox()
+            val allCircleMenu = mainAppViewModel.allCircleMenu.observeAsState()
+            if (allCircleMenu.value.isNullOrEmpty()) {
+                FirstScreen(
+                    mainAppViewModel = mainAppViewModel
+                )
+            } else {
+                SwipeBox()
+            }
         }
     }
 }

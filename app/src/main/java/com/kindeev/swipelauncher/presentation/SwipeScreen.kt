@@ -1,14 +1,13 @@
-package com.kindeev.swipelauncher
+package com.kindeev.swipelauncher.presentation
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.view.MotionEvent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,14 +26,24 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenuItemAction
-import com.kindeev.swipelauncher.domain.circleMenuActions.NoneAction
-import com.kindeev.swipelauncher.domain.circleMenuActions.OpenCircleMenu
+import com.kindeev.swipelauncher.data.circleMenuActions.NoneAction
+import com.kindeev.swipelauncher.data.circleMenuActions.OpenCircleMenu
 import android.os.Vibrator
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.graphics.drawable.toBitmap
+import com.kindeev.swipelauncher.R
 
 data class ScreenSizes(val width: Int, val height: Int)
 data class MenuItemCords(val x: Float, val y: Float)
 data class CordsAndAction(val cords: Offset, val action: CircleMenuItemAction)
+
+data class MenuIcons(
+    val upIcon: Bitmap,
+    val downIcon: Bitmap,
+    val rightIcon: Bitmap,
+    val leftIcon: Bitmap,
+)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -61,6 +70,7 @@ fun SwipeBox() {
     var circleMenuItem by remember {
         mutableStateOf(
             CircleMenu(
+                id = 0,
                 upAction = NoneAction,
                 downAction = NoneAction,
                 rightAction = NoneAction,
@@ -129,10 +139,20 @@ fun SwipeBox() {
                 return@pointerInteropFilter true
             }
     ) {
+        val bitmapUp = LocalContext.current.getDrawable(R.drawable.ic_up_arrow)!!.toBitmap()
+        val bitmapDown = LocalContext.current.getDrawable(R.drawable.ic_down_arrow)!!.toBitmap()
+        val bitmapRight = LocalContext.current.getDrawable(R.drawable.ic_right_arrow)!!.toBitmap()
+        val bitmapLeft = LocalContext.current.getDrawable(R.drawable.ic_left_arrow)!!.toBitmap()
         CircleMenuUI(
             startOffset = startMenuOffset,
             swipeOffset = swipeMenuOffset,
-            menuSize = menuSize
+            menuSize = menuSize,
+            menuIcons = MenuIcons(
+                upIcon = bitmapUp,
+                downIcon = bitmapDown,
+                rightIcon = bitmapRight,
+                leftIcon = bitmapLeft
+            )
         )
     }
 }
@@ -190,11 +210,11 @@ private fun checkCords(
 fun CircleMenuUI(
     startOffset: Offset?,
     swipeOffset: Offset?,
-    menuSize: Float
+    menuSize: Float,
+    menuIcons: MenuIcons
 ) {
     if (startOffset == null) return
     if (swipeOffset == null) return
-    val d = LocalDensity.current
     Box(
         modifier = Modifier
             .offset(
@@ -232,28 +252,32 @@ fun CircleMenuUI(
                 x = menuSize / 12,
                 y = (menuSize / 2) - menuSize / 10
             ),
-            size = menuSize / 5
+            size = menuSize / 5,
+            bitmap = menuIcons.leftIcon
         )
         CircleMenuItemUI(
             offset = Offset(
                 x = menuSize - menuSize / 12 - menuSize / 5,
                 y = (menuSize / 2) - menuSize / 10
             ),
-            size = menuSize / 5
+            size = menuSize / 5,
+            bitmap = menuIcons.rightIcon
         )
         CircleMenuItemUI(
             offset = Offset(
                 x = (menuSize / 2) - menuSize / 10,
                 y = menuSize / 12
             ),
-            size = menuSize / 5
+            size = menuSize / 5,
+            bitmap = menuIcons.upIcon
         )
         CircleMenuItemUI(
             offset = Offset(
                 x = (menuSize / 2) - menuSize / 10,
                 y = menuSize - menuSize / 12 - menuSize / 5
             ),
-            size = menuSize / 5
+            size = menuSize / 5,
+            bitmap = menuIcons.downIcon
         )
     }
 }
@@ -282,6 +306,7 @@ private fun circleCords(
 
 @Composable
 fun CircleMenuItemUI(
+    bitmap: Bitmap,
     offset: Offset,
     size: Float,
 ) {
@@ -307,7 +332,7 @@ fun CircleMenuItemUI(
     ) {
         Image(
             modifier = Modifier.size((size / 5 * 4).dp),
-            imageVector = Icons.Default.PlayArrow,
+            bitmap = bitmap.asImageBitmap(),
             contentDescription = null
         )
     }

@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.circleMenuActions
+package com.kindeev.swipelauncher.data.circleMenuActions
 
 import com.kindeev.swipelauncher.domain.CircleMenuItemAction
 

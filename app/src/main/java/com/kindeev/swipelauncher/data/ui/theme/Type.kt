@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.ui.theme
+package com.kindeev.swipelauncher.data.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

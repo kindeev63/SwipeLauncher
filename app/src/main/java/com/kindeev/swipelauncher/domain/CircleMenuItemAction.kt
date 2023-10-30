@@ -1,3 +1,5 @@
 package com.kindeev.swipelauncher.domain
 
-interface CircleMenuItemAction
+import java.io.Serializable
+
+interface CircleMenuItemAction: Serializable
