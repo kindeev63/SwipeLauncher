@@ -8,13 +8,21 @@ import java.io.Serializable
 @Entity(tableName = "table_menu")
 data class CircleMenu(
     @PrimaryKey(autoGenerate = false)
-    val id: Int,
+    val id: Int = 0,
     @ColumnInfo(name = "upAction")
-    val upAction: CircleMenuItemAction,
+    var upAction: String,
+    @ColumnInfo(name = "upBitmap")
+    var upImage: String,
     @ColumnInfo(name = "downAction")
-    val downAction: CircleMenuItemAction,
+    var downAction: String,
+    @ColumnInfo(name = "downBitmap")
+    var downImage: String,
     @ColumnInfo(name = "rightAction")
-    val rightAction: CircleMenuItemAction,
+    var rightAction: String,
+    @ColumnInfo(name = "rightBitmap")
+    var rightImage: String,
     @ColumnInfo(name = "leftAction")
-    val leftAction: CircleMenuItemAction
+    var leftAction: String,
+    @ColumnInfo(name = "leftBitmap")
+    var leftImage: String,
 ): Serializable

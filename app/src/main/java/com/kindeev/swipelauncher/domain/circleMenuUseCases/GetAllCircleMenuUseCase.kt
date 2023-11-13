@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.CircleMenuUseCases
+package com.kindeev.swipelauncher.domain.circleMenuUseCases
 
 import com.kindeev.swipelauncher.domain.AppDao
 
