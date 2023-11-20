@@ -3,67 +3,57 @@ package com.kindeev.swipelauncher.data
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.CircleMenu
-import com.kindeev.swipelauncher.domain.CircleMenuAction
-import com.kindeev.swipelauncher.domain.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 
 object RootCircleMenu {
-    private val downImage =
-        Gson().toJson(
-            CircleMenuImage().apply {
-                type = CircleMenuImage.DEFAULT_IMAGE
-                data = R.drawable.ic_down_arrow.toString()
-            }
+    private val downImage = CircleMenuImage(
+        type = CircleMenuImageTypes.DefaultImage,
+        data = DefaultImage(
+            id = R.drawable.ic_down_arrow
         )
-    private val downAction =
-        Gson().toJson(
-            CircleMenuAction().apply { type = CircleMenuAction.OPEN_SETTINGS }
+    )
+    private val downAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+    private val rightImage = CircleMenuImage(
+        type = CircleMenuImageTypes.DefaultImage,
+        data = DefaultImage(
+            id = R.drawable.ic_left_arrow
         )
-    private val rightImage =
-        Gson().toJson(
-            CircleMenuImage().apply {
-                type = CircleMenuImage.DEFAULT_IMAGE
-                data = R.drawable.ic_left_arrow.toString()
-            }
+    )
+    private val rightAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+    private val leftImage = CircleMenuImage(
+        type = CircleMenuImageTypes.DefaultImage,
+        data = DefaultImage(
+            id = R.drawable.ic_right_arrow
         )
-    private val rightAction =
-        Gson().toJson(
-            CircleMenuAction().apply { type = CircleMenuAction.NONE_ACTION }
+    )
+    private val leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+    private val upImage = CircleMenuImage(
+        type = CircleMenuImageTypes.DefaultImage,
+        data = DefaultImage(
+            id = R.drawable.ic_up_arrow
         )
-    private val leftImage =
-        Gson().toJson(
-            CircleMenuImage().apply {
-                type = CircleMenuImage.DEFAULT_IMAGE
-                data = R.drawable.ic_right_arrow.toString()
-            }
+    )
+    private val upAction = CircleMenuAction(
+        type = CircleMenuActionTypes.OpenCircleMenu,
+        data = OpenCircleMenu(
+            circleMenu = CircleMenu(
+                id = 1,
+                upAction = downAction,
+                upImage = upImage,
+                downAction = downAction,
+                downImage = downImage,
+                rightAction = rightAction,
+                rightImage = rightImage,
+                leftAction = leftAction,
+                leftImage = leftImage
+            )
         )
-    private val leftAction =
-        Gson().toJson(
-            CircleMenuAction().apply { type = CircleMenuAction.NONE_ACTION }
-        )
-    private val upImage =
-        Gson().toJson(
-            CircleMenuImage().apply {
-                type = CircleMenuImage.DEFAULT_IMAGE
-                data = R.drawable.ic_up_arrow.toString()
-            }
-        )
-    private val upAction =
-        Gson().toJson(
-            CircleMenuAction().apply {
-                type = CircleMenuAction.OPEN_CIRCLE_MENU
-                data = CircleMenu(
-                    id = 1,
-                    upAction = downAction,
-                    upImage = upImage,
-                    downAction = downAction,
-                    downImage = downImage,
-                    rightAction = rightAction,
-                    rightImage = rightImage,
-                    leftAction = leftAction,
-                    leftImage = leftImage
-                )
-            }
-        )
+    )
     val rootCircleMenu = CircleMenu(
         upAction = upAction,
         upImage = upImage,

@@ -11,7 +11,9 @@ import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
-import com.kindeev.swipelauncher.domain.CircleMenuAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 
 data class CordsAndAction(val cords: Offset, val action: CircleMenuAction)
 class SwipeScreenViewModel(context: Context) : ViewModel() {
@@ -56,11 +58,11 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                 menuItemSize = menuSize / 5,
             )
             when (cordsAndAction?.action?.type) {
-                CircleMenuAction.NONE_ACTION -> {
+                CircleMenuActionTypes.NoneAction -> {
                     _menuOffset.value = null
                 }
 
-                CircleMenuAction.OPEN_CIRCLE_MENU -> {
+                CircleMenuActionTypes.OpenCircleMenu -> {
                     menuOffset.value?.start?.let { startOffset ->
                         _menuOffset.value = menuOffset.value?.copy(
                             start = Offset(
@@ -68,18 +70,18 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                                 y = startOffset.y + cordsAndAction.cords.y
                             )
                         )
-                        val newCircleMenu = Gson().fromJson(Gson().toJson(cordsAndAction.action.data), CircleMenu::class.java)
-                        _circleMenu.value = newCircleMenu
+                        val openCircleMenu = cordsAndAction.action.data as OpenCircleMenu
+                        _circleMenu.value = openCircleMenu.circleMenu
                         vibrator.vibrate(20)
                     }
                 }
 
-                CircleMenuAction.OPEN_SETTINGS -> {
+                CircleMenuActionTypes.OpenSettings -> {
                     _menuOffset.value = null
                     openSettings()
                 }
 
-                else -> {
+                null -> {
                     _menuOffset.value = menuOffset.value?.copy(
                         swipe = Offset(
                             x = x,
@@ -106,49 +108,41 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
         circleMenu.value?.let { circleMenu ->
             return if (-menuItemSize / 3 <= cordsX && cordsX <= menuItemSize / 3) {
                 if (menuItemOffset - menuItemSize / 3 <= cordsY) {
-                    val action =
-                        Gson().fromJson(circleMenu.downAction, CircleMenuAction::class.java)
                     CordsAndAction(
                         cords = Offset(
                             x = 0f,
                             y = menuItemOffset
                         ),
-                        action = action
+                        action = circleMenu.downAction
                     )
                 } else
                     if (cordsY <= -(menuItemOffset - menuItemSize / 3)) {
-                        val action =
-                            Gson().fromJson(circleMenu.upAction, CircleMenuAction::class.java)
                         CordsAndAction(
                             cords = Offset(
                                 x = 0f,
                                 y = -menuItemOffset
                             ),
-                            action = action
+                            action = circleMenu.upAction
                         )
                     } else null
             } else
                 if (-menuItemSize / 3 <= cordsY && cordsY <= menuItemSize / 3) {
                     if (menuItemOffset - menuItemSize / 3 <= cordsX) {
-                        val action =
-                            Gson().fromJson(circleMenu.rightAction, CircleMenuAction::class.java)
                         CordsAndAction(
                             cords = Offset(
                                 x = menuItemOffset,
                                 y = 0f
                             ),
-                            action = action
+                            action = circleMenu.rightAction
                         )
                     } else
                         if (cordsX <= -(menuItemOffset - menuItemSize / 3)) {
-                            val action =
-                                Gson().fromJson(circleMenu.leftAction, CircleMenuAction::class.java)
                             CordsAndAction(
                                 cords = Offset(
                                     x = -menuItemOffset,
                                     y = 0f
                                 ),
-                                action = action
+                                action = circleMenu.leftAction
                             )
                         } else null
                 } else null

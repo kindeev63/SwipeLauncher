@@ -13,10 +13,8 @@ import android.os.Vibrator
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.gson.Gson
 import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.RootCircleMenu
-import com.kindeev.swipelauncher.domain.CircleMenuImage
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -35,16 +33,12 @@ fun SwipeBoxUI(
 
     }
     viewModel.circleMenu.observe(LocalLifecycleOwner.current) { circleMenu ->
-        val upImage = Gson().fromJson(circleMenu.upImage, CircleMenuImage::class.java)
-        val downImage = Gson().fromJson(circleMenu.downImage, CircleMenuImage::class.java)
-        val rightImage = Gson().fromJson(circleMenu.rightImage, CircleMenuImage::class.java)
-        val leftImage = Gson().fromJson(circleMenu.leftImage, CircleMenuImage::class.java)
         viewModel.setMenuIcons(
             menuImages = MenuImages(
-                upImage = upImage,
-                downImage = downImage,
-                rightImage = rightImage,
-                leftImage = leftImage
+                upImage = circleMenu.upImage,
+                downImage = circleMenu.downImage,
+                rightImage = circleMenu.rightImage,
+                leftImage = circleMenu.leftImage
             )
         )
     }

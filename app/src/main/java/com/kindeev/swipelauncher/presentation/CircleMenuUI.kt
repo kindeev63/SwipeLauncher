@@ -18,7 +18,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 
 @Composable
 fun CircleMenuUI(
@@ -130,19 +132,18 @@ fun CircleMenuUI(
 
 @Composable
 fun getItemImage(circleMenuImage: CircleMenuImage): Painter {
-    when(circleMenuImage.type) {
-        CircleMenuImage.NONE_IMAGE -> {
-            return painterResource(id = R.drawable.ic_settings)
+    return when(circleMenuImage.type) {
+        CircleMenuImageTypes.NoneImage -> {
+            painterResource(id = R.drawable.ic_settings)
         }
-        CircleMenuImage.DEFAULT_IMAGE -> {
-            val id = circleMenuImage.data as String
-            return painterResource(id = id.toInt())
+        CircleMenuImageTypes.DefaultImage -> {
+            val defaultImage = circleMenuImage.data as DefaultImage
+            painterResource(id = defaultImage.id)
         }
-        CircleMenuImage.APP_IMAGE -> {
-            return painterResource(id = R.drawable.ic_settings)
+        CircleMenuImageTypes.AppImage -> {
+            painterResource(id = R.drawable.ic_settings)
         }
     }
-    return painterResource(id = R.drawable.ic_settings)
 }
 
 private fun getCenterCircleCords(

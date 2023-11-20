@@ -1,6 +1,6 @@
 package com.kindeev.swipelauncher.data
 
-import com.kindeev.swipelauncher.domain.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 
 data class MenuImages(
     val upImage: CircleMenuImage,
