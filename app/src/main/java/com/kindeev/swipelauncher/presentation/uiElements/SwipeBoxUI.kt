@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.uiElements
 
 import android.content.Context
 import android.view.MotionEvent
@@ -15,6 +15,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.RootCircleMenu
+import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.SwipeScreenViewModel
+import com.kindeev.swipelauncher.presentation.SwipeScreenViewModelFactory
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -24,6 +27,7 @@ fun SwipeBoxUI(
     val viewModel: SwipeScreenViewModel = viewModel(
         factory = SwipeScreenViewModelFactory(context = LocalContext.current)
     )
+    val context = LocalContext.current
     val density = LocalDensity.current.density
     val vibrator = LocalContext.current.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { circleMenus ->
@@ -57,8 +61,7 @@ fun SwipeBoxUI(
                         viewModel.drag(
                             x = event.x / density,
                             y = event.y / density,
-                            vibrator = vibrator,
-                            openSettings = {}
+                            context = context
                         )
 
                     MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {

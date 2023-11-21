@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.data
 
-import com.google.gson.Gson
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction

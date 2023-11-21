@@ -1,12 +1,12 @@
 package com.kindeev.swipelauncher.presentation
 
 import android.content.Context
+import android.content.Intent
 import android.os.Vibrator
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
 import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.data.RootCircleMenu
@@ -47,8 +47,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
     fun drag(
         x: Float,
         y: Float,
-        vibrator: Vibrator,
-        openSettings: () -> Unit
+        context: Context,
     ) {
         menuOffset.value?.let { notNullMenuOffset ->
             val cordsAndAction = checkCords(
@@ -72,13 +71,17 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                         )
                         val openCircleMenu = cordsAndAction.action.data as OpenCircleMenu
                         _circleMenu.value = openCircleMenu.circleMenu
+                        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                         vibrator.vibrate(20)
                     }
                 }
 
                 CircleMenuActionTypes.OpenSettings -> {
                     _menuOffset.value = null
-                    openSettings()
+                    val intent = Intent(context, SettingsActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
                 }
 
                 null -> {

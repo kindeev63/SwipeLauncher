@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.uiElements
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -21,6 +21,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.presentation.SwipeScreenViewModel
 
 @Composable
 fun CircleMenuUI(
