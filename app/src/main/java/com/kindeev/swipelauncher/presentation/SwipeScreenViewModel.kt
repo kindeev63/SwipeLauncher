@@ -78,9 +78,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
 
                 CircleMenuActionTypes.OpenSettings -> {
                     _menuOffset.value = null
-                    val intent = Intent(context, SettingsActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
+                    val intent = Intent(context, SettingsActivity::class.java)
                     context.startActivity(intent)
                 }
 
@@ -116,7 +114,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                             x = 0f,
                             y = menuItemOffset
                         ),
-                        action = circleMenu.downAction
+                        action = circleMenu.directionDown.action
                     )
                 } else
                     if (cordsY <= -(menuItemOffset - menuItemSize / 3)) {
@@ -125,7 +123,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                                 x = 0f,
                                 y = -menuItemOffset
                             ),
-                            action = circleMenu.upAction
+                            action = circleMenu.directionUp.action
                         )
                     } else null
             } else
@@ -136,7 +134,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                                 x = menuItemOffset,
                                 y = 0f
                             ),
-                            action = circleMenu.rightAction
+                            action = circleMenu.directionRight.action
                         )
                     } else
                         if (cordsX <= -(menuItemOffset - menuItemSize / 3)) {
@@ -145,7 +143,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                                     x = -menuItemOffset,
                                     y = 0f
                                 ),
-                                action = circleMenu.leftAction
+                                action = circleMenu.directionLeft.action
                             )
                         } else null
                 } else null
