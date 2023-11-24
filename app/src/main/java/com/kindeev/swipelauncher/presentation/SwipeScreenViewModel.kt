@@ -7,7 +7,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -22,8 +21,6 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
-    private val _menuImages = MutableLiveData<MenuImages?>(null)
-    val menuImages: LiveData<MenuImages?> = _menuImages
 
     fun startDrag(x: Float, y: Float) {
         val offset = Offset(
@@ -40,14 +37,11 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
         _circleMenu.value = circleMenu
     }
 
-    fun setMenuIcons(menuImages: MenuImages) {
-        _menuImages.value = menuImages
-    }
-
     fun drag(
         x: Float,
         y: Float,
         context: Context,
+        mainAppViewModel: MainAppViewModel
     ) {
         menuOffset.value?.let { notNullMenuOffset ->
             val cordsAndAction = checkCords(
@@ -70,7 +64,7 @@ class SwipeScreenViewModel(context: Context) : ViewModel() {
                             )
                         )
                         val openCircleMenu = cordsAndAction.action.data as OpenCircleMenu
-                        _circleMenu.value = openCircleMenu.circleMenu
+                        _circleMenu.value = mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
                         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                         vibrator.vibrate(20)
                     }

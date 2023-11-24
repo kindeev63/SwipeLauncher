@@ -38,16 +38,9 @@ fun CircleMenuUI(
 ) {
     val menuOffsetState = viewModel.menuOffset.observeAsState()
     val menuOffset = menuOffsetState.value ?: return
+    val circleMenu = viewModel.circleMenu.observeAsState()
     val density = LocalDensity.current.density
     val imageSize = menuSize / 6
-    val circleMenuImages = remember {
-        listOf(
-            viewModel.menuImages.value?.upImage,
-            viewModel.menuImages.value?.downImage,
-            viewModel.menuImages.value?.rightImage,
-            viewModel.menuImages.value?.leftImage,
-        )
-    }
     Box(
         modifier = Modifier
             .offset(
@@ -105,42 +98,48 @@ fun CircleMenuUI(
                 )
             }
         }
-        // Drawing items images
-        viewModel.menuImages.value?.let { menuIcons ->
+        circleMenu.value?.let { menu ->
             listOf(0, 1, 2, 3).forEach { index ->
                 var offset = itemsOffsets[index]
                 offset = offset.copy(
                     x = offset.x - imageSize / 2,
                     y = offset.y - imageSize / 2,
                 )
-                circleMenuImages[index]?.let { circleMenuImage ->
-                    Image(
-                        modifier = Modifier
-                            .offset(
-                                x = offset.x.dp,
-                                y = offset.y.dp
-                            )
-                            .size(imageSize.dp),
-                        painter = getItemImage(circleMenuImage = circleMenuImage),
-                        contentDescription = null
-                    )
-                }
+                Image(
+                    modifier = Modifier
+                        .offset(
+                            x = offset.x.dp,
+                            y = offset.y.dp
+                        )
+                        .size(imageSize.dp),
+                    painter = getItemImage(
+                        circleMenuImage =
+                        listOf(
+                            menu.directionUp.image,
+                            menu.directionDown.image,
+                            menu.directionRight.image,
+                            menu.directionLeft.image,
+                        )[index]
+                    ),
+                    contentDescription = null
+                )
             }
         }
-
     }
 }
 
 @Composable
 fun getItemImage(circleMenuImage: CircleMenuImage): Painter {
-    return when(circleMenuImage.type) {
+    return when (circleMenuImage.type) {
         CircleMenuImageTypes.NoneImage -> {
             painterResource(id = R.drawable.ic_settings)
         }
+
         CircleMenuImageTypes.DefaultImage -> {
             val defaultImage = circleMenuImage.data as DefaultImage
             painterResource(id = defaultImage.id)
         }
+
         CircleMenuImageTypes.AppImage -> {
             painterResource(id = R.drawable.ic_settings)
         }

@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.data.MenuImages
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.SwipeScreenViewModel
@@ -43,16 +42,6 @@ fun SwipeBoxUI(
             viewModel.setCircleMenu(circleMenu = rootCircleMenu)
         }
 
-    }
-    viewModel.circleMenu.observe(LocalLifecycleOwner.current) { circleMenu ->
-        viewModel.setMenuIcons(
-            menuImages = MenuImages(
-                upImage = circleMenu.directionUp.image,
-                downImage = circleMenu.directionDown.image,
-                rightImage = circleMenu.directionRight.image,
-                leftImage = circleMenu.directionLeft.image
-            )
-        )
     }
     val wallpaperManager = WallpaperManager.getInstance(context)
     var wallpaperDrawable: Drawable? = null
@@ -86,7 +75,8 @@ fun SwipeBoxUI(
                         viewModel.drag(
                             x = event.x / density,
                             y = event.y / density,
-                            context = context
+                            context = context,
+                            mainAppViewModel = mainAppViewModel
                         )
 
                     MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {

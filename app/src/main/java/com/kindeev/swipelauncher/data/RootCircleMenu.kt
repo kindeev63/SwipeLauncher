@@ -47,30 +47,18 @@ object RootCircleMenu {
         ),
         action = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
     )
+    private val upImage = CircleMenuImage(
+        type = CircleMenuImageTypes.DefaultImage,
+        data = DefaultImage(
+            id = R.drawable.ic_up_arrow
+        )
+    )
     private val directionUp = CircleMenuDirection(
-        image = CircleMenuImage(
-            type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_up_arrow
-            )
-        ),
+        image = upImage,
         action = CircleMenuAction(
             type = CircleMenuActionTypes.OpenCircleMenu,
             data = OpenCircleMenu(
-                circleMenu = CircleMenu(
-                    id = 1,
-                    directionUp = directionRight.copy(
-                        image = CircleMenuImage(
-                            type = CircleMenuImageTypes.DefaultImage,
-                            data = DefaultImage(
-                                id = R.drawable.ic_up_arrow
-                            )
-                        )
-                    ),
-                    directionDown = directionDown,
-                    directionRight = directionRight,
-                    directionLeft = directionLeft
-                )
+                id = 0
             )
         )
     )
