@@ -2,6 +2,8 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.kindeev.swipelauncher.data.MenuImages
+import com.kindeev.swipelauncher.data.ui.theme.MenuActions
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction
@@ -14,27 +16,51 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
 class DataBaseTypesConverter {
 
     @TypeConverter
-    fun toCircleMenuDirection(data: String): CircleMenuDirection {
+    fun toMenuImages(data: String): MenuImages {
         val gson = Gson()
-        val circleMenuDirectionToSave = gson.fromJson(data, CircleMenuDirectionToSave::class.java)
-        val circleMenuImage = toCircleMenuImage(circleMenuDirectionToSave.image)
-        val circleMenuAction = toCircleMenuAction(circleMenuDirectionToSave.action)
-        return CircleMenuDirection(
-            image = circleMenuImage,
-            action = circleMenuAction
+        val menuImagesToSave = gson.fromJson(data, MenuImagesToSave::class.java)
+        return MenuImages(
+            upImage = toCircleMenuImage(menuImagesToSave.upImage),
+            downImage = toCircleMenuImage(menuImagesToSave.downImage),
+            rightImage = toCircleMenuImage(menuImagesToSave.rightImage),
+            leftImage = toCircleMenuImage(menuImagesToSave.leftImage),
         )
     }
 
     @TypeConverter
-    fun fromCircleMenuDirection(circleMenuDirection: CircleMenuDirection): String {
+    fun fromMenuImages(menuImages: MenuImages): String {
         val gson = Gson()
-        val circleMenuImage = fromCircleMenuImage(circleMenuDirection.image)
-        val circleMenuAction = fromCircleMenuAction(circleMenuDirection.action)
-        val circleMenuDirectionToSave = CircleMenuDirectionToSave().apply {
-            image = circleMenuImage
-            action = circleMenuAction
+        val menuImagesToSave = MenuImagesToSave().apply {
+            upImage = fromCircleMenuImage(menuImages.upImage)
+            downImage = fromCircleMenuImage(menuImages.downImage)
+            rightImage = fromCircleMenuImage(menuImages.rightImage)
+            leftImage = fromCircleMenuImage(menuImages.leftImage)
         }
-        return gson.toJson(circleMenuDirectionToSave)
+        return gson.toJson(menuImagesToSave)
+    }
+
+    @TypeConverter
+    fun toMenuActions(data: String): MenuActions {
+        val gson = Gson()
+        val menuActionsToSave = gson.fromJson(data, MenuActionsToSave::class.java)
+        return MenuActions(
+            upAction = toCircleMenuAction(menuActionsToSave.upAction),
+            downAction = toCircleMenuAction(menuActionsToSave.downAction),
+            rightAction = toCircleMenuAction(menuActionsToSave.rightAction),
+            leftAction = toCircleMenuAction(menuActionsToSave.leftAction),
+        )
+    }
+
+    @TypeConverter
+    fun fromMenuActions(menuActions: MenuActions): String {
+        val gson = Gson()
+        val menuActionsToSave = MenuActionsToSave().apply {
+            upAction = fromCircleMenuAction(menuActions.upAction)
+            downAction = fromCircleMenuAction(menuActions.downAction)
+            rightAction = fromCircleMenuAction(menuActions.rightAction)
+            leftAction = fromCircleMenuAction(menuActions.leftAction)
+        }
+        return gson.toJson(menuActionsToSave)
     }
 
     private fun toCircleMenuAction(data: String): CircleMenuAction {
@@ -90,14 +116,23 @@ class DataBaseTypesConverter {
     }
 }
 
+private class MenuActionsToSave {
+    var upAction = ""
+    var downAction = ""
+    var rightAction = ""
+    var leftAction = ""
+}
+
 private class CircleMenuActionToSave {
     var type: CircleMenuActionTypes = CircleMenuActionTypes.NoneAction
     var data: String = ""
 }
 
-private class CircleMenuDirectionToSave {
-    var image: String = ""
-    var action: String = ""
+private class MenuImagesToSave {
+    var upImage = ""
+    var downImage = ""
+    var rightImage = ""
+    var leftImage = ""
 }
 private class CircleMenuImageToSave {
     var type: CircleMenuImageTypes = CircleMenuImageTypes.NoneImage

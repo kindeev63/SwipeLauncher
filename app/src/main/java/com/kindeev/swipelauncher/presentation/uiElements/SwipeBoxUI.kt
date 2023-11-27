@@ -1,28 +1,21 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
-import android.Manifest
-import android.app.Activity
-import android.app.WallpaperManager
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
-import android.os.Build
-import android.view.MotionEvent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.core.app.ActivityCompat
-import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.SwipeScreenViewModel
 import com.kindeev.swipelauncher.presentation.SwipeScreenViewModelFactory
@@ -33,74 +26,73 @@ fun SwipeBoxUI(
     mainAppViewModel: MainAppViewModel
 ) {
     val viewModel: SwipeScreenViewModel = viewModel(
-        factory = SwipeScreenViewModelFactory(context = LocalContext.current)
-    )
-    val context = LocalContext.current
-    val density = LocalDensity.current.density
-    mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { circleMenus ->
-        circleMenus.find { it.id == 0 }?.let { rootCircleMenu ->
-            viewModel.setCircleMenu(circleMenu = rootCircleMenu)
-        }
-
-    }
-    val wallpaperManager = WallpaperManager.getInstance(context)
-    var wallpaperDrawable: Drawable? = null
-    val permission =
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_EXTERNAL_STORAGE else Manifest.permission.READ_MEDIA_IMAGES
-    if (ActivityCompat.checkSelfPermission(
-            context,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED) {
-        wallpaperDrawable = wallpaperManager.drawable
-    } else {
-        ActivityCompat.requestPermissions(
-            context as Activity,
-            arrayOf(permission),
-            0
+        factory = SwipeScreenViewModelFactory(
+            context = LocalContext.current,
+            mainAppViewModel = mainAppViewModel
         )
-    }
-
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInteropFilter { event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN ->
-                        viewModel.startDrag(
-                            x = event.x / density,
-                            y = event.y / density
-                        )
-
-                    MotionEvent.ACTION_MOVE ->
-                        viewModel.drag(
-                            x = event.x / density,
-                            y = event.y / density,
-                            context = context,
-                            mainAppViewModel = mainAppViewModel
-                        )
-
-                    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                        val rootCircleMenu =
-                            mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }
-                                ?: RootCircleMenu.rootCircleMenu
-                        viewModel.stopDrag(rootCircleMenu)
-                    }
-                }
-                return@pointerInteropFilter true
-            }
-    ) {
-        wallpaperDrawable?.let {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                bitmap = it.toBitmap().asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop
+            .pointerInteropFilter(
+                onTouchEvent = viewModel.onSwipe()
             )
-        }
-
+    ) {
         CircleMenuUI(
             viewModel = viewModel,
             menuSize = viewModel.menuSize,
         )
+    }
+}
+
+@Composable
+private fun CircleMenuUI(
+    viewModel: SwipeScreenViewModel,
+    menuSize: Float,
+    centerCircleColor: Color = Color.Blue,
+    centerCircleStroke: Stroke = Stroke(
+        width = 5f
+    ),
+    itemCircleColor: Color = Color.Red,
+    itemCircleStroke: Stroke = Stroke(
+        width = 5f
+    )
+) {
+    val menuOffsetState = viewModel.menuOffset.observeAsState()
+    val menuOffset = menuOffsetState.value ?: return
+    val circleMenu = viewModel.circleMenu.observeAsState()
+    val density = LocalDensity.current.density
+    Box(
+        modifier = Modifier
+            .offset(
+                x = (menuOffset.start.x).dp - (menuSize / 2).dp,
+                y = menuOffset.start.y.dp - (menuSize / 2).dp
+            )
+            .size(menuSize.dp)
+    ) {
+        // Drawing items
+        circleMenu.value?.menuImages?.let { menuImages ->
+            CircleMenuImagesUI(
+                menuSize = menuSize,
+                menuImages = menuImages,
+                itemCircleColor = itemCircleColor,
+                itemCircleStroke = itemCircleStroke
+            )
+        }
+        // Drawing a center circle
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            drawCircle(
+                center = viewModel.getCenterCircleCords(
+                    boarderOffset = (menuSize / 2) * density,
+                    x = (menuOffset.swipe.x - menuOffset.start.x) * density,
+                    y = (menuOffset.swipe.y - menuOffset.start.y) * density
+                ),
+                color = centerCircleColor,
+                style = centerCircleStroke,
+                radius = menuSize / 2
+            )
+        }
     }
 }

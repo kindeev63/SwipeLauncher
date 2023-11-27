@@ -1,8 +1,8 @@
 package com.kindeev.swipelauncher.data
 
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.ui.theme.MenuActions
 import com.kindeev.swipelauncher.domain.CircleMenu
-import com.kindeev.swipelauncher.domain.CircleMenuDirection
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
@@ -11,61 +11,45 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 
 object RootCircleMenu {
-    private val directionSettings = CircleMenuDirection(
-        image = CircleMenuImage(
+    private val menuImages = MenuImages(
+        upImage = CircleMenuImage(
+            type = CircleMenuImageTypes.DefaultImage,
+            data = DefaultImage(
+                id = R.drawable.ic_up_arrow
+            )
+        ),
+        downImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage(
                 id = R.drawable.ic_settings
             )
         ),
-        action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
-    )
-    private val directionDown = CircleMenuDirection(
-        image = CircleMenuImage(
-            type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_down_arrow
-            )
-        ),
-        action = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
-    )
-    private val directionRight = CircleMenuDirection(
-        image = CircleMenuImage(
+        rightImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage(
                 id = R.drawable.ic_left_arrow
             )
         ),
-        action = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
-    )
-    private val directionLeft = CircleMenuDirection(
-        image = CircleMenuImage(
+        leftImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage(
                 id = R.drawable.ic_right_arrow
             )
-        ),
-        action = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
-    )
-    private val upImage = CircleMenuImage(
-        type = CircleMenuImageTypes.DefaultImage,
-        data = DefaultImage(
-            id = R.drawable.ic_up_arrow
         )
     )
-    private val directionUp = CircleMenuDirection(
-        image = upImage,
-        action = CircleMenuAction(
+    private val menuActions = MenuActions(
+        upAction = CircleMenuAction(
             type = CircleMenuActionTypes.OpenCircleMenu,
             data = OpenCircleMenu(
                 id = 0
             )
-        )
+        ),
+        downAction = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings),
+        rightAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
+        leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
     )
     val rootCircleMenu = CircleMenu(
-        directionUp = directionUp,
-        directionDown = directionSettings,
-        directionRight = directionRight,
-        directionLeft = directionLeft
+        menuImages = menuImages,
+        menuActions = menuActions
     )
 }

@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
-import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
+import com.kindeev.swipelauncher.presentation.uiElements.LauncherScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                         mainAppViewModel = mainAppViewModel
                     )
                 } else {
-                    SwipeBoxUI(
+                    LauncherScreen(
                         mainAppViewModel = mainAppViewModel
                     )
                 }

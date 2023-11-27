@@ -23,7 +23,7 @@ fun FirstScreenUI(mainAppViewModel: MainAppViewModel) {
 @Composable
 private fun End(mainAppViewModel: MainAppViewModel) {
     mainAppViewModel.insertCircleMenu(RootCircleMenu.rootCircleMenu)
-    SwipeBoxUI(
+    LauncherScreen(
         mainAppViewModel = mainAppViewModel
     )
 }
