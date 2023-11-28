@@ -23,8 +23,10 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 fun CircleMenuImagesUI(
     menuSize: Float,
     menuImages: MenuImages,
-    itemCircleColor: Color,
-    itemCircleStroke: Stroke
+    itemCircleColor: Color = Color.Red,
+    itemCircleStroke: Stroke = Stroke(
+        width = 5f
+    )
 ) {
     val menuItemSize = menuSize / 6
     val itemsOffsets = getItemsOffset(menuSize = menuSize)
@@ -86,12 +88,12 @@ private fun getItemsOffset(menuSize: Float) =
         ),
         // right
         Offset(
-            x = menuSize / 5.5f,
+            x = menuSize - menuSize / 5.5f,
             y = menuSize / 2
         ),
         // left
         Offset(
-            x = menuSize - menuSize / 5.5f,
+            x = menuSize / 5.5f,
             y = menuSize / 2
         )
     )

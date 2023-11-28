@@ -27,13 +27,13 @@ object RootCircleMenu {
         rightImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage(
-                id = R.drawable.ic_left_arrow
+                id = R.drawable.ic_right_arrow
             )
         ),
         leftImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage(
-                id = R.drawable.ic_right_arrow
+                id = R.drawable.ic_left_arrow
             )
         )
     )
