@@ -38,7 +38,7 @@ import com.kindeev.swipelauncher.data.DefaultImages
 
 @Composable
 fun PickDefaultImageDialog(
-    pickedId: Int,
+    pickedId: Int?,
     onPick: (id: Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -90,7 +90,9 @@ fun PickDefaultImageDialog(
                 }
                 TextButton(
                     onClick = {
-                        onPick(picked)
+                        picked?.let{
+                            onPick(it)
+                        }
                     }
                 ) {
                     Text(text = "Save")

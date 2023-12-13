@@ -31,6 +31,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
 
@@ -118,6 +119,7 @@ private fun getCircleMenuItemByDirection(direction: CircleMenuDirection, circleM
             )
         }
     }
+
 private fun updateCircleMenuItem(
     circleMenu: CircleMenu,
     circleMenuItem: CircleMenuItem
@@ -235,20 +237,44 @@ private fun EditImageBox(
     circleMenuImage: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
-    var newType = remember { circleMenuImage.type }
     var openDialog by remember {
-        mutableStateOf(false)
+        mutableStateOf<CircleMenuImageTypes?>(null)
     }
-    if (openDialog) {
-        PickDefaultImageDialog(
-            pickedId = (circleMenuImage.data as DefaultImage).id,
-            onPick = { newId ->
-                onChangeImage(CircleMenuImage(type = newType, data = DefaultImage(id = newId)))
-                openDialog = false
-            },
-            onDismissRequest = {
-                openDialog = false
-            })
+    when (openDialog) {
+        CircleMenuImageTypes.NoneImage -> {
+            onChangeImage(
+                CircleMenuImage(
+                    type = CircleMenuImageTypes.NoneImage,
+                    data = NoneImage
+                )
+            )
+        }
+
+        CircleMenuImageTypes.AppImage -> {}
+        CircleMenuImageTypes.DefaultImage -> {
+            PickDefaultImageDialog(
+                pickedId = when (val data = circleMenuImage.data) {
+                    is DefaultImage -> {
+                        data.id
+                    }
+
+                    else -> null
+                },
+                onPick = { newId ->
+                    onChangeImage(
+                        CircleMenuImage(
+                            type = CircleMenuImageTypes.DefaultImage,
+                            data = DefaultImage(id = newId)
+                        )
+                    )
+                    openDialog = null
+                },
+                onDismissRequest = {
+                    openDialog = null
+                })
+        }
+
+        else -> {}
     }
     Column(
         modifier = modifier
@@ -259,7 +285,7 @@ private fun EditImageBox(
                 .fillMaxWidth(),
             circleMenuImage = circleMenuImage.type
         ) {
-            newType = it
+            if (circleMenuImage.type != it) openDialog = it
         }
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -269,13 +295,7 @@ private fun EditImageBox(
                 modifier = Modifier
                     .size(25.dp)
                     .clickable {
-                        when (newType) {
-                            CircleMenuImageTypes.NoneImage -> {}
-                            CircleMenuImageTypes.AppImage -> {}
-                            CircleMenuImageTypes.DefaultImage -> {
-                                openDialog = true
-                            }
-                        }
+                        openDialog = circleMenuImage.type
                     },
                 painter = getItemImage(circleMenuImage = circleMenuImage),
                 contentDescription = null
