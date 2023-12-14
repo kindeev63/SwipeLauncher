@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
@@ -31,6 +32,9 @@ fun SwipeBoxUI(
             mainAppViewModel = mainAppViewModel
         )
     )
+    mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { allMenus ->
+        viewModel.circleMenu.value?.let { current -> allMenus.find { it.id == current.id }?.let { viewModel.setCircleMenu(it) } }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -61,6 +65,7 @@ private fun CircleMenuUI(
     val menuOffsetState = viewModel.menuOffset.observeAsState()
     val menuOffset = menuOffsetState.value ?: return
     val circleMenu = viewModel.circleMenu.observeAsState()
+
     val density = LocalDensity.current.density
     Box(
         modifier = Modifier
