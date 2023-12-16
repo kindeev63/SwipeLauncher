@@ -5,10 +5,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -25,6 +30,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
@@ -34,8 +40,6 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
-
-private enum class CircleMenuDirection { Up, Down, Right, Left }
 private data class CircleMenuItem(
     val direction: CircleMenuDirection,
     val action: CircleMenuAction,
@@ -65,7 +69,8 @@ fun EditCircleMenuScreen(mainAppViewModel: MainAppViewModel) {
                 .fillMaxWidth()
                 .fillMaxHeight(0.4f),
             circleMenu = circleMenu,
-            menuSize = menuSize
+            menuSize = menuSize,
+            selectedDirection = selectedDirection
         ) { circleMenuDirection ->
             selectedDirection = circleMenuDirection
         }
@@ -178,6 +183,7 @@ private fun CircleMenuBox(
     modifier: Modifier = Modifier.fillMaxWidth(),
     circleMenu: CircleMenu,
     menuSize: Float,
+    selectedDirection: CircleMenuDirection?,
     onSelectAction: (CircleMenuDirection) -> Unit
 ) {
     Box(
@@ -198,7 +204,8 @@ private fun CircleMenuBox(
             },
             leftImageClick = {
                 onSelectAction(CircleMenuDirection.Left)
-            }
+            },
+            selectedDirection = selectedDirection
         )
     }
 }
@@ -277,9 +284,10 @@ private fun EditImageBox(
         else -> {}
     }
     Column(
-        modifier = modifier
+        modifier = modifier.padding(5.dp)
     ) {
         Text(text = "Image")
+        Spacer(modifier = Modifier.height(5.dp))
         ImageType(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -287,19 +295,11 @@ private fun EditImageBox(
         ) {
             if (circleMenuImage.type != it) openDialog = it
         }
-        Row(
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(5.dp))
+        ImageValue(
+            circleMenuImage = circleMenuImage
         ) {
-            Text(text = "Value")
-            Image(
-                modifier = Modifier
-                    .size(25.dp)
-                    .clickable {
-                        openDialog = circleMenuImage.type
-                    },
-                painter = getItemImage(circleMenuImage = circleMenuImage),
-                contentDescription = null
-            )
+            openDialog = circleMenuImage.type
         }
     }
 }
@@ -310,11 +310,14 @@ private fun ImageType(
     circleMenuImage: CircleMenuImageTypes,
     onPick: (CircleMenuImageTypes) -> Unit
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         var expanded by remember {
             mutableStateOf(false)
         }
-        Text(text = "Type")
+        Text(text = "Type:")
         DropdownMenuItem(
             text = {
                 Text(text = circleMenuImage.name)
@@ -337,6 +340,27 @@ private fun ImageType(
                     })
             }
         }
+    }
+}
+
+@Composable
+private fun ImageValue(
+    circleMenuImage: CircleMenuImage,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Value:")
+        Spacer(modifier = Modifier.width(5.dp))
+        Image(
+            modifier = Modifier
+                .size(25.dp)
+                .clickable(onClick = onClick),
+            painter = getItemImage(circleMenuImage = circleMenuImage),
+            contentDescription = null
+        )
     }
 }
 

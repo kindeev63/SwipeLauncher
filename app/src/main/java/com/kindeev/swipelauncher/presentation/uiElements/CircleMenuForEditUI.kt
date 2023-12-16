@@ -1,13 +1,24 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
+import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kindeev.swipelauncher.data.CircleMenuDirection
+import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.MenuImages
 
 @Composable
@@ -18,11 +29,45 @@ fun CircleMenuForEditUI(
     downImageClick: () -> Unit,
     rightImageClick: () -> Unit,
     leftImageClick: () -> Unit,
+    selectedDirection: CircleMenuDirection?
 ) {
     val itemSize = menuSize / 6
     Box(
-        modifier = Modifier.size(menuSize.dp)
+        modifier = Modifier
+            .size(menuSize.dp)
     ) {
+        selectedDirection?.let {
+            SelectedBox(
+                cords = when(selectedDirection) {
+                    CircleMenuDirection.Up -> {
+                        Offset(
+                            x = menuSize * 3 / 8,
+                            y = menuSize / 24
+                        )
+                    }
+                    CircleMenuDirection.Down -> {
+                        Offset(
+                            x = menuSize * 3 / 8,
+                            y = menuSize / 24 * 17
+                        )
+                    }
+                    CircleMenuDirection.Right -> {
+                        Offset(
+                            x = menuSize / 24 * 17,
+                            y = menuSize * 3 / 8
+                        )
+                    }
+                    CircleMenuDirection.Left -> {
+                        Offset(
+                            x = menuSize / 24,
+                            y = menuSize * 3 / 8
+                        )
+                    }
+                },
+                size = menuSize / 4
+            )
+
+        }
         CircleMenuImagesUI(
             menuSize = menuSize,
             menuImages = menuImages
@@ -33,44 +78,44 @@ fun CircleMenuForEditUI(
             rightImageClick,
             leftImageClick
         )
-            val itemsOffset = getItemsOffset(menuSize)
+            val itemsOffset = CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = itemsOffset[index]
             val function = functions[index]
             Box(
                 modifier = Modifier
                     .offset(
-                        x = (offset.x - itemSize / 2).dp,
-                        y = (offset.y - itemSize / 2).dp,
+                        x = offset.x.dp,
+                        y = offset.y.dp,
                     )
-                    .size((menuSize / 6).dp)
-                    .clickable(onClick = function)
+                    .size((menuSize / 5).dp)
+                    .clickable(
+                        onClick = function,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
             )
         }
     }
 
 }
 
-private fun getItemsOffset(menuSize: Float) =
-    listOf(
-        // up
-        Offset(
-            x = menuSize / 2,
-            y = menuSize / 5.5f
-        ),
-        // down
-        Offset(
-            x = menuSize / 2,
-            y = menuSize - menuSize / 5.5f
-        ),
-        // right
-        Offset(
-            x = menuSize - menuSize / 5.5f,
-            y = menuSize / 2
-        ),
-        // left
-        Offset(
-            x = menuSize / 5.5f,
-            y = menuSize / 2
-        )
+@Composable
+private fun SelectedBox(
+    cords: Offset,
+    size: Float
+) {
+    val offset by animateOffsetAsState(targetValue =cords)
+    Box(
+        modifier = Modifier
+            .offset(
+                x = offset.x.dp,
+                y = offset.y.dp
+            )
+            .size(size.dp)
+            .background(
+                color = Color(red = 54, green = 129, blue = 218),
+                shape = RoundedCornerShape(20.dp),
+            )
     )
+}
