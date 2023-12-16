@@ -8,19 +8,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
-
-data class CordsAndAction(val cords: Offset, val action: CircleMenuAction)
 class SwipeScreenViewModel(
     private val context: Context,
     private val mainAppViewModel: MainAppViewModel
 ) : ViewModel() {
-    val menuSize = context.resources.configuration.screenWidthDp / 3f * 2f
+    val menuSize = context.resources.configuration.screenWidthDp / 3 * 2f
     private val _circleMenu = MutableLiveData(RootCircleMenu.rootCircleMenu)
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
@@ -53,54 +52,19 @@ class SwipeScreenViewModel(
         _circleMenu.value = circleMenu
     }
 
-    private fun checkCords(
+    private fun getItemDirection(
+        menuSize: Float,
         cordsX: Float,
         cordsY: Float,
-        menuItemOffset: Float,
-        menuItemSize: Float
-    ): CordsAndAction? {
-        circleMenu.value?.let { circleMenu ->
-            return if (-menuItemSize / 3 <= cordsX && cordsX <= menuItemSize / 3) {
-                if (menuItemOffset - menuItemSize / 3 <= cordsY) {
-                    CordsAndAction(
-                        cords = Offset(
-                            x = 0f,
-                            y = menuItemOffset
-                        ),
-                        action = circleMenu.menuActions.downAction
-                    )
-                } else
-                    if (cordsY <= -(menuItemOffset - menuItemSize / 3)) {
-                        CordsAndAction(
-                            cords = Offset(
-                                x = 0f,
-                                y = -menuItemOffset
-                            ),
-                            action = circleMenu.menuActions.upAction
-                        )
-                    } else null
-            } else
-                if (-menuItemSize / 3 <= cordsY && cordsY <= menuItemSize / 3) {
-                    if (menuItemOffset - menuItemSize / 3 <= cordsX) {
-                        CordsAndAction(
-                            cords = Offset(
-                                x = menuItemOffset,
-                                y = 0f
-                            ),
-                            action = circleMenu.menuActions.rightAction
-                        )
-                    } else
-                        if (cordsX <= -(menuItemOffset - menuItemSize / 3)) {
-                            CordsAndAction(
-                                cords = Offset(
-                                    x = -menuItemOffset,
-                                    y = 0f
-                                ),
-                                action = circleMenu.menuActions.leftAction
-                            )
-                        } else null
-                } else null
+    ): CircleMenuDirection? {
+        val border = object {
+            val big = menuSize / 2 - (menuSize / 6 + menuSize / 10)
+            val small = menuSize / 10
         }
+        if (cordsY <= -border.big && -border.small <= cordsX && cordsX <= border.small) return CircleMenuDirection.Up
+        if (cordsY >= border.big && -border.small <= cordsX && cordsX <= border.small) return CircleMenuDirection.Down
+        if (cordsX >= border.big && -border.small <= cordsY && cordsY <= border.small) return CircleMenuDirection.Right
+        if (cordsX <= -border.big && -border.small <= cordsY && cordsY <= border.small) return CircleMenuDirection.Left
         return null
     }
 
@@ -120,40 +84,12 @@ class SwipeScreenViewModel(
 
             MotionEvent.ACTION_MOVE -> {
                 menuOffset.value?.let { notNullMenuOffset ->
-                    val cordsAndAction = checkCords(
+                    val direction = getItemDirection(
+                        menuSize = menuSize,
                         cordsX = notNullMenuOffset.swipe.x - notNullMenuOffset.start.x,
-                        cordsY = notNullMenuOffset.swipe.y - notNullMenuOffset.start.y,
-                        menuItemOffset = menuSize / 3,
-                        menuItemSize = menuSize / 5,
+                        cordsY = notNullMenuOffset.swipe.y - notNullMenuOffset.start.y
                     )
-                    when (cordsAndAction?.action?.type) {
-                        CircleMenuActionTypes.NoneAction -> {
-                            _menuOffset.value = null
-                        }
-
-                        CircleMenuActionTypes.OpenCircleMenu -> {
-                            menuOffset.value?.start?.let { startOffset ->
-                                _menuOffset.value = menuOffset.value?.copy(
-                                    start = Offset(
-                                        x = startOffset.x + cordsAndAction.cords.x,
-                                        y = startOffset.y + cordsAndAction.cords.y
-                                    )
-                                )
-                                val openCircleMenu = cordsAndAction.action.data as OpenCircleMenu
-                                _circleMenu.value =
-                                    mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
-                                val vibrator =
-                                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                                vibrator.vibrate(20)
-                            }
-                        }
-
-                        CircleMenuActionTypes.OpenSettings -> {
-                            _menuOffset.value = null
-                            val intent = Intent(context, SettingsActivity::class.java)
-                            context.startActivity(intent)
-                        }
-
+                    when (direction) {
                         null -> {
                             _menuOffset.value = menuOffset.value?.copy(
                                 swipe = Offset(
@@ -161,6 +97,31 @@ class SwipeScreenViewModel(
                                     y = event.y / density
                                 )
                             )
+                        }
+
+                        else -> {
+                            circleMenu.value?.let { circleMenu ->
+                                executeAction(
+                                    action = when (direction) {
+                                        CircleMenuDirection.Up -> {
+                                            circleMenu.menuActions.upAction
+                                        }
+
+                                        CircleMenuDirection.Down -> {
+                                            circleMenu.menuActions.downAction
+                                        }
+
+                                        CircleMenuDirection.Right -> {
+                                            circleMenu.menuActions.rightAction
+                                        }
+
+                                        CircleMenuDirection.Left -> {
+                                            circleMenu.menuActions.leftAction
+                                        }
+                                    },
+                                    direction = direction
+                                )
+                            }
                         }
                     }
                 }
@@ -174,5 +135,70 @@ class SwipeScreenViewModel(
             }
         }
         true
+    }
+
+    private fun executeAction(action: CircleMenuAction, direction: CircleMenuDirection) {
+        when (action.type) {
+            CircleMenuActionTypes.NoneAction -> {
+                _menuOffset.value = null
+            }
+
+            CircleMenuActionTypes.OpenCircleMenu -> {
+                setNewCircleMenuOffset(direction = direction)
+                val openCircleMenu = action.data as OpenCircleMenu
+                _circleMenu.value =
+                    mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
+                val vibrator =
+                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(20)
+            }
+
+            CircleMenuActionTypes.OpenSettings -> {
+                _menuOffset.value = null
+                val intent = Intent(context, SettingsActivity::class.java)
+                context.startActivity(intent)
+            }
+        }
+    }
+
+    private fun setNewCircleMenuOffset(direction: CircleMenuDirection) {
+        menuOffset.value?.let { menuOffset ->
+            val newOffset = menuSize / 2 - (menuSize / 6 + menuSize / 10)
+            val offset = when (direction) {
+                CircleMenuDirection.Up -> {
+                    Offset(
+                        x = 0f,
+                        y = -newOffset
+                    )
+                }
+
+                CircleMenuDirection.Down -> {
+                    Offset(
+                        x = 0f,
+                        y = newOffset
+                    )
+                }
+
+                CircleMenuDirection.Right -> {
+                    Offset(
+                        x = newOffset,
+                        y = 0f
+                    )
+                }
+
+                CircleMenuDirection.Left -> {
+                    Offset(
+                        x = -newOffset,
+                        y = 0f
+                    )
+                }
+            }
+            _menuOffset.value = menuOffset.copy(
+                start = Offset(
+                    x = menuOffset.start.x + offset.x,
+                    y = menuOffset.start.y + offset.y
+                )
+            )
+        }
     }
 }
