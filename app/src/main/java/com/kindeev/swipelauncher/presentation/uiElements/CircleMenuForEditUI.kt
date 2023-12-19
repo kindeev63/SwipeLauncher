@@ -2,17 +2,16 @@ package com.kindeev.swipelauncher.presentation.uiElements
 
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -21,6 +20,7 @@ import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.MenuImages
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CircleMenuForEditUI(
     menuSize: Float,
@@ -31,32 +31,34 @@ fun CircleMenuForEditUI(
     leftImageClick: () -> Unit,
     selectedDirection: CircleMenuDirection?
 ) {
-    val itemSize = menuSize / 6
     Box(
         modifier = Modifier
             .size(menuSize.dp)
     ) {
         selectedDirection?.let {
             SelectedBox(
-                cords = when(selectedDirection) {
+                cords = when (selectedDirection) {
                     CircleMenuDirection.Up -> {
                         Offset(
                             x = menuSize * 3 / 8,
                             y = menuSize / 24
                         )
                     }
+
                     CircleMenuDirection.Down -> {
                         Offset(
                             x = menuSize * 3 / 8,
                             y = menuSize / 24 * 17
                         )
                     }
+
                     CircleMenuDirection.Right -> {
                         Offset(
                             x = menuSize / 24 * 17,
                             y = menuSize * 3 / 8
                         )
                     }
+
                     CircleMenuDirection.Left -> {
                         Offset(
                             x = menuSize / 24,
@@ -78,23 +80,23 @@ fun CircleMenuForEditUI(
             rightImageClick,
             leftImageClick
         )
-            val itemsOffset = CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
+        val itemsOffset =
+            CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = itemsOffset[index]
             val function = functions[index]
-            Box(
+            Card(
                 modifier = Modifier
                     .offset(
                         x = offset.x.dp,
                         y = offset.y.dp,
                     )
-                    .size((menuSize / 5).dp)
-                    .clickable(
-                        onClick = function,
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    )
-            )
+                    .size((menuSize / 5).dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                onClick = function
+
+            ) {}
         }
     }
 
@@ -105,7 +107,7 @@ private fun SelectedBox(
     cords: Offset,
     size: Float
 ) {
-    val offset by animateOffsetAsState(targetValue =cords)
+    val offset by animateOffsetAsState(targetValue = cords)
     Box(
         modifier = Modifier
             .offset(
