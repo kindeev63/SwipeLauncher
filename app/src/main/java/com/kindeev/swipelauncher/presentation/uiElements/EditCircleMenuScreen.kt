@@ -19,6 +19,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,8 +30,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
+import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
@@ -38,29 +41,27 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
+import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModel
+import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
-private data class CircleMenuItem(
-    val direction: CircleMenuDirection,
-    val action: CircleMenuAction,
-    val image: CircleMenuImage
-)
 
 @Composable
 fun EditCircleMenuScreen(mainAppViewModel: MainAppViewModel) {
+    val viewModel: EditCircleMenuScreenViewModel = viewModel(
+        factory = EditCircleMenuScreenViewModelFactory(
+            context = LocalContext.current,
+            mainAppViewModel = mainAppViewModel
+        )
+    )
     val context = LocalContext.current
     val menuSize = context.resources.configuration.screenWidthDp / 3f * 2f
-    var circleMenu by remember {
-        mutableStateOf(RootCircleMenu.rootCircleMenu)
-    }
-    var selectedDirection by remember {
-        mutableStateOf(CircleMenuDirection.Down)
-    }
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { circleMenus ->
-        circleMenus.find { it.id == circleMenu.id }?.let {
-            circleMenu = it
-        }
+        viewModel.updateCircleMenusEvent(circleMenus)
     }
+    val circleMenu = viewModel.circleMenu.observeAsState(initial = RootCircleMenu.rootCircleMenu)
+    val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
+    val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -68,112 +69,21 @@ fun EditCircleMenuScreen(mainAppViewModel: MainAppViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.4f),
-            circleMenu = circleMenu,
+            circleMenu = circleMenu.value,
             menuSize = menuSize,
-            selectedDirection = selectedDirection
+            selectedDirection = direction.value
         ) { circleMenuDirection ->
-            selectedDirection = circleMenuDirection
+            viewModel.setDirection(circleMenuDirection)
         }
-        EditItemBox(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.6f),
-            circleMenuItem = getCircleMenuItemByDirection(selectedDirection, circleMenu),
-        ) { changedItem ->
-            val newCircleMenu = updateCircleMenuItem(
-                circleMenu = circleMenu,
-                circleMenuItem = changedItem
-            )
-            mainAppViewModel.insertCircleMenu(newCircleMenu)
-            circleMenu = newCircleMenu
-        }
-    }
-}
-
-private fun getCircleMenuItemByDirection(direction: CircleMenuDirection, circleMenu: CircleMenu) =
-    when (direction) {
-        CircleMenuDirection.Up -> {
-            CircleMenuItem(
-                direction = direction,
-                action = circleMenu.menuActions.upAction,
-                image = circleMenu.menuImages.upImage
-            )
-        }
-
-        CircleMenuDirection.Down -> {
-            CircleMenuItem(
-                direction = direction,
-                action = circleMenu.menuActions.downAction,
-                image = circleMenu.menuImages.downImage
-            )
-        }
-
-        CircleMenuDirection.Right -> {
-            CircleMenuItem(
-                direction = direction,
-                action = circleMenu.menuActions.rightAction,
-                image = circleMenu.menuImages.rightImage
-            )
-        }
-
-        CircleMenuDirection.Left -> {
-            CircleMenuItem(
-                direction = direction,
-                action = circleMenu.menuActions.leftAction,
-                image = circleMenu.menuImages.leftImage
-            )
-        }
-    }
-
-private fun updateCircleMenuItem(
-    circleMenu: CircleMenu,
-    circleMenuItem: CircleMenuItem
-): CircleMenu {
-    val menuImages = circleMenu.menuImages
-    val menuActions = circleMenu.menuActions
-    return when (circleMenuItem.direction) {
-        CircleMenuDirection.Up -> {
-            circleMenu.copy(
-                menuImages = menuImages.copy(
-                    upImage = circleMenuItem.image
-                ),
-                menuActions = menuActions.copy(
-                    upAction = circleMenuItem.action
-                )
-            )
-        }
-
-        CircleMenuDirection.Down -> {
-            circleMenu.copy(
-                menuImages = menuImages.copy(
-                    downImage = circleMenuItem.image
-                ),
-                menuActions = menuActions.copy(
-                    downAction = circleMenuItem.action
-                )
-            )
-        }
-
-        CircleMenuDirection.Right -> {
-            circleMenu.copy(
-                menuImages = menuImages.copy(
-                    rightImage = circleMenuItem.image
-                ),
-                menuActions = menuActions.copy(
-                    rightAction = circleMenuItem.action
-                )
-            )
-        }
-
-        CircleMenuDirection.Left -> {
-            circleMenu.copy(
-                menuImages = menuImages.copy(
-                    leftImage = circleMenuItem.image
-                ),
-                menuActions = menuActions.copy(
-                    leftAction = circleMenuItem.action
-                )
-            )
+        selectedCircleMenuItem.value?.let {
+            EditItemBox(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.6f),
+                circleMenuItem = it,
+            ) { changedItem ->
+                viewModel.updateCircleMenuItem(changedItem)
+            }
         }
     }
 }
