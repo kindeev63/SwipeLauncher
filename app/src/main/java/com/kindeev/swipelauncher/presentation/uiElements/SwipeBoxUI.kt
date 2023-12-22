@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -75,6 +76,7 @@ private fun CircleMenuUI(
             )
             .size(menuSize.dp)
     ) {
+        Log.e("test", circleMenu.value?.menuImages.toString())
         // Drawing items
         circleMenu.value?.menuImages?.let { menuImages ->
             CircleMenuImagesUI(

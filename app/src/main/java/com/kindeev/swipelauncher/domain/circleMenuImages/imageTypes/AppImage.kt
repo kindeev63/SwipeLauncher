@@ -1,4 +1,3 @@
 package com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes
 
-object NoneImage {
-}
+data class AppImage(val packageName: String)

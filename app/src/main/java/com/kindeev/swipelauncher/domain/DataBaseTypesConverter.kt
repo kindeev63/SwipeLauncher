@@ -10,9 +10,8 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
-
 class DataBaseTypesConverter {
 
     @TypeConverter
@@ -109,8 +108,7 @@ class DataBaseTypesConverter {
 
     private fun getClassOfImageData(type: CircleMenuImageTypes): Class<*> {
         return when(type) {
-            CircleMenuImageTypes.NoneImage -> NoneImage::class.java
-            CircleMenuImageTypes.AppImage -> NoneImage::class.java
+            CircleMenuImageTypes.AppImage -> AppImage::class.java
             CircleMenuImageTypes.DefaultImage -> DefaultImage::class.java
         }
     }
@@ -135,6 +133,6 @@ private class MenuImagesToSave {
     var leftImage = ""
 }
 private class CircleMenuImageToSave {
-    var type: CircleMenuImageTypes = CircleMenuImageTypes.NoneImage
+    var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
     var data: String = ""
 }

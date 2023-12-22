@@ -76,7 +76,7 @@ fun CircleMenuImagesUI(
                     y = offset.y.dp
                 )
                 .size((menuSize / 10).dp),
-            painter = getItemImage(
+            painter = CircleMenuFunctions.getItemImage(
                 circleMenuImage =
                 listOf(
                     menuImages.upImage,
@@ -87,23 +87,5 @@ fun CircleMenuImagesUI(
             ),
             contentDescription = null
         )
-    }
-}
-
-@Composable
-private fun getItemImage(circleMenuImage: CircleMenuImage): Painter {
-    return when (circleMenuImage.type) {
-        CircleMenuImageTypes.NoneImage -> {
-            painterResource(id = R.drawable.ic_settings)
-        }
-
-        CircleMenuImageTypes.DefaultImage -> {
-            val defaultImage = circleMenuImage.data as DefaultImage
-            painterResource(id = defaultImage.id)
-        }
-
-        CircleMenuImageTypes.AppImage -> {
-            painterResource(id = R.drawable.ic_settings)
-        }
     }
 }

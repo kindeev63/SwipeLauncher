@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.presentation
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,7 @@ class EditCircleMenuScreenViewModel(
                 circleMenu = circleMenu,
                 circleMenuItem = circleMenuItem
             )
+            Log.e("test", "New Circle Menu $newCircleMenu")
             mainAppViewModel.insertCircleMenu(newCircleMenu)
         }
     }

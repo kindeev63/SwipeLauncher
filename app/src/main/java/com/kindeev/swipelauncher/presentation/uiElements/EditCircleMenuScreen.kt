@@ -33,17 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
+import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
 import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
 
 @Composable
@@ -158,16 +160,30 @@ private fun EditImageBox(
         mutableStateOf<CircleMenuImageTypes?>(null)
     }
     when (openDialog) {
-        CircleMenuImageTypes.NoneImage -> {
-            onChangeImage(
-                CircleMenuImage(
-                    type = CircleMenuImageTypes.NoneImage,
-                    data = NoneImage
-                )
+
+        CircleMenuImageTypes.AppImage -> {
+            PickAppDialog(
+                pickedPackageName = when (val data = circleMenuImage.data) {
+                    is AppImage -> {
+                        data.packageName
+                    }
+
+                    else -> null
+                },
+                onPick = {
+                    onChangeImage(
+                        CircleMenuImage(
+                            type = CircleMenuImageTypes.AppImage,
+                            data = AppImage(packageName = it.packageName)
+                        )
+                    )
+                    openDialog = null
+                },
+                onDismissRequest = {
+                    openDialog = null
+                }
             )
         }
-
-        CircleMenuImageTypes.AppImage -> {}
         CircleMenuImageTypes.DefaultImage -> {
             PickDefaultImageDialog(
                 pickedId = when (val data = circleMenuImage.data) {
@@ -268,7 +284,7 @@ private fun ImageValue(
             modifier = Modifier
                 .size(25.dp)
                 .clickable(onClick = onClick),
-            painter = getItemImage(circleMenuImage = circleMenuImage),
+            painter = CircleMenuFunctions.getItemImage(circleMenuImage = circleMenuImage),
             contentDescription = null
         )
     }
@@ -284,23 +300,5 @@ private fun EditActionBox(
         modifier = modifier
     ) {
         Text(text = "Action")
-    }
-}
-
-@Composable
-private fun getItemImage(circleMenuImage: CircleMenuImage): Painter {
-    return when (circleMenuImage.type) {
-        CircleMenuImageTypes.NoneImage -> {
-            painterResource(id = R.drawable.ic_settings)
-        }
-
-        CircleMenuImageTypes.DefaultImage -> {
-            val defaultImage = circleMenuImage.data as DefaultImage
-            painterResource(id = defaultImage.id)
-        }
-
-        CircleMenuImageTypes.AppImage -> {
-            painterResource(id = R.drawable.ic_settings)
-        }
     }
 }
