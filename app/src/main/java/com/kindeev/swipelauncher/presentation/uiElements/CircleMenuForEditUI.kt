@@ -2,17 +2,16 @@ package com.kindeev.swipelauncher.presentation.uiElements
 
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -20,7 +19,6 @@ import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.MenuImages
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CircleMenuForEditUI(
     menuSize: Float,
@@ -85,18 +83,16 @@ fun CircleMenuForEditUI(
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = itemsOffset[index]
             val function = functions[index]
-            Card(
+            Box(
                 modifier = Modifier
                     .offset(
                         x = offset.x.dp,
                         y = offset.y.dp,
                     )
-                    .size((menuSize / 5).dp),
-                shape = CircleShape,
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                onClick = function
-
-            ) {}
+                    .size((menuSize / 5).dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = function)
+            )
         }
     }
 

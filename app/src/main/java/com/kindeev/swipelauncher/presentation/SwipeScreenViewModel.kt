@@ -15,16 +15,17 @@ import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
+import java.lang.Integer.min
+
 class SwipeScreenViewModel(
     private val context: Context,
     private val mainAppViewModel: MainAppViewModel
 ) : ViewModel() {
-    val menuSize = context.resources.configuration.screenWidthDp / 3 * 2f
+    val menuSize = min(context.resources.configuration.screenWidthDp, context.resources.configuration.screenHeightDp) / 3 * 2f
     private val _circleMenu = MutableLiveData(RootCircleMenu.rootCircleMenu)
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
-
     init {
         mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }?.let { rootCircleMenu ->
             setCircleMenu(rootCircleMenu)

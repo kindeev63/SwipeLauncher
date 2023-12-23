@@ -11,6 +11,8 @@ import java.io.Serializable
 data class CircleMenu(
     @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
+    @ColumnInfo(name = "title")
+    val title: String,
     @ColumnInfo(name = "menuImages")
     var menuImages: MenuImages,
     @ColumnInfo(name = "menuActions")

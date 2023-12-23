@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,19 +24,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
@@ -46,6 +44,7 @@ import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
+import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
 
 @Composable
@@ -81,7 +80,8 @@ fun EditCircleMenuScreen(mainAppViewModel: MainAppViewModel) {
             EditItemBox(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.6f),
+                    .fillMaxHeight(),
+                mainAppViewModel = mainAppViewModel,
                 circleMenuItem = it,
             ) { changedItem ->
                 viewModel.updateCircleMenuItem(changedItem)
@@ -125,6 +125,7 @@ private fun CircleMenuBox(
 @Composable
 private fun EditItemBox(
     modifier: Modifier = Modifier.fillMaxWidth(),
+    mainAppViewModel: MainAppViewModel,
     circleMenuItem: CircleMenuItem,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
@@ -143,6 +144,7 @@ private fun EditItemBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.5f),
+            mainAppViewModel = mainAppViewModel,
             circleMenuAction = circleMenuItem.action
         ) { changedAction ->
             onEdit(circleMenuItem.copy(action = changedAction))
@@ -184,6 +186,7 @@ private fun EditImageBox(
                 }
             )
         }
+
         CircleMenuImageTypes.DefaultImage -> {
             PickDefaultImageDialog(
                 pickedId = when (val data = circleMenuImage.data) {
@@ -293,12 +296,132 @@ private fun ImageValue(
 @Composable
 private fun EditActionBox(
     modifier: Modifier = Modifier.fillMaxWidth(),
+    mainAppViewModel: MainAppViewModel,
     circleMenuAction: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
+    var openDialog by remember {
+        mutableStateOf<CircleMenuActionTypes?>(null)
+    }
+    when (openDialog) {
+
+        CircleMenuActionTypes.OpenCircleMenu -> {
+            mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
+                PickCircleMenuDialog(
+                    allCircleMenus = allCircleMenus,
+                    pickedId = when (val data = circleMenuAction.data) {
+                        is OpenCircleMenu -> {
+                            data.id
+                        }
+
+                        else -> null
+                    },
+                    onPick = { newId ->
+                        onChangeAction(
+                            CircleMenuAction(
+                                type = CircleMenuActionTypes.OpenCircleMenu,
+                                data = OpenCircleMenu(id = newId)
+                            )
+                        )
+                        openDialog = null
+                    },
+                    onDismissRequest = {
+                        openDialog = null
+                    }
+                )
+            }
+        }
+        CircleMenuActionTypes.NoneAction -> {
+            onChangeAction(
+                CircleMenuAction(
+                    type = CircleMenuActionTypes.NoneAction
+                )
+            )
+        }
+        CircleMenuActionTypes.OpenSettings -> {
+            onChangeAction(
+                CircleMenuAction(
+                    type = CircleMenuActionTypes.OpenSettings
+                )
+            )
+        }
+
+        else -> {}
+    }
     Column(
-        modifier = modifier
+        modifier = modifier.padding(5.dp)
     ) {
         Text(text = "Action")
+        Spacer(modifier = Modifier.height(5.dp))
+        ActionType(
+            modifier = Modifier
+                .fillMaxWidth(),
+            circleMenuAction = circleMenuAction.type
+        ) {
+            if (circleMenuAction.type != it) openDialog = it
+        }
+        Spacer(modifier = Modifier.height(5.dp))
+        ActionValue(
+            circleMenuAction = circleMenuAction
+        ) {
+            openDialog = circleMenuAction.type
+        }
+    }
+}
+
+@Composable
+private fun ActionType(
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    circleMenuAction: CircleMenuActionTypes,
+    onPick: (CircleMenuActionTypes) -> Unit
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        var expanded by remember {
+            mutableStateOf(false)
+        }
+        Text(text = "Type:")
+        DropdownMenuItem(
+            text = {
+                Text(text = circleMenuAction.name)
+            },
+            onClick = {
+                expanded = !expanded
+            })
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            CircleMenuActionTypes.values().forEach {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = it.name)
+                    },
+                    onClick = {
+                        onPick(it)
+                        expanded = false
+                    })
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionValue(
+    circleMenuAction: CircleMenuAction,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Value:")
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            modifier = Modifier.clickable(onClick = onClick),
+            text = "Change action"
+        )
     }
 }

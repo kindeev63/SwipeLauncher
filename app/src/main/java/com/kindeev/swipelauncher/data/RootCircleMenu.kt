@@ -49,6 +49,7 @@ object RootCircleMenu {
         leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
     )
     val rootCircleMenu = CircleMenu(
+        title = "Root",
         menuImages = menuImages,
         menuActions = menuActions
     )

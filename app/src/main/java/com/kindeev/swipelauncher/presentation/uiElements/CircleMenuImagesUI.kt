@@ -37,55 +37,61 @@ fun CircleMenuImagesUI(
     val imagesOffset =
         CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 10)
     val circlesOffset = CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = 0f)
-    Canvas(
-        modifier = Modifier.size(menuSize.dp)
+    Box(
+        modifier = Modifier
+        .size(menuSize.dp)
     ) {
-        // Draw circles
-        circlesOffset.forEach { cords ->
+        Canvas(
+            modifier = Modifier.size(menuSize.dp)
+        ) {
+            // Draw circles
+            circlesOffset.forEach { cords ->
 
-            // Draw background
-            drawCircle(
-                color = Color.White.copy(alpha = 0.5f),
-                style = Fill,
-                center = cords.copy(
-                    x = cords.x * density,
-                    y = cords.y * density
-                ),
-                radius = menuSize * density / 2 / 5
-            )
+                // Draw background
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.5f),
+                    style = Fill,
+                    center = cords.copy(
+                        x = cords.x * density,
+                        y = cords.y * density
+                    ),
+                    radius = menuSize * density / 2 / 5
+                )
 
-            // Draw stroke
-            drawCircle(
-                color = itemCircleColor,
-                style = itemCircleStroke,
-                center = cords.copy(
-                    x = cords.x * density,
-                    y = cords.y * density
+                // Draw stroke
+                drawCircle(
+                    color = itemCircleColor,
+                    style = itemCircleStroke,
+                    center = cords.copy(
+                        x = cords.x * density,
+                        y = cords.y * density
+                    ),
+                    radius = menuSize * density / 2 / 5
+                )
+            }
+        }
+        // Draw images
+        listOf(0, 1, 2, 3).forEach { index ->
+            var offset = imagesOffset[index]
+            Image(
+                modifier = Modifier
+                    .offset(
+                        x = offset.x.dp,
+                        y = offset.y.dp
+                    )
+                    .size((menuSize / 10).dp),
+                painter = CircleMenuFunctions.getItemImage(
+                    circleMenuImage =
+                    listOf(
+                        menuImages.upImage,
+                        menuImages.downImage,
+                        menuImages.rightImage,
+                        menuImages.leftImage,
+                    )[index]
                 ),
-                radius = menuSize * density / 2 / 5
+                contentDescription = null
             )
         }
     }
-    // Draw images
-    listOf(0, 1, 2, 3).forEach { index ->
-        var offset = imagesOffset[index]
-        Image(
-            modifier = Modifier
-                .offset(
-                    x = offset.x.dp,
-                    y = offset.y.dp
-                )
-                .size((menuSize / 10).dp),
-            painter = CircleMenuFunctions.getItemImage(
-                circleMenuImage =
-                listOf(
-                    menuImages.upImage,
-                    menuImages.downImage,
-                    menuImages.rightImage,
-                    menuImages.leftImage,
-                )[index]
-            ),
-            contentDescription = null
-        )
-    }
+
 }
