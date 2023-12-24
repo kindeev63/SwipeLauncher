@@ -1,28 +1,30 @@
 package com.kindeev.swipelauncher.presentation
 
-import android.content.Context
-import android.util.Log
+import android.content.res.Configuration
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuItem
-import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 
 class EditCircleMenuScreenViewModel(
-    private val context: Context,
-    private val mainAppViewModel: MainAppViewModel
+    val mainAppViewModel: MainAppViewModel,
+    circleMenuId: Int,
 ) : ViewModel() {
-    private val _circleMenu = MutableLiveData(RootCircleMenu.rootCircleMenu)
-    val circleMenu: LiveData<CircleMenu> = _circleMenu
+    private val _circleMenu = MutableLiveData<CircleMenu?>(null)
+    val circleMenu: LiveData<CircleMenu?> = _circleMenu
     private val _selectedCircleMenuItem = MutableLiveData<CircleMenuItem?>(null)
     val selectedCircleMenuItem: LiveData<CircleMenuItem?> = _selectedCircleMenuItem
     private val _direction = MutableLiveData(CircleMenuDirection.Up)
     val direction: LiveData<CircleMenuDirection> = _direction
 
-    fun setCircleMenu(circleMenu: CircleMenu) {
-        _circleMenu.value = circleMenu
+    init {
+        _circleMenu.value = mainAppViewModel.allCircleMenu.value?.find { it.id == circleMenuId }
+    }
+
+    fun getMenuSize(configuration: Configuration): Float {
+        return Integer.min(configuration.screenHeightDp, configuration.screenWidthDp) / 3 * 2f
     }
 
     fun setDirection(circleMenuDirection: CircleMenuDirection) {
@@ -36,16 +38,13 @@ class EditCircleMenuScreenViewModel(
                 circleMenu = circleMenu,
                 circleMenuItem = circleMenuItem
             )
-            Log.e("test", "New Circle Menu $newCircleMenu")
             mainAppViewModel.insertCircleMenu(newCircleMenu)
         }
     }
 
     fun updateCircleMenusEvent(circleMenus: List<CircleMenu>) {
-        circleMenus.find { it.id == circleMenu.value?.id }?.let {
-            _circleMenu.value = it
-            _selectedCircleMenuItem.value = getNowCircleMenuItem()
-        }
+        _circleMenu.value = circleMenus.find { it.id == circleMenu.value?.id }
+        _selectedCircleMenuItem.value = getNowCircleMenuItem()
     }
 
     private fun updateCircleMenuItem(

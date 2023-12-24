@@ -11,7 +11,8 @@ class SettingsActivity : ComponentActivity() {
         val mainAppViewModel = (application as MainApp).mainAppViewModel
         setContent {
             EditCircleMenuScreen(
-                mainAppViewModel = mainAppViewModel
+                mainAppViewModel = mainAppViewModel,
+                circleMenuId = 0
             )
         }
     }

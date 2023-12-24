@@ -24,14 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
-import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -48,103 +47,102 @@ import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuD
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
 
 @Composable
-fun EditCircleMenuScreen(mainAppViewModel: MainAppViewModel) {
+fun EditCircleMenuScreen(
+    mainAppViewModel: MainAppViewModel,
+    circleMenuId: Int
+) {
+    // ViewModel
     val viewModel: EditCircleMenuScreenViewModel = viewModel(
-        factory = EditCircleMenuScreenViewModelFactory(
-            context = LocalContext.current,
-            mainAppViewModel = mainAppViewModel
-        )
+        factory = EditCircleMenuScreenViewModelFactory(mainAppViewModel, circleMenuId)
     )
-    val context = LocalContext.current
-    val menuSize = context.resources.configuration.screenWidthDp / 3f * 2f
-    mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { circleMenus ->
-        viewModel.updateCircleMenusEvent(circleMenus)
+
+    // Checking for update circle menus
+    mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) {
+        viewModel.updateCircleMenusEvent(it)
     }
-    val circleMenu = viewModel.circleMenu.observeAsState(initial = RootCircleMenu.rootCircleMenu)
+
+    // States
+    val circleMenu = viewModel.circleMenu.observeAsState()
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
+
+    // UI
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        CircleMenuBox(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.4f),
-            circleMenu = circleMenu.value,
-            menuSize = menuSize,
-            selectedDirection = direction.value
-        ) { circleMenuDirection ->
-            viewModel.setDirection(circleMenuDirection)
-        }
-        selectedCircleMenuItem.value?.let {
-            EditItemBox(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                mainAppViewModel = mainAppViewModel,
-                circleMenuItem = it,
-            ) { changedItem ->
-                viewModel.updateCircleMenuItem(changedItem)
+
+        // CircleMenu UI
+        circleMenu.value?.let { notNullCircleMenu ->
+            CircleMenuBox(
+                circleMenu = notNullCircleMenu,
+                menuSize = viewModel.getMenuSize(LocalConfiguration.current),
+                direction = direction.value
+            ) { circleMenuDirection ->
+                viewModel.setDirection(circleMenuDirection)
             }
+        }
+
+        // CircleMenu image and action panel
+        selectedCircleMenuItem.value?.let { circleMenuItem ->
+            mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
+                EditItemBox(
+                    allCircleMenus = allCircleMenus,
+                    circleMenuItem = circleMenuItem,
+                ) { changedItem ->
+                    viewModel.updateCircleMenuItem(changedItem)
+                }
+            }
+
         }
     }
 }
 
 @Composable
 private fun CircleMenuBox(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     circleMenu: CircleMenu,
     menuSize: Float,
-    selectedDirection: CircleMenuDirection?,
+    direction: CircleMenuDirection?,
     onSelectAction: (CircleMenuDirection) -> Unit
 ) {
     Box(
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.4f),
         contentAlignment = Alignment.Center
     ) {
         CircleMenuForEditUI(
             menuSize = menuSize,
             menuImages = circleMenu.menuImages,
-            upImageClick = {
-                onSelectAction(CircleMenuDirection.Up)
-            },
-            downImageClick = {
-                onSelectAction(CircleMenuDirection.Down)
-            },
-            rightImageClick = {
-                onSelectAction(CircleMenuDirection.Right)
-            },
-            leftImageClick = {
-                onSelectAction(CircleMenuDirection.Left)
-            },
-            selectedDirection = selectedDirection
+            upImageClick = { onSelectAction(CircleMenuDirection.Up) },
+            downImageClick = { onSelectAction(CircleMenuDirection.Down) },
+            rightImageClick = { onSelectAction(CircleMenuDirection.Right) },
+            leftImageClick = { onSelectAction(CircleMenuDirection.Left) },
+            selectedDirection = direction
         )
     }
 }
 
 @Composable
 private fun EditItemBox(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    mainAppViewModel: MainAppViewModel,
+    allCircleMenus: List<CircleMenu>,
     circleMenuItem: CircleMenuItem,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxSize()
     ) {
+
+        // Image
         EditImageBox(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f),
             circleMenuImage = circleMenuItem.image
         ) { changedImage ->
             onEdit(circleMenuItem.copy(image = changedImage))
         }
+
+        // Action
         EditActionBox(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f),
-            mainAppViewModel = mainAppViewModel,
+            allCircleMenus = allCircleMenus,
             circleMenuAction = circleMenuItem.action
         ) { changedAction ->
             onEdit(circleMenuItem.copy(action = changedAction))
@@ -154,24 +152,20 @@ private fun EditItemBox(
 
 @Composable
 private fun EditImageBox(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     circleMenuImage: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     var openDialog by remember {
         mutableStateOf<CircleMenuImageTypes?>(null)
     }
+
+    // Pick image dialogs
     when (openDialog) {
 
+        // App Image
         CircleMenuImageTypes.AppImage -> {
             PickAppDialog(
-                pickedPackageName = when (val data = circleMenuImage.data) {
-                    is AppImage -> {
-                        data.packageName
-                    }
-
-                    else -> null
-                },
+                pickedPackageName = if (circleMenuImage.data is AppImage) circleMenuImage.data.packageName else null,
                 onPick = {
                     onChangeImage(
                         CircleMenuImage(
@@ -181,21 +175,14 @@ private fun EditImageBox(
                     )
                     openDialog = null
                 },
-                onDismissRequest = {
-                    openDialog = null
-                }
+                onDismissRequest = { openDialog = null }
             )
         }
 
+        // Default Image
         CircleMenuImageTypes.DefaultImage -> {
             PickDefaultImageDialog(
-                pickedId = when (val data = circleMenuImage.data) {
-                    is DefaultImage -> {
-                        data.id
-                    }
-
-                    else -> null
-                },
+                pickedId = if (circleMenuImage.data is DefaultImage) circleMenuImage.data.id else null,
                 onPick = { newId ->
                     onChangeImage(
                         CircleMenuImage(
@@ -205,26 +192,32 @@ private fun EditImageBox(
                     )
                     openDialog = null
                 },
-                onDismissRequest = {
-                    openDialog = null
-                })
+                onDismissRequest = { openDialog = null }
+            )
         }
 
         else -> {}
     }
+
+    // UI
     Column(
-        modifier = modifier.padding(5.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f)
+            .padding(5.dp)
     ) {
         Text(text = "Image")
         Spacer(modifier = Modifier.height(5.dp))
+
+        // Type of image
         ImageType(
-            modifier = Modifier
-                .fillMaxWidth(),
-            circleMenuImage = circleMenuImage.type
+            selectedType = circleMenuImage.type
         ) {
             if (circleMenuImage.type != it) openDialog = it
         }
         Spacer(modifier = Modifier.height(5.dp))
+
+        // Image value
         ImageValue(
             circleMenuImage = circleMenuImage
         ) {
@@ -235,12 +228,11 @@ private fun EditImageBox(
 
 @Composable
 private fun ImageType(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    circleMenuImage: CircleMenuImageTypes,
+    selectedType: CircleMenuImageTypes,
     onPick: (CircleMenuImageTypes) -> Unit
 ) {
     Row(
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         var expanded by remember {
@@ -248,25 +240,21 @@ private fun ImageType(
         }
         Text(text = "Type:")
         DropdownMenuItem(
-            text = {
-                Text(text = circleMenuImage.name)
-            },
-            onClick = {
-                expanded = !expanded
-            })
+            text = { Text(text = selectedType.name) },
+            onClick = { expanded = !expanded }
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             CircleMenuImageTypes.values().forEach {
                 DropdownMenuItem(
-                    text = {
-                        Text(text = it.name)
-                    },
+                    text = { Text(text = it.name) },
                     onClick = {
                         onPick(it)
                         expanded = false
-                    })
+                    }
+                )
             }
         }
     }
@@ -295,42 +283,36 @@ private fun ImageValue(
 
 @Composable
 private fun EditActionBox(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    mainAppViewModel: MainAppViewModel,
+    allCircleMenus: List<CircleMenu>,
     circleMenuAction: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var openDialog by remember {
         mutableStateOf<CircleMenuActionTypes?>(null)
     }
+
+    // Pick action dialogs
     when (openDialog) {
 
+        // Open Circle Menu
         CircleMenuActionTypes.OpenCircleMenu -> {
-            mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
-                PickCircleMenuDialog(
-                    allCircleMenus = allCircleMenus,
-                    pickedId = when (val data = circleMenuAction.data) {
-                        is OpenCircleMenu -> {
-                            data.id
-                        }
-
-                        else -> null
-                    },
-                    onPick = { newId ->
-                        onChangeAction(
-                            CircleMenuAction(
-                                type = CircleMenuActionTypes.OpenCircleMenu,
-                                data = OpenCircleMenu(id = newId)
-                            )
+            PickCircleMenuDialog(
+                allCircleMenus = allCircleMenus,
+                pickedId = if (circleMenuAction.data is OpenCircleMenu) circleMenuAction.data.id else null,
+                onPick = { newId ->
+                    onChangeAction(
+                        CircleMenuAction(
+                            type = CircleMenuActionTypes.OpenCircleMenu,
+                            data = OpenCircleMenu(id = newId)
                         )
-                        openDialog = null
-                    },
-                    onDismissRequest = {
-                        openDialog = null
-                    }
-                )
-            }
+                    )
+                    openDialog = null
+                },
+                onDismissRequest = { openDialog = null }
+            )
         }
+
+        // None Action
         CircleMenuActionTypes.NoneAction -> {
             onChangeAction(
                 CircleMenuAction(
@@ -338,6 +320,8 @@ private fun EditActionBox(
                 )
             )
         }
+
+        // Open Settings
         CircleMenuActionTypes.OpenSettings -> {
             onChangeAction(
                 CircleMenuAction(
@@ -348,19 +332,26 @@ private fun EditActionBox(
 
         else -> {}
     }
+
+    // UI
     Column(
-        modifier = modifier.padding(5.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f)
+            .padding(5.dp)
     ) {
         Text(text = "Action")
         Spacer(modifier = Modifier.height(5.dp))
+
+        // Type of action
         ActionType(
-            modifier = Modifier
-                .fillMaxWidth(),
             circleMenuAction = circleMenuAction.type
         ) {
             if (circleMenuAction.type != it) openDialog = it
         }
         Spacer(modifier = Modifier.height(5.dp))
+
+        // Action Value
         ActionValue(
             circleMenuAction = circleMenuAction
         ) {
@@ -371,12 +362,11 @@ private fun EditActionBox(
 
 @Composable
 private fun ActionType(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     circleMenuAction: CircleMenuActionTypes,
     onPick: (CircleMenuActionTypes) -> Unit
 ) {
     Row(
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         var expanded by remember {
@@ -384,25 +374,21 @@ private fun ActionType(
         }
         Text(text = "Type:")
         DropdownMenuItem(
-            text = {
-                Text(text = circleMenuAction.name)
-            },
-            onClick = {
-                expanded = !expanded
-            })
+            text = { Text(text = circleMenuAction.name) },
+            onClick = { expanded = !expanded }
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             CircleMenuActionTypes.values().forEach {
                 DropdownMenuItem(
-                    text = {
-                        Text(text = it.name)
-                    },
+                    text = { Text(text = it.name) },
                     onClick = {
                         onPick(it)
                         expanded = false
-                    })
+                    }
+                )
             }
         }
     }
