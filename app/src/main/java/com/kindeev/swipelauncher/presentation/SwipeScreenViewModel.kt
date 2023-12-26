@@ -14,6 +14,7 @@ import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import java.lang.Integer.min
 
@@ -158,6 +159,12 @@ class SwipeScreenViewModel(
                 _menuOffset.value = null
                 val intent = Intent(context, SettingsActivity::class.java)
                 context.startActivity(intent)
+            }
+
+            CircleMenuActionTypes.OpenApp -> {
+                val currentApp = action.data as OpenApp
+                val intent = context.packageManager.getLaunchIntentForPackage(currentApp.packageName)
+                intent?.let { context.startActivity(it) }
             }
         }
     }

@@ -24,9 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
@@ -34,6 +37,7 @@ import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
@@ -312,6 +316,23 @@ private fun EditActionBox(
             )
         }
 
+        // Open App
+        CircleMenuActionTypes.OpenApp -> {
+            PickAppDialog(
+                pickedPackageName = if (circleMenuAction.data is OpenApp) circleMenuAction.data.packageName else null,
+                onPick = { appData ->
+                    onChangeAction(
+                        CircleMenuAction(
+                            type = CircleMenuActionTypes.OpenApp,
+                            data = OpenApp(packageName = appData.packageName)
+                        )
+                    )
+                    openDialog = null
+                },
+                onDismissRequest = { openDialog = null }
+            )
+        }
+
         // None Action
         CircleMenuActionTypes.NoneAction -> {
             onChangeAction(
@@ -353,7 +374,8 @@ private fun EditActionBox(
 
         // Action Value
         ActionValue(
-            circleMenuAction = circleMenuAction
+            circleMenuAction = circleMenuAction,
+            allCircleMenus = allCircleMenus
         ) {
             openDialog = circleMenuAction.type
         }
@@ -397,17 +419,48 @@ private fun ActionType(
 @Composable
 private fun ActionValue(
     circleMenuAction: CircleMenuAction,
+    allCircleMenus: List<CircleMenu>,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Value:")
-        Spacer(modifier = Modifier.width(5.dp))
-        Text(
-            modifier = Modifier.clickable(onClick = onClick),
-            text = "Change action"
-        )
+        when (circleMenuAction.type) {
+            CircleMenuActionTypes.NoneAction -> {}
+
+            CircleMenuActionTypes.OpenCircleMenu -> {
+                val openCircleMenu = circleMenuAction.data as OpenCircleMenu
+                allCircleMenus.find { it.id == openCircleMenu.id }?.let { circleMenu ->
+                    Text(text = "Value:")
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        modifier = Modifier
+                            .clickable(onClick = onClick),
+                        text = circleMenu.title
+                    )
+                }
+
+            }
+
+            CircleMenuActionTypes.OpenSettings -> {}
+            CircleMenuActionTypes.OpenApp -> {
+                val currentApp = circleMenuAction.data as OpenApp
+                val context = LocalContext.current
+                val applicationInfo =
+                    context.packageManager.getApplicationInfo(currentApp.packageName, 0)
+                val imageBitmap =
+                    applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                Text(text = "Value:")
+                Spacer(modifier = Modifier.width(5.dp))
+                Image(
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clickable(onClick = onClick),
+                    bitmap = imageBitmap,
+                    contentDescription = null
+                )
+            }
+        }
     }
 }

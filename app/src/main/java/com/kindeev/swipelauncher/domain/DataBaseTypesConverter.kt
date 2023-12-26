@@ -7,6 +7,7 @@ import com.kindeev.swipelauncher.data.ui.theme.MenuActions
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
@@ -103,6 +104,7 @@ class DataBaseTypesConverter {
             CircleMenuActionTypes.NoneAction -> NoneAction::class.java
             CircleMenuActionTypes.OpenCircleMenu -> OpenCircleMenu::class.java
             CircleMenuActionTypes.OpenSettings -> NoneAction::class.java
+            CircleMenuActionTypes.OpenApp -> OpenApp::class.java
         }
     }
 
