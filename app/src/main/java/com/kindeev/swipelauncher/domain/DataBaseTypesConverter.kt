@@ -13,6 +13,8 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
+
 class DataBaseTypesConverter {
 
     @TypeConverter
@@ -112,6 +114,7 @@ class DataBaseTypesConverter {
         return when(type) {
             CircleMenuImageTypes.AppImage -> AppImage::class.java
             CircleMenuImageTypes.DefaultImage -> DefaultImage::class.java
+            CircleMenuImageTypes.NoneImage -> NoneImage::class.java
         }
     }
 }

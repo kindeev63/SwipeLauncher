@@ -30,7 +30,11 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
         allCircleMenu = getAllCircleMenuUseCase.get()
     }
     fun insertCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
-        insertCircleMenuUseCase.insert(circleMenu)
+        insertCircleMenuUseCase.insertCircleMenu(circleMenu)
+    }
+
+    fun insertCircleMenus(circleMenus: List<CircleMenu>) = viewModelScope.launch {
+        insertCircleMenuUseCase.insertCircleMenus(circleMenus)
     }
 
     fun deleteCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {

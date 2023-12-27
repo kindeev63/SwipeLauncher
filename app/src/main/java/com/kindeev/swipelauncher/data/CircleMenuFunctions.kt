@@ -43,7 +43,7 @@ object CircleMenuFunctions {
         )
 
     @Composable
-    fun getItemImage(circleMenuImage: CircleMenuImage): Painter {
+    fun getItemImage(circleMenuImage: CircleMenuImage): Painter? {
         return when (circleMenuImage.type) {
 
             CircleMenuImageTypes.DefaultImage -> {
@@ -58,6 +58,8 @@ object CircleMenuFunctions {
                 val imageBitmap = applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
                 remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
             }
+
+            else -> null
         }
     }
 }

@@ -273,15 +273,20 @@ private fun ImageValue(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Value:")
-        Spacer(modifier = Modifier.width(5.dp))
-        Image(
-            modifier = Modifier
-                .size(25.dp)
-                .clickable(onClick = onClick),
-            painter = CircleMenuFunctions.getItemImage(circleMenuImage = circleMenuImage),
-            contentDescription = null
-        )
+        CircleMenuFunctions.getItemImage(
+            circleMenuImage = circleMenuImage
+        )?.let {  painter ->
+            Text(text = "Value:")
+            Spacer(modifier = Modifier.width(5.dp))
+            Image(
+                modifier = Modifier
+                    .size(25.dp)
+                    .clickable(onClick = onClick),
+                painter = painter,
+                contentDescription = null
+            )
+        }
+
     }
 }
 

@@ -19,6 +19,9 @@ interface AppDao {
     @Insert(CircleMenu::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCircleMenu(circleMenu: CircleMenu)
 
+    @Insert(CircleMenu::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCircleMenus(circleMenus: List<CircleMenu>)
+
     @Delete(CircleMenu::class)
     suspend fun deleteCircleMenu(circleMenu: CircleMenu)
 }

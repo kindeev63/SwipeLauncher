@@ -4,8 +4,8 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import java.io.Serializable
 
 data class MenuActions(
-    val upAction: CircleMenuAction,
-    val downAction: CircleMenuAction,
-    val rightAction: CircleMenuAction,
-    val leftAction: CircleMenuAction,
+    var upAction: CircleMenuAction,
+    var downAction: CircleMenuAction,
+    var rightAction: CircleMenuAction,
+    var leftAction: CircleMenuAction,
 ): Serializable
