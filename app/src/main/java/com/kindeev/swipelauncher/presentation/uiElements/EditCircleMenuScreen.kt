@@ -1,6 +1,8 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,13 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
@@ -53,7 +63,8 @@ import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImag
 @Composable
 fun EditCircleMenuScreen(
     mainAppViewModel: MainAppViewModel,
-    circleMenuId: Int
+    circleMenuId: Int,
+    onBackPressed: () -> Unit
 ) {
     // ViewModel
     val viewModel: EditCircleMenuScreenViewModel = viewModel(
@@ -70,10 +81,20 @@ fun EditCircleMenuScreen(
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
 
+    BackHandler {
+        onBackPressed()
+    }
+
     // UI
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+
+        // Toolbar
+        EditCircleMenuToolbar(
+            viewModel = viewModel,
+            onBackPressed = onBackPressed
+        )
 
         // CircleMenu UI
         circleMenu.value?.let { notNullCircleMenu ->
@@ -99,6 +120,98 @@ fun EditCircleMenuScreen(
 
         }
     }
+}
+
+@Composable
+fun EditCircleMenuToolbar(
+    viewModel: EditCircleMenuScreenViewModel,
+    onBackPressed: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(Color.Green),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val circleMenu = viewModel.circleMenu.observeAsState()
+        var title by remember {
+            mutableStateOf(TextFieldValue(text = circleMenu.value?.title ?: ""))
+        }
+        var error by remember {
+            mutableStateOf(false)
+        }
+        IconButton(onClick = onBackPressed) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back),
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+        circleMenu.value?.let { menu ->
+            PlaceholderTextField(
+                value = title,
+                onValueChange = { newTitle ->
+                    val allTitles = viewModel.mainAppViewModel.allCircleMenu.value?.map { it.title }
+                        ?: emptyList()
+                    if (newTitle.text == menu.title || newTitle.text.isEmpty()) {
+                        title = newTitle
+                    } else {
+                        if (newTitle.text in allTitles) {
+                            title = newTitle
+                            error = true
+                        } else {
+                            viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
+                            title = newTitle
+                            if (error) error = false
+                        }
+                    }
+                },
+                error = error
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlaceholderTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    error: Boolean
+) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            if (value.text.isEmpty()) {
+                Text(
+                    text = "Title",
+                    style = TextStyle(color = Color.Gray),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+        if (error) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_error),
+                contentDescription = null,
+                tint = Color.Red
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -275,7 +388,7 @@ private fun ImageValue(
     ) {
         CircleMenuFunctions.getItemImage(
             circleMenuImage = circleMenuImage
-        )?.let {  painter ->
+        )?.let { painter ->
             Text(text = "Value:")
             Spacer(modifier = Modifier.width(5.dp))
             Image(
@@ -286,7 +399,6 @@ private fun ImageValue(
                 contentDescription = null
             )
         }
-
     }
 }
 

@@ -12,7 +12,10 @@ class SettingsActivity : ComponentActivity() {
         setContent {
             EditCircleMenuScreen(
                 mainAppViewModel = mainAppViewModel,
-                circleMenuId = 0
+                circleMenuId = 0,
+                onBackPressed = {
+                    finish()
+                }
             )
         }
     }
