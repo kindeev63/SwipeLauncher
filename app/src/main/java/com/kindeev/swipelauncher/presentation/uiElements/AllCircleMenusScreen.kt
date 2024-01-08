@@ -16,7 +16,8 @@ import com.kindeev.swipelauncher.presentation.MainAppViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllCircleMenusScreen(
-    mainAppViewModel: MainAppViewModel
+    mainAppViewModel: MainAppViewModel,
+    navigateToCircleMenu: (Int) -> Unit
 ) {
     val viewModel: AllCircleMenusScreenViewModel = viewModel(
         factory = AllCircleMenusScreenViewModelFactory(mainAppViewModel)
@@ -37,7 +38,7 @@ fun AllCircleMenusScreen(
                     size = LocalConfiguration.current.screenWidthDp / 2f,
                     circleMenu = circleMenu,
                     onClick = {
-
+                        navigateToCircleMenu(circleMenu.id)
                     },
                     onLongClick = {
 

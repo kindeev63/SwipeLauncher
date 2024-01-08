@@ -81,10 +81,6 @@ fun EditCircleMenuScreen(
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
 
-    BackHandler {
-        onBackPressed()
-    }
-
     // UI
     Column(
         modifier = Modifier.fillMaxSize()
@@ -141,7 +137,11 @@ fun EditCircleMenuToolbar(
         var error by remember {
             mutableStateOf(false)
         }
-        IconButton(onClick = onBackPressed) {
+        IconButton(
+            onClick = {
+               onBackPressed()
+            }
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = null,

@@ -45,9 +45,7 @@ class MainActivity : ComponentActivity() {
                         mainAppViewModel = mainAppViewModel
                     )
                 } else {
-                    LauncherScreen(
-                        mainAppViewModel = mainAppViewModel
-                    )
+                    MainScreen(mainAppViewModel = mainAppViewModel)
                 }
             }
 

@@ -65,6 +65,7 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     kapt("androidx.room:room-compiler:2.5.2")
     implementation("com.google.code.gson:gson:2.9.0")
+    implementation("androidx.navigation:navigation-compose:2.6.0")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

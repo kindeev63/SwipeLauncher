@@ -70,7 +70,7 @@ class SwipeScreenViewModel(
         return null
     }
 
-    fun onSwipe(): (MotionEvent) -> Boolean = { event ->
+    fun onSwipe(navigateToSettings: () -> Unit): (MotionEvent) -> Boolean = { event ->
         val density = context.resources.displayMetrics.density
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -121,7 +121,8 @@ class SwipeScreenViewModel(
                                             circleMenu.menuActions.leftAction
                                         }
                                     },
-                                    direction = direction
+                                    direction = direction,
+                                    navigateToSettings = navigateToSettings
                                 )
                             }
                         }
@@ -139,7 +140,11 @@ class SwipeScreenViewModel(
         true
     }
 
-    private fun executeAction(action: CircleMenuAction, direction: CircleMenuDirection) {
+    private fun executeAction(
+        action: CircleMenuAction,
+        direction: CircleMenuDirection,
+        navigateToSettings: () -> Unit
+    ) {
         when (action.type) {
             CircleMenuActionTypes.NoneAction -> {
                 _menuOffset.value = null
@@ -157,8 +162,7 @@ class SwipeScreenViewModel(
 
             CircleMenuActionTypes.OpenSettings -> {
                 _menuOffset.value = null
-                val intent = Intent(context, SettingsActivity::class.java)
-                context.startActivity(intent)
+                navigateToSettings()
             }
 
             CircleMenuActionTypes.OpenApp -> {

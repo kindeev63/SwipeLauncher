@@ -19,14 +19,18 @@ import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
 
 @Composable
-fun LauncherScreen(mainAppViewModel: MainAppViewModel) {
+fun LauncherScreen(
+    mainAppViewModel: MainAppViewModel,
+    navigateToSettings: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
         PhoneWallpaper()
         SwipeBoxUI(
-            mainAppViewModel = mainAppViewModel
+            mainAppViewModel = mainAppViewModel,
+            navigateToSettings = navigateToSettings
         )
     }
 }
