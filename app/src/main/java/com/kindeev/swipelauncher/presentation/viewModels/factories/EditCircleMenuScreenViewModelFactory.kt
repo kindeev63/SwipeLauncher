@@ -7,7 +7,7 @@ import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenVie
 
 class EditCircleMenuScreenViewModelFactory(
     private val mainAppViewModel: MainAppViewModel,
-    private val circleMenuId: Int
+    private val circleMenuId: Int?
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return EditCircleMenuScreenViewModel(

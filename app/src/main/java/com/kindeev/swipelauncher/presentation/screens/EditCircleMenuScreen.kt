@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,7 +35,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -63,7 +63,7 @@ import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImag
 @Composable
 fun EditCircleMenuScreen(
     mainAppViewModel: MainAppViewModel,
-    circleMenuId: Int,
+    circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
     // ViewModel
@@ -73,6 +73,7 @@ fun EditCircleMenuScreen(
 
     // Checking for update circle menus
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) {
+        Log.e("test", "Update, ${viewModel.circleMenu.value}")
         viewModel.updateCircleMenusEvent(it)
     }
 
@@ -134,9 +135,6 @@ fun EditCircleMenuToolbar(
         var title by remember {
             mutableStateOf(TextFieldValue(text = circleMenu.value?.title ?: ""))
         }
-        var error by remember {
-            mutableStateOf(false)
-        }
         IconButton(
             onClick = {
                onBackPressed()
@@ -149,69 +147,16 @@ fun EditCircleMenuToolbar(
             )
         }
         circleMenu.value?.let { menu ->
-            PlaceholderTextField(
+            BasicTextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = title,
                 onValueChange = { newTitle ->
-                    val allTitles = viewModel.mainAppViewModel.allCircleMenu.value?.map { it.title }
-                        ?: emptyList()
-                    if (newTitle.text == menu.title || newTitle.text.isEmpty()) {
-                        title = newTitle
-                    } else {
-                        if (newTitle.text in allTitles) {
-                            title = newTitle
-                            error = true
-                        } else {
-                            viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
-                            title = newTitle
-                            if (error) error = false
-                        }
-                    }
-                },
-                error = error
+                    viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
+                    title = newTitle
+                }
             )
         }
     }
-}
-
-@Composable
-private fun PlaceholderTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    error: Boolean
-) {
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            if (value.text.isEmpty()) {
-                Text(
-                    text = "Title",
-                    style = TextStyle(color = Color.Gray),
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-            }
-        }
-        if (error) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_error),
-                contentDescription = null,
-                tint = Color.Red
-            )
-        }
-    }
-
 }
 
 @Composable
@@ -475,7 +420,6 @@ private fun EditActionBox(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f)
             .padding(5.dp)
     ) {
         Text(text = "Action")

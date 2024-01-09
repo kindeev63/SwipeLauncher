@@ -12,6 +12,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
+import com.kindeev.swipelauncher.domain.CircleMenu
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
@@ -62,4 +67,41 @@ object CircleMenuFunctions {
             else -> null
         }
     }
+
+    fun createEmptyCircleMenu(id: Int, title: String = "") = CircleMenu(
+        id = id,
+        title = title,
+        menuImages = MenuImages(
+            upImage = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage(
+                    id = R.drawable.ic_up_arrow
+                )
+            ),
+            downImage = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage(
+                    id = R.drawable.ic_down_arrow
+                )
+            ),
+            rightImage = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage(
+                    id = R.drawable.ic_right_arrow
+                )
+            ),
+            leftImage = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage(
+                    id = R.drawable.ic_left_arrow
+                )
+            )
+        ),
+        menuActions = MenuActions(
+            upAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
+            downAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
+            rightAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
+            leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+        )
+    )
 }

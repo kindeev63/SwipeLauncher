@@ -19,7 +19,7 @@ class NavigationState(
         }
     }
 
-    fun navigateToEditCircleMenu(circleMenuId: Int) {
+    fun navigateToEditCircleMenu(circleMenuId: Int?) {
         navHostController.navigate(Screen.EditCircleMenuScreenObject.getRouteWithArgs(circleMenuId)) {
             launchSingleTop = true
         }

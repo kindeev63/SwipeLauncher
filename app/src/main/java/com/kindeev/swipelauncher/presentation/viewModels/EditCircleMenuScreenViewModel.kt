@@ -5,12 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
+import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.domain.CircleMenu
 
 class EditCircleMenuScreenViewModel(
     val mainAppViewModel: MainAppViewModel,
-    circleMenuId: Int,
+    circleMenuId: Int?,
 ) : ViewModel() {
     private val _circleMenu = MutableLiveData<CircleMenu?>(null)
     val circleMenu: LiveData<CircleMenu?> = _circleMenu
@@ -20,7 +21,21 @@ class EditCircleMenuScreenViewModel(
     val direction: LiveData<CircleMenuDirection> = _direction
 
     init {
-        _circleMenu.value = mainAppViewModel.allCircleMenu.value?.find { it.id == circleMenuId }
+        if (circleMenuId == null) {
+            val allIds = mainAppViewModel.allCircleMenu.value?.map { it.id } ?: emptyList()
+            var currentId = 0
+            while (true) {
+                if (currentId !in allIds) break
+                currentId++
+            }
+            val circleMenu =
+                CircleMenuFunctions.createEmptyCircleMenu(id = currentId, title = "Untitled")
+            mainAppViewModel.insertCircleMenu(circleMenu = circleMenu)
+            _circleMenu.value = circleMenu
+        } else {
+            _circleMenu.value = mainAppViewModel.allCircleMenu.value?.find { it.id == circleMenuId }
+        }
+
     }
 
     fun getMenuSize(configuration: Configuration): Float {
@@ -43,7 +58,9 @@ class EditCircleMenuScreenViewModel(
     }
 
     fun updateCircleMenusEvent(circleMenus: List<CircleMenu>) {
-        _circleMenu.value = circleMenus.find { it.id == circleMenu.value?.id }
+        circleMenus.find { it.id == circleMenu.value?.id }?.let {
+            _circleMenu.value = it
+        }
         _selectedCircleMenuItem.value = getNowCircleMenuItem()
     }
 

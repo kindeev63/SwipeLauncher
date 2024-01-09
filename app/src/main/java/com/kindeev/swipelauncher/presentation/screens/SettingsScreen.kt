@@ -29,23 +29,13 @@ fun SettingsScreen(
             )
         },
         editCircleMenuScreen = { circleMenuId ->
-            if (circleMenuId == null) {
-                AllCircleMenusScreen(
-                    mainAppViewModel = mainAppViewModel,
-                    navigateToCircleMenu = { circleMenuId ->
-                        navigationState.navigateToEditCircleMenu(circleMenuId)
-                    }
-                )
-            } else {
-                EditCircleMenuScreen(
-                    mainAppViewModel = mainAppViewModel,
-                    circleMenuId = circleMenuId,
-                    onBackPressed = {
-                        navigationState.navHostController.popBackStack()
-                    }
-                )
-            }
-
+            EditCircleMenuScreen(
+                mainAppViewModel = mainAppViewModel,
+                circleMenuId = circleMenuId,
+                onBackPressed = {
+                    navigationState.navHostController.popBackStack()
+                }
+            )
         }
     )
 }

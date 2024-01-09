@@ -13,7 +13,7 @@ sealed class Screen(
     object EditCircleMenuScreenObject: Screen(ROUTE_EDIT_CIRCLE_MENU_SCREEN) {
         private const val ROUTE_FOR_ARGS = "edit_circle_menu_screen"
 
-        fun getRouteWithArgs(circleMenuId: Int) = "$ROUTE_FOR_ARGS/$circleMenuId"
+        fun getRouteWithArgs(circleMenuId: Int?) = "$ROUTE_FOR_ARGS/$circleMenuId"
     }
 
     private companion object {
