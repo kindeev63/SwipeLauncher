@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.screens
 
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,9 +9,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.presentation.AllCircleMenusScreenViewModel
-import com.kindeev.swipelauncher.presentation.AllCircleMenusScreenViewModelFactory
-import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.factories.AllCircleMenusScreenViewModelFactory
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

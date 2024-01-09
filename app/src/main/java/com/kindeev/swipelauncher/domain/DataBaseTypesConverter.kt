@@ -2,8 +2,8 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.kindeev.swipelauncher.data.MenuImages
-import com.kindeev.swipelauncher.data.MenuActions
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction

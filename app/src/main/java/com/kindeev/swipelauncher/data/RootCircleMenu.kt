@@ -1,6 +1,8 @@
 package com.kindeev.swipelauncher.data
 
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes

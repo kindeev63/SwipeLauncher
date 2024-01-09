@@ -18,9 +18,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.presentation.MainAppViewModel
-import com.kindeev.swipelauncher.presentation.SwipeScreenViewModel
-import com.kindeev.swipelauncher.presentation.SwipeScreenViewModelFactory
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.SwipeScreenViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.factories.SwipeScreenViewModelFactory
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

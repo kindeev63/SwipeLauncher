@@ -1,10 +1,10 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.viewModels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.data.AppDataBase
+import com.kindeev.swipelauncher.data.dataBaseElements.AppDataBase
 import com.kindeev.swipelauncher.domain.AppDao
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.DeleteCircleMenuUseCase

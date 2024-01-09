@@ -2,6 +2,7 @@ package com.kindeev.swipelauncher.presentation
 
 import android.app.Application
 import androidx.lifecycle.ViewModelProvider
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
 class MainApp: Application() {
     val mainAppViewModel by lazy {

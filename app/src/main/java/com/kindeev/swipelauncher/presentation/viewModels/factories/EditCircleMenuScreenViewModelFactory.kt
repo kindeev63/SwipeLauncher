@@ -1,7 +1,9 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.viewModels.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
 
 class EditCircleMenuScreenViewModelFactory(
     private val mainAppViewModel: MainAppViewModel,

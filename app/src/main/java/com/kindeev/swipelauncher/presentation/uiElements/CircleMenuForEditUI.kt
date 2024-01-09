@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
-import com.kindeev.swipelauncher.data.MenuImages
+import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 
 @Composable
 fun CircleMenuForEditUI(

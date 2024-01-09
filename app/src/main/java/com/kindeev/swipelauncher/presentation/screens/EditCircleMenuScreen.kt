@@ -1,6 +1,5 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,9 +52,10 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModel
-import com.kindeev.swipelauncher.presentation.EditCircleMenuScreenViewModelFactory
-import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog

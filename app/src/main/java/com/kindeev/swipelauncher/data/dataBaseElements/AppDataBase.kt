@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data
+package com.kindeev.swipelauncher.data.dataBaseElements
 
 import android.content.Context
 import androidx.room.Database

@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toBitmap
-import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
 
 @Composable

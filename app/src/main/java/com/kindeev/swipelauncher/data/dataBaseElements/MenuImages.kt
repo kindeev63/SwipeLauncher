@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data
+package com.kindeev.swipelauncher.data.dataBaseElements
 
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import java.io.Serializable

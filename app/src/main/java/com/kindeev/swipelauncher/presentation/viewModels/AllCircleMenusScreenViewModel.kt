@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
 
