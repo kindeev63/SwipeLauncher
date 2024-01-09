@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
-import com.kindeev.swipelauncher.presentation.MainScreen
+import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 
 @Composable
 fun FirstScreenUI(mainAppViewModel: MainAppViewModel) {
@@ -24,5 +24,5 @@ fun FirstScreenUI(mainAppViewModel: MainAppViewModel) {
 @Composable
 private fun End(mainAppViewModel: MainAppViewModel) {
     mainAppViewModel.insertCircleMenu(RootCircleMenu.rootCircleMenu)
-    MainScreen(mainAppViewModel = mainAppViewModel)
+    LauncherScreen(mainAppViewModel = mainAppViewModel)
 }

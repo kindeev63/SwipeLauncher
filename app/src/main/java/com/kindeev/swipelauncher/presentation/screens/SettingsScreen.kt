@@ -1,34 +1,11 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.screens
 
 import androidx.compose.runtime.Composable
-import com.kindeev.swipelauncher.data.navigation.MainNavGraph
-import com.kindeev.swipelauncher.data.navigation.Screen
 import com.kindeev.swipelauncher.data.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.data.navigation.rememberNavigationState
+import com.kindeev.swipelauncher.presentation.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.AllCircleMenusScreen
 import com.kindeev.swipelauncher.presentation.uiElements.EditCircleMenuScreen
-import com.kindeev.swipelauncher.presentation.uiElements.LauncherScreen
-
-@Composable
-fun MainScreen(
-    mainAppViewModel: MainAppViewModel
-) {
-    val navigationState = rememberNavigationState()
-    MainNavGraph(
-        navHostController = navigationState.navHostController,
-        swipeScreen = {
-            LauncherScreen(
-                mainAppViewModel = mainAppViewModel,
-                navigateToSettings = {
-                    navigationState.navigateTo(Screen.SettingsScreen.route)
-                }
-            )
-        },
-        settingsScreen = {
-            SettingsScreen(mainAppViewModel = mainAppViewModel)
-        }
-    )
-}
 
 @Composable
 fun SettingsScreen(

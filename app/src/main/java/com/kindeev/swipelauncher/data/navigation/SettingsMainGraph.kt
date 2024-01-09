@@ -14,15 +14,15 @@ fun SettingsMainGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.MainSettingsScreen.route
+        startDestination = Screen.MainSettingsScreenObject.route
     ) {
-        composable(Screen.MainSettingsScreen.route) {
+        composable(Screen.MainSettingsScreenObject.route) {
             mainSettingsScreen()
         }
-        composable(Screen.AllCircleMenusScreen.route) {
+        composable(Screen.AllCircleMenusScreenObject.route) {
             allCircleMenusScreen()
         }
-        composable(Screen.EditCircleMenuScreen.route) {
+        composable(Screen.EditCircleMenuScreenObject.route) {
             val circleMenuId = it.arguments?.get("circleMenuId").toString().toIntOrNull()
             editCircleMenuScreen(circleMenuId)
         }

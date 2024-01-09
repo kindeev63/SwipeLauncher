@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.screens
 
 import android.Manifest
 import android.app.Activity
@@ -17,11 +17,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
 
 @Composable
 fun LauncherScreen(
-    mainAppViewModel: MainAppViewModel,
-    navigateToSettings: () -> Unit
+    mainAppViewModel: MainAppViewModel
 ) {
     Box(
         modifier = Modifier
@@ -29,8 +29,7 @@ fun LauncherScreen(
     ) {
         PhoneWallpaper()
         SwipeBoxUI(
-            mainAppViewModel = mainAppViewModel,
-            navigateToSettings = navigateToSettings
+            mainAppViewModel = mainAppViewModel
         )
     }
 }

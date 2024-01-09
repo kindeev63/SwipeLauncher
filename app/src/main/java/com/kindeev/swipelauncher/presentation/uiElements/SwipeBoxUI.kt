@@ -25,8 +25,7 @@ import com.kindeev.swipelauncher.presentation.SwipeScreenViewModelFactory
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SwipeBoxUI(
-    mainAppViewModel: MainAppViewModel,
-    navigateToSettings: () -> Unit
+    mainAppViewModel: MainAppViewModel
 ) {
     val viewModel: SwipeScreenViewModel = viewModel(
         factory = SwipeScreenViewModelFactory(
@@ -41,7 +40,7 @@ fun SwipeBoxUI(
         modifier = Modifier
             .fillMaxSize()
             .pointerInteropFilter(
-                onTouchEvent = viewModel.onSwipe(navigateToSettings = navigateToSettings)
+                onTouchEvent = viewModel.onSwipe()
             )
     ) {
         CircleMenuUI(

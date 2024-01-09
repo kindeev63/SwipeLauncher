@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation
+package com.kindeev.swipelauncher.presentation.activities
 
 import android.app.Activity
 import android.content.Context
@@ -23,8 +23,10 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
+import com.kindeev.swipelauncher.presentation.MainApp
+import com.kindeev.swipelauncher.presentation.MainAppViewModel
+import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
-import com.kindeev.swipelauncher.presentation.uiElements.LauncherScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         mainAppViewModel = mainAppViewModel
                     )
                 } else {
-                    MainScreen(mainAppViewModel = mainAppViewModel)
+                    LauncherScreen(mainAppViewModel = mainAppViewModel)
                 }
             }
 

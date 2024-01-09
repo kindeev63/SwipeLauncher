@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kindeev.swipelauncher.data.MenuImages
-import com.kindeev.swipelauncher.data.ui.theme.MenuActions
+import com.kindeev.swipelauncher.data.MenuActions
 import java.io.Serializable
 
 @Entity(tableName = "table_menu")

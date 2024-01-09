@@ -16,6 +16,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import java.lang.Integer.min
 
 class SwipeScreenViewModel(
@@ -70,7 +71,7 @@ class SwipeScreenViewModel(
         return null
     }
 
-    fun onSwipe(navigateToSettings: () -> Unit): (MotionEvent) -> Boolean = { event ->
+    fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val density = context.resources.displayMetrics.density
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -121,8 +122,7 @@ class SwipeScreenViewModel(
                                             circleMenu.menuActions.leftAction
                                         }
                                     },
-                                    direction = direction,
-                                    navigateToSettings = navigateToSettings
+                                    direction = direction
                                 )
                             }
                         }
@@ -142,8 +142,7 @@ class SwipeScreenViewModel(
 
     private fun executeAction(
         action: CircleMenuAction,
-        direction: CircleMenuDirection,
-        navigateToSettings: () -> Unit
+        direction: CircleMenuDirection
     ) {
         when (action.type) {
             CircleMenuActionTypes.NoneAction -> {
@@ -162,7 +161,8 @@ class SwipeScreenViewModel(
 
             CircleMenuActionTypes.OpenSettings -> {
                 _menuOffset.value = null
-                navigateToSettings()
+                val intent = Intent(context, SettingsActivity::class.java)
+                context.startActivity(intent)
             }
 
             CircleMenuActionTypes.OpenApp -> {
