@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.data
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
@@ -48,7 +47,10 @@ object CircleMenuFunctions {
         )
 
     @Composable
-    fun getItemImage(circleMenuImage: CircleMenuImage): Painter? {
+    fun getItemImage(
+        circleMenuImage: CircleMenuImage,
+        allApplicationData: List<ApplicationData>
+    ): Painter? {
         return when (circleMenuImage.type) {
 
             CircleMenuImageTypes.DefaultImage -> {
@@ -58,10 +60,14 @@ object CircleMenuFunctions {
 
             CircleMenuImageTypes.AppImage -> {
                 val appImage = circleMenuImage.data as AppImage
+                allApplicationData.find { it.packageName == appImage.packageName }?.let {
+                val imageBitmap = it.icon
+                    return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+                }
                 val context = LocalContext.current
                 val applicationInfo = context.packageManager.getApplicationInfo(appImage.packageName, 0)
                 val imageBitmap = applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
-                remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+                return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
             }
 
             else -> null

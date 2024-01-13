@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 
@@ -18,6 +19,7 @@ import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 fun CircleMenuImagesUI(
     menuSize: Float,
     menuImages: MenuImages,
+    allApplicationData: List<ApplicationData>,
     itemCircleColor: Color = Color.Red,
     itemCircleStroke: Stroke = Stroke(
         width = 5f
@@ -69,7 +71,8 @@ fun CircleMenuImagesUI(
                     menuImages.downImage,
                     menuImages.rightImage,
                     menuImages.leftImage,
-                )[index]
+                )[index],
+                allApplicationData = allApplicationData
             )?.let { painter ->
                 Image(
                     modifier = Modifier

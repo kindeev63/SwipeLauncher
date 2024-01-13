@@ -21,7 +21,7 @@ import java.lang.Integer.min
 
 class SwipeScreenViewModel(
     private val context: Context,
-    private val mainAppViewModel: MainAppViewModel
+    val mainAppViewModel: MainAppViewModel
 ) : ViewModel() {
     val menuSize = min(context.resources.configuration.screenWidthDp, context.resources.configuration.screenHeightDp) / 3 * 2f
     private val _circleMenu = MutableLiveData(RootCircleMenu.rootCircleMenu)

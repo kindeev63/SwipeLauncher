@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.domain.CircleMenu
 
 @Composable
@@ -26,6 +27,7 @@ fun MiniCircleMenuItem(
     size: Float,
     picked: Boolean = false,
     circleMenu: CircleMenu,
+    allApplicationData: List<ApplicationData>,
     onClick: () -> Unit
 ) {
     Column(
@@ -44,7 +46,8 @@ fun MiniCircleMenuItem(
         ) {
             CircleMenuImagesUI(
                 menuSize = (size - 6) * 4/6f ,
-                menuImages = circleMenu.menuImages
+                menuImages = circleMenu.menuImages,
+                allApplicationData = allApplicationData
             )
         }
         Box(
@@ -66,6 +69,7 @@ fun MiniCircleMenuItem(
     size: Float,
     picked: Boolean = false,
     circleMenu: CircleMenu,
+    allApplicationData: List<ApplicationData>,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -88,7 +92,8 @@ fun MiniCircleMenuItem(
         ) {
             CircleMenuImagesUI(
                 menuSize = (size - 6) * 4/6f ,
-                menuImages = circleMenu.menuImages
+                menuImages = circleMenu.menuImages,
+                allApplicationData = allApplicationData
             )
         }
         Box(

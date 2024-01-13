@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
@@ -22,6 +23,7 @@ import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 @Composable
 fun CircleMenuForEditUI(
     menuSize: Float,
+    allApplicationData: List<ApplicationData>,
     menuImages: MenuImages,
     upImageClick: () -> Unit,
     downImageClick: () -> Unit,
@@ -70,7 +72,8 @@ fun CircleMenuForEditUI(
         }
         CircleMenuImagesUI(
             menuSize = menuSize,
-            menuImages = menuImages
+            menuImages = menuImages,
+            allApplicationData = allApplicationData
         )
         val functions = listOf(
             upImageClick,
