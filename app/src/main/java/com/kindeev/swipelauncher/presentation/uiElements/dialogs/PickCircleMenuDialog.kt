@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 
@@ -27,7 +26,6 @@ fun PickCircleMenuDialog(
     pickedId: Int?,
     onPick: (id: Int) -> Unit,
     allCircleMenus: List<CircleMenu>,
-    allApplicationData: List<ApplicationData>,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
@@ -57,8 +55,7 @@ fun PickCircleMenuDialog(
                             LocalConfiguration.current.screenWidthDp,
                             LocalConfiguration.current.screenHeightDp
                         ) - 20f) / 3,
-                        circleMenu = circleMenu,
-                        allApplicationData = allApplicationData
+                        circleMenu = circleMenu
                     ) {
                         onPick(circleMenu.id)
                     }

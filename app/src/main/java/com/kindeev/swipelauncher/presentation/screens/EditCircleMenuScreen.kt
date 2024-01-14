@@ -98,7 +98,6 @@ fun EditCircleMenuScreen(
             CircleMenuBox(
                 circleMenu = notNullCircleMenu,
                 menuSize = viewModel.getMenuSize(LocalConfiguration.current),
-                viewModel = viewModel,
                 direction = direction.value
             ) { circleMenuDirection ->
                 viewModel.setDirection(circleMenuDirection)
@@ -111,7 +110,6 @@ fun EditCircleMenuScreen(
                 EditItemBox(
                     allCircleMenus = allCircleMenus,
                     circleMenuItem = circleMenuItem,
-                    viewModel = viewModel
                 ) { changedItem ->
                     viewModel.updateCircleMenuItem(changedItem)
                 }
@@ -164,7 +162,6 @@ fun EditCircleMenuToolbar(
 @Composable
 private fun CircleMenuBox(
     circleMenu: CircleMenu,
-    viewModel: EditCircleMenuScreenViewModel,
     menuSize: Float,
     direction: CircleMenuDirection?,
     onSelectAction: (CircleMenuDirection) -> Unit
@@ -178,7 +175,6 @@ private fun CircleMenuBox(
         CircleMenuForEditUI(
             menuSize = menuSize,
             menuImages = circleMenu.menuImages,
-            allApplicationData = viewModel.mainAppViewModel.allApplicationData,
             upImageClick = { onSelectAction(CircleMenuDirection.Up) },
             downImageClick = { onSelectAction(CircleMenuDirection.Down) },
             rightImageClick = { onSelectAction(CircleMenuDirection.Right) },
@@ -192,7 +188,6 @@ private fun CircleMenuBox(
 private fun EditItemBox(
     allCircleMenus: List<CircleMenu>,
     circleMenuItem: CircleMenuItem,
-    viewModel: EditCircleMenuScreenViewModel,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
     Column(
@@ -203,7 +198,6 @@ private fun EditItemBox(
         // Image
         EditImageBox(
             circleMenuImage = circleMenuItem.image,
-            viewModel = viewModel
         ) { changedImage ->
             onEdit(circleMenuItem.copy(image = changedImage))
         }
@@ -211,8 +205,7 @@ private fun EditItemBox(
         // Action
         EditActionBox(
             allCircleMenus = allCircleMenus,
-            circleMenuAction = circleMenuItem.action,
-            viewModel = viewModel
+            circleMenuAction = circleMenuItem.action
         ) { changedAction ->
             onEdit(circleMenuItem.copy(action = changedAction))
         }
@@ -222,7 +215,6 @@ private fun EditItemBox(
 @Composable
 private fun EditImageBox(
     circleMenuImage: CircleMenuImage,
-    viewModel: EditCircleMenuScreenViewModel,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     var openDialog by remember {
@@ -289,7 +281,6 @@ private fun EditImageBox(
 
         // Image value
         ImageValue(
-            viewModel = viewModel,
             circleMenuImage = circleMenuImage
         ) {
             openDialog = circleMenuImage.type
@@ -334,7 +325,6 @@ private fun ImageType(
 @Composable
 private fun ImageValue(
     circleMenuImage: CircleMenuImage,
-    viewModel: EditCircleMenuScreenViewModel,
     onClick: () -> Unit
 ) {
     Row(
@@ -342,8 +332,7 @@ private fun ImageValue(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircleMenuFunctions.getItemImage(
-            circleMenuImage = circleMenuImage,
-            allApplicationData = viewModel.mainAppViewModel.allApplicationData
+            circleMenuImage = circleMenuImage
         )?.let { painter ->
             Text(text = "Value:")
             Spacer(modifier = Modifier.width(5.dp))
@@ -361,7 +350,6 @@ private fun ImageValue(
 @Composable
 private fun EditActionBox(
     allCircleMenus: List<CircleMenu>,
-    viewModel: EditCircleMenuScreenViewModel,
     circleMenuAction: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -377,7 +365,6 @@ private fun EditActionBox(
             PickCircleMenuDialog(
                 allCircleMenus = allCircleMenus,
                 pickedId = if (circleMenuAction.data is OpenCircleMenu) circleMenuAction.data.id else null,
-                allApplicationData = viewModel.mainAppViewModel.allApplicationData,
                 onPick = { newId ->
                     onChangeAction(
                         CircleMenuAction(

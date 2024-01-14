@@ -69,7 +69,6 @@ fun AllCircleMenusScreen(
                 MiniCircleMenuItem(
                     size = LocalConfiguration.current.screenWidthDp / 2f,
                     circleMenu = circleMenu,
-                    allApplicationData = mainAppViewModel.allApplicationData,
                     onClick = {
                         navigateToCircleMenu(circleMenu.id)
                     },

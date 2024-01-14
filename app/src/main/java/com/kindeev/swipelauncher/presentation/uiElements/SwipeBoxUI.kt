@@ -83,8 +83,7 @@ private fun CircleMenuUI(
                 menuSize = menuSize,
                 menuImages = menuImages,
                 itemCircleColor = itemCircleColor,
-                itemCircleStroke = itemCircleStroke,
-                allApplicationData = viewModel.mainAppViewModel.allApplicationData
+                itemCircleStroke = itemCircleStroke
             )
         }
         // Drawing a center circle

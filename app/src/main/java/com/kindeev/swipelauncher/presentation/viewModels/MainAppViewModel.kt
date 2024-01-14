@@ -1,15 +1,9 @@
 package com.kindeev.swipelauncher.presentation.viewModels
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.dataBaseElements.AppDataBase
 import com.kindeev.swipelauncher.domain.AppDao
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -26,7 +20,6 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
     private val deleteCircleMenuUseCase: DeleteCircleMenuUseCase
     private val getAllCircleMenuUseCase: GetAllCircleMenuUseCase
     val allCircleMenu: LiveData<List<CircleMenu>>
-    var allApplicationData = emptyList<ApplicationData>()
 
     init {
         appDao = AppDataBase.getDataBase(application).getDao()
@@ -35,16 +28,6 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
         deleteCircleMenuUseCase = DeleteCircleMenuUseCase(appDao)
         getAllCircleMenuUseCase = GetAllCircleMenuUseCase(appDao)
         allCircleMenu = getAllCircleMenuUseCase.get()
-        allApplicationData =
-            application.applicationContext.packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
-                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
-            }.map {
-                ApplicationData(
-                    name = it.loadLabel(application.applicationContext.packageManager).toString(),
-                    icon = it.loadIcon(application.applicationContext.packageManager).toBitmap().asImageBitmap(),
-                    packageName = it.packageName
-                )
-            }
     }
     fun insertCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
         insertCircleMenuUseCase.insertCircleMenu(circleMenu)

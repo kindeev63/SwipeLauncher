@@ -14,6 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
+import com.kindeev.swipelauncher.data.ApplicationData
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -52,6 +56,24 @@ class MainActivity : ComponentActivity() {
             }
 
         }
+    }
+
+    override fun onResume() {
+        setAllApplicationData(this)
+        super.onResume()
+    }
+
+    private fun setAllApplicationData(context: Context) {
+        DataObject.allApplicationData =
+            context.packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
+                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+            }.map {
+                ApplicationData(
+                    name = it.loadLabel(context.packageManager).toString(),
+                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
+                    packageName = it.packageName
+                )
+            }
     }
 
     private fun makeStatusBarTransparent(activity: Activity) {
