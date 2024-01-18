@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -110,6 +111,7 @@ fun EditCircleMenuScreen(
                 EditItemBox(
                     allCircleMenus = allCircleMenus,
                     circleMenuItem = circleMenuItem,
+                    viewModel = viewModel
                 ) { changedItem ->
                     viewModel.updateCircleMenuItem(changedItem)
                 }
@@ -148,11 +150,11 @@ fun EditCircleMenuToolbar(
                 Text(text = menu.title)
             } else {
                 var title by remember {
-                    mutableStateOf(TextFieldValue(text = circleMenu.value?.title ?: ""))
+                    mutableStateOf(TextFieldValue())
                 }
                 BasicTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = title,
+                    value = title.copy(text = circleMenu.value?.title ?: ""),
                     onValueChange = { newTitle ->
                         viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
                         title = newTitle
@@ -162,10 +164,6 @@ fun EditCircleMenuToolbar(
 
         }
     }
-}
-
-fun Text(text: TextFieldValue) {
-
 }
 
 @Composable
@@ -197,6 +195,7 @@ private fun CircleMenuBox(
 private fun EditItemBox(
     allCircleMenus: List<CircleMenu>,
     circleMenuItem: CircleMenuItem,
+    viewModel: EditCircleMenuScreenViewModel,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
     Column(
@@ -214,7 +213,8 @@ private fun EditItemBox(
         // Action
         EditActionBox(
             allCircleMenus = allCircleMenus,
-            circleMenuAction = circleMenuItem.action
+            circleMenuAction = circleMenuItem.action,
+            viewModel = viewModel,
         ) { changedAction ->
             onEdit(circleMenuItem.copy(action = changedAction))
         }
@@ -360,7 +360,8 @@ private fun ImageValue(
 private fun EditActionBox(
     allCircleMenus: List<CircleMenu>,
     circleMenuAction: CircleMenuAction,
-    onChangeAction: (CircleMenuAction) -> Unit
+    viewModel: EditCircleMenuScreenViewModel,
+    onChangeAction: (CircleMenuAction) -> Unit,
 ) {
     var openDialog by remember {
         mutableStateOf<CircleMenuActionTypes?>(null)
@@ -449,6 +450,11 @@ private fun EditActionBox(
         ) {
             openDialog = circleMenuAction.type
         }
+        if (circleMenuAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            GoToCircleMenu {
+                viewModel.goToCircleMenu((circleMenuAction.data as OpenCircleMenu).id)
+            }
+        }
     }
 }
 
@@ -531,6 +537,18 @@ private fun ActionValue(
                     contentDescription = null
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun GoToCircleMenu(goToCircleMenu: () -> Unit) {
+    Row {
+        Spacer(modifier = Modifier.width(5.dp))
+        TextButton(
+            onClick = goToCircleMenu
+        ) {
+            Text(text = "Go to circle menu")
         }
     }
 }

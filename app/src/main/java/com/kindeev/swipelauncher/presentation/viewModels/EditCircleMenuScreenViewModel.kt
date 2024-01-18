@@ -38,6 +38,12 @@ class EditCircleMenuScreenViewModel(
 
     }
 
+    fun goToCircleMenu(circleMenuId: Int) {
+        mainAppViewModel.allCircleMenu.value?.find { it.id == circleMenuId }?.let {
+            _circleMenu.value = it
+        }
+    }
+
     fun getMenuSize(configuration: Configuration): Float {
         return Integer.min(configuration.screenHeightDp, configuration.screenWidthDp) / 3 * 2f
     }
