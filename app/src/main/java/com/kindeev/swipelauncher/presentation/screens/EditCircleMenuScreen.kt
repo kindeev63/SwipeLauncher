@@ -132,9 +132,6 @@ fun EditCircleMenuToolbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val circleMenu = viewModel.circleMenu.observeAsState()
-        var title by remember {
-            mutableStateOf(TextFieldValue(text = circleMenu.value?.title ?: ""))
-        }
         IconButton(
             onClick = {
                onBackPressed()
@@ -147,16 +144,28 @@ fun EditCircleMenuToolbar(
             )
         }
         circleMenu.value?.let { menu ->
-            BasicTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = title,
-                onValueChange = { newTitle ->
-                    viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
-                    title = newTitle
+            if (menu.id == 0) {
+                Text(text = menu.title)
+            } else {
+                var title by remember {
+                    mutableStateOf(TextFieldValue(text = circleMenu.value?.title ?: ""))
                 }
-            )
+                BasicTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = title,
+                    onValueChange = { newTitle ->
+                        viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
+                        title = newTitle
+                    }
+                )
+            }
+
         }
     }
+}
+
+fun Text(text: TextFieldValue) {
+
 }
 
 @Composable

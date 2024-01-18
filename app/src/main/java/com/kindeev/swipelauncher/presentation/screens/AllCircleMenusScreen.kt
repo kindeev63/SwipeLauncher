@@ -73,7 +73,7 @@ fun AllCircleMenusScreen(
                         navigateToCircleMenu(circleMenu.id)
                     },
                     onLongClick = {
-                        deleteCircleMenuDialog = circleMenu
+                        if (circleMenu.id == 0) navigateToCircleMenu(0) else deleteCircleMenuDialog = circleMenu
                     }
                 )
             }
