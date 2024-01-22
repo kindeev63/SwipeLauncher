@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.graphics.drawable.toBitmap
-import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -54,7 +53,7 @@ object CircleMenuFunctions {
 
             CircleMenuImageTypes.DefaultImage -> {
                 val defaultImage = circleMenuImage.data as DefaultImage
-                painterResource(id = defaultImage.id)
+                painterResource(id = DefaultImagesValues.defaultImages[defaultImage] ?: return null)
             }
 
             CircleMenuImageTypes.AppImage -> {
@@ -79,27 +78,19 @@ object CircleMenuFunctions {
         menuImages = MenuImages(
             upImage = CircleMenuImage(
                 type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage(
-                    id = R.drawable.ic_up_arrow
-                )
+                data = DefaultImage.UpArrow
             ),
             downImage = CircleMenuImage(
                 type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage(
-                    id = R.drawable.ic_down_arrow
-                )
+                data = DefaultImage.DownArrow
             ),
             rightImage = CircleMenuImage(
                 type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage(
-                    id = R.drawable.ic_right_arrow
-                )
+                data = DefaultImage.RightArrow
             ),
             leftImage = CircleMenuImage(
                 type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage(
-                    id = R.drawable.ic_left_arrow
-                )
+                data = DefaultImage.LeftArrow
             )
         ),
         menuActions = MenuActions(

@@ -253,12 +253,12 @@ private fun EditImageBox(
         // Default Image
         CircleMenuImageTypes.DefaultImage -> {
             PickDefaultImageDialog(
-                pickedId = if (circleMenuImage.data is DefaultImage) circleMenuImage.data.id else null,
-                onPick = { newId ->
+                picked = if (circleMenuImage.data is DefaultImage) circleMenuImage.data else null,
+                onPick = { defaultImage ->
                     onChangeImage(
                         CircleMenuImage(
                             type = CircleMenuImageTypes.DefaultImage,
-                            data = DefaultImage(id = newId)
+                            data = defaultImage
                         )
                     )
                     openDialog = null

@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.data
 
-import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -15,27 +14,19 @@ object RootCircleMenu {
     private val menuImages = MenuImages(
         upImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_up_arrow
-            )
+            data = DefaultImage.UpArrow
         ),
         downImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_settings
-            )
+            data = DefaultImage.Settings
         ),
         rightImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_right_arrow
-            )
+            data = DefaultImage.RightArrow
         ),
         leftImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage(
-                id = R.drawable.ic_left_arrow
-            )
+            data = DefaultImage.LeftArrow
         )
     )
     private val menuActions = MenuActions(

@@ -54,13 +54,8 @@ class MainActivity : ComponentActivity() {
                     LauncherScreen(mainAppViewModel = mainAppViewModel)
                 }
             }
-
         }
-    }
-
-    override fun onResume() {
         setAllApplicationData(this)
-        super.onResume()
     }
 
     private fun setAllApplicationData(context: Context) {

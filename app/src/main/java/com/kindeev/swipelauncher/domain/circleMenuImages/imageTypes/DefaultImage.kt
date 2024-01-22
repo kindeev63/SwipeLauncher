@@ -1,3 +1,5 @@
 package com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes
 
-data class DefaultImage(val id: Int)
+enum class DefaultImage {
+    Settings, UpArrow, DownArrow, RightArrow, LeftArrow,
+}

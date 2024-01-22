@@ -32,18 +32,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.kindeev.swipelauncher.data.DefaultImageWithName
-import com.kindeev.swipelauncher.data.DefaultImages
+import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.DefaultImagesValues
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 
 
 @Composable
 fun PickDefaultImageDialog(
-    pickedId: Int?,
-    onPick: (id: Int) -> Unit,
+    picked: DefaultImage?,
+    onPick: (DefaultImage) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     var picked by remember {
-        mutableStateOf(pickedId)
+        mutableStateOf(picked)
     }
     val screenConfiguration = LocalConfiguration.current
     Dialog(
@@ -63,14 +64,16 @@ fun PickDefaultImageDialog(
             LazyVerticalGrid(
                 columns = GridCells.Fixed(((screenConfiguration.screenWidthDp - 20) / 50).toInt())
             ) {
-                items(items = DefaultImages.images) { item: DefaultImageWithName ->
+                items(
+                    items = DefaultImagesValues.defaultImages.keys.toList()
+                ) { defaultImage ->
                     Image(
                         modifier = Modifier
                             .size(50.dp)
-                            .background(if (item.defaultImage.id == picked) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
-                            .clickable { picked = item.defaultImage.id },
+                            .background(if (defaultImage == picked) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
+                            .clickable { picked = defaultImage },
                         painter = painterResource(
-                            id = item.defaultImage.id
+                            id = DefaultImagesValues.defaultImages[defaultImage] ?: R.drawable.ic_error
                         ),
                         contentDescription = null
                     )

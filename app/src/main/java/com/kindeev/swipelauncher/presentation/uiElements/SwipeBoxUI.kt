@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,8 @@ import com.kindeev.swipelauncher.presentation.viewModels.factories.SwipeScreenVi
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SwipeBoxUI(
-    mainAppViewModel: MainAppViewModel
+    mainAppViewModel: MainAppViewModel,
+    openSheet: () -> Unit
 ) {
     val viewModel: SwipeScreenViewModel = viewModel(
         factory = SwipeScreenViewModelFactory(
@@ -40,7 +40,9 @@ fun SwipeBoxUI(
         modifier = Modifier
             .fillMaxSize()
             .pointerInteropFilter(
-                onTouchEvent = viewModel.onSwipe()
+                onTouchEvent = viewModel.onSwipe(
+                    onDoubleClick = openSheet
+                )
             )
     ) {
         CircleMenuUI(
@@ -76,7 +78,6 @@ private fun CircleMenuUI(
             )
             .size(menuSize.dp)
     ) {
-        Log.e("test", circleMenu.value?.menuImages.toString())
         // Drawing items
         circleMenu.value?.menuImages?.let { menuImages ->
             CircleMenuImagesUI(

@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.kindeev.swipelauncher"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.kindeev.swipelauncher"
@@ -68,6 +68,7 @@ dependencies {
     kapt("androidx.room:room-compiler:2.5.2")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.compose.material:material:1.5.4")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

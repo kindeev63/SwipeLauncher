@@ -28,6 +28,7 @@ class SwipeScreenViewModel(
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
+    var clickTime = 0L
     init {
         mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }?.let { rootCircleMenu ->
             setCircleMenu(rootCircleMenu)
@@ -71,18 +72,27 @@ class SwipeScreenViewModel(
         return null
     }
 
-    fun onSwipe(): (MotionEvent) -> Boolean = { event ->
+    fun onSwipe(
+        onDoubleClick: () -> Unit
+    ): (MotionEvent) -> Boolean = { event ->
         val density = context.resources.displayMetrics.density
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                val offset = Offset(
-                    x = event.x / density,
-                    y = event.y / density
-                )
-                _menuOffset.value = MenuOffset(
-                    start = offset,
-                    swipe = offset
-                )
+                if (event.eventTime - clickTime < 300L) {
+
+                    // Double click
+                    onDoubleClick()
+                } else {
+                    val offset = Offset(
+                        x = event.x / density,
+                        y = event.y / density
+                    )
+                    _menuOffset.value = MenuOffset(
+                        start = offset,
+                        swipe = offset
+                    )
+                }
+                clickTime = event.eventTime
             }
 
             MotionEvent.ACTION_MOVE -> {
