@@ -95,6 +95,7 @@ fun AllAppsBottomSheet(
                                 scope.launch {
                                     sheetState.hide()
                                 }
+                                searchText = ""
                                 context.startActivity(it)
                             }
                         },

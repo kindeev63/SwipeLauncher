@@ -2,10 +2,13 @@ package com.kindeev.swipelauncher.presentation.screens
 
 import android.Manifest
 import android.app.Activity
+import android.app.Instrumentation
 import android.app.WallpaperManager
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.view.KeyEvent
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -44,6 +47,16 @@ fun LauncherScreen(
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden
     )
+    val context = LocalContext.current
+    BackHandler {
+        if (sheetState.isVisible) {
+            scope.launch {
+                sheetState.hide()
+            }
+        } else {
+            Instrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        }
+    }
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetBackgroundColor = Color.Transparent,
