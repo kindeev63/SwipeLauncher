@@ -2,13 +2,16 @@ package com.kindeev.swipelauncher.presentation.activities
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +36,7 @@ import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mainAppViewModel = (application as MainApp).mainAppViewModel
@@ -55,20 +59,28 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        setAllApplicationData(this)
+        setAllApplicationData()
     }
 
-    private fun setAllApplicationData(context: Context) {
+    private fun setAllApplicationData() {
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
         DataObject.allApplicationData =
-            context.packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
-                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
-            }.map {
-                ApplicationData(
-                    name = it.loadLabel(context.packageManager).toString(),
-                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
-                    packageName = it.packageName
-                )
+            packageManager.queryIntentActivities(intent, 0).map { it.activityInfo.applicationInfo }
+                .map {
+                    ApplicationData(
+                        name = it.loadLabel(packageManager).toString(),
+                        icon = it.loadIcon(packageManager).toBitmap().asImageBitmap(),
+                        packageName = it.packageName
+                    )
+                }.toMutableList()
+        val mutableAllApplicationData = DataObject.allApplicationData.toMutableList()
+        DataObject.allApplicationData.forEach { applicationData ->
+            if (mutableAllApplicationData.count { it.packageName == applicationData.packageName } > 1) {
+                mutableAllApplicationData.remove(applicationData)
             }
+        }
+        DataObject.allApplicationData = mutableAllApplicationData
     }
 
     private fun makeStatusBarTransparent(activity: Activity) {

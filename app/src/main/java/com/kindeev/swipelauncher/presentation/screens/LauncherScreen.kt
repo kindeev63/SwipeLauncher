@@ -6,8 +6,12 @@ import android.app.WallpaperManager
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -24,11 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.kindeev.swipelauncher.presentation.uiElements.ClockWidget
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.AllAppsBottomSheet
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LauncherScreen(
@@ -60,8 +66,18 @@ fun LauncherScreen(
                 }
             )
         }
+        ScreenContent()
     }
 
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun ScreenContent() {
+    Column {
+        Spacer(modifier = Modifier.fillMaxHeight(0.15f))
+        ClockWidget()
+    }
 }
 
 @Composable
