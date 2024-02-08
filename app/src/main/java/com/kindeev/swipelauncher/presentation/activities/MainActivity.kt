@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                 mutableAllApplicationData.remove(applicationData)
             }
         }
-        DataObject.allApplicationData = mutableAllApplicationData
+        DataObject.allApplicationData = mutableAllApplicationData.sortedBy { it.name }
     }
 
     private fun makeStatusBarTransparent(activity: Activity) {
