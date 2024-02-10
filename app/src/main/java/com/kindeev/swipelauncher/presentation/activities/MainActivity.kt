@@ -1,10 +1,10 @@
 package com.kindeev.swipelauncher.presentation.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.data.ApplicationData
@@ -30,23 +31,27 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.presentation.MainApp
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
+import java.io.File
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mainAppViewModel = (application as MainApp).mainAppViewModel
         makeStatusBarTransparent(this)
+        setAllApplicationData()
         setContent {
             var allCircleMenu by remember {
                 mutableStateOf<List<CircleMenu>?>(null)
             }
             mainAppViewModel.allCircleMenu.observe(this) {
-                checkCircleMenus(mainAppViewModel, this)
+                checkCircleMenus(mainAppViewModel)
+                setUserImages(mainAppViewModel)
                 allCircleMenu = it
             }
             allCircleMenu?.let { circleMenus ->
@@ -59,7 +64,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        setAllApplicationData()
     }
 
     private fun setAllApplicationData() {
@@ -83,6 +87,58 @@ class MainActivity : ComponentActivity() {
         DataObject.allApplicationData = mutableAllApplicationData.sortedBy { it.name }
     }
 
+    private fun setUserImages(
+        mainAppViewModel: MainAppViewModel
+    ) {
+        val userImages = mutableMapOf<Int, ImageBitmap>()
+        val fileNames = mutableListOf<String>()
+        val allFileNames = filesDir.listFiles()?.map { it.name } ?: emptyList()
+        mainAppViewModel.allCircleMenu.value?.map { it.menuImages }?.forEach { menuImages ->
+            if (menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.upImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.downImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.rightImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.leftImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+        }
+        filesDir.listFiles()?.forEach { file ->
+            if (file.name.contains(".png") && file.name !in fileNames) {
+                file.delete()
+            }
+        }
+        DataObject.userImages = userImages
+    }
+
     private fun makeStatusBarTransparent(activity: Activity) {
         val window = activity.window
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -95,10 +151,9 @@ class MainActivity : ComponentActivity() {
 
     private fun checkCircleMenus(
         mainAppViewModel: MainAppViewModel,
-        context: Context
     ) {
         val allPackageNames =
-            context.packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
+            packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
                 (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
             }.map {
                 it.packageName
@@ -146,6 +201,8 @@ class MainActivity : ComponentActivity() {
         }
 
         // Check Images
+
+        // Check AppImages
         val noneImage = CircleMenuImage(
             type = CircleMenuImageTypes.NoneImage,
             data = NoneImage
@@ -170,6 +227,27 @@ class MainActivity : ComponentActivity() {
             if (appImage.packageName !in allPackageNames) newCircleMenu.menuImages.leftImage =
                 noneImage
         }
+
+        // Check UserImages
+
+        val fileNames = filesDir.listFiles()?.map { it.name } ?: emptyList()
+        if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.upImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.upImage = noneImage
+        }
+        if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.downImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.downImage = noneImage
+        }
+        if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.rightImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.rightImage = noneImage
+        }
+        if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.leftImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.leftImage = noneImage
+        }
+
         return newCircleMenu
     }
 }

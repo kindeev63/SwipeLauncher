@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun ClockWidget() {
     var time by remember {

@@ -19,6 +19,7 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 
 object CircleMenuFunctions {
     fun getItemsOffset(menuSize: Float, itemSize: Float) =
@@ -66,6 +67,13 @@ object CircleMenuFunctions {
                 val applicationInfo = context.packageManager.getApplicationInfo(appImage.packageName, 0)
                 val imageBitmap = applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
                 return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+            }
+            CircleMenuImageTypes.UserImage -> {
+                val userImage = circleMenuImage.data as UserImage
+                val imageBitmap = DataObject.userImages[userImage.id]
+                imageBitmap?.let {
+                   return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+                }
             }
 
             else -> null

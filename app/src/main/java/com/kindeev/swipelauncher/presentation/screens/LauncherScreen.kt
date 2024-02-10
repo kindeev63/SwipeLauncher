@@ -37,7 +37,7 @@ import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.AllAppsBottomSheet
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LauncherScreen(
@@ -47,7 +47,6 @@ fun LauncherScreen(
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden
     )
-    val context = LocalContext.current
     BackHandler {
         if (sheetState.isVisible) {
             scope.launch {
@@ -84,7 +83,7 @@ fun LauncherScreen(
 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 private fun ScreenContent() {
     Column {

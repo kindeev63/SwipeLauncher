@@ -1,6 +1,13 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.util.Log
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +51,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -53,6 +61,7 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
@@ -60,6 +69,9 @@ import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun EditCircleMenuScreen(
@@ -74,7 +86,6 @@ fun EditCircleMenuScreen(
 
     // Checking for update circle menus
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) {
-        Log.e("test", "Update, ${viewModel.circleMenu.value}")
         viewModel.updateCircleMenusEvent(it)
     }
 
@@ -136,7 +147,7 @@ fun EditCircleMenuToolbar(
         val circleMenu = viewModel.circleMenu.observeAsState()
         IconButton(
             onClick = {
-               onBackPressed()
+                onBackPressed()
             }
         ) {
             Icon(
@@ -229,7 +240,31 @@ private fun EditImageBox(
     var openDialog by remember {
         mutableStateOf<CircleMenuImageTypes?>(null)
     }
-
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val ids = DataObject.userImages.map { it.key }
+            var newId = 0
+            while (newId in ids) {
+                newId++
+            }
+            val bitmap = createBitmapByUri(context, uri)
+            DataObject.userImages = DataObject.userImages.toMutableMap().apply {
+                this[newId] = bitmap.asImageBitmap()
+            }.toMap()
+            createNewImageFile(context, "$newId.png", bitmap)
+            onChangeImage(
+                CircleMenuImage(
+                    type = CircleMenuImageTypes.UserImage,
+                    data = UserImage(id = newId)
+                )
+            )
+        }
+        openDialog = null
+    }
     // Pick image dialogs
     when (openDialog) {
 
@@ -265,6 +300,11 @@ private fun EditImageBox(
                 },
                 onDismissRequest = { openDialog = null }
             )
+        }
+
+        // UserImage
+        CircleMenuImageTypes.UserImage -> {
+            launcher.launch("image/*")
         }
 
         else -> {}
@@ -329,6 +369,28 @@ private fun ImageType(
             }
         }
     }
+}
+
+private fun createNewImageFile(context: Context, fileName: String, bitmap: Bitmap) {
+    val file = File(context.filesDir, fileName)
+    file.createNewFile()
+    val fos = FileOutputStream(file)
+    val bos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+    fos.write(bos.toByteArray())
+    fos.flush()
+    fos.close()
+}
+
+private fun createBitmapByUri(context: Context, uri: Uri) = if (Build.VERSION.SDK_INT < 28) {
+    MediaStore.Images
+        .Media.getBitmap(context.contentResolver, uri)
+
+} else {
+    ImageDecoder.decodeBitmap(
+        ImageDecoder
+            .createSource(context.contentResolver, uri)
+    )
 }
 
 @Composable
