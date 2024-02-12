@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -81,7 +82,9 @@ fun EditCircleMenuScreen(
 ) {
     // ViewModel
     val viewModel: EditCircleMenuScreenViewModel = viewModel(
-        factory = EditCircleMenuScreenViewModelFactory(mainAppViewModel, circleMenuId)
+        factory = EditCircleMenuScreenViewModelFactory(mainAppViewModel, circleMenuId, stringResource(
+            id = R.string.new_circle_menu_title
+        ))
     )
 
     // Checking for update circle menus
@@ -317,7 +320,7 @@ private fun EditImageBox(
             .fillMaxHeight(0.5f)
             .padding(5.dp)
     ) {
-        Text(text = "Image")
+        Text(text = stringResource(id = R.string.image))
         Spacer(modifier = Modifier.height(5.dp))
 
         // Type of image
@@ -349,7 +352,7 @@ private fun ImageType(
         var expanded by remember {
             mutableStateOf(false)
         }
-        Text(text = "Type:")
+        Text(text = stringResource(id = R.string.type) + ":")
         DropdownMenuItem(
             text = { Text(text = selectedType.name) },
             onClick = { expanded = !expanded }
@@ -405,7 +408,7 @@ private fun ImageValue(
         CircleMenuFunctions.getItemImage(
             circleMenuImage = circleMenuImage
         )?.let { painter ->
-            Text(text = "Value:")
+            Text(text = stringResource(id = R.string.value) + ":")
             Spacer(modifier = Modifier.width(5.dp))
             Image(
                 modifier = Modifier
@@ -494,7 +497,7 @@ private fun EditActionBox(
             .fillMaxWidth()
             .padding(5.dp)
     ) {
-        Text(text = "Action")
+        Text(text = stringResource(id = R.string.action))
         Spacer(modifier = Modifier.height(5.dp))
 
         // Type of action
@@ -532,7 +535,7 @@ private fun ActionType(
         var expanded by remember {
             mutableStateOf(false)
         }
-        Text(text = "Type:")
+        Text(text = stringResource(id = R.string.type) + ":")
         DropdownMenuItem(
             text = { Text(text = circleMenuAction.name) },
             onClick = { expanded = !expanded }
@@ -570,7 +573,7 @@ private fun ActionValue(
             CircleMenuActionTypes.OpenCircleMenu -> {
                 val openCircleMenu = circleMenuAction.data as OpenCircleMenu
                 allCircleMenus.find { it.id == openCircleMenu.id }?.let { circleMenu ->
-                    Text(text = "Value:")
+                    Text(text = stringResource(id = R.string.value) + ":")
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         modifier = Modifier
@@ -589,7 +592,7 @@ private fun ActionValue(
                     context.packageManager.getApplicationInfo(currentApp.packageName, 0)
                 val imageBitmap =
                     applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
-                Text(text = "Value:")
+                Text(text = stringResource(id = R.string.value) + ":")
                 Spacer(modifier = Modifier.width(5.dp))
                 Image(
                     modifier = Modifier
@@ -610,7 +613,7 @@ private fun GoToCircleMenu(goToCircleMenu: () -> Unit) {
         TextButton(
             onClick = goToCircleMenu
         ) {
-            Text(text = "Go to circle menu")
+            Text(text = stringResource(id = R.string.go_to_circle_menu))
         }
     }
 }

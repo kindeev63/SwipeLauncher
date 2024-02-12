@@ -22,8 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +38,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,7 +85,6 @@ fun AllAppsBottomSheet(
             onTextChanged = {
                 searchText = it
             },
-            hint = "Поиск",
             goToSettings = {
                 val intent = Intent(context, SettingsActivity::class.java)
                 context.startActivity(intent)
@@ -139,7 +137,6 @@ fun AllAppsBottomSheet(
 private fun SearchItem(
     searchText: String,
     onTextChanged: (String) -> Unit,
-    hint: String,
     goToSettings: () -> Unit
 ) {
     Row(
@@ -159,7 +156,7 @@ private fun SearchItem(
             contentAlignment = Alignment.CenterStart
         ) {
             if (searchText.isEmpty()) {
-                Text(text = hint)
+                Text(text = stringResource(id = R.string.search))
             }
             BasicTextField(
                 modifier = Modifier.fillMaxWidth(),

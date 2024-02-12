@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SwipeLauncher</string>
+    <string name="search">Поиск</string>
+    <string name="image">Изображение</string>
+    <string name="action">Действие</string>
+    <string name="type">Тип</string>
+    <string name="value">Значение</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отмена</string>
+    <string name="go_to_circle_menu">Перейти к этому меню</string>
+    <string name="delete_circle_menu_question">Удалить это меню?</string>
+    <string name="monday">пн</string>
+    <string name="tuesday">вт</string>
+    <string name="wednesday">ср</string>
+    <string name="thursday">чт</string>
+    <string name="friday">пт</string>
+    <string name="saturday">сб</string>
+    <string name="sunday">вс</string>
+    <string name="january">января</string>
+    <string name="february">февраля</string>
+    <string name="march">марта</string>
+    <string name="april">апреля</string>
+    <string name="may">мая</string>
+    <string name="june">июня</string>
+    <string name="july">июля</string>
+    <string name="august">августа</string>
+    <string name="september">сентября</string>
+    <string name="october">октября</string>
+    <string name="november">ноября</string>
+    <string name="december">декабря</string>
+    <string name="new_circle_menu_title">Новый</string>
+</resources>

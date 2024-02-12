@@ -1,4 +1,61 @@
 <resources>
     <string name="app_name">SwipeLauncher</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings" translatable="false">SettingsActivity</string>
+    <string name="search">Search</string>
+    <string name="image">Image</string>
+    <string name="action">Action</string>
+    <string name="type">Type</string>
+    <string name="value">Value</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="go_to_circle_menu">Go to circle menu</string>
+    <string name="delete_circle_menu_question">Delete circle menu?</string>
+    <string name="monday">Mo</string>
+    <string name="tuesday">Tu</string>
+    <string name="wednesday">We</string>
+    <string name="thursday">Th</string>
+    <string name="friday">Fr</string>
+    <string name="saturday">Sa</string>
+    <string name="sunday">Su</string>
+
+    <string-array name="weekday">
+        <item>@string/sunday</item>
+        <item>@string/monday</item>
+        <item>@string/tuesday</item>
+        <item>@string/wednesday</item>
+        <item>@string/thursday</item>
+        <item>@string/friday</item>
+        <item>@string/saturday</item>
+    </string-array>
+    <string name="january">January</string>
+    <string name="february">February</string>
+    <string name="march">March</string>
+    <string name="april">April</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="august">August</string>
+    <string name="september">September</string>
+    <string name="october">October</string>
+    <string name="november">November</string>
+    <string name="december">December</string>
+
+    <string-array name="months">
+        <item>@string/january</item>
+        <item>@string/february</item>
+        <item>@string/march</item>
+        <item>@string/april</item>
+        <item>@string/may</item>
+        <item>@string/june</item>
+        <item>@string/july</item>
+        <item>@string/august</item>
+        <item>@string/september</item>
+        <item>@string/october</item>
+        <item>@string/november</item>
+        <item>@string/december</item>
+
+    </string-array>
+    <string name="new_circle_menu_title">New</string>
+
 </resources>

@@ -18,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kindeev.swipelauncher.R
 
 @Composable
 fun DeleteCircleMenuDialog(
@@ -42,16 +44,16 @@ fun DeleteCircleMenuDialog(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Delete Circle Menu?")
+            Text(text = stringResource(id = R.string.delete_circle_menu_question))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 TextButton(onClick = onDismissRequest) {
-                    Text(text = "No")
+                    Text(text = stringResource(id = R.string.no))
                 }
                 TextButton(onClick = onClickDelete) {
-                    Text(text = "Yes")
+                    Text(text = stringResource(id = R.string.yes))
                 }
             }
         }

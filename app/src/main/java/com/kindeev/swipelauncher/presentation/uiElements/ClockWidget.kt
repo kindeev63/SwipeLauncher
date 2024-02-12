@@ -1,7 +1,6 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -15,27 +14,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.R
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
 
 @Composable
 fun ClockWidget() {
+    val context = LocalContext.current
     var time by remember {
         val locTime = LocalDateTime.now()
-        mutableStateOf("${locTime.hour}:${locTime.minute}")
+        mutableStateOf(getTime(locTime))
     }
     var date by remember {
         val locTime = LocalDateTime.now()
-        mutableStateOf("${locTime.dayOfWeek}, ${locTime.dayOfMonth} ${locTime.month.name}")
+        mutableStateOf(getDate(context, locTime))
     }
     LaunchedEffect(Unit) {
         delay((60 - LocalDateTime.now().second) * 1000L)
         while (true) {
             val locTime = LocalDateTime.now()
-            time = "${locTime.hour}:${locTime.minute}"
-            date = "${locTime.dayOfWeek}, ${locTime.dayOfMonth} ${locTime.month.name}"
+            time = getTime(locTime)
+            date = getDate(context, locTime)
             delay(60000L)
         }
 
@@ -58,4 +60,18 @@ fun ClockWidget() {
         )
     }
 
+}
+
+private fun getTime(localDateTime: LocalDateTime) =
+    if (localDateTime.minute > 9) {
+        "${localDateTime.hour}:${localDateTime.minute}"
+    } else {
+        "${localDateTime.hour}:0${localDateTime.minute}"
+    }
+
+
+private fun getDate(context: Context, localDateTime: LocalDateTime): String {
+    val weekdays = context.resources.getStringArray(R.array.weekday)
+    val months = context.resources.getStringArray(R.array.months)
+    return "${weekdays[localDateTime.dayOfWeek.value]}, ${localDateTime.dayOfMonth} ${months[localDateTime.month.value]}"
 }

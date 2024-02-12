@@ -12,6 +12,7 @@ import com.kindeev.swipelauncher.domain.CircleMenu
 class EditCircleMenuScreenViewModel(
     val mainAppViewModel: MainAppViewModel,
     circleMenuId: Int?,
+    newCircleMenuTitle: String
 ) : ViewModel() {
     private val _circleMenu = MutableLiveData<CircleMenu?>(null)
     val circleMenu: LiveData<CircleMenu?> = _circleMenu
@@ -29,7 +30,7 @@ class EditCircleMenuScreenViewModel(
                 currentId++
             }
             val circleMenu =
-                CircleMenuFunctions.createEmptyCircleMenu(id = currentId, title = "Untitled")
+                CircleMenuFunctions.createEmptyCircleMenu(id = currentId, title = newCircleMenuTitle)
             mainAppViewModel.insertCircleMenu(circleMenu = circleMenu)
             _circleMenu.value = circleMenu
         } else {
