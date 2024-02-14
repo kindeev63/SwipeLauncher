@@ -69,6 +69,5 @@ class AllCircleMenusScreenViewModel(
             circleMenu = circleMenu.copy(menuActions = menuActions),
             changed = changed
         )
-
     }
 }

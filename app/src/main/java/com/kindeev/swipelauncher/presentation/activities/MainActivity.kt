@@ -1,27 +1,26 @@
 package com.kindeev.swipelauncher.presentation.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.ChangedCircleMenu
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.ui.theme.SwipeLauncherTheme
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -42,28 +41,31 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val mainAppViewModel = (application as MainApp).mainAppViewModel
-        makeStatusBarTransparent(this)
         setAllApplicationData()
         setContent {
-            var allCircleMenu by remember {
-                mutableStateOf<List<CircleMenu>?>(null)
-            }
-            mainAppViewModel.allCircleMenu.observe(this) {
-                checkCircleMenus(mainAppViewModel)
-                setUserImages(mainAppViewModel)
-                allCircleMenu = it
-                Log.e("test", it.toString())
-            }
-            allCircleMenu?.let { circleMenus ->
-                if (circleMenus.isEmpty()) {
-                    FirstScreenUI(
-                        mainAppViewModel = mainAppViewModel
-                    )
-                } else {
-                    LauncherScreen(mainAppViewModel = mainAppViewModel)
+            SwipeLauncherTheme {
+                enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+                var allCircleMenu by remember {
+                    mutableStateOf<List<CircleMenu>?>(null)
+                }
+                mainAppViewModel.allCircleMenu.observe(this) {
+                    checkCircleMenus(mainAppViewModel)
+                    setUserImages(mainAppViewModel)
+                    allCircleMenu = it
+                }
+                allCircleMenu?.let { circleMenus ->
+                    if (circleMenus.isEmpty()) {
+                        FirstScreenUI(
+                            mainAppViewModel = mainAppViewModel
+                        )
+                    } else {
+                        LauncherScreen(mainAppViewModel = mainAppViewModel)
+                    }
                 }
             }
+
         }
     }
 
@@ -138,16 +140,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         DataObject.userImages = userImages
-    }
-
-    private fun makeStatusBarTransparent(activity: Activity) {
-        val window = activity.window
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        val option =
-            window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        window.decorView.systemUiVisibility = option
-        window.statusBarColor = Color.Transparent.value.toInt()
     }
 
     private fun checkCircleMenus(
