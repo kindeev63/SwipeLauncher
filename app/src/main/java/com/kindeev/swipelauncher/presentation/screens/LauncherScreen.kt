@@ -69,6 +69,7 @@ fun LauncherScreen(
                 .fillMaxSize()
         ) {
             PhoneWallpaper()
+            ScreenContent()
             SwipeBoxUI(
                 mainAppViewModel = mainAppViewModel,
                 openSheet = {
@@ -78,7 +79,6 @@ fun LauncherScreen(
                 }
             )
         }
-        ScreenContent()
     }
 
 }

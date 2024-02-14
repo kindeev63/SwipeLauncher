@@ -6,14 +6,12 @@ import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 
 class DataBaseTypesConverter {
@@ -70,8 +68,9 @@ class DataBaseTypesConverter {
         val gson = Gson()
         val circleMenuActionToSave = gson.fromJson(data, CircleMenuActionToSave::class.java)
         val classOfData = getClassOfActionData(circleMenuActionToSave.type)
-        val circleMenuData = gson.fromJson(circleMenuActionToSave.data, classOfData)
-        return CircleMenuAction(type = circleMenuActionToSave.type, data = circleMenuData)
+        return CircleMenuAction(
+            type = circleMenuActionToSave.type, data = if (classOfData == null) null else gson.fromJson(circleMenuActionToSave.data, classOfData)
+        )
     }
 
     private fun fromCircleMenuAction(circleMenuAction: CircleMenuAction): String {
@@ -102,12 +101,11 @@ class DataBaseTypesConverter {
         return gson.toJson(circleMenuImageToSave)
     }
 
-    private fun getClassOfActionData(type: CircleMenuActionTypes): Class<*> {
+    private fun getClassOfActionData(type: CircleMenuActionTypes): Class<*>? {
         return when(type) {
-            CircleMenuActionTypes.NoneAction -> NoneAction::class.java
             CircleMenuActionTypes.OpenCircleMenu -> OpenCircleMenu::class.java
-            CircleMenuActionTypes.OpenSettings -> NoneAction::class.java
             CircleMenuActionTypes.OpenApp -> OpenApp::class.java
+            else -> null
         }
     }
 
@@ -115,7 +113,6 @@ class DataBaseTypesConverter {
         return when(type) {
             CircleMenuImageTypes.AppImage -> AppImage::class.java
             CircleMenuImageTypes.DefaultImage -> DefaultImage::class.java
-            CircleMenuImageTypes.NoneImage -> NoneImage::class.java
             CircleMenuImageTypes.UserImage -> UserImage::class.java
         }
     }
@@ -129,7 +126,7 @@ private class MenuActionsToSave {
 }
 
 private class CircleMenuActionToSave {
-    var type: CircleMenuActionTypes = CircleMenuActionTypes.NoneAction
+    var type: CircleMenuActionTypes = CircleMenuActionTypes.OpenSettings
     var data: String = ""
 }
 

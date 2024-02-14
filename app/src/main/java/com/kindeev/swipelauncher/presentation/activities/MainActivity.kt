@@ -5,13 +5,11 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,12 +23,12 @@ import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.NoneAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.NoneImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.presentation.MainApp
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
@@ -175,10 +173,7 @@ class MainActivity : ComponentActivity() {
         val newCircleMenu = circleMenu.copy()
 
         // Check Actions
-        val noneAction = CircleMenuAction(
-            type = CircleMenuActionTypes.NoneAction,
-            data = NoneAction
-        )
+        val noneAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
         if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenApp) {
             val openApp = circleMenu.menuActions.upAction.data as OpenApp
             if (openApp.packageName !in allPackageNames) newCircleMenu.menuActions.upAction =
@@ -204,8 +199,8 @@ class MainActivity : ComponentActivity() {
 
         // Check AppImages
         val noneImage = CircleMenuImage(
-            type = CircleMenuImageTypes.NoneImage,
-            data = NoneImage
+            type = CircleMenuImageTypes.DefaultImage,
+            data = DefaultImage.Error
         )
         if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.AppImage) {
             val appImage = circleMenu.menuImages.upImage.data as AppImage

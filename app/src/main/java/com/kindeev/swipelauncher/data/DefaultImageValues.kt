@@ -28,6 +28,7 @@ object DefaultImagesValues {
         Pair(DefaultImage.Favourite, R.drawable.ic_favorite),
         Pair(DefaultImage.FlashLightOn, R.drawable.ic_flashlight_on),
         Pair(DefaultImage.FlashLightOff, R.drawable.ic_flashlight_off),
+        Pair(DefaultImage.Error, R.drawable.ic_error),
     )
 }
 

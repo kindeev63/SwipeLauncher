@@ -626,15 +626,6 @@ private fun EditActionBox(
             )
         }
 
-        // None Action
-        CircleMenuActionTypes.NoneAction -> {
-            onChangeAction(
-                CircleMenuAction(
-                    type = CircleMenuActionTypes.NoneAction
-                )
-            )
-        }
-
         // Open Settings
         CircleMenuActionTypes.OpenSettings -> {
             onChangeAction(
@@ -725,7 +716,6 @@ private fun ActionValue(
         verticalAlignment = Alignment.CenterVertically
     ) {
         when (circleMenuAction.type) {
-            CircleMenuActionTypes.NoneAction -> {}
 
             CircleMenuActionTypes.OpenCircleMenu -> {
                 val openCircleMenu = circleMenuAction.data as OpenCircleMenu

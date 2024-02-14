@@ -15,6 +15,7 @@ import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
@@ -94,8 +95,6 @@ object CircleMenuFunctions {
                     }
                 }
             }
-
-            else -> null
         }
     }
 
@@ -121,10 +120,10 @@ object CircleMenuFunctions {
             )
         ),
         menuActions = MenuActions(
-            upAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
-            downAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
-            rightAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
-            leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+            upAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
+            downAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
+            rightAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
+            leftAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
         )
     )
 }

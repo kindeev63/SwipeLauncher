@@ -13,9 +13,6 @@ interface AppDao {
     @Query("SELECT * FROM table_menu")
     fun getAllCircleMenu(): LiveData<List<CircleMenu>>
 
-    @Query("SELECT * FROM table_menu WHERE id = :id")
-    fun getCircleMenu(id: Int): CircleMenu?
-
     @Insert(CircleMenu::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCircleMenu(circleMenu: CircleMenu)
 

@@ -9,13 +9,11 @@ import com.kindeev.swipelauncher.domain.AppDao
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.DeleteCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.GetAllCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.circleMenuUseCases.GetCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.InsertCircleMenuUseCase
 import kotlinx.coroutines.launch
 
 class MainAppViewModel(application: Application): AndroidViewModel(application) {
     private val appDao: AppDao
-    private val getCircleMenuUseCase: GetCircleMenuUseCase
     private val insertCircleMenuUseCase: InsertCircleMenuUseCase
     private val deleteCircleMenuUseCase: DeleteCircleMenuUseCase
     private val getAllCircleMenuUseCase: GetAllCircleMenuUseCase
@@ -23,7 +21,6 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
 
     init {
         appDao = AppDataBase.getDataBase(application).getDao()
-        getCircleMenuUseCase = GetCircleMenuUseCase(appDao)
         insertCircleMenuUseCase = InsertCircleMenuUseCase(appDao)
         deleteCircleMenuUseCase = DeleteCircleMenuUseCase(appDao)
         getAllCircleMenuUseCase = GetAllCircleMenuUseCase(appDao)
@@ -39,11 +36,5 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
 
     fun deleteCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
         deleteCircleMenuUseCase.delete(circleMenu)
-    }
-
-    fun getCircleMenuById(id: Int, function: (CircleMenu?) -> Unit) {
-        viewModelScope.launch {
-            function(getCircleMenuUseCase.getById(id))
-        }
     }
 }

@@ -39,7 +39,6 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.presentation.uiElements.AppItem
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
@@ -104,10 +103,6 @@ fun PickActionDialog(
                             picked = selectedAction.type == CircleMenuActionTypes.OpenSettings,
                             onPick = { selectedAction = it }
                         )
-                    }
-
-                    CircleMenuActionTypes.NoneAction -> {
-                        selectedTab = CircleMenuActionTypes.OpenApp
                     }
                 }
             }

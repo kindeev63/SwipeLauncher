@@ -28,7 +28,7 @@ class SwipeScreenViewModel(
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
-    var clickTime = 0L
+    private var clickTime = 0L
     init {
         mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }?.let { rootCircleMenu ->
             setCircleMenu(rootCircleMenu)
@@ -155,9 +155,6 @@ class SwipeScreenViewModel(
         direction: CircleMenuDirection
     ) {
         when (action.type) {
-            CircleMenuActionTypes.NoneAction -> {
-                _menuOffset.value = null
-            }
 
             CircleMenuActionTypes.OpenCircleMenu -> {
                 setNewCircleMenuOffset(direction = direction)

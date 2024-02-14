@@ -37,8 +37,8 @@ object RootCircleMenu {
             )
         ),
         downAction = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings),
-        rightAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction),
-        leftAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+        rightAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
+        leftAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
     )
     val rootCircleMenu = CircleMenu(
         title = "Root",

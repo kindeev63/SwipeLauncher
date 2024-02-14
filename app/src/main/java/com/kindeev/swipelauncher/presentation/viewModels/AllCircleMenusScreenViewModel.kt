@@ -28,7 +28,7 @@ class AllCircleMenusScreenViewModel(
 
     private fun deleteOpenCircleMenuActions(circleMenu: CircleMenu, circleMenuId: Int): CircleMenu {
         val menuActions = circleMenu.menuActions
-        val noneAction = CircleMenuAction(type = CircleMenuActionTypes.NoneAction)
+        val noneAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
         if (menuActions.upAction.type == CircleMenuActionTypes.OpenCircleMenu) {
             val openCircleMenu = menuActions.upAction.data as OpenCircleMenu
             if (openCircleMenu.id == circleMenuId) menuActions.upAction = noneAction

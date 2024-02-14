@@ -122,10 +122,6 @@ fun PickImageDialog(
                             } else null,
                             onPick = { selectedImage = it })
                     }
-
-                    CircleMenuImageTypes.NoneImage -> {
-                        selectedTab = CircleMenuImageTypes.AppImage
-                    }
                 }
             }
             Row(

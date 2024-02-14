@@ -25,4 +25,5 @@ enum class DefaultImage {
     Favourite,
     FlashLightOn,
     FlashLightOff,
+    Error
 }
