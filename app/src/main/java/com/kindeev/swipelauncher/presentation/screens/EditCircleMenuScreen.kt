@@ -1,13 +1,5 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -62,23 +52,13 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialog
-import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
-import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuDialog
-import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickImageDialog
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 @Composable
 fun EditCircleMenuScreen(
@@ -129,16 +109,12 @@ fun EditCircleMenuScreen(
 
         // CircleMenu image and action panel
         selectedCircleMenuItem.value?.let { circleMenuItem ->
-            mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
-                EditItemBox(
-                    allCircleMenus = allCircleMenus,
-                    circleMenuItem = circleMenuItem,
-                    viewModel = viewModel
-                ) { changedItem ->
-                    viewModel.updateCircleMenuItem(changedItem)
-                }
+            EditItemBox(
+                circleMenuItem = circleMenuItem,
+                viewModel = viewModel
+            ) { changedItem ->
+                viewModel.updateCircleMenuItem(changedItem)
             }
-
         }
     }
 }
@@ -215,7 +191,6 @@ private fun CircleMenuBox(
 
 @Composable
 private fun EditItemBox(
-    allCircleMenus: List<CircleMenu>,
     circleMenuItem: CircleMenuItem,
     viewModel: EditCircleMenuScreenViewModel,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
@@ -226,14 +201,14 @@ private fun EditItemBox(
     ) {
 
         // Image
-        EditImageBox2(
+        EditImageBox(
             circleMenuImage = circleMenuItem.image,
         ) { changedImage ->
             onEdit(circleMenuItem.copy(image = changedImage))
         }
 
         // Action
-        EditActionBox2(
+        EditActionBox(
             circleMenuAction = circleMenuItem.action,
             viewModel = viewModel,
         ) { changedAction ->
@@ -243,7 +218,7 @@ private fun EditItemBox(
 }
 
 @Composable
-private fun EditImageBox2(
+private fun EditImageBox(
     circleMenuImage: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
@@ -263,7 +238,6 @@ private fun EditImageBox2(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f)
             .padding(5.dp)
     ) {
         Text(text = stringResource(id = R.string.image))
@@ -286,193 +260,7 @@ private fun EditImageBox2(
 }
 
 @Composable
-private fun EditImageBox(
-    circleMenuImage: CircleMenuImage,
-    onChangeImage: (CircleMenuImage) -> Unit
-) {
-    var openDialog by remember {
-        mutableStateOf<CircleMenuImageTypes?>(null)
-    }
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract =
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val ids = DataObject.userImages.map { it.key }
-            var newId = 0
-            while (newId in ids) {
-                newId++
-            }
-            val bitmap = createBitmapByUri(context, uri)
-            DataObject.userImages = DataObject.userImages.toMutableMap().apply {
-                this[newId] = bitmap.asImageBitmap()
-            }.toMap()
-            createNewImageFile(context, "$newId.png", bitmap)
-            onChangeImage(
-                CircleMenuImage(
-                    type = CircleMenuImageTypes.UserImage,
-                    data = UserImage(id = newId)
-                )
-            )
-        }
-        openDialog = null
-    }
-    // Pick image dialogs
-    when (openDialog) {
-
-        // App Image
-        CircleMenuImageTypes.AppImage -> {
-            PickAppDialog(
-                pickedPackageName = if (circleMenuImage.data is AppImage) circleMenuImage.data.packageName else null,
-                onPick = {
-                    onChangeImage(
-                        CircleMenuImage(
-                            type = CircleMenuImageTypes.AppImage,
-                            data = AppImage(packageName = it.packageName)
-                        )
-                    )
-                    openDialog = null
-                },
-                onDismissRequest = { openDialog = null }
-            )
-        }
-
-        // Default Image
-        CircleMenuImageTypes.DefaultImage -> {
-            PickDefaultImageDialog(
-                picked = if (circleMenuImage.data is DefaultImage) circleMenuImage.data else null,
-                onPick = { defaultImage ->
-                    onChangeImage(
-                        CircleMenuImage(
-                            type = CircleMenuImageTypes.DefaultImage,
-                            data = defaultImage
-                        )
-                    )
-                    openDialog = null
-                },
-                onDismissRequest = { openDialog = null }
-            )
-        }
-
-        // UserImage
-        CircleMenuImageTypes.UserImage -> {
-            launcher.launch("image/*")
-        }
-
-        else -> {}
-    }
-
-    // UI
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.5f)
-            .padding(5.dp)
-    ) {
-        Text(text = stringResource(id = R.string.image))
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // Type of image
-        ImageType(
-            selectedType = circleMenuImage.type
-        ) {
-            if (circleMenuImage.type != it) openDialog = it
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // Image value
-        ImageValue(
-            circleMenuImage = circleMenuImage
-        ) {
-            openDialog = circleMenuImage.type
-        }
-    }
-}
-
-@Composable
-private fun ImageType(
-    selectedType: CircleMenuImageTypes,
-    onPick: (CircleMenuImageTypes) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        var expanded by remember {
-            mutableStateOf(false)
-        }
-        Text(text = stringResource(id = R.string.type) + ":")
-        DropdownMenuItem(
-            text = { Text(text = selectedType.name) },
-            onClick = { expanded = !expanded }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            CircleMenuImageTypes.values().forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.name) },
-                    onClick = {
-                        onPick(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-private fun createNewImageFile(context: Context, fileName: String, bitmap: Bitmap) {
-    val file = File(context.filesDir, fileName)
-    file.createNewFile()
-    val fos = FileOutputStream(file)
-    val bos = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
-    fos.write(bos.toByteArray())
-    fos.flush()
-    fos.close()
-}
-
-private fun createBitmapByUri(context: Context, uri: Uri) = if (Build.VERSION.SDK_INT < 28) {
-    MediaStore.Images
-        .Media.getBitmap(context.contentResolver, uri)
-
-} else {
-    ImageDecoder.decodeBitmap(
-        ImageDecoder
-            .createSource(context.contentResolver, uri)
-    )
-}
-
-@Composable
-private fun ImageValue(
-    circleMenuImage: CircleMenuImage,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CircleMenuFunctions.getItemImage(
-            circleMenuImage = circleMenuImage
-        )?.let { painter ->
-            Text(text = stringResource(id = R.string.value) + ":")
-            Spacer(modifier = Modifier.width(5.dp))
-            Image(
-                modifier = Modifier
-                    .size(25.dp)
-                    .clickable(onClick = onClick),
-                painter = painter,
-                contentDescription = null
-            )
-        }
-    }
-}
-
-@Composable
-private fun EditActionBox2(
+private fun EditActionBox(
     circleMenuAction: CircleMenuAction,
     viewModel: EditCircleMenuScreenViewModel,
     onChangeAction: (CircleMenuAction) -> Unit,
@@ -494,7 +282,6 @@ private fun EditActionBox2(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f)
             .padding(5.dp)
     ) {
         Text(text = stringResource(id = R.string.action))
@@ -511,6 +298,9 @@ private fun EditActionBox2(
                         circleMenu = it
                     ) {
                         openDialog = true
+                    }
+                    GoToCircleMenu {
+                        viewModel.goToCircleMenu(circleMenuId = openCircleMenu.id)
                     }
                 }
 
@@ -537,7 +327,8 @@ private fun EditActionBox2(
                         val applicationInfo =
                             context.packageManager.getApplicationInfo(openApp.packageName, 0)
                         val imageBitmap =
-                            applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                            applicationInfo.loadIcon(context.packageManager).toBitmap()
+                                .asImageBitmap()
                         remember(imageBitmap) {
                             BitmapPainter(
                                 imageBitmap,
@@ -545,6 +336,7 @@ private fun EditActionBox2(
                             )
                         }
                     }
+
                     else -> {
                         val imageBitmap = applicationData.icon
                         remember(imageBitmap) {
@@ -566,192 +358,11 @@ private fun EditActionBox2(
                 )
 
             }
-
-            else -> {
-                Button(onClick = { openDialog = true }) {
-                    Text(text = stringResource(id = R.string.pick_action))
-                }
-            }
         }
 
     }
 }
 
-@Composable
-private fun EditActionBox(
-    allCircleMenus: List<CircleMenu>,
-    circleMenuAction: CircleMenuAction,
-    viewModel: EditCircleMenuScreenViewModel,
-    onChangeAction: (CircleMenuAction) -> Unit,
-) {
-    var openDialog by remember {
-        mutableStateOf<CircleMenuActionTypes?>(null)
-    }
-
-    // Pick action dialogs
-    when (openDialog) {
-
-        // Open Circle Menu
-        CircleMenuActionTypes.OpenCircleMenu -> {
-            PickCircleMenuDialog(
-                allCircleMenus = allCircleMenus,
-                pickedId = if (circleMenuAction.data is OpenCircleMenu) circleMenuAction.data.id else null,
-                onPick = { newId ->
-                    onChangeAction(
-                        CircleMenuAction(
-                            type = CircleMenuActionTypes.OpenCircleMenu,
-                            data = OpenCircleMenu(id = newId)
-                        )
-                    )
-                    openDialog = null
-                },
-                onDismissRequest = { openDialog = null }
-            )
-        }
-
-        // Open App
-        CircleMenuActionTypes.OpenApp -> {
-            PickAppDialog(
-                pickedPackageName = if (circleMenuAction.data is OpenApp) circleMenuAction.data.packageName else null,
-                onPick = { appData ->
-                    onChangeAction(
-                        CircleMenuAction(
-                            type = CircleMenuActionTypes.OpenApp,
-                            data = OpenApp(packageName = appData.packageName)
-                        )
-                    )
-                    openDialog = null
-                },
-                onDismissRequest = { openDialog = null }
-            )
-        }
-
-        // Open Settings
-        CircleMenuActionTypes.OpenSettings -> {
-            onChangeAction(
-                CircleMenuAction(
-                    type = CircleMenuActionTypes.OpenSettings
-                )
-            )
-        }
-
-        else -> {}
-    }
-
-    // UI
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-    ) {
-        Text(text = stringResource(id = R.string.action))
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // Type of action
-        ActionType(
-            circleMenuAction = circleMenuAction.type
-        ) {
-            if (circleMenuAction.type != it) openDialog = it
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // Action Value
-        ActionValue(
-            circleMenuAction = circleMenuAction,
-            allCircleMenus = allCircleMenus
-        ) {
-            openDialog = circleMenuAction.type
-        }
-        if (circleMenuAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-            GoToCircleMenu {
-                viewModel.goToCircleMenu((circleMenuAction.data as OpenCircleMenu).id)
-            }
-        }
-    }
-}
-
-
-@Composable
-private fun ActionType(
-    circleMenuAction: CircleMenuActionTypes,
-    onPick: (CircleMenuActionTypes) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        var expanded by remember {
-            mutableStateOf(false)
-        }
-        Text(text = stringResource(id = R.string.type) + ":")
-        DropdownMenuItem(
-            text = { Text(text = circleMenuAction.name) },
-            onClick = { expanded = !expanded }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            CircleMenuActionTypes.values().forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.name) },
-                    onClick = {
-                        onPick(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ActionValue(
-    circleMenuAction: CircleMenuAction,
-    allCircleMenus: List<CircleMenu>,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        when (circleMenuAction.type) {
-
-            CircleMenuActionTypes.OpenCircleMenu -> {
-                val openCircleMenu = circleMenuAction.data as OpenCircleMenu
-                allCircleMenus.find { it.id == openCircleMenu.id }?.let { circleMenu ->
-                    Text(text = stringResource(id = R.string.value) + ":")
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        modifier = Modifier
-                            .clickable(onClick = onClick),
-                        text = circleMenu.title
-                    )
-                }
-
-            }
-
-            CircleMenuActionTypes.OpenSettings -> {}
-            CircleMenuActionTypes.OpenApp -> {
-                val currentApp = circleMenuAction.data as OpenApp
-                val context = LocalContext.current
-                val applicationInfo =
-                    context.packageManager.getApplicationInfo(currentApp.packageName, 0)
-                val imageBitmap =
-                    applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
-                Text(text = stringResource(id = R.string.value) + ":")
-                Spacer(modifier = Modifier.width(5.dp))
-                Image(
-                    modifier = Modifier
-                        .size(25.dp)
-                        .clickable(onClick = onClick),
-                    bitmap = imageBitmap,
-                    contentDescription = null
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun GoToCircleMenu(goToCircleMenu: () -> Unit) {

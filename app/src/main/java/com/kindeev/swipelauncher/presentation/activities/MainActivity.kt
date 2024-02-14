@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.data.ApplicationData
+import com.kindeev.swipelauncher.data.ChangedCircleMenu
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 checkCircleMenus(mainAppViewModel)
                 setUserImages(mainAppViewModel)
                 allCircleMenu = it
+                Log.e("test", it.toString())
             }
             allCircleMenu?.let { circleMenus ->
                 if (circleMenus.isEmpty()) {
@@ -159,8 +162,12 @@ class MainActivity : ComponentActivity() {
         mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
             val changedCircleMenus = mutableListOf<CircleMenu>()
             allCircleMenus.forEach { circleMenu ->
-                val newCircleMenu = checkCircleMenu(circleMenu, allPackageNames)
-                if (newCircleMenu != circleMenu) changedCircleMenus.add(newCircleMenu)
+                val changedCircleMenu = checkCircleMenu(
+                    circleMenu = circleMenu,
+                    allPackageNames = allPackageNames,
+                    allCircleMenuId = allCircleMenus.map { it.id }
+                )
+                if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
             }
             mainAppViewModel.insertCircleMenus(changedCircleMenus)
         }
@@ -168,82 +175,154 @@ class MainActivity : ComponentActivity() {
 
     private fun checkCircleMenu(
         circleMenu: CircleMenu,
-        allPackageNames: List<String>
-    ): CircleMenu {
-        val newCircleMenu = circleMenu.copy()
+        allPackageNames: List<String>,
+        allCircleMenuId: List<Int>,
+    ): ChangedCircleMenu {
+        var changed = false
 
         // Check Actions
-        val noneAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
+        var menuActions = circleMenu.menuActions
+        val defaultAction = CircleMenuAction(
+            type = CircleMenuActionTypes.OpenCircleMenu,
+            data = OpenCircleMenu(id = 0)
+        )
+
+        // Check OpenApp
         if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenApp) {
             val openApp = circleMenu.menuActions.upAction.data as OpenApp
-            if (openApp.packageName !in allPackageNames) newCircleMenu.menuActions.upAction =
-                noneAction
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(upAction = defaultAction)
+                changed = true
+            }
         }
         if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenApp) {
             val openApp = circleMenu.menuActions.downAction.data as OpenApp
-            if (openApp.packageName !in allPackageNames) newCircleMenu.menuActions.downAction =
-                noneAction
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(downAction = defaultAction)
+                changed = true
+            }
         }
         if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenApp) {
             val openApp = circleMenu.menuActions.rightAction.data as OpenApp
-            if (openApp.packageName !in allPackageNames) newCircleMenu.menuActions.rightAction =
-                noneAction
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(rightAction = defaultAction)
+                changed = true
+            }
         }
         if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenApp) {
             val openApp = circleMenu.menuActions.leftAction.data as OpenApp
-            if (openApp.packageName !in allPackageNames) newCircleMenu.menuActions.leftAction =
-                noneAction
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(leftAction = defaultAction)
+                changed = true
+            }
         }
 
-        // Check Images
+        // Check OpenCircleMenu
+        if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.upAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(upAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.downAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(downAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.rightAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(rightAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.leftAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(leftAction = defaultAction)
+                changed = true
+            }
+        }
 
-        // Check AppImages
-        val noneImage = CircleMenuImage(
+
+        // Check Images
+        var menuImages = circleMenu.menuImages
+        val defaultImage = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
             data = DefaultImage.Error
         )
+
+        // Check AppImages
         if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.AppImage) {
             val appImage = circleMenu.menuImages.upImage.data as AppImage
-            if (appImage.packageName !in allPackageNames) newCircleMenu.menuImages.upImage =
-                noneImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(upImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.AppImage) {
             val appImage = circleMenu.menuImages.downImage.data as AppImage
-            if (appImage.packageName !in allPackageNames) newCircleMenu.menuImages.downImage =
-                noneImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(downImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.AppImage) {
             val appImage = circleMenu.menuImages.rightImage.data as AppImage
-            if (appImage.packageName !in allPackageNames) newCircleMenu.menuImages.rightImage =
-                noneImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(rightImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.AppImage) {
             val appImage = circleMenu.menuImages.leftImage.data as AppImage
-            if (appImage.packageName !in allPackageNames) newCircleMenu.menuImages.leftImage =
-                noneImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(leftImage = defaultImage)
+                changed = true
+            }
         }
 
         // Check UserImages
-
         val fileNames = filesDir.listFiles()?.map { it.name } ?: emptyList()
         if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
             val userImage = circleMenu.menuImages.upImage.data as UserImage
-            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.upImage = noneImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(upImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
             val userImage = circleMenu.menuImages.downImage.data as UserImage
-            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.downImage = noneImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(downImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
             val userImage = circleMenu.menuImages.rightImage.data as UserImage
-            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.rightImage = noneImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(rightImage = defaultImage)
+                changed = true
+            }
         }
         if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
             val userImage = circleMenu.menuImages.leftImage.data as UserImage
-            if ("${userImage.id}.png" !in fileNames) newCircleMenu.menuImages.leftImage = noneImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(leftImage = defaultImage)
+                changed = true
+            }
         }
 
-        return newCircleMenu
+        return ChangedCircleMenu(
+            circleMenu = circleMenu.copy(
+                menuActions = menuActions,
+                menuImages = menuImages
+            ),
+            changed = changed
+        )
     }
 }
 
