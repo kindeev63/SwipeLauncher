@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,7 +34,7 @@ fun PickAppDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ){
         Column(
-            modifier = androidx.compose.ui.Modifier
+            modifier = Modifier
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .heightIn(max = (screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .wrapContentHeight()

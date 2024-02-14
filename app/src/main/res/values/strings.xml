@@ -57,5 +57,8 @@
 
     </string-array>
     <string name="new_circle_menu_title">New</string>
+    <string name="pick_image">Pick image</string>
+    <string name="pick_action">Pick action</string>
+    <string name="root">Root</string>
 
 </resources>

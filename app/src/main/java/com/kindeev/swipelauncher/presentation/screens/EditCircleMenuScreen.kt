@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -39,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -67,9 +70,12 @@ import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenVie
 import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
+import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickAppDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickCircleMenuDialog
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickDefaultImageDialog
+import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickImageDialog
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -82,9 +88,11 @@ fun EditCircleMenuScreen(
 ) {
     // ViewModel
     val viewModel: EditCircleMenuScreenViewModel = viewModel(
-        factory = EditCircleMenuScreenViewModelFactory(mainAppViewModel, circleMenuId, stringResource(
-            id = R.string.new_circle_menu_title
-        ))
+        factory = EditCircleMenuScreenViewModelFactory(
+            mainAppViewModel, circleMenuId, stringResource(
+                id = R.string.new_circle_menu_title
+            )
+        )
     )
 
     // Checking for update circle menus
@@ -218,19 +226,61 @@ private fun EditItemBox(
     ) {
 
         // Image
-        EditImageBox(
+        EditImageBox2(
             circleMenuImage = circleMenuItem.image,
         ) { changedImage ->
             onEdit(circleMenuItem.copy(image = changedImage))
         }
 
         // Action
-        EditActionBox(
-            allCircleMenus = allCircleMenus,
+        EditActionBox2(
             circleMenuAction = circleMenuItem.action,
             viewModel = viewModel,
         ) { changedAction ->
             onEdit(circleMenuItem.copy(action = changedAction))
+        }
+    }
+}
+
+@Composable
+private fun EditImageBox2(
+    circleMenuImage: CircleMenuImage,
+    onChangeImage: (CircleMenuImage) -> Unit
+) {
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+    if (openDialog) {
+        PickImageDialog(
+            onDismissRequest = { openDialog = false },
+            picked = circleMenuImage,
+            onPick = {
+                onChangeImage(it)
+                openDialog = false
+            }
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f)
+            .padding(5.dp)
+    ) {
+        Text(text = stringResource(id = R.string.image))
+        Spacer(modifier = Modifier.height(5.dp))
+        val painter = CircleMenuFunctions.getItemImage(circleMenuImage = circleMenuImage)
+        if (painter == null) {
+            Button(onClick = { openDialog = true }) {
+                Text(text = stringResource(id = R.string.pick_image))
+            }
+        } else {
+            Image(
+                modifier = Modifier
+                    .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                    .clickable { openDialog = true },
+                painter = painter,
+                contentDescription = null
+            )
         }
     }
 }
@@ -422,6 +472,112 @@ private fun ImageValue(
 }
 
 @Composable
+private fun EditActionBox2(
+    circleMenuAction: CircleMenuAction,
+    viewModel: EditCircleMenuScreenViewModel,
+    onChangeAction: (CircleMenuAction) -> Unit,
+) {
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+    if (openDialog) {
+        PickActionDialog(
+            onDismissRequest = { openDialog = false },
+            mainAppViewModel = viewModel.mainAppViewModel,
+            picked = circleMenuAction,
+            onPick = {
+                onChangeAction(it)
+                openDialog = false
+            }
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f)
+            .padding(5.dp)
+    ) {
+        Text(text = stringResource(id = R.string.action))
+        Spacer(modifier = Modifier.height(5.dp))
+        when (circleMenuAction.type) {
+
+            CircleMenuActionTypes.OpenCircleMenu -> {
+                val openCircleMenu = circleMenuAction.data as OpenCircleMenu
+                val circleMenu =
+                    viewModel.mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
+                circleMenu?.let {
+                    MiniCircleMenuItem(
+                        size = LocalConfiguration.current.screenWidthDp / 6f,
+                        circleMenu = it
+                    ) {
+                        openDialog = true
+                    }
+                }
+
+            }
+
+            CircleMenuActionTypes.OpenSettings -> {
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painterResource(id = R.drawable.ic_settings),
+                    contentDescription = null
+                )
+            }
+
+            CircleMenuActionTypes.OpenApp -> {
+                val openApp = circleMenuAction.data as OpenApp
+                val painter = when (val applicationData =
+                    DataObject.allApplicationData.find { it.packageName == openApp.packageName }) {
+                    null -> {
+                        val context = LocalContext.current
+                        val applicationInfo =
+                            context.packageManager.getApplicationInfo(openApp.packageName, 0)
+                        val imageBitmap =
+                            applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                        remember(imageBitmap) {
+                            BitmapPainter(
+                                imageBitmap,
+                                filterQuality = DrawScope.DefaultFilterQuality
+                            )
+                        }
+                    }
+                    else -> {
+                        val imageBitmap = applicationData.icon
+                        remember(imageBitmap) {
+                            BitmapPainter(
+                                imageBitmap,
+                                filterQuality = DrawScope.DefaultFilterQuality
+                            )
+                        }
+                    }
+                }
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painter,
+                    contentDescription = null
+                )
+
+            }
+
+            else -> {
+                Button(onClick = { openDialog = true }) {
+                    Text(text = stringResource(id = R.string.pick_action))
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
 private fun EditActionBox(
     allCircleMenus: List<CircleMenu>,
     circleMenuAction: CircleMenuAction,
@@ -522,6 +678,7 @@ private fun EditActionBox(
         }
     }
 }
+
 
 @Composable
 private fun ActionType(

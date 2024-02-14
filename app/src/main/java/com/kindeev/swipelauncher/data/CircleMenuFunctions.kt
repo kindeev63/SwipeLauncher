@@ -59,20 +59,39 @@ object CircleMenuFunctions {
 
             CircleMenuImageTypes.AppImage -> {
                 val appImage = circleMenuImage.data as AppImage
-                DataObject.allApplicationData.find { it.packageName == appImage.packageName }?.let { applicationData ->
-                    val imageBitmap = applicationData.icon
-                    return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
-                }
+                DataObject.allApplicationData.find { it.packageName == appImage.packageName }
+                    ?.let { applicationData ->
+                        val imageBitmap = applicationData.icon
+                        return remember(imageBitmap) {
+                            BitmapPainter(
+                                imageBitmap,
+                                filterQuality = DefaultFilterQuality
+                            )
+                        }
+                    }
                 val context = LocalContext.current
-                val applicationInfo = context.packageManager.getApplicationInfo(appImage.packageName, 0)
-                val imageBitmap = applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
-                return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+                val applicationInfo =
+                    context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                val imageBitmap =
+                    applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                return remember(imageBitmap) {
+                    BitmapPainter(
+                        imageBitmap,
+                        filterQuality = DefaultFilterQuality
+                    )
+                }
             }
+
             CircleMenuImageTypes.UserImage -> {
                 val userImage = circleMenuImage.data as UserImage
                 val imageBitmap = DataObject.userImages[userImage.id]
                 imageBitmap?.let {
-                   return remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = DefaultFilterQuality) }
+                    return remember(imageBitmap) {
+                        BitmapPainter(
+                            imageBitmap,
+                            filterQuality = DefaultFilterQuality
+                        )
+                    }
                 }
             }
 
