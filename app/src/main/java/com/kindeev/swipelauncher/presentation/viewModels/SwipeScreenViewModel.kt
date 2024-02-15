@@ -2,12 +2,14 @@ package com.kindeev.swipelauncher.presentation.viewModels
 
 import android.content.Context
 import android.content.Intent
+import android.hardware.camera2.CameraManager
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -16,6 +18,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
+import kotlinx.coroutines.launch
 import java.lang.Integer.min
 
 class SwipeScreenViewModel(
@@ -174,6 +177,31 @@ class SwipeScreenViewModel(
                 val currentApp = action.data as OpenApp
                 val intent = context.packageManager.getLaunchIntentForPackage(currentApp.packageName)
                 intent?.let { context.startActivity(it) }
+            }
+
+            CircleMenuActionTypes.FlashLightOn -> {
+                viewModelScope.launch {
+                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
+                    mainAppViewModel.flashLightCondition = true
+                }
+                _menuOffset.value = null
+            }
+            CircleMenuActionTypes.FlashLightOff -> {
+                viewModelScope.launch {
+                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], false)
+                    mainAppViewModel.flashLightCondition = false
+                }
+                _menuOffset.value = null
+            }
+            CircleMenuActionTypes.ChangeFlashLightCondition -> {
+                viewModelScope.launch {
+                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], !mainAppViewModel.flashLightCondition)
+                    mainAppViewModel.flashLightCondition = !mainAppViewModel.flashLightCondition
+                }
+                _menuOffset.value = null
             }
         }
     }

@@ -2,7 +2,6 @@ package com.kindeev.swipelauncher.presentation.uiElements.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Tab
 import androidx.compose.material.Text
-import androidx.compose.material3.Button
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,6 +41,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.presentation.uiElements.AppItem
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.uiElements.OtherActionItem
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
 @Composable
@@ -108,7 +107,7 @@ fun PickActionDialog(
 
                     ActionDialogTabs.OtherTab -> {
                         PickOtherAction(
-                            picked = selectedAction.type == CircleMenuActionTypes.OpenSettings,
+                            picked = selectedAction.type,
                             onPick = { selectedAction = it }
                         )
                     }
@@ -197,25 +196,20 @@ private fun PickCircleMenuAction(
 
 @Composable
 fun PickOtherAction(
-    picked: Boolean,
+    picked: CircleMenuActionTypes,
     onPick: (CircleMenuAction) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            enabled = !picked,
-            onClick = {
+
+    LazyColumn {
+        items(
+            items = DataObject.otherActionsList,
+            key = { it.type }
+        ) { otherAction ->
+            OtherActionItem(otherAction = otherAction, picked = otherAction.type == picked) {
                 onPick(
-                    CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
+                    CircleMenuAction(type = otherAction.type)
                 )
             }
-        ) {
-            Text(
-                text = if (picked) "Already picked" else "OpenSetting"
-            )
         }
     }
 }

@@ -18,6 +18,7 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
     private val deleteCircleMenuUseCase: DeleteCircleMenuUseCase
     private val getAllCircleMenuUseCase: GetAllCircleMenuUseCase
     val allCircleMenu: LiveData<List<CircleMenu>>
+    var flashLightCondition: Boolean
 
     init {
         appDao = AppDataBase.getDataBase(application).getDao()
@@ -25,7 +26,9 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
         deleteCircleMenuUseCase = DeleteCircleMenuUseCase(appDao)
         getAllCircleMenuUseCase = GetAllCircleMenuUseCase(appDao)
         allCircleMenu = getAllCircleMenuUseCase.get()
+        flashLightCondition = false
     }
+
     fun insertCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
         insertCircleMenuUseCase.insertCircleMenu(circleMenu)
     }

@@ -66,5 +66,9 @@
     <string name="app_image_tab">Apps</string>
     <string name="default_image_tab">Default</string>
     <string name="own">Own</string>
+    <string name="open_settings">Open settings</string>
+    <string name="flashlight_on">Flashlight on</string>
+    <string name="flashlight_off">FlashLight off</string>
+    <string name="change_flashlight_condition">Change flashlight condition</string>
 
 </resources>

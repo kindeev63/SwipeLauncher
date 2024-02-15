@@ -24,6 +24,7 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
+
 object DataObject {
     var allApplicationData = emptyList<ApplicationData>()
     var userImages = emptyMap<Int, ImageBitmap>()
@@ -63,6 +64,12 @@ object DataObject {
         Pair(DefaultImage.FlashLightOn, R.drawable.ic_flashlight_on),
         Pair(DefaultImage.FlashLightOff, R.drawable.ic_flashlight_off),
         Pair(DefaultImage.Error, R.drawable.ic_error),
+    )
+    val otherActionsList = listOf(
+        OtherAction(type = CircleMenuActionTypes.OpenSettings, nameResourceId = R.string.open_settings, image = DefaultImage.Settings),
+        OtherAction(type = CircleMenuActionTypes.FlashLightOn, nameResourceId = R.string.flashlight_on, image = DefaultImage.FlashLightOn),
+        OtherAction(type = CircleMenuActionTypes.FlashLightOff, nameResourceId = R.string.flashlight_off, image = DefaultImage.FlashLightOff),
+        OtherAction(type = CircleMenuActionTypes.ChangeFlashLightCondition, nameResourceId = R.string.change_flashlight_condition, image = DefaultImage.FlashLightOn),
     )
 
     @Composable

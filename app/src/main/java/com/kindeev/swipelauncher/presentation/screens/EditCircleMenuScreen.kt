@@ -51,6 +51,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
@@ -305,18 +306,6 @@ private fun EditActionBox(
 
             }
 
-            CircleMenuActionTypes.OpenSettings -> {
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painterResource(id = R.drawable.ic_settings),
-                    contentDescription = null
-                )
-            }
-
             CircleMenuActionTypes.OpenApp -> {
                 val openApp = circleMenuAction.data as OpenApp
                 val painter = when (val applicationData =
@@ -356,6 +345,34 @@ private fun EditActionBox(
                     contentDescription = null
                 )
 
+            }
+
+            CircleMenuActionTypes.OpenSettings -> {
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painterResource(id = R.drawable.ic_settings),
+                    contentDescription = null
+                )
+            }
+
+            else -> {
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painterResource(
+                        id =
+                        DataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction.type }?.image]
+                            ?: R.drawable.ic_error
+                    ),
+                    contentDescription = null
+                )
             }
         }
 
