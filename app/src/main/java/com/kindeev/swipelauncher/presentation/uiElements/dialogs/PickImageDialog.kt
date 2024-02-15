@@ -50,9 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DefaultImagesValues
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
@@ -182,7 +180,7 @@ private fun PickDefaultImage(
         columns = GridCells.Fixed(((LocalConfiguration.current.screenWidthDp - 20) / 50).toInt())
     ) {
         items(
-            items = DefaultImagesValues.defaultImages.keys.toList()
+            items = DataObject.defaultImages.keys.toList()
         ) { defaultImage ->
             Image(
                 modifier = Modifier
@@ -197,7 +195,7 @@ private fun PickDefaultImage(
                         )
                     },
                 painter = painterResource(
-                    id = DefaultImagesValues.defaultImages[defaultImage] ?: R.drawable.ic_error
+                    id = DataObject.defaultImages[defaultImage] ?: R.drawable.ic_error
                 ),
                 contentDescription = null
             )
@@ -245,7 +243,7 @@ private fun PickOwnImage(
                 Text(text = stringResource(id = R.string.pick_image))
             }
         } else {
-            val painter = CircleMenuFunctions.getItemImage(
+            val painter = DataObject.getItemImage(
                 circleMenuImage = CircleMenuImage(
                     type = CircleMenuImageTypes.UserImage,
                     data = picked

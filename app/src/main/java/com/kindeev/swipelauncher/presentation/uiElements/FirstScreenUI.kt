@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.RootCircleMenu
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 
@@ -25,6 +23,6 @@ fun FirstScreenUI(mainAppViewModel: MainAppViewModel) {
 
 @Composable
 private fun End(mainAppViewModel: MainAppViewModel) {
-    mainAppViewModel.insertCircleMenu(RootCircleMenu.rootCircleMenu.copy(title = stringResource(id = R.string.root)))
+    mainAppViewModel.insertCircleMenu(DataObject.getRootCircleMenu())
     LauncherScreen(mainAppViewModel = mainAppViewModel)
 }

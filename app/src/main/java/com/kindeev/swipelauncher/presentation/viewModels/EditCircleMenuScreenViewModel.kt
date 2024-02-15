@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
 
 class EditCircleMenuScreenViewModel(
@@ -30,7 +30,7 @@ class EditCircleMenuScreenViewModel(
                 currentId++
             }
             val circleMenu =
-                CircleMenuFunctions.createEmptyCircleMenu(id = currentId, title = newCircleMenuTitle)
+                DataObject.createEmptyCircleMenu(id = currentId, title = newCircleMenuTitle)
             mainAppViewModel.insertCircleMenu(circleMenu = circleMenu)
             _circleMenu.value = circleMenu
         } else {

@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     allCircleMenu = it
                 }
                 allCircleMenu?.let { circleMenus ->
-                    if (circleMenus.isEmpty()) {
+                    if (circleMenus.find { it.id == 0 } == null) {
                         FirstScreenUI(
                             mainAppViewModel = mainAppViewModel
                         )

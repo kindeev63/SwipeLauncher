@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.MenuOffset
-import com.kindeev.swipelauncher.data.RootCircleMenu
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -24,7 +23,7 @@ class SwipeScreenViewModel(
     val mainAppViewModel: MainAppViewModel
 ) : ViewModel() {
     val menuSize = min(context.resources.configuration.screenWidthDp, context.resources.configuration.screenHeightDp) / 3 * 2f
-    private val _circleMenu = MutableLiveData(RootCircleMenu.rootCircleMenu)
+    private val _circleMenu = MutableLiveData<CircleMenu>()
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
@@ -143,7 +142,6 @@ class SwipeScreenViewModel(
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 // Set circleMenu to rootCircleMenu
                 _circleMenu.value = mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }
-                    ?: RootCircleMenu.rootCircleMenu
                 _menuOffset.value = null
             }
         }

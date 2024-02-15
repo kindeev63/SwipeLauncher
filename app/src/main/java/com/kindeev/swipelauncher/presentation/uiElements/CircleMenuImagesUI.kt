@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.data.CircleMenuFunctions
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 
 @Composable
@@ -24,8 +24,8 @@ fun CircleMenuImagesUI(
     )
 ) {
     val imagesOffset =
-        CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 10)
-    val circlesOffset = CircleMenuFunctions.getItemsOffset(menuSize = menuSize, itemSize = 0f)
+        DataObject.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 10)
+    val circlesOffset = DataObject.getItemsOffset(menuSize = menuSize, itemSize = 0f)
     Box(
         modifier = Modifier
             .size(menuSize.dp)
@@ -62,7 +62,7 @@ fun CircleMenuImagesUI(
         // Draw images
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = imagesOffset[index]
-            CircleMenuFunctions.getItemImage(
+            DataObject.getItemImage(
                 circleMenuImage =
                 listOf(
                     menuImages.upImage,

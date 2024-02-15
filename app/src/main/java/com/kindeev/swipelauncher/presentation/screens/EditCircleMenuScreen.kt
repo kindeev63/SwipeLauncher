@@ -43,7 +43,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.CircleMenuFunctions
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -242,7 +241,7 @@ private fun EditImageBox(
     ) {
         Text(text = stringResource(id = R.string.image))
         Spacer(modifier = Modifier.height(5.dp))
-        val painter = CircleMenuFunctions.getItemImage(circleMenuImage = circleMenuImage)
+        val painter = DataObject.getItemImage(circleMenuImage = circleMenuImage)
         if (painter == null) {
             Button(onClick = { openDialog = true }) {
                 Text(text = stringResource(id = R.string.pick_image))
