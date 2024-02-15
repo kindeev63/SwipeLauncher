@@ -51,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
@@ -71,7 +72,13 @@ fun PickImageDialog(
         mutableStateOf(picked)
     }
     var selectedTab by remember {
-        mutableStateOf(picked.type)
+        mutableStateOf(
+            when (picked.type) {
+                CircleMenuImageTypes.DefaultImage -> ImageDialogTabs.DefaultImageTab
+                CircleMenuImageTypes.AppImage -> ImageDialogTabs.AppImageTab
+                CircleMenuImageTypes.UserImage -> ImageDialogTabs.UserImageTab
+            }
+        )
     }
     val screenConfiguration = LocalConfiguration.current
     Dialog(
@@ -94,7 +101,7 @@ fun PickImageDialog(
             ) {
                 DialogTabs(selectedTab = selectedTab, onSelectTab = { selectedTab = it })
                 when (selectedTab) {
-                    CircleMenuImageTypes.AppImage -> {
+                    ImageDialogTabs.AppImageTab -> {
                         PickAppImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.AppImage) {
@@ -103,7 +110,7 @@ fun PickImageDialog(
                             onPick = { selectedImage = it })
                     }
 
-                    CircleMenuImageTypes.DefaultImage -> {
+                    ImageDialogTabs.DefaultImageTab -> {
                         PickDefaultImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.DefaultImage) {
@@ -112,7 +119,7 @@ fun PickImageDialog(
                             onPick = { selectedImage = it })
                     }
 
-                    CircleMenuImageTypes.UserImage -> {
+                    ImageDialogTabs.UserImageTab -> {
                         PickOwnImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.UserImage) {
@@ -289,21 +296,21 @@ private fun createBitmapByUri(context: Context, uri: Uri) = if (Build.VERSION.SD
 
 @Composable
 private fun DialogTabs(
-    selectedTab: CircleMenuImageTypes,
-    onSelectTab: (CircleMenuImageTypes) -> Unit
+    selectedTab: ImageDialogTabs,
+    onSelectTab: (ImageDialogTabs) -> Unit
 ) {
     ScrollableTabRow(
-        selectedTabIndex = DataObject.imageDialogTabs.map { it.type }.indexOf(selectedTab),
+        selectedTabIndex = DataObject.imageDialogTabs.indexOf(selectedTab),
         edgePadding = 0.dp
     ) {
-        DataObject.imageDialogTabs.forEach { imageTab ->
+        DataObject.imageDialogTabs.forEach { tab ->
             Tab(
-                selected = selectedTab == imageTab.type,
+                selected = selectedTab == tab,
                 onClick = {
-                    if (selectedTab != imageTab.type) onSelectTab(imageTab.type)
+                    if (selectedTab != tab) onSelectTab(tab)
                 },
                 text = {
-                    Text(text = imageTab.name)
+                    Text(text = stringResource(id = tab.nameResourceId))
                 }
             )
         }

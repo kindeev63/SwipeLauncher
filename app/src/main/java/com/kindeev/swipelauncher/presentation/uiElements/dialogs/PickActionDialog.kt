@@ -31,9 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kindeev.swipelauncher.data.ActionDialogTabs
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -54,7 +56,13 @@ fun PickActionDialog(
         mutableStateOf(picked)
     }
     var selectedTab by remember {
-        mutableStateOf(picked.type)
+        mutableStateOf(
+            when (picked.type) {
+                CircleMenuActionTypes.OpenApp -> ActionDialogTabs.OpenAppTab
+                CircleMenuActionTypes.OpenCircleMenu -> ActionDialogTabs.OpenCircleMenuTab
+                else -> ActionDialogTabs.OtherTab
+            }
+        )
     }
     val screenConfiguration = LocalConfiguration.current
     Dialog(
@@ -77,7 +85,7 @@ fun PickActionDialog(
             ) {
                 DialogTabs(selectedTab = selectedTab, onSelectTab = { selectedTab = it })
                 when (selectedTab) {
-                    CircleMenuActionTypes.OpenApp -> {
+                    ActionDialogTabs.OpenAppTab -> {
                         PickAppAction(
                             picked =
                             if (selectedAction.type == CircleMenuActionTypes.OpenApp) {
@@ -87,7 +95,7 @@ fun PickActionDialog(
                         )
                     }
 
-                    CircleMenuActionTypes.OpenCircleMenu -> {
+                    ActionDialogTabs.OpenCircleMenuTab -> {
                         PickCircleMenuAction(
                             picked =
                             if (selectedAction.type == CircleMenuActionTypes.OpenCircleMenu) {
@@ -98,8 +106,8 @@ fun PickActionDialog(
                         )
                     }
 
-                    CircleMenuActionTypes.OpenSettings -> {
-                        PickOpenSettingsAction(
+                    ActionDialogTabs.OtherTab -> {
+                        PickOtherAction(
                             picked = selectedAction.type == CircleMenuActionTypes.OpenSettings,
                             onPick = { selectedAction = it }
                         )
@@ -186,8 +194,9 @@ private fun PickCircleMenuAction(
     }
 }
 
+
 @Composable
-private fun PickOpenSettingsAction(
+fun PickOtherAction(
     picked: Boolean,
     onPick: (CircleMenuAction) -> Unit
 ) {
@@ -213,21 +222,21 @@ private fun PickOpenSettingsAction(
 
 @Composable
 private fun DialogTabs(
-    selectedTab: CircleMenuActionTypes,
-    onSelectTab: (CircleMenuActionTypes) -> Unit
+    selectedTab: ActionDialogTabs,
+    onSelectTab: (ActionDialogTabs) -> Unit
 ) {
     ScrollableTabRow(
-        selectedTabIndex = DataObject.actionDialogTabs.map { it.type }.indexOf(selectedTab),
+        selectedTabIndex = DataObject.actionDialogTabs.indexOf(selectedTab),
         edgePadding = 0.dp
     ) {
-        DataObject.actionDialogTabs.forEach { actionTab ->
+        DataObject.actionDialogTabs.forEach { tab ->
             Tab(
-                selected = selectedTab == actionTab.type,
+                selected = selectedTab == tab,
                 onClick = {
-                    if (selectedTab != actionTab.type) onSelectTab(actionTab.type)
+                    if (selectedTab != tab) onSelectTab(tab)
                 },
                 text = {
-                    Text(text = actionTab.name)
+                    Text(text = stringResource(id = tab.nameResourceId))
                 }
             )
         }
