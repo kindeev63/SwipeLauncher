@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -112,7 +113,7 @@ private fun SelectedBox(
             )
             .size(size.dp)
             .background(
-                color = Color(red = 54, green = 129, blue = 218),
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(20.dp),
             )
     )
