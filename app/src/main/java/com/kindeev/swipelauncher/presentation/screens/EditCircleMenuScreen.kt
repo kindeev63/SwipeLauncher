@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -87,7 +89,9 @@ fun EditCircleMenuScreen(
 
     // UI
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
         // Toolbar
@@ -128,7 +132,7 @@ fun EditCircleMenuToolbar(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.Green),
+            .background(MaterialTheme.colorScheme.secondary),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val circleMenu = viewModel.circleMenu.observeAsState()
@@ -145,13 +149,17 @@ fun EditCircleMenuToolbar(
         }
         circleMenu.value?.let { menu ->
             if (menu.id == 0) {
-                Text(text = menu.title)
+                Text(
+                    text = menu.title,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             } else {
                 var title by remember {
                     mutableStateOf(TextFieldValue())
                 }
                 BasicTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onPrimary),
                     value = title.copy(text = circleMenu.value?.title ?: ""),
                     onValueChange = { newTitle ->
                         viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
