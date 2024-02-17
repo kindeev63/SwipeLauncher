@@ -14,7 +14,7 @@ class MainApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
-         GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
+        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
         mainAppViewModel
     }
 }

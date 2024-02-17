@@ -57,7 +57,6 @@ android {
 
 dependencies {
 
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("androidx.room:room-runtime:2.5.2")
     implementation("androidx.room:room-ktx:2.5.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
