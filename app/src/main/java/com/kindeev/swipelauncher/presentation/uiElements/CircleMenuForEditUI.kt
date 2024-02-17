@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.DataObject
@@ -104,7 +103,7 @@ private fun SelectedBox(
     cords: Offset,
     size: Float
 ) {
-    val offset by animateOffsetAsState(targetValue = cords)
+    val offset by animateOffsetAsState(targetValue = cords, label = "")
     Box(
         modifier = Modifier
             .offset(

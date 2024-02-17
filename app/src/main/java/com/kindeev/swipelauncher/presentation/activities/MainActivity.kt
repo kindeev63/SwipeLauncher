@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.activities
 
-import android.Manifest
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
@@ -21,8 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.ChangedCircleMenu
