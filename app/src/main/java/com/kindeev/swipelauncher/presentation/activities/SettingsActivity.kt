@@ -12,7 +12,7 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val mainAppViewModel = (application as MainApp).mainAppViewModel
-            SwipeLauncherTheme() {
+            SwipeLauncherTheme {
                 SettingsScreen(mainAppViewModel = mainAppViewModel)
             }
         }

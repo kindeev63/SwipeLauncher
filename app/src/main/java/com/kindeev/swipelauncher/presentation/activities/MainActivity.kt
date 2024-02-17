@@ -1,11 +1,16 @@
 package com.kindeev.swipelauncher.presentation.activities
 
+import android.Manifest
+import android.app.role.RoleManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
@@ -16,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.data.ApplicationData
 import com.kindeev.swipelauncher.data.ChangedCircleMenu
@@ -41,7 +48,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val mainAppViewModel = (application as MainApp).mainAppViewModel
         setAllApplicationData()
         setContent {
@@ -65,7 +71,30 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+        if (!isMyLauncherDefault()) {
+            showLauncherSelection()
+        }
+    }
 
+    private fun isMyLauncherDefault(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(Context.ROLE_SERVICE) as RoleManager
+            roleManager.isRoleAvailable(RoleManager.ROLE_HOME) &&
+                    roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+        } else {
+            val packageManager = packageManager
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
+            val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            resolveInfo?.activityInfo?.packageName == packageName
+        }
+    }
+    private fun showLauncherSelection() {
+        val intent = Intent(Settings.ACTION_HOME_SETTINGS)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
         }
     }
 

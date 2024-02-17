@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">SwipeLauncher</string>
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
+    <string name="title_activity_error" translatable="false">ErrorActivity</string>
     <string name="search">Search</string>
     <string name="image">Image</string>
     <string name="action">Action</string>
