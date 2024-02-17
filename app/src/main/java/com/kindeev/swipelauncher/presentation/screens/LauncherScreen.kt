@@ -7,7 +7,6 @@ import android.os.Build
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +17,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -37,6 +36,7 @@ import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.AllAppsBottomSheet
 import kotlinx.coroutines.launch
 import com.google.accompanist.permissions.rememberPermissionState
+import com.kindeev.swipelauncher.R
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -98,7 +98,7 @@ private fun ScreenContent() {
 private fun PhoneWallpaper() {
     val wallpaperManager = WallpaperManager.getInstance(LocalContext.current)
     val permissionState = rememberPermissionState(
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_EXTERNAL_STORAGE else Manifest.permission.READ_MEDIA_IMAGES
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
     LaunchedEffect(permissionState) {
         if (permissionState.status != PermissionStatus.Granted) {
@@ -108,10 +108,11 @@ private fun PhoneWallpaper() {
     if (permissionState.status == PermissionStatus.Granted) {
         val imageBitmap = wallpaperManager.drawable?.toBitmap()?.asImageBitmap()
         if (imageBitmap == null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(id = R.drawable.wallapaper),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
             )
         } else {
             Image(
@@ -122,10 +123,11 @@ private fun PhoneWallpaper() {
             )
         }
     } else {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = R.drawable.wallapaper),
+            contentDescription = null,
+            contentScale = ContentScale.Crop
         )
     }
 }

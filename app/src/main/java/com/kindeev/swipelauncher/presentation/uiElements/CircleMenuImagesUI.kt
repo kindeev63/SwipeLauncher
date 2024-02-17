@@ -44,7 +44,7 @@ fun CircleMenuImagesUI(
                         x = cords.x * density,
                         y = cords.y * density
                     ),
-                    radius = menuSize * density / 2 / 5
+                    radius = menuSize * density / 10
                 )
 
                 // Draw stroke
@@ -55,7 +55,7 @@ fun CircleMenuImagesUI(
                         x = cords.x * density,
                         y = cords.y * density
                     ),
-                    radius = menuSize * density / 2 / 5
+                    radius = menuSize * density / 10
                 )
             }
         }

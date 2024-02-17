@@ -99,7 +99,7 @@ private fun CircleMenuUI(
                 ),
                 color = centerCircleColor,
                 style = centerCircleStroke,
-                radius = menuSize / 2
+                radius = menuSize * density / 5.8f
             )
         }
     }
