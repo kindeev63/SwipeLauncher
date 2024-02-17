@@ -54,6 +54,7 @@ import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
@@ -264,7 +265,7 @@ private fun EditImageBox(
                     .size((LocalConfiguration.current.screenWidthDp / 6).dp)
                     .clickable { openDialog = true },
                 painter = painter,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+                colorFilter = if (circleMenuImage.type == CircleMenuImageTypes.DefaultImage) ColorFilter.tint(MaterialTheme.colorScheme.onBackground) else null,
                 contentDescription = null,
             )
         }

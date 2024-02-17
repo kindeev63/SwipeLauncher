@@ -53,8 +53,6 @@ fun LauncherScreen(
             scope.launch {
                 sheetState.hide()
             }
-        } else {
-            Instrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
         }
     }
     ModalBottomSheetLayout(

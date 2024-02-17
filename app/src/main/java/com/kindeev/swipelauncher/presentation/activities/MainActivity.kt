@@ -171,18 +171,12 @@ class MainActivity : ComponentActivity() {
     private fun checkCircleMenus(
         mainAppViewModel: MainAppViewModel,
     ) {
-        val allPackageNames =
-            packageManager.getInstalledApplications(PackageManager.MATCH_ALL).filter {
-                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
-            }.map {
-                it.packageName
-            }
         mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
             val changedCircleMenus = mutableListOf<CircleMenu>()
             allCircleMenus.forEach { circleMenu ->
                 val changedCircleMenu = checkCircleMenu(
                     circleMenu = circleMenu,
-                    allPackageNames = allPackageNames,
+                    allPackageNames = DataObject.allApplicationData.map { it.packageName },
                     allCircleMenuId = allCircleMenus.map { it.id }
                 )
                 if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
