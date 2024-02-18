@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.CircleMenuDirection
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
@@ -25,12 +26,16 @@ class SwipeScreenViewModel(
     private val context: Context,
     val mainAppViewModel: MainAppViewModel
 ) : ViewModel() {
-    val menuSize = min(context.resources.configuration.screenWidthDp, context.resources.configuration.screenHeightDp) / 3 * 2f
+    val menuSize = min(
+        context.resources.configuration.screenWidthDp,
+        context.resources.configuration.screenHeightDp
+    ) / 3 * 2f
     private val _circleMenu = MutableLiveData<CircleMenu>()
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _menuOffset = MutableLiveData<MenuOffset?>(null)
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
     private var clickTime = 0L
+
     init {
         mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }?.let { rootCircleMenu ->
             setCircleMenu(rootCircleMenu)
@@ -160,8 +165,24 @@ class SwipeScreenViewModel(
             CircleMenuActionTypes.OpenCircleMenu -> {
                 setNewCircleMenuOffset(direction = direction)
                 val openCircleMenu = action.data as OpenCircleMenu
-                _circleMenu.value =
+                var circleMenuForCheck =
                     mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
+                        ?: mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }
+                circleMenuForCheck?.let { menu ->
+                    circleMenuForCheck =
+                        if (
+                            DataObject.checkCircleMenu(
+                                circleMenu = menu,
+                                context = context,
+                                mainAppViewModel = mainAppViewModel
+                            )
+                        ) {
+                            menu
+                        } else {
+                            mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }
+                        }
+                }
+                _circleMenu.value = circleMenuForCheck
                 val vibrator =
                     context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                 vibrator.vibrate(20)
@@ -175,30 +196,37 @@ class SwipeScreenViewModel(
 
             CircleMenuActionTypes.OpenApp -> {
                 val currentApp = action.data as OpenApp
-                val intent = context.packageManager.getLaunchIntentForPackage(currentApp.packageName)
-                intent?.let { context.startActivity(it) }
+                DataObject.openApp(currentApp.packageName, context)
             }
 
             CircleMenuActionTypes.FlashLightOn -> {
                 viewModelScope.launch {
-                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    val cameraManager =
+                        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                     cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
                     mainAppViewModel.flashLightCondition = true
                 }
                 _menuOffset.value = null
             }
+
             CircleMenuActionTypes.FlashLightOff -> {
                 viewModelScope.launch {
-                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    val cameraManager =
+                        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                     cameraManager.setTorchMode(cameraManager.cameraIdList[0], false)
                     mainAppViewModel.flashLightCondition = false
                 }
                 _menuOffset.value = null
             }
+
             CircleMenuActionTypes.ChangeFlashLightCondition -> {
                 viewModelScope.launch {
-                    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], !mainAppViewModel.flashLightCondition)
+                    val cameraManager =
+                        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                    cameraManager.setTorchMode(
+                        cameraManager.cameraIdList[0],
+                        !mainAppViewModel.flashLightCondition
+                    )
                     mainAppViewModel.flashLightCondition = !mainAppViewModel.flashLightCondition
                 }
                 _menuOffset.value = null

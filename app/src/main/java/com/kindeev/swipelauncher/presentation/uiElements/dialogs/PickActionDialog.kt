@@ -21,6 +21,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -142,9 +143,10 @@ private fun PickAppAction(
     picked: OpenApp?,
     onPick: (CircleMenuAction) -> Unit
 ) {
+    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
     LazyColumn {
         items(
-            items = DataObject.allApplicationData,
+            items = allApplicationData.value,
             key = { it.packageName }
         ) { applicationData ->
             AppItem(

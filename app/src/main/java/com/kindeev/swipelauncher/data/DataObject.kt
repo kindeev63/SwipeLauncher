@@ -1,9 +1,13 @@
 package com.kindeev.swipelauncher.data
 
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -13,21 +17,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import java.io.File
 
 object DataObject {
-    var allApplicationData = emptyList<ApplicationData>()
+    private val _allApplicationData = MutableLiveData<List<ApplicationData>>(emptyList())
+    val allApplicationData: LiveData<List<ApplicationData>> = _allApplicationData
     var userImages = emptyMap<Int, ImageBitmap>()
     val imageDialogTabs = listOf(
         ImageDialogTabs.AppImageTab,
@@ -72,6 +82,384 @@ object DataObject {
         OtherAction(type = CircleMenuActionTypes.FlashLightOff, nameResourceId = R.string.flashlight_off, image = DefaultImage.FlashLightOff),
         OtherAction(type = CircleMenuActionTypes.ChangeFlashLightCondition, nameResourceId = R.string.change_flashlight_condition, image = DefaultImage.FlashLightOn),
     )
+
+    private fun isAppInstalled(packageName: String, context: Context): Boolean {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(packageName,  0)
+            packageInfo.packageName == packageName
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    fun openApp(packageName: String, context: Context) {
+        if (isAppInstalled(packageName, context)) {
+            val intent =
+                context.packageManager.getLaunchIntentForPackage(packageName)
+            intent?.let { context.startActivity(it) }
+        }
+    }
+
+    fun deleteApp(packageName: String, context: Context) {
+        val packageUri = Uri.parse("package:$packageName")
+        val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
+        context.startActivity(uninstallIntent)
+    }
+
+    fun setUserImages(
+        mainAppViewModel: MainAppViewModel,
+        context: Context
+    ) {
+        val userImages = mutableMapOf<Int, ImageBitmap>()
+        val fileNames = mutableListOf<String>()
+        val allFileNames = context.filesDir.listFiles()?.map { it.name } ?: emptyList()
+        mainAppViewModel.allCircleMenu.value?.map { it.menuImages }?.forEach { menuImages ->
+            if (menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.upImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(context.filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.downImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(context.filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.rightImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(context.filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+            if (menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
+                val userImage = menuImages.leftImage.data as UserImage
+                if ("${userImage.id}.png" in allFileNames) {
+                    userImages[userImage.id] =
+                        BitmapFactory.decodeFile(File(context.filesDir, "${userImage.id}.png").path)
+                            .asImageBitmap()
+                    fileNames.add("${userImage.id}.png")
+                }
+            }
+        }
+        context.filesDir.listFiles()?.forEach { file ->
+            if (file.name.contains(".png") && file.name !in fileNames) {
+                file.delete()
+            }
+        }
+        DataObject.userImages = userImages
+    }
+
+    fun checkCircleMenus(
+        mainAppViewModel: MainAppViewModel,
+        context: Context
+    ) {
+        mainAppViewModel.allCircleMenu.value?.let { allCircleMenus ->
+            val changedCircleMenus = mutableListOf<CircleMenu>()
+            val allPackageNames = allApplicationData.value?.map { it.packageName } ?: emptyList()
+            allCircleMenus.forEach { circleMenu ->
+                val changedCircleMenu = checkCircleMenu(
+                    context = context,
+                    circleMenu = circleMenu,
+                    allPackageNames = allPackageNames,
+                    allCircleMenuId = allCircleMenus.map { it.id }
+                )
+                if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
+            }
+            mainAppViewModel.insertCircleMenus(changedCircleMenus)
+        }
+    }
+
+    private fun checkCircleMenu(
+        context: Context,
+        circleMenu: CircleMenu,
+        allPackageNames: List<String>,
+        allCircleMenuId: List<Int>,
+    ): ChangedCircleMenu {
+        var changed = false
+
+        // Check Actions
+        var menuActions = circleMenu.menuActions
+        val defaultAction = CircleMenuAction(
+            type = CircleMenuActionTypes.OpenCircleMenu,
+            data = OpenCircleMenu(id = 0)
+        )
+
+        // Check OpenApp
+        if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.upAction.data as OpenApp
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(upAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.downAction.data as OpenApp
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(downAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.rightAction.data as OpenApp
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(rightAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.leftAction.data as OpenApp
+            if (openApp.packageName !in allPackageNames) {
+                menuActions = menuActions.copy(leftAction = defaultAction)
+                changed = true
+            }
+        }
+
+        // Check OpenCircleMenu
+        if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.upAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(upAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.downAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(downAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.rightAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(rightAction = defaultAction)
+                changed = true
+            }
+        }
+        if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.leftAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuId) {
+                menuActions = menuActions.copy(leftAction = defaultAction)
+                changed = true
+            }
+        }
+
+
+        // Check Images
+        var menuImages = circleMenu.menuImages
+        val defaultImage = CircleMenuImage(
+            type = CircleMenuImageTypes.DefaultImage,
+            data = DefaultImage.Error
+        )
+
+        // Check AppImages
+        if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.upImage.data as AppImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(upImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.downImage.data as AppImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(downImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.rightImage.data as AppImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(rightImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.leftImage.data as AppImage
+            if (appImage.packageName !in allPackageNames) {
+                menuImages = menuImages.copy(leftImage = defaultImage)
+                changed = true
+            }
+        }
+
+        // Check UserImages
+        val fileNames = context.filesDir.listFiles()?.map { it.name } ?: emptyList()
+        if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.upImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(upImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.downImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(downImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.rightImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(rightImage = defaultImage)
+                changed = true
+            }
+        }
+        if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.leftImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) {
+                menuImages = menuImages.copy(leftImage = defaultImage)
+                changed = true
+            }
+        }
+
+        return ChangedCircleMenu(
+            circleMenu = circleMenu.copy(
+                menuActions = menuActions,
+                menuImages = menuImages
+            ),
+            changed = changed
+        )
+    }
+
+    fun checkCircleMenu(
+        circleMenu: CircleMenu,
+        context: Context,
+        mainAppViewModel: MainAppViewModel
+    ): Boolean {
+
+        // Check Actions
+
+        // Check OpenApp
+        if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.upAction.data as OpenApp
+            if (!isAppInstalled(openApp.packageName, context)) return false
+        }
+        if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.downAction.data as OpenApp
+            if (!isAppInstalled(openApp.packageName, context)) return false
+        }
+        if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.rightAction.data as OpenApp
+            if (!isAppInstalled(openApp.packageName, context)) return false
+        }
+        if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenApp) {
+            val openApp = circleMenu.menuActions.leftAction.data as OpenApp
+            if (!isAppInstalled(openApp.packageName, context)) return false
+        }
+
+        // Check OpenCircleMenu
+        val allCircleMenuIds = mainAppViewModel.allCircleMenu.value?.map { it.id } ?: emptyList()
+        if (circleMenu.menuActions.upAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.upAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuIds) return false
+        }
+        if (circleMenu.menuActions.downAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.downAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuIds) return false
+        }
+        if (circleMenu.menuActions.rightAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.rightAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuIds) return false
+        }
+        if (circleMenu.menuActions.leftAction.type == CircleMenuActionTypes.OpenCircleMenu) {
+            val openCircleMenu = circleMenu.menuActions.leftAction.data as OpenCircleMenu
+            if (openCircleMenu.id !in allCircleMenuIds) return false
+        }
+
+
+        // Check Images
+
+        // Check AppImages
+        if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.upImage.data as AppImage
+            if (!isAppInstalled(appImage.packageName, context)) return false
+        }
+        if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.downImage.data as AppImage
+            if (!isAppInstalled(appImage.packageName, context)) return false
+        }
+        if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.rightImage.data as AppImage
+            if (!isAppInstalled(appImage.packageName, context)) return false
+        }
+        if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.AppImage) {
+            val appImage = circleMenu.menuImages.leftImage.data as AppImage
+            if (!isAppInstalled(appImage.packageName, context)) return false
+        }
+
+        // Check UserImages
+        val fileNames = context.filesDir.listFiles()?.map { it.name } ?: emptyList()
+        if (circleMenu.menuImages.upImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.upImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) return false
+        }
+        if (circleMenu.menuImages.downImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.downImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) return false
+        }
+        if (circleMenu.menuImages.rightImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.rightImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) return false
+        }
+        if (circleMenu.menuImages.leftImage.type == CircleMenuImageTypes.UserImage) {
+            val userImage = circleMenu.menuImages.leftImage.data as UserImage
+            if ("${userImage.id}.png" !in fileNames) return false
+        }
+        return true
+    }
+    fun setAllApplicationData(context: Context) {
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val allAppData =  context.packageManager.queryIntentActivities(intent, 0).map { it.activityInfo.applicationInfo }
+            .map {
+                ApplicationData(
+                    name = it.loadLabel(context.packageManager).toString(),
+                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
+                    packageName = it.packageName
+                )
+            }
+        val mutableAllApplicationData = allAppData.toMutableList()
+        allAppData.forEach { applicationData ->
+            if (mutableAllApplicationData.count { it.packageName == applicationData.packageName } > 1) {
+                mutableAllApplicationData.remove(applicationData)
+            }
+        }
+        _allApplicationData.value = mutableAllApplicationData.sortedBy { it.name }
+    }
+
+    fun receiverGetNewApplicationData(context: Context): List<ApplicationData> {
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val allAppData =  context.packageManager.queryIntentActivities(intent, 0).map { it.activityInfo.applicationInfo }
+            .map {
+                ApplicationData(
+                    name = it.loadLabel(context.packageManager).toString(),
+                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
+                    packageName = it.packageName
+                )
+            }
+        val mutableAllApplicationData = allAppData.toMutableList()
+        allAppData.forEach { applicationData ->
+            if (mutableAllApplicationData.count { it.packageName == applicationData.packageName } > 1) {
+                mutableAllApplicationData.remove(applicationData)
+            }
+        }
+        return mutableAllApplicationData.sortedBy { it.name }
+    }
+    fun receiverSetAllApplicationData(newApplicationData: List<ApplicationData>) {
+        _allApplicationData.value = newApplicationData
+    }
 
     @Composable
     fun getRootCircleMenu(): CircleMenu {
@@ -127,10 +515,10 @@ object DataObject {
 
             CircleMenuImageTypes.AppImage -> {
                 val appImage = circleMenuImage.data as AppImage
-                allApplicationData.find { it.packageName == appImage.packageName }
+                allApplicationData.value?.find { it.packageName == appImage.packageName }
                     ?.let { applicationData ->
                         val imageBitmap = applicationData.icon
-                        return remember(imageBitmap) {
+                        remember(imageBitmap) {
                             BitmapPainter(
                                 imageBitmap,
                                 filterQuality = DrawScope.DefaultFilterQuality

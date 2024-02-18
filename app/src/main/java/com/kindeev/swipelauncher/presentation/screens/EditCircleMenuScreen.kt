@@ -281,6 +281,7 @@ private fun EditActionBox(
     var openDialog by remember {
         mutableStateOf(false)
     }
+    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
     if (openDialog) {
         PickActionDialog(
             onDismissRequest = { openDialog = false },
@@ -325,7 +326,7 @@ private fun EditActionBox(
             CircleMenuActionTypes.OpenApp -> {
                 val openApp = circleMenuAction.data as OpenApp
                 val painter = when (val applicationData =
-                    DataObject.allApplicationData.find { it.packageName == openApp.packageName }) {
+                    allApplicationData.value.find { it.packageName == openApp.packageName }) {
                     null -> {
                         val context = LocalContext.current
                         val applicationInfo =

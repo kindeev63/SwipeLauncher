@@ -1,9 +1,11 @@
 package com.kindeev.swipelauncher.presentation.uiElements.dialogs
 
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +28,7 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,7 +50,7 @@ import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AllAppsBottomSheet(
     sheetState: ModalBottomSheetState
@@ -66,6 +69,7 @@ fun AllAppsBottomSheet(
         var searchText by remember {
             mutableStateOf("")
         }
+        val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,7 +98,7 @@ fun AllAppsBottomSheet(
             columns = GridCells.Fixed((screenWidth / 80).toInt())
         ) {
             items(
-                items = DataObject.allApplicationData.filter {
+                items = allApplicationData.value.filter {
                     it.name.lowercase().contains(searchText.lowercase())
                 }
             ) { applicationData ->
@@ -102,17 +106,17 @@ fun AllAppsBottomSheet(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .clickable {
-                            val intent =
-                                context.packageManager.getLaunchIntentForPackage(applicationData.packageName)
-                            intent?.let {
-                                scope.launch {
-                                    sheetState.hide()
-                                }
+                        .combinedClickable(
+                            onClick = {
+                                DataObject.openApp(applicationData.packageName, context)
+                                scope.launch { sheetState.hide() }
                                 searchText = ""
-                                context.startActivity(it)
+
+                            },
+                            onLongClick = {
+                                DataObject.deleteApp(applicationData.packageName, context)
                             }
-                        },
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {

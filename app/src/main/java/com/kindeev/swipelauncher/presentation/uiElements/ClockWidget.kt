@@ -62,16 +62,18 @@ fun ClockWidget() {
 
 }
 
-private fun getTime(localDateTime: LocalDateTime) =
-    if (localDateTime.minute > 9) {
+private fun getTime(localDateTime: LocalDateTime): String {
+    return if (localDateTime.minute > 9) {
         "${localDateTime.hour}:${localDateTime.minute}"
     } else {
         "${localDateTime.hour}:0${localDateTime.minute}"
     }
+}
+
 
 
 private fun getDate(context: Context, localDateTime: LocalDateTime): String {
     val weekdays = context.resources.getStringArray(R.array.weekday)
     val months = context.resources.getStringArray(R.array.months)
-    return "${weekdays[localDateTime.dayOfWeek.value]}, ${localDateTime.dayOfMonth} ${months[localDateTime.month.value]}"
+    return "${weekdays[localDateTime.dayOfWeek.value-1]}, ${localDateTime.dayOfMonth} ${months[localDateTime.month.value-1]}"
 }
