@@ -33,12 +33,11 @@ fun ClockWidget() {
         mutableStateOf(getDate(context, locTime))
     }
     LaunchedEffect(Unit) {
-        delay((60 - LocalDateTime.now().second) * 1000L)
         while (true) {
             val locTime = LocalDateTime.now()
             time = getTime(locTime)
             date = getDate(context, locTime)
-            delay(60000L)
+            delay(1000L)
         }
 
     }
@@ -59,7 +58,6 @@ fun ClockWidget() {
             fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
         )
     }
-
 }
 
 private fun getTime(localDateTime: LocalDateTime): String {

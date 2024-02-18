@@ -62,7 +62,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver()
+        try {
+            unregisterReceiver()
+        } catch (_: Exception) {}
+
     }
     private fun registerReceiver() {
         val filter = IntentFilter().apply {
