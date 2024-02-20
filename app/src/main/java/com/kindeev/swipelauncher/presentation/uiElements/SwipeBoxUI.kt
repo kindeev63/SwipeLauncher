@@ -25,7 +25,7 @@ import com.kindeev.swipelauncher.presentation.viewModels.factories.SwipeScreenVi
 @Composable
 fun SwipeBoxUI(
     mainAppViewModel: MainAppViewModel,
-    openSheet: () -> Unit
+    onDoubleClick: () -> Unit
 ) {
     val viewModel: SwipeScreenViewModel = viewModel(
         factory = SwipeScreenViewModelFactory(
@@ -41,7 +41,7 @@ fun SwipeBoxUI(
             .fillMaxSize()
             .pointerInteropFilter(
                 onTouchEvent = viewModel.onSwipe(
-                    onDoubleClick = openSheet
+                    onDoubleClick = onDoubleClick
                 )
             )
     ) {

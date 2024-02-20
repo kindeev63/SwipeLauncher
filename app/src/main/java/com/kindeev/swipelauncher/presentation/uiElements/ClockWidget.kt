@@ -1,6 +1,8 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
 import android.content.Context
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +24,9 @@ import java.time.LocalDateTime
 
 
 @Composable
-fun ClockWidget() {
+fun ClockWidget(
+    onClick: () -> Unit
+) {
     val context = LocalContext.current
     var time by remember {
         val locTime = LocalDateTime.now()
@@ -44,7 +48,12 @@ fun ClockWidget() {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable(
+                onClick = onClick,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -61,11 +70,9 @@ fun ClockWidget() {
 }
 
 private fun getTime(localDateTime: LocalDateTime): String {
-    return if (localDateTime.minute > 9) {
-        "${localDateTime.hour}:${localDateTime.minute}"
-    } else {
-        "${localDateTime.hour}:0${localDateTime.minute}"
-    }
+    val hour = if (localDateTime.hour > 9) localDateTime.hour.toString() else "0${localDateTime.hour}"
+    val minute = if (localDateTime.minute > 9) localDateTime.minute.toString() else "0${localDateTime.minute}"
+    return "$hour:$minute"
 }
 
 
