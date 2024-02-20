@@ -71,5 +71,7 @@
     <string name="flashlight_on">Flashlight on</string>
     <string name="flashlight_off">FlashLight off</string>
     <string name="change_flashlight_condition">Change flashlight condition</string>
+    <string name="all_circle_menus">All circle menus</string>
+    <string name="open_last_app">Open the last remaining application</string>
 
 </resources>

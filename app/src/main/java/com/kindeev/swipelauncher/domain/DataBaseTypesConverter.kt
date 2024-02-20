@@ -2,8 +2,11 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.kindeev.swipelauncher.data.ApplicationSetting
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
+import com.kindeev.swipelauncher.data.settings.SettingTypes
+import com.kindeev.swipelauncher.data.settings.SettingValue
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
@@ -64,12 +67,49 @@ class DataBaseTypesConverter {
         return gson.toJson(menuActionsToSave)
     }
 
+    @TypeConverter
+    fun toApplicationSetting(data: String): ApplicationSetting {
+        return ApplicationSetting.valueOf(data)
+    }
+
+    @TypeConverter
+    fun fromApplicationSetting(applicationSetting: ApplicationSetting): String {
+        return applicationSetting.name
+    }
+
+    @TypeConverter
+    fun toSettingValue(data: String): SettingValue {
+        val gson = Gson()
+        val settingValueToSave = gson.fromJson(data, SettingValueToSave::class.java)
+        val classOfData = getClassOfSettingData(settingValueToSave.type)
+        return SettingValue(
+            type = settingValueToSave.type,
+            data = gson.fromJson(settingValueToSave.data, classOfData)
+        )
+    }
+
+    @TypeConverter
+    fun fromSettingValue(settingValue: SettingValue): String {
+        val gson = Gson()
+        val newData = gson.toJson(settingValue.data)
+        return gson.toJson(SettingValueToSave().apply {
+            type = settingValue.type
+            data = newData
+        }
+        )
+    }
+
+
     private fun toCircleMenuAction(data: String): CircleMenuAction {
         val gson = Gson()
         val circleMenuActionToSave = gson.fromJson(data, CircleMenuActionToSave::class.java)
         val classOfData = getClassOfActionData(circleMenuActionToSave.type)
         return CircleMenuAction(
-            type = circleMenuActionToSave.type, data = if (classOfData == null) null else gson.fromJson(circleMenuActionToSave.data, classOfData)
+            type = circleMenuActionToSave.type,
+            data = if (classOfData == null) null else gson.fromJson(
+                circleMenuActionToSave.data,
+                classOfData
+            )
         )
     }
 
@@ -102,7 +142,7 @@ class DataBaseTypesConverter {
     }
 
     private fun getClassOfActionData(type: CircleMenuActionTypes): Class<*>? {
-        return when(type) {
+        return when (type) {
             CircleMenuActionTypes.OpenCircleMenu -> OpenCircleMenu::class.java
             CircleMenuActionTypes.OpenApp -> OpenApp::class.java
             else -> null
@@ -110,10 +150,17 @@ class DataBaseTypesConverter {
     }
 
     private fun getClassOfImageData(type: CircleMenuImageTypes): Class<*> {
-        return when(type) {
+        return when (type) {
             CircleMenuImageTypes.AppImage -> AppImage::class.java
             CircleMenuImageTypes.DefaultImage -> DefaultImage::class.java
             CircleMenuImageTypes.UserImage -> UserImage::class.java
+        }
+    }
+
+    private fun getClassOfSettingData(type: SettingTypes): Class<*> {
+        return when (type) {
+            SettingTypes.Switch -> Boolean::class.java
+            SettingTypes.Clickable -> Any::class.java
         }
     }
 }
@@ -136,7 +183,13 @@ private class MenuImagesToSave {
     var rightImage = ""
     var leftImage = ""
 }
+
 private class CircleMenuImageToSave {
     var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
+    var data: String = ""
+}
+
+private class SettingValueToSave {
+    var type: SettingTypes = SettingTypes.Clickable
     var data: String = ""
 }

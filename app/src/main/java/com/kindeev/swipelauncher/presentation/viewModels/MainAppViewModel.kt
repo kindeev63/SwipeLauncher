@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.dataBaseElements.AppDataBase
+import com.kindeev.swipelauncher.data.settings.SettingData
 import com.kindeev.swipelauncher.domain.AppDao
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.DeleteCircleMenuUseCase
@@ -18,6 +19,7 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
     private val deleteCircleMenuUseCase: DeleteCircleMenuUseCase
     private val getAllCircleMenuUseCase: GetAllCircleMenuUseCase
     val allCircleMenu: LiveData<List<CircleMenu>>
+    val allSettings: LiveData<List<SettingData>>
     var flashLightCondition: Boolean
 
     init {
@@ -26,6 +28,7 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
         deleteCircleMenuUseCase = DeleteCircleMenuUseCase(appDao)
         getAllCircleMenuUseCase = GetAllCircleMenuUseCase(appDao)
         allCircleMenu = getAllCircleMenuUseCase.get()
+        allSettings = appDao.getAllSettings()
         flashLightCondition = false
     }
 
@@ -39,5 +42,13 @@ class MainAppViewModel(application: Application): AndroidViewModel(application) 
 
     fun deleteCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
         deleteCircleMenuUseCase.delete(circleMenu)
+    }
+
+    fun insertSetting(settingData: SettingData) = viewModelScope.launch {
+        appDao.insertSetting(settingData)
+    }
+
+    fun insertSettings(settingsData: List<SettingData>) = viewModelScope.launch {
+        appDao.insertSettings(settingsData)
     }
 }

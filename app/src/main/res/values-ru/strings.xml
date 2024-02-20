@@ -44,4 +44,6 @@
     <string name="flashlight_on">Включить фонарик</string>
     <string name="flashlight_off">Выключить фонарик</string>
     <string name="change_flashlight_condition">Изменить состояние фонарика</string>
+    <string name="all_circle_menus">Все меню</string>
+    <string name="open_last_app">Открыть последнее оставшееся приложение</string>
 </resources>

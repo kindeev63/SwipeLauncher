@@ -36,11 +36,14 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchBox(
-    onDismissRequest: () -> Unit
+    mainAppViewModel: MainAppViewModel,
+    onDismissRequest: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     var searchText by remember {
@@ -63,6 +66,7 @@ fun SearchBox(
             .combinedClickable(
                 onClick = {},
                 onDoubleClick = onDismissRequest,
+                onLongClick = onLongClick,
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             )
@@ -74,6 +78,7 @@ fun SearchBox(
         )
         Spacer(modifier = Modifier.height(10.dp))
         SearchResults(
+            mainAppViewModel = mainAppViewModel,
             searchText = searchText,
             onDismissRequest = onDismissRequest
         )
@@ -118,13 +123,15 @@ private fun SearchElement(
 
 @Composable
 private fun SearchResults(
+    mainAppViewModel: MainAppViewModel,
     searchText: String,
     onDismissRequest: () -> Unit
 ) {
     val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+    val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
     val context = LocalContext.current
     val filteredApps = allApplicationData.value.filter { it.name.lowercase().contains(searchText.lowercase()) }
-    if (filteredApps.size == 1) {
+    if (filteredApps.size == 1 && DataObject.openLastAppSettingValue(allSettings = allSettings)) {
         DataObject.openApp(filteredApps.first().packageName, context)
         onDismissRequest()
     }

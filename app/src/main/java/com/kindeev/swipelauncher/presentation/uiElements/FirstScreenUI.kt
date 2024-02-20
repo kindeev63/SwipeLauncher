@@ -24,5 +24,6 @@ fun FirstScreenUI(mainAppViewModel: MainAppViewModel) {
 @Composable
 private fun End(mainAppViewModel: MainAppViewModel) {
     mainAppViewModel.insertCircleMenu(DataObject.getRootCircleMenu())
+    DataObject.setDefaultSettings(mainAppViewModel = mainAppViewModel)
     LauncherScreen(mainAppViewModel = mainAppViewModel)
 }

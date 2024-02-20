@@ -22,6 +22,9 @@ import androidx.lifecycle.MutableLiveData
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
+import com.kindeev.swipelauncher.data.settings.SettingData
+import com.kindeev.swipelauncher.data.settings.SettingTypes
+import com.kindeev.swipelauncher.data.settings.SettingValue
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -76,20 +79,78 @@ object DataObject {
         Pair(DefaultImage.FlashLightOff, R.drawable.ic_flashlight_off),
         Pair(DefaultImage.Error, R.drawable.ic_error),
     )
-    val otherActionsList = listOf(
-        OtherAction(type = CircleMenuActionTypes.OpenSettings, nameResourceId = R.string.open_settings, image = DefaultImage.Settings),
-        OtherAction(type = CircleMenuActionTypes.FlashLightOn, nameResourceId = R.string.flashlight_on, image = DefaultImage.FlashLightOn),
-        OtherAction(type = CircleMenuActionTypes.FlashLightOff, nameResourceId = R.string.flashlight_off, image = DefaultImage.FlashLightOff),
-        OtherAction(type = CircleMenuActionTypes.ChangeFlashLightCondition, nameResourceId = R.string.change_flashlight_condition, image = DefaultImage.FlashLightOn),
+    private val settingsNames = mapOf(
+        Pair(ApplicationSetting.OpenAllCircleMenus, R.string.all_circle_menus),
+        Pair(ApplicationSetting.OpenLastApp, R.string.open_last_app),
     )
+    val otherActionsList = listOf(
+        OtherAction(
+            type = CircleMenuActionTypes.OpenSettings,
+            nameResourceId = R.string.open_settings,
+            image = DefaultImage.Settings
+        ),
+        OtherAction(
+            type = CircleMenuActionTypes.FlashLightOn,
+            nameResourceId = R.string.flashlight_on,
+            image = DefaultImage.FlashLightOn
+        ),
+        OtherAction(
+            type = CircleMenuActionTypes.FlashLightOff,
+            nameResourceId = R.string.flashlight_off,
+            image = DefaultImage.FlashLightOff
+        ),
+        OtherAction(
+            type = CircleMenuActionTypes.ChangeFlashLightCondition,
+            nameResourceId = R.string.change_flashlight_condition,
+            image = DefaultImage.FlashLightOn
+        ),
+    )
+
+    fun openLastAppSettingValue(allSettings: List<SettingData>): Boolean {
+        val setting = allSettings.find { it.setting == ApplicationSetting.OpenLastApp }
+                ?: return true
+        return setting.value.data as Boolean
+    }
+
+    fun getSettingNameId(applicationSetting: ApplicationSetting) =
+        settingsNames[applicationSetting] ?: 0
 
     private fun isAppInstalled(packageName: String, context: Context): Boolean {
         return try {
-            val packageInfo = context.packageManager.getPackageInfo(packageName,  0)
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
             packageInfo.packageName == packageName
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
+    }
+
+    fun executeClickableSetting(
+        applicationSetting: ApplicationSetting,
+        openAllCircleMenuScreen: () -> Unit
+    ) {
+        when (applicationSetting) {
+            ApplicationSetting.OpenAllCircleMenus -> {
+                openAllCircleMenuScreen()
+            }
+
+            else -> {}
+        }
+    }
+
+    fun executeSwitchSetting(
+        mainAppViewModel: MainAppViewModel,
+        settingData: SettingData,
+        data: Boolean
+    ) {
+        mainAppViewModel.insertSetting(settingData.copy(value = settingData.value.copy(data = data)))
+    }
+
+    fun setDefaultSettings(mainAppViewModel: MainAppViewModel) {
+        val defaultSettings = listOf(
+            SettingData(ApplicationSetting.OpenLastApp, SettingValue(SettingTypes.Switch, true)),
+            SettingData(ApplicationSetting.OpenAllCircleMenus, SettingValue(SettingTypes.Clickable))
+        )
+        mainAppViewModel.insertSettings(defaultSettings)
     }
 
     fun openApp(packageName: String, context: Context) {
@@ -418,10 +479,12 @@ object DataObject {
         }
         return true
     }
+
     fun setAllApplicationData(context: Context) {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val allAppData =  context.packageManager.queryIntentActivities(intent, 0).map { it.activityInfo.applicationInfo }
+        val allAppData = context.packageManager.queryIntentActivities(intent, 0)
+            .map { it.activityInfo.applicationInfo }
             .map {
                 ApplicationData(
                     name = it.loadLabel(context.packageManager).toString(),
@@ -441,7 +504,8 @@ object DataObject {
     fun receiverGetNewApplicationData(context: Context): List<ApplicationData> {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val allAppData =  context.packageManager.queryIntentActivities(intent, 0).map { it.activityInfo.applicationInfo }
+        val allAppData = context.packageManager.queryIntentActivities(intent, 0)
+            .map { it.activityInfo.applicationInfo }
             .map {
                 ApplicationData(
                     name = it.loadLabel(context.packageManager).toString(),
@@ -457,6 +521,7 @@ object DataObject {
         }
         return mutableAllApplicationData.sortedBy { it.name }
     }
+
     fun receiverSetAllApplicationData(newApplicationData: List<ApplicationData>) {
         _allApplicationData.value = newApplicationData
     }
@@ -502,6 +567,7 @@ object DataObject {
             menuActions = menuActions
         )
     }
+
     @Composable
     fun getItemImage(
         circleMenuImage: CircleMenuImage
@@ -599,10 +665,22 @@ object DataObject {
             )
         ),
         menuActions = MenuActions(
-            upAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
-            downAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
-            rightAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0)),
-            leftAction = CircleMenuAction(type = CircleMenuActionTypes.OpenCircleMenu, data = OpenCircleMenu(id = 0))
+            upAction = CircleMenuAction(
+                type = CircleMenuActionTypes.OpenCircleMenu,
+                data = OpenCircleMenu(id = 0)
+            ),
+            downAction = CircleMenuAction(
+                type = CircleMenuActionTypes.OpenCircleMenu,
+                data = OpenCircleMenu(id = 0)
+            ),
+            rightAction = CircleMenuAction(
+                type = CircleMenuActionTypes.OpenCircleMenu,
+                data = OpenCircleMenu(id = 0)
+            ),
+            leftAction = CircleMenuAction(
+                type = CircleMenuActionTypes.OpenCircleMenu,
+                data = OpenCircleMenu(id = 0)
+            )
         )
     )
 }
