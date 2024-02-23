@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Tab
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.data.ActionDialogTabs
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
@@ -89,7 +91,7 @@ fun PickActionDialog(
                         PickAppAction(
                             picked =
                             if (selectedAction.type == CircleMenuActionTypes.OpenApp) {
-                                selectedAction.data as OpenApp
+                                selectedAction.data.getAs(OpenApp::class.java)
                             } else null,
                             onPick = { selectedAction = it }
                         )
@@ -99,7 +101,7 @@ fun PickActionDialog(
                         PickCircleMenuAction(
                             picked =
                             if (selectedAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-                                selectedAction.data as OpenCircleMenu
+                                selectedAction.data.getAs(OpenCircleMenu::class.java)
                             } else null,
                             mainAppViewModel = mainAppViewModel,
                             onPick = { selectedAction = it }
@@ -232,7 +234,124 @@ private fun DialogTabs(
                     if (selectedTab != tab) onSelectTab(tab)
                 },
                 text = {
-                    Text(text = stringResource(id = tab.nameResourceId))
+                    Text(
+                        text = stringResource(id = tab.nameResourceId),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun PickActionDialogWithoutOpenCircleMenu(
+    onDismissRequest: () -> Unit,
+    picked: CircleMenuAction,
+    onPick: (CircleMenuAction) -> Unit
+) {
+    var selectedAction by remember {
+        mutableStateOf(picked)
+    }
+    var selectedTab by remember {
+        mutableStateOf(
+            when (picked.type) {
+                CircleMenuActionTypes.OpenApp -> ActionDialogTabs.OpenAppTab
+                else -> ActionDialogTabs.OtherTab
+            }
+        )
+    }
+    val screenConfiguration = LocalConfiguration.current
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
+                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                DialogTabsWithoutOpenCircleMenu(selectedTab = selectedTab, onSelectTab = { selectedTab = it })
+                when (selectedTab) {
+                    ActionDialogTabs.OpenAppTab -> {
+                        PickAppAction(
+                            picked =
+                            if (selectedAction.type == CircleMenuActionTypes.OpenApp) {
+                                selectedAction.data as OpenApp
+                            } else null,
+                            onPick = { selectedAction = it }
+                        )
+                    }
+
+                    ActionDialogTabs.OtherTab -> {
+                        PickOtherAction(
+                            picked = selectedAction.type,
+                            onPick = { selectedAction = it }
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                TextButton(
+                    onClick = {
+                        onDismissRequest()
+                    }
+                ) {
+                    Text(text = "Cancel")
+                }
+                TextButton(
+                    onClick = {
+                        onPick(selectedAction)
+                    }
+                ) {
+                    Text(text = "Save")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogTabsWithoutOpenCircleMenu(
+    selectedTab: ActionDialogTabs,
+    onSelectTab: (ActionDialogTabs) -> Unit
+) {
+    val tabs = remember {
+        DataObject.actionDialogTabs.toMutableList().apply {
+            this.remove(ActionDialogTabs.OpenCircleMenuTab)
+        }
+    }   
+    ScrollableTabRow(
+        selectedTabIndex = tabs.indexOf(selectedTab),
+        edgePadding = 0.dp
+    ) {
+
+        tabs.forEach { tab ->
+            Tab(
+                selected = selectedTab == tab,
+                onClick = {
+                    if (selectedTab != tab) onSelectTab(tab)
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = tab.nameResourceId),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             )
         }

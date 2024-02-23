@@ -46,4 +46,5 @@
     <string name="change_flashlight_condition">Изменить состояние фонарика</string>
     <string name="all_circle_menus">Все меню</string>
     <string name="open_last_app">Открыть последнее оставшееся приложение</string>
+    <string name="clickable_clock">Нажатие на часы</string>
 </resources>

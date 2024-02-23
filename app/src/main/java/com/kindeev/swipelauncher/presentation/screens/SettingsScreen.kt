@@ -13,11 +13,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.settings.SettingTypes
+import com.kindeev.swipelauncher.data.DataObject.getAs
+import com.kindeev.swipelauncher.data.DataObject.serializableSettingData
 import com.kindeev.swipelauncher.data.navigation.Screen
 import com.kindeev.swipelauncher.data.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.data.navigation.rememberNavigationState
+import com.kindeev.swipelauncher.data.settings.ApplicationSetting
+import com.kindeev.swipelauncher.data.settings.settingTypes.ClickableClock
+import com.kindeev.swipelauncher.data.settings.settingTypes.OpenLastApp
 import com.kindeev.swipelauncher.presentation.uiElements.ClickableSettingsItem
+import com.kindeev.swipelauncher.presentation.uiElements.SwitchAndActionSettingsItem
 import com.kindeev.swipelauncher.presentation.uiElements.SwitchSettingsItem
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
@@ -71,33 +76,55 @@ fun SettingsScreenContent(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            items(items = allSettings) { settingData ->
+            items(items = allSettings.sortedBy { it.setting.name }) { settingData ->
                 val settingName =
-                    stringResource(id = DataObject.getSettingNameId(settingData.setting))
-                when (settingData.value.type) {
-                    SettingTypes.Switch -> {
+                    stringResource(id = DataObject.SettingDataObject.getSettingNameId(settingData.setting))
+                when (settingData.setting) {
+                    ApplicationSetting.OpenLastApp -> {
                         SwitchSettingsItem(
                             text = settingName,
-                            checked = settingData.value.data as Boolean,
-                            onCheckedChange = { newValue ->
-                                DataObject.executeSwitchSetting(
-                                    mainAppViewModel = mainAppViewModel,
-                                    settingData = settingData,
-                                    data = newValue
+                            checked = settingData.getObjectData().getAs(OpenLastApp::class.java).value,
+                            onCheckedChange = {
+                                mainAppViewModel.insertSetting(
+                                    settingData.copy(
+                                        data = OpenLastApp(
+                                            it
+                                        ).serializableSettingData()
+                                    )
                                 )
                             }
                         )
                     }
 
-                    SettingTypes.Clickable -> {
+                    ApplicationSetting.OpenAllCircleMenus -> {
                         ClickableSettingsItem(
                             text = settingName,
-                            onClick = {
-                                DataObject.executeClickableSetting(
-                                    applicationSetting = settingData.setting,
-                                    openAllCircleMenuScreen = navigateToAllCircleMenus
+                            onClick = navigateToAllCircleMenus
+                        )
+                    }
+
+                    ApplicationSetting.ClickableClock -> {
+                        val clickableClock = settingData.getObjectData().getAs(ClickableClock::class.java)
+                        SwitchAndActionSettingsItem(
+                            text = settingName,
+                            enabled = clickableClock.enabled,
+                            onCheckedChange = {
+                                mainAppViewModel.insertSetting(
+                                    settingData.copy(
+                                        data = clickableClock.copy(enabled = it)
+                                            .serializableSettingData()
+                                    )
                                 )
-                            }
+                            },
+                            onActionChange = {
+                                mainAppViewModel.insertSetting(
+                                    settingData.copy(
+                                        data = clickableClock.copy(circleMenuAction = it)
+                                            .serializableSettingData()
+                                    )
+                                )
+                            },
+                            circleMenuAction = clickableClock.circleMenuAction
                         )
                     }
                 }

@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuActions
-import java.io.Serializable
 
 @Entity(tableName = "table_menu")
 data class CircleMenu(
@@ -17,4 +16,4 @@ data class CircleMenu(
     var menuImages: MenuImages,
     @ColumnInfo(name = "menuActions")
     var menuActions: MenuActions,
-): Serializable
+)

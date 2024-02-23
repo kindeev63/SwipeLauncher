@@ -48,6 +48,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -306,7 +307,7 @@ private fun EditActionBox(
         when (circleMenuAction.type) {
 
             CircleMenuActionTypes.OpenCircleMenu -> {
-                val openCircleMenu = circleMenuAction.data as OpenCircleMenu
+                val openCircleMenu = circleMenuAction.data.getAs(OpenCircleMenu::class.java)
                 val circleMenu =
                     viewModel.mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
                 circleMenu?.let {
@@ -324,7 +325,7 @@ private fun EditActionBox(
             }
 
             CircleMenuActionTypes.OpenApp -> {
-                val openApp = circleMenuAction.data as OpenApp
+                val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
                 val painter = when (val applicationData =
                     allApplicationData.value.find { it.packageName == openApp.packageName }) {
                     null -> {

@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
@@ -164,7 +165,7 @@ class SwipeScreenViewModel(
 
             CircleMenuActionTypes.OpenCircleMenu -> {
                 setNewCircleMenuOffset(direction = direction)
-                val openCircleMenu = action.data as OpenCircleMenu
+                val openCircleMenu = action.data.getAs(OpenCircleMenu::class.java)
                 var circleMenuForCheck =
                     mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
                         ?: mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }
@@ -195,7 +196,7 @@ class SwipeScreenViewModel(
             }
 
             CircleMenuActionTypes.OpenApp -> {
-                val currentApp = action.data as OpenApp
+                val currentApp = action.data.getAs(OpenApp::class.java)
                 DataObject.openApp(currentApp.packageName, context)
             }
 

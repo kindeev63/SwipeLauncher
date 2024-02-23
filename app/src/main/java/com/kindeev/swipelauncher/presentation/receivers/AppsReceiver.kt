@@ -6,6 +6,10 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getAs
+import com.kindeev.swipelauncher.data.settings.ApplicationSetting
+import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.presentation.MainApp
 
 
@@ -19,8 +23,28 @@ class AppsReceiver : BroadcastReceiver() {
 
             handler.post {
                 // Обновление UI в основном потоке
+                val mainAppViewModel = (context.applicationContext as MainApp).mainAppViewModel
                 DataObject.receiverSetAllApplicationData(newApplicationData)
-                DataObject.checkCircleMenus((context.applicationContext as MainApp).mainAppViewModel, context)
+                DataObject.checkCircleMenus(mainAppViewModel, context)
+                val clickableClockSetting = DataObject.SettingDataObject.clickableClockSettingValue(
+                    mainAppViewModel.allSettings.value ?: emptyList()
+                )
+                clickableClockSetting.circleMenuAction?.let { circleMenuAction ->
+                    when (circleMenuAction.type) {
+                        CircleMenuActionTypes.OpenApp -> {
+                            val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
+                            if (!DataObject.isAppInstalled(openApp.packageName, context)) {
+                                DataObject.SettingDataObject.defaultSettings.find { it.setting == ApplicationSetting.ClickableClock }
+                                    ?.let {
+                                        mainAppViewModel.insertSetting(it)
+                                    }
+
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
             }
         }
 

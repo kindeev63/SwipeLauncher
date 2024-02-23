@@ -2,6 +2,7 @@ package com.kindeev.swipelauncher.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.data.ChangedCircleMenu
+import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -38,28 +39,28 @@ class AllCircleMenusScreenViewModel(
         )
         var changed = false
         if (menuActions.upAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-            val openCircleMenu = menuActions.upAction.data as OpenCircleMenu
+            val openCircleMenu = menuActions.upAction.data.getAs(OpenCircleMenu::class.java)
             if (openCircleMenu.id == circleMenuId) {
                 menuActions.upAction = defaultAction
                 changed = true
             }
         }
         if (menuActions.downAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-            val openCircleMenu = menuActions.downAction.data as OpenCircleMenu
+            val openCircleMenu = menuActions.downAction.data.getAs(OpenCircleMenu::class.java)
             if (openCircleMenu.id == circleMenuId) {
                 menuActions.downAction = defaultAction
                 changed = true
             }
         }
         if (menuActions.rightAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-            val openCircleMenu = menuActions.rightAction.data as OpenCircleMenu
+            val openCircleMenu = menuActions.rightAction.data.getAs(OpenCircleMenu::class.java)
             if (openCircleMenu.id == circleMenuId) {
                 menuActions.rightAction = defaultAction
                 changed = true
             }
         }
         if (menuActions.leftAction.type == CircleMenuActionTypes.OpenCircleMenu) {
-            val openCircleMenu = menuActions.leftAction.data as OpenCircleMenu
+            val openCircleMenu = menuActions.leftAction.data.getAs(OpenCircleMenu::class.java)
             if (openCircleMenu.id == circleMenuId) {
                 menuActions.leftAction = defaultAction
                 changed = true

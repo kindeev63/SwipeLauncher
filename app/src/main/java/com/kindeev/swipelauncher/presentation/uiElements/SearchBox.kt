@@ -131,7 +131,7 @@ private fun SearchResults(
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
     val context = LocalContext.current
     val filteredApps = allApplicationData.value.filter { it.name.lowercase().contains(searchText.lowercase()) }
-    if (filteredApps.size == 1 && DataObject.openLastAppSettingValue(allSettings = allSettings)) {
+    if (filteredApps.size == 1 && DataObject.SettingDataObject.openLastAppSettingValue(allSettings = allSettings)) {
         DataObject.openApp(filteredApps.first().packageName, context)
         onDismissRequest()
     }

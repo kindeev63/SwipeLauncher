@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Tab
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.data.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
@@ -106,7 +108,7 @@ fun PickImageDialog(
                         PickAppImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.AppImage) {
-                                selectedImage.data as AppImage
+                                selectedImage.data.getAs(AppImage::class.java)
                             } else null,
                             onPick = { selectedImage = it })
                     }
@@ -115,7 +117,7 @@ fun PickImageDialog(
                         PickDefaultImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.DefaultImage) {
-                                selectedImage.data as DefaultImage
+                                selectedImage.data.getAs(DefaultImage::class.java)
                             } else null,
                             onPick = { selectedImage = it })
                     }
@@ -124,7 +126,7 @@ fun PickImageDialog(
                         PickOwnImage(
                             picked =
                             if (selectedImage.type == CircleMenuImageTypes.UserImage) {
-                                selectedImage.data as UserImage
+                                selectedImage.data.getAs(UserImage::class.java)
                             } else null,
                             onPick = { selectedImage = it })
                     }
@@ -312,7 +314,10 @@ private fun DialogTabs(
                     if (selectedTab != tab) onSelectTab(tab)
                 },
                 text = {
-                    Text(text = stringResource(id = tab.nameResourceId))
+                    Text(
+                        text = stringResource(id = tab.nameResourceId),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             )
         }

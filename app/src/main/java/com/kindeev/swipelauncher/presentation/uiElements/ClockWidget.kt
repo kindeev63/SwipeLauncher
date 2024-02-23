@@ -25,6 +25,46 @@ import java.time.LocalDateTime
 
 @Composable
 fun ClockWidget(
+) {
+    val context = LocalContext.current
+    var time by remember {
+        val locTime = LocalDateTime.now()
+        mutableStateOf(getTime(locTime))
+    }
+    var date by remember {
+        val locTime = LocalDateTime.now()
+        mutableStateOf(getDate(context, locTime))
+    }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val locTime = LocalDateTime.now()
+            time = getTime(locTime)
+            date = getDate(context, locTime)
+            delay(1000L)
+        }
+
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = time,
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = (LocalConfiguration.current.screenWidthDp/5).sp
+        )
+        Text(
+            text = date,
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
+        )
+    }
+}
+
+@Composable
+fun ClickableClockWidget(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
