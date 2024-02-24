@@ -577,13 +577,13 @@ object DataObject {
         fun getRootCircleMenu(): CircleMenu {
             val image = CircleMenuImage(
                 type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage.UpArrow
+                data = DefaultImage.Error
             )
             val menuImages = MenuImages(
-                upImage = image,
-                downImage = image,
-                rightImage = image,
-                leftImage = image
+                upImage = image.copy(data = DefaultImage.UpArrow),
+                downImage = image.copy(data = DefaultImage.Settings),
+                rightImage = image.copy(data = DefaultImage.RightArrow),
+                leftImage = image.copy(data = DefaultImage.LeftArrow)
             )
             val action = CircleMenuAction(
                 type = CircleMenuActionTypes.OpenCircleMenu,
