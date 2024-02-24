@@ -15,14 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.data.GlobalExceptionHandler
-import com.kindeev.swipelauncher.data.ui.theme.SwipeLauncherTheme
+import com.kindeev.swipelauncher.data.ui.theme.SettingsScreenTheme
 
 
 class ErrorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SwipeLauncherTheme {
+            SettingsScreenTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),

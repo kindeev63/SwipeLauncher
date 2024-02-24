@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.ui.theme.SwipeLauncherTheme
+import com.kindeev.swipelauncher.data.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.presentation.MainApp
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
@@ -33,8 +33,7 @@ class MainActivity : ComponentActivity() {
         DataObject.setAllApplicationData(this)
         registerReceiver()
         setContent {
-            SwipeLauncherTheme {
-                enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+            LauncherScreenTheme {
                 var allCircleMenu by remember {
                     mutableStateOf<List<CircleMenu>?>(null)
                 }
@@ -58,6 +57,11 @@ class MainActivity : ComponentActivity() {
         if (!isMyLauncherDefault()) {
             showLauncherSelection()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
     }
 
     override fun onDestroy() {
