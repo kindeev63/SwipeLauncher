@@ -48,8 +48,8 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemImage
 import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.data.DataObject.getItemImage
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -388,7 +388,7 @@ private fun EditActionBox(
                         },
                     painter = painterResource(
                         id =
-                        DataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction.type }?.image]
+                        DataObject.CircleMenuDataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction.type }?.image]
                             ?: R.drawable.ic_error
                     ),
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),

@@ -54,7 +54,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.data.DataObject.getItemImage
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemImage
 import com.kindeev.swipelauncher.data.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
@@ -192,7 +192,7 @@ private fun PickDefaultImage(
         columns = GridCells.Fixed(((LocalConfiguration.current.screenWidthDp - 20) / 50).toInt())
     ) {
         items(
-            items = DataObject.defaultImages.keys.toList()
+            items = DataObject.CircleMenuDataObject.defaultImages.keys.toList()
         ) { defaultImage ->
             Image(
                 modifier = Modifier
@@ -207,7 +207,7 @@ private fun PickDefaultImage(
                         )
                     },
                 painter = painterResource(
-                    id = DataObject.defaultImages[defaultImage] ?: R.drawable.ic_error
+                    id = DataObject.CircleMenuDataObject.defaultImages[defaultImage] ?: R.drawable.ic_error
                 ),
                 contentDescription = null
             )
@@ -226,13 +226,13 @@ private fun PickOwnImage(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val ids = DataObject.userImages.map { it.key }
+            val ids = DataObject.CircleMenuDataObject.userImages.map { it.key }
             var newId = 0
             while (newId in ids) {
                 newId++
             }
             val bitmap = createBitmapByUri(context, uri)
-            DataObject.userImages = DataObject.userImages.toMutableMap().apply {
+            DataObject.CircleMenuDataObject.userImages = DataObject.CircleMenuDataObject.userImages.toMutableMap().apply {
                 this[newId] = bitmap.asImageBitmap()
             }.toMap()
             createNewImageFile(context, "$newId.png", bitmap)

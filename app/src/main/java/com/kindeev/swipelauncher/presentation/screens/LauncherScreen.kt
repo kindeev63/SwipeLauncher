@@ -18,7 +18,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
+import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.clickableClockSettingValue
 import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
@@ -74,7 +75,7 @@ private fun ScreenContent(
     mainAppViewModel: MainAppViewModel
 ) {
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
-    val clickableClockSetting = DataObject.SettingDataObject.clickableClockSettingValue(allSettings)
+    val clickableClockSetting = clickableClockSettingValue(allSettings)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     Column {
@@ -91,7 +92,7 @@ private fun ScreenContent(
                     CircleMenuActionTypes.OpenApp -> {
                         val currentApp =
                             clickableClockSetting.circleMenuAction.data.getAs(OpenApp::class.java)
-                        DataObject.openApp(currentApp.packageName, context)
+                        openApp(currentApp.packageName, context)
                     }
 
                     CircleMenuActionTypes.FlashLightOn -> {

@@ -12,9 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.getSettingNameId
+import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.serializableSettingData
 import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.data.DataObject.serializableSettingData
 import com.kindeev.swipelauncher.data.navigation.Screen
 import com.kindeev.swipelauncher.data.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.data.navigation.rememberNavigationState
@@ -78,7 +78,7 @@ fun SettingsScreenContent(
         ) {
             items(items = allSettings.sortedBy { it.setting.name }) { settingData ->
                 val settingName =
-                    stringResource(id = DataObject.SettingDataObject.getSettingNameId(settingData.setting))
+                    stringResource(id = getSettingNameId(settingData.setting))
                 when (settingData.setting) {
                     ApplicationSetting.OpenLastApp -> {
                         SwitchSettingsItem(

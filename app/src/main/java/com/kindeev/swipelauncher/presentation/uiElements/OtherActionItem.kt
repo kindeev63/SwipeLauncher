@@ -38,7 +38,7 @@ fun OtherActionItem(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ){
-        DataObject.defaultImages[otherAction.image]?.let { resourceId ->
+        DataObject.CircleMenuDataObject.defaultImages[otherAction.image]?.let { resourceId ->
             Image(
                 modifier = Modifier.size(50.dp),
                 painter = painterResource(id = resourceId),

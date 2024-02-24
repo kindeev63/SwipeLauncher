@@ -36,6 +36,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.deleteApp
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
+import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.openLastAppSettingValue
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -131,8 +134,8 @@ private fun SearchResults(
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
     val context = LocalContext.current
     val filteredApps = allApplicationData.value.filter { it.name.lowercase().contains(searchText.lowercase()) }
-    if (filteredApps.size == 1 && DataObject.SettingDataObject.openLastAppSettingValue(allSettings = allSettings)) {
-        DataObject.openApp(filteredApps.first().packageName, context)
+    if (filteredApps.size == 1 && openLastAppSettingValue(allSettings = allSettings)) {
+        openApp(filteredApps.first().packageName, context)
         onDismissRequest()
     }
     LazyColumn(
@@ -146,11 +149,11 @@ private fun SearchResults(
                 applicationData = applicationData,
                 textColor = MaterialTheme.colorScheme.onPrimary,
                 onClick = {
-                    DataObject.openApp(applicationData.packageName, context)
+                    openApp(applicationData.packageName, context)
                     onDismissRequest()
                 },
                 onLongClick = {
-                    DataObject.deleteApp(applicationData.packageName, context)
+                    deleteApp(applicationData.packageName, context)
                 }
             )
         }

@@ -242,7 +242,7 @@ fun SwitchAndActionSettingsItem(
                                 },
                             painter = painterResource(
                                 id =
-                                DataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction?.type }?.image]
+                                DataObject.CircleMenuDataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction?.type }?.image]
                                     ?: R.drawable.ic_error
                             ),
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),

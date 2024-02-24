@@ -16,7 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemsOffset
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 
 @Composable
@@ -79,7 +79,7 @@ fun CircleMenuForEditUI(
             leftImageClick
         )
         val itemsOffset =
-            DataObject.getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
+            getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = itemsOffset[index]
             val function = functions[index]

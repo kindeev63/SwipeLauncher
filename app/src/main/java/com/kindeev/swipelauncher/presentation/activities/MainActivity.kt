@@ -12,10 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.registerAppsReceiver
-import com.kindeev.swipelauncher.data.DataObject.setAllApplicationData
-import com.kindeev.swipelauncher.data.DataObject.unregisterAppsReceiver
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.setAllApplicationData
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.checkCircleMenuReturn
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.setUserImages
+import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.registerAppsReceiver
+import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.unregisterAppsReceiver
 import com.kindeev.swipelauncher.data.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.presentation.MainApp
@@ -39,8 +40,8 @@ class MainActivity : ComponentActivity() {
                     allCircleMenu = allCircleMenus
                     val handler = Handler(Looper.getMainLooper())
                     val myThread = Thread {
-                        DataObject.setUserImages(mainAppViewModel = mainAppViewModel, context = this)
-                        val changedCircleMenus = DataObject.checkCircleMenuReturn(
+                        setUserImages(mainAppViewModel = mainAppViewModel, context = this)
+                        val changedCircleMenus = checkCircleMenuReturn(
                             allCircleMenus = allCircleMenus,
                             context = this
                         )

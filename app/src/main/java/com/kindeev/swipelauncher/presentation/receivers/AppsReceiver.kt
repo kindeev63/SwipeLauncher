@@ -6,6 +6,11 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.isAppInstalled
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.checkCircleMenus
+import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.receiverGetNewApplicationData
+import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.receiverSetAllApplicationData
+import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.clickableClockSettingValue
 import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.data.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -19,26 +24,25 @@ class AppsReceiver : BroadcastReceiver() {
 
         val myThread = Thread {
             // Ваш код, который должен выполняться в фоновом потоке
-            val newApplicationData = DataObject.receiverGetNewApplicationData(context)
+            val newApplicationData = receiverGetNewApplicationData(context)
 
             handler.post {
                 // Обновление UI в основном потоке
                 val mainAppViewModel = (context.applicationContext as MainApp).mainAppViewModel
-                DataObject.receiverSetAllApplicationData(newApplicationData)
-                DataObject.checkCircleMenus(mainAppViewModel, context)
-                val clickableClockSetting = DataObject.SettingDataObject.clickableClockSettingValue(
+                receiverSetAllApplicationData(newApplicationData)
+                checkCircleMenus(mainAppViewModel, context)
+                val clickableClockSetting = clickableClockSettingValue(
                     mainAppViewModel.allSettings.value ?: emptyList()
                 )
                 clickableClockSetting.circleMenuAction?.let { circleMenuAction ->
                     when (circleMenuAction.type) {
                         CircleMenuActionTypes.OpenApp -> {
                             val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
-                            if (!DataObject.isAppInstalled(openApp.packageName, context)) {
+                            if (!isAppInstalled(openApp.packageName, context)) {
                                 DataObject.SettingDataObject.defaultSettings.find { it.setting == ApplicationSetting.ClickableClock }
                                     ?.let {
                                         mainAppViewModel.insertSetting(it)
                                     }
-
                             }
                         }
 

@@ -11,7 +11,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
+import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.checkCircleMenu
 import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.data.MenuOffset
 import com.kindeev.swipelauncher.domain.CircleMenu
@@ -172,7 +173,7 @@ class SwipeScreenViewModel(
                 circleMenuForCheck?.let { menu ->
                     circleMenuForCheck =
                         if (
-                            DataObject.checkCircleMenu(
+                            checkCircleMenu(
                                 circleMenu = menu,
                                 context = context,
                                 mainAppViewModel = mainAppViewModel
@@ -197,7 +198,7 @@ class SwipeScreenViewModel(
 
             CircleMenuActionTypes.OpenApp -> {
                 val currentApp = action.data.getAs(OpenApp::class.java)
-                DataObject.openApp(currentApp.packageName, context)
+                openApp(currentApp.packageName, context)
             }
 
             CircleMenuActionTypes.FlashLightOn -> {
