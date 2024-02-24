@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.getItemImage
 import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
 
 @Composable
@@ -62,15 +63,12 @@ fun CircleMenuImagesUI(
         // Draw images
         listOf(0, 1, 2, 3).forEach { index ->
             val offset = imagesOffset[index]
-            DataObject.getItemImage(
-                circleMenuImage =
-                listOf(
-                    menuImages.upImage,
-                    menuImages.downImage,
-                    menuImages.rightImage,
-                    menuImages.leftImage,
-                )[index]
-            )?.let { painter ->
+            listOf(
+                menuImages.upImage,
+                menuImages.downImage,
+                menuImages.rightImage,
+                menuImages.leftImage,
+            )[index].getItemImage()?.let { painter ->
                 Image(
                     modifier = Modifier
                         .offset(

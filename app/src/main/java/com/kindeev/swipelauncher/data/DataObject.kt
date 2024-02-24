@@ -1,10 +1,15 @@
 package com.kindeev.swipelauncher.data
 
+import android.app.role.RoleManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
@@ -37,6 +42,7 @@ import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.imageTypes.UserImage
+import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import java.io.File
 
@@ -135,7 +141,6 @@ object DataObject {
             mainAppViewModel.insertSettings(defaultSettings)
         }
     }
-
     fun isAppInstalled(packageName: String, context: Context): Boolean {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
@@ -144,7 +149,6 @@ object DataObject {
             false
         }
     }
-
     fun openApp(packageName: String, context: Context) {
         if (isAppInstalled(packageName, context)) {
             val intent =
@@ -152,13 +156,11 @@ object DataObject {
             intent?.let { context.startActivity(it) }
         }
     }
-
     fun deleteApp(packageName: String, context: Context) {
         val packageUri = Uri.parse("package:$packageName")
         val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
         context.startActivity(uninstallIntent)
     }
-
     fun setUserImages(
         mainAppViewModel: MainAppViewModel,
         context: Context
@@ -211,7 +213,6 @@ object DataObject {
         }
         DataObject.userImages = userImages
     }
-
     fun checkCircleMenus(
         mainAppViewModel: MainAppViewModel,
         context: Context
@@ -231,7 +232,23 @@ object DataObject {
             mainAppViewModel.insertCircleMenus(changedCircleMenus)
         }
     }
-
+    fun checkCircleMenuReturn(
+        allCircleMenus: List<CircleMenu>,
+        context: Context
+    ): List<CircleMenu> {
+        val changedCircleMenus = mutableListOf<CircleMenu>()
+        val allPackageNames = allApplicationData.value?.map { it.packageName } ?: emptyList()
+        allCircleMenus.forEach { circleMenu ->
+            val changedCircleMenu = checkCircleMenu(
+                context = context,
+                circleMenu = circleMenu,
+                allPackageNames = allPackageNames,
+                allCircleMenuId = allCircleMenus.map { it.id }
+            )
+            if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
+        }
+        return changedCircleMenus
+    }
     private fun checkCircleMenu(
         context: Context,
         circleMenu: CircleMenu,
@@ -388,7 +405,6 @@ object DataObject {
             changed = changed
         )
     }
-
     fun checkCircleMenu(
         circleMenu: CircleMenu,
         context: Context,
@@ -479,16 +495,15 @@ object DataObject {
         }
         return true
     }
-
-    fun setAllApplicationData(context: Context) {
+    fun Context.setAllApplicationData() {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val allAppData = context.packageManager.queryIntentActivities(intent, 0)
+        val allAppData = packageManager.queryIntentActivities(intent, 0)
             .map { it.activityInfo.applicationInfo }
             .map {
                 ApplicationData(
-                    name = it.loadLabel(context.packageManager).toString(),
-                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
+                    name = it.loadLabel(packageManager).toString(),
+                    icon = it.loadIcon(packageManager).toBitmap().asImageBitmap(),
                     packageName = it.packageName
                 )
             }
@@ -500,7 +515,6 @@ object DataObject {
         }
         _allApplicationData.value = mutableAllApplicationData.sortedBy { it.name }
     }
-
     fun receiverGetNewApplicationData(context: Context): List<ApplicationData> {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -521,11 +535,9 @@ object DataObject {
         }
         return mutableAllApplicationData.sortedBy { it.name }
     }
-
     fun receiverSetAllApplicationData(newApplicationData: List<ApplicationData>) {
         _allApplicationData.value = newApplicationData
     }
-
     @Composable
     fun getRootCircleMenu(): CircleMenu {
         val image = CircleMenuImage(
@@ -554,20 +566,17 @@ object DataObject {
             menuActions = menuActions
         )
     }
-
     @Composable
-    fun getItemImage(
-        circleMenuImage: CircleMenuImage
-    ): Painter? {
-        return when (circleMenuImage.type) {
+    fun CircleMenuImage.getItemImage(): Painter? {
+        return when (type) {
 
             CircleMenuImageTypes.DefaultImage -> {
-                val defaultImage = circleMenuImage.data.getAs(DefaultImage::class.java)
+                val defaultImage = data.getAs(DefaultImage::class.java)
                 painterResource(id = defaultImages[defaultImage] ?: return null)
             }
 
             CircleMenuImageTypes.AppImage -> {
-                val appImage = circleMenuImage.data.getAs(AppImage::class.java)
+                val appImage = data.getAs(AppImage::class.java)
                 allApplicationData.value?.find { it.packageName == appImage.packageName }
                     ?.let { applicationData ->
                         val imageBitmap = applicationData.icon
@@ -592,7 +601,7 @@ object DataObject {
             }
 
             CircleMenuImageTypes.UserImage -> {
-                val userImage = circleMenuImage.data.getAs(UserImage::class.java)
+                val userImage = data.getAs(UserImage::class.java)
                 val imageBitmap = userImages[userImage.id]
                 imageBitmap?.let {
                     return remember(imageBitmap) {
@@ -605,7 +614,6 @@ object DataObject {
             }
         }
     }
-
     fun getItemsOffset(menuSize: Float, itemSize: Float) =
         listOf(
             // up
@@ -629,7 +637,6 @@ object DataObject {
                 y = menuSize / 2 - itemSize / 2
             )
         )
-
     fun createEmptyCircleMenu(id: Int, title: String = ""): CircleMenu {
         val image = CircleMenuImage(
             type = CircleMenuImageTypes.DefaultImage,
@@ -656,13 +663,10 @@ object DataObject {
             )
         )
     }
-
-
     fun Any?.serializableSettingData(): String {
         val gson = Gson()
         return gson.toJson(this)
     }
-
     fun String.deserializableSettingData(setting: ApplicationSetting): Any? {
         val gson = Gson()
         val classOfData = getClassOfSettingData(setting)
@@ -671,7 +675,6 @@ object DataObject {
         }
         return null
     }
-
     private fun getClassOfSettingData(setting: ApplicationSetting): Class<*>? {
         return when (setting) {
             ApplicationSetting.OpenAllCircleMenus -> null
@@ -679,9 +682,42 @@ object DataObject {
             ApplicationSetting.ClickableClock -> ClickableClock::class.java
         }
     }
-
     fun <T> Any?.getAs(classOfT: Class<T>): T {
         val gson = Gson()
         return gson.fromJson(gson.toJson(this), classOfT)
+    }
+    fun isMyLauncherDefault(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+            roleManager.isRoleAvailable(RoleManager.ROLE_HOME) &&
+                    roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+        } else {
+            val packageManager = context.packageManager
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
+            val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            resolveInfo?.activityInfo?.packageName == context.packageName
+        }
+    }
+    fun showLauncherSelection(context: Context) {
+        val intent = Intent(Settings.ACTION_HOME_SETTINGS)
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        }
+    }
+    fun Context.registerAppsReceiver(receiver: BroadcastReceiver) {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+        this.registerReceiver(receiver, filter)
+    }
+    fun Context.unregisterAppsReceiver(receiver: BroadcastReceiver) {
+        try {
+            this.unregisterReceiver(receiver)
+        } catch (_: Exception) {}
     }
 }

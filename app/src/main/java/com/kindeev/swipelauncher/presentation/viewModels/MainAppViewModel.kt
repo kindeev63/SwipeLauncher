@@ -11,6 +11,7 @@ import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.DeleteCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.GetAllCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.circleMenuUseCases.InsertCircleMenuUseCase
+import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import kotlinx.coroutines.launch
 
 class MainAppViewModel(application: Application): AndroidViewModel(application) {

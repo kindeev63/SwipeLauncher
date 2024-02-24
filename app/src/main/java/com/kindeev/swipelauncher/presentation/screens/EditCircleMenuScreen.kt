@@ -49,6 +49,7 @@ import com.kindeev.swipelauncher.data.CircleMenuDirection
 import com.kindeev.swipelauncher.data.CircleMenuItem
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.DataObject.getAs
+import com.kindeev.swipelauncher.data.DataObject.getItemImage
 import com.kindeev.swipelauncher.domain.CircleMenu
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
@@ -255,7 +256,7 @@ private fun EditImageBox(
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(5.dp))
-        val painter = DataObject.getItemImage(circleMenuImage = circleMenuImage)
+        val painter = circleMenuImage.getItemImage()
         if (painter == null) {
             Button(onClick = { openDialog = true }) {
                 Text(text = stringResource(id = R.string.pick_image))

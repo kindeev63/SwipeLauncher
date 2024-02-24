@@ -54,6 +54,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.DataObject.getAs
+import com.kindeev.swipelauncher.data.DataObject.getItemImage
 import com.kindeev.swipelauncher.data.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
@@ -254,12 +255,10 @@ private fun PickOwnImage(
                 Text(text = stringResource(id = R.string.pick_image))
             }
         } else {
-            val painter = DataObject.getItemImage(
-                circleMenuImage = CircleMenuImage(
-                    type = CircleMenuImageTypes.UserImage,
-                    data = picked
-                )
-            )
+            val painter = CircleMenuImage(
+                type = CircleMenuImageTypes.UserImage,
+                data = picked
+            ).getItemImage()
             if (painter == null) {
                 Button(onClick = { launcher.launch("image/*") }) {
                     Text(text = stringResource(id = R.string.pick_image))
