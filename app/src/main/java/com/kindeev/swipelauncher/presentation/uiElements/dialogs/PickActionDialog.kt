@@ -286,7 +286,7 @@ fun PickActionDialogWithoutOpenCircleMenu(
                         PickAppAction(
                             picked =
                             if (selectedAction.type == CircleMenuActionTypes.OpenApp) {
-                                selectedAction.data as OpenApp
+                                selectedAction.data.getAs(OpenApp::class.java)
                             } else null,
                             onPick = { selectedAction = it }
                         )
