@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,29 +34,30 @@ fun SwipeBoxUI(
             mainAppViewModel = mainAppViewModel
         )
     )
+    val circleMenu by viewModel.circleMenu.observeAsState()
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { allMenus ->
-        viewModel.circleMenu.value?.let { current -> allMenus.find { it.id == current.id }?.let { viewModel.setCircleMenu(it) } }
+        viewModel.setCircleMenu(allMenus.find { it.id == 0 })
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInteropFilter(
-                onTouchEvent = viewModel.onSwipe(
-                    onDoubleClick = onDoubleClick
+    circleMenu?.let {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInteropFilter(
+                    onTouchEvent = viewModel.onSwipe(
+                        onDoubleClick = onDoubleClick
+                    )
                 )
+        ) {
+            CircleMenuUI(
+                viewModel = viewModel
             )
-    ) {
-        CircleMenuUI(
-            viewModel = viewModel,
-            menuSize = viewModel.menuSize,
-        )
+        }
     }
 }
 
 @Composable
 private fun CircleMenuUI(
     viewModel: SwipeScreenViewModel,
-    menuSize: Float,
     centerCircleColor: Color = Color.Blue,
     centerCircleStroke: Stroke = Stroke(
         width = 5f
@@ -68,6 +70,7 @@ private fun CircleMenuUI(
     val menuOffsetState = viewModel.menuOffset.observeAsState()
     val menuOffset = menuOffsetState.value ?: return
     val circleMenu = viewModel.circleMenu.observeAsState()
+    val menuSize = viewModel.menuSize
 
     val density = LocalDensity.current.density
     Box(

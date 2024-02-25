@@ -21,13 +21,10 @@ import com.kindeev.swipelauncher.presentation.MainApp
 class AppsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val handler = Handler(Looper.getMainLooper())
-
-        val myThread = Thread {
-            // Ваш код, который должен выполняться в фоновом потоке
+        Thread {
             val newApplicationData = receiverGetNewApplicationData(context)
 
             handler.post {
-                // Обновление UI в основном потоке
                 val mainAppViewModel = (context.applicationContext as MainApp).mainAppViewModel
                 receiverSetAllApplicationData(newApplicationData)
                 checkCircleMenus(mainAppViewModel, context)
@@ -50,8 +47,6 @@ class AppsReceiver : BroadcastReceiver() {
                     }
                 }
             }
-        }
-
-        myThread.start()
+        }.start()
     }
 }

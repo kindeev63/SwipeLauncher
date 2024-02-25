@@ -149,7 +149,7 @@ object DataObject {
             val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
             context.startActivity(uninstallIntent)
         }
-        fun Context.setAllApplicationData() {
+        fun Context.getAllApplicationData(): List<ApplicationData> {
             val intent = Intent(Intent.ACTION_MAIN, null)
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             val allAppData = packageManager.queryIntentActivities(intent, 0)
@@ -167,7 +167,11 @@ object DataObject {
                     mutableAllApplicationData.remove(applicationData)
                 }
             }
-            _allApplicationData.value = mutableAllApplicationData.sortedBy { it.name }
+             return mutableAllApplicationData.sortedBy { it.name }
+        }
+
+        fun setAllApplicationData(allApplicationData: List<ApplicationData>) {
+            _allApplicationData.value = allApplicationData
         }
     }
     object ReceiverDataObject {

@@ -61,7 +61,7 @@ class SwipeScreenViewModel(
         } else y + boarderOffset,
     )
 
-    fun setCircleMenu(circleMenu: CircleMenu) {
+    fun setCircleMenu(circleMenu: CircleMenu?) {
         _circleMenu.value = circleMenu
     }
 
