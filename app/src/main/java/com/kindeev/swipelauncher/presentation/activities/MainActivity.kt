@@ -9,8 +9,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import com.kindeev.swipelauncher.data.DataObject.AppDataObject.getAllApplicationData
-import com.kindeev.swipelauncher.data.DataObject.AppDataObject.setAllApplicationData
+import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.getNotEmptyAllApplicationData
 import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.checkCircleMenuReturn
 import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.setUserImages
 import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.registerAppsReceiver
@@ -20,7 +20,6 @@ import com.kindeev.swipelauncher.presentation.MainApp
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
 class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
@@ -28,7 +27,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         val mainAppViewModel = (application as MainApp).mainAppViewModel
-        setDataInNewThread(mainAppViewModel)
         registerAppsReceiver(appsReceiver)
         setContent {
             LauncherScreenTheme {
@@ -40,13 +38,17 @@ class MainActivity : ComponentActivity() {
                     LauncherScreen(mainAppViewModel = mainAppViewModel)
                 }
                 mainAppViewModel.allCircleMenu.observe(this) { allCircleMenus ->
-                    val handler = Handler(Looper.getMainLooper())
                     Thread {
+                        val allApplicationData = getNotEmptyAllApplicationData(this)
+                        if (DataObject.CircleMenuDataObject.userImages.isEmpty()) {
+                            setUserImages(mainAppViewModel = mainAppViewModel, context = this)
+                        }
                         val changedCircleMenus = checkCircleMenuReturn(
                             allCircleMenus = allCircleMenus,
+                            allAppData = allApplicationData,
                             context = this
                         )
-                        handler.post {
+                        Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) mainAppViewModel.insertCircleMenus(
                                 changedCircleMenus
                             )
@@ -55,19 +57,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun setDataInNewThread(
-        mainAppViewModel: MainAppViewModel
-    ) {
-        val handler = Handler(Looper.getMainLooper())
-        Thread {
-            setUserImages(mainAppViewModel = mainAppViewModel, context = this)
-            val allApplicationData = getAllApplicationData()
-            handler.post {
-                setAllApplicationData(allApplicationData)
-            }
-        }.start()
     }
 
     private fun isFirstRun(): Boolean {

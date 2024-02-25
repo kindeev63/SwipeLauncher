@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,7 +65,6 @@ fun SettingsScreenContent(
     navigateToAllCircleMenus: () -> Unit
 ) {
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
-    Log.e("test", allSettings.toString())
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)

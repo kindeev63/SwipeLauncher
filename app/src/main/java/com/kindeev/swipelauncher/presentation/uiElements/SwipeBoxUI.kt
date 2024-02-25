@@ -36,7 +36,8 @@ fun SwipeBoxUI(
     )
     val circleMenu by viewModel.circleMenu.observeAsState()
     mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) { allMenus ->
-        viewModel.setCircleMenu(allMenus.find { it.id == 0 })
+        viewModel.setCircleMenu(allMenus.find { it.id == viewModel.circleMenu.value?.id }
+            ?: allMenus.find { it.id == 0 })
     }
     circleMenu?.let {
         Box(

@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -169,35 +171,23 @@ object DataObject {
             }
              return mutableAllApplicationData.sortedBy { it.name }
         }
-
+        fun getNotEmptyAllApplicationData(context: Context): List<ApplicationData> {
+            val allApplicationData = allApplicationData.value
+            return if (allApplicationData.isNullOrEmpty()) {
+                val allAppData = context.getAllApplicationData()
+                Handler(Looper.getMainLooper()).post {
+                    setAllApplicationData(allAppData)
+                }
+                allAppData
+            } else {
+                allApplicationData
+            }
+        }
         fun setAllApplicationData(allApplicationData: List<ApplicationData>) {
             _allApplicationData.value = allApplicationData
         }
     }
     object ReceiverDataObject {
-        fun receiverGetNewApplicationData(context: Context): List<ApplicationData> {
-            val intent = Intent(Intent.ACTION_MAIN, null)
-            intent.addCategory(Intent.CATEGORY_LAUNCHER)
-            val allAppData = context.packageManager.queryIntentActivities(intent, 0)
-                .map { it.activityInfo.applicationInfo }
-                .map {
-                    ApplicationData(
-                        name = it.loadLabel(context.packageManager).toString(),
-                        icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
-                        packageName = it.packageName
-                    )
-                }
-            val mutableAllApplicationData = allAppData.toMutableList()
-            allAppData.forEach { applicationData ->
-                if (mutableAllApplicationData.count { it.packageName == applicationData.packageName } > 1) {
-                    mutableAllApplicationData.remove(applicationData)
-                }
-            }
-            return mutableAllApplicationData.sortedBy { it.name }
-        }
-        fun receiverSetAllApplicationData(newApplicationData: List<ApplicationData>) {
-            _allApplicationData.value = newApplicationData
-        }
         fun Context.registerAppsReceiver(receiver: BroadcastReceiver) {
             val filter = IntentFilter().apply {
                 addAction(Intent.ACTION_PACKAGE_ADDED)
@@ -316,10 +306,11 @@ object DataObject {
         }
         fun checkCircleMenuReturn(
             allCircleMenus: List<CircleMenu>,
+            allAppData: List<ApplicationData>,
             context: Context
         ): List<CircleMenu> {
             val changedCircleMenus = mutableListOf<CircleMenu>()
-            val allPackageNames = allApplicationData.value?.map { it.packageName } ?: emptyList()
+            val allPackageNames = allAppData.map { it.packageName }
             allCircleMenus.forEach { circleMenu ->
                 val changedCircleMenu = checkCircleMenu(
                     context = context,

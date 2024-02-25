@@ -6,10 +6,10 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.data.DataObject
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.getAllApplicationData
 import com.kindeev.swipelauncher.data.DataObject.AppDataObject.isAppInstalled
+import com.kindeev.swipelauncher.data.DataObject.AppDataObject.setAllApplicationData
 import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.checkCircleMenus
-import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.receiverGetNewApplicationData
-import com.kindeev.swipelauncher.data.DataObject.ReceiverDataObject.receiverSetAllApplicationData
 import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.clickableClockSettingValue
 import com.kindeev.swipelauncher.data.DataObject.getAs
 import com.kindeev.swipelauncher.data.settings.ApplicationSetting
@@ -20,13 +20,11 @@ import com.kindeev.swipelauncher.presentation.MainApp
 
 class AppsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val handler = Handler(Looper.getMainLooper())
         Thread {
-            val newApplicationData = receiverGetNewApplicationData(context)
-
-            handler.post {
+            val newApplicationData = context.getAllApplicationData()
+            Handler(Looper.getMainLooper()).post {
                 val mainAppViewModel = (context.applicationContext as MainApp).mainAppViewModel
-                receiverSetAllApplicationData(newApplicationData)
+                setAllApplicationData(newApplicationData)
                 checkCircleMenus(mainAppViewModel, context)
                 val clickableClockSetting = clickableClockSettingValue(
                     mainAppViewModel.allSettings.value ?: emptyList()

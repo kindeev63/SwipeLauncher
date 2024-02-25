@@ -38,12 +38,6 @@ class SwipeScreenViewModel(
     val menuOffset: LiveData<MenuOffset?> = _menuOffset
     private var clickTime = 0L
 
-    init {
-        mainAppViewModel.allCircleMenu.value?.find { it.id == 0 }?.let { rootCircleMenu ->
-            setCircleMenu(rootCircleMenu)
-        }
-    }
-
     fun getCenterCircleCords(
         x: Float,
         y: Float,
