@@ -1,9 +1,6 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,22 +28,23 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.DataObject.AppDataObject.deleteApp
 import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
 import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.openLastAppSettingValue
 import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchBox(
     mainAppViewModel: MainAppViewModel,
     onDismissRequest: () -> Unit,
-    onLongClick: () -> Unit
+    openSettings: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     var searchText by remember {
@@ -66,13 +64,6 @@ fun SearchBox(
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.1f)
-            .combinedClickable(
-                onClick = {},
-                onDoubleClick = onDismissRequest,
-                onLongClick = onLongClick,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            )
         )
         SearchElement(
             focusRequester = focusRequester,
@@ -83,7 +74,8 @@ fun SearchBox(
         SearchResults(
             mainAppViewModel = mainAppViewModel,
             searchText = searchText,
-            onDismissRequest = onDismissRequest
+            onDismissRequest = onDismissRequest,
+            openSettings = openSettings,
         )
     }
 }
@@ -114,7 +106,7 @@ private fun SearchElement(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = (LocalConfiguration.current.screenWidthDp/15).sp
+                fontSize = (LocalConfiguration.current.screenWidthDp / 15).sp
             ),
             value = searchText,
             onValueChange = onTextChanged
@@ -128,12 +120,26 @@ private fun SearchElement(
 private fun SearchResults(
     mainAppViewModel: MainAppViewModel,
     searchText: String,
+    openSettings: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+    val allApplicationData by DataObject.allApplicationData.observeAsState(emptyList())
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
+    val settingsString = stringResource(
+        id = R.string.launcher_settings
+    )
     val context = LocalContext.current
-    val filteredApps = allApplicationData.value.filter { it.name.lowercase().contains(searchText.lowercase()) }
+    val allApplicationDataWithSettings = allApplicationData.toMutableList().apply {
+        this.replaceAll { applicationData ->
+            if (applicationData.packageName == context.packageName) {
+                applicationData.copy(name = settingsString)
+            } else applicationData
+        }
+    }
+    val filteredApps =
+        allApplicationDataWithSettings.filter {
+            it.name.lowercase().contains(searchText.lowercase())
+        }.sortedBy { it.name }
     if (filteredApps.size == 1 && openLastAppSettingValue(allSettings = allSettings)) {
         openApp(filteredApps.first().packageName, context)
         onDismissRequest()
@@ -149,7 +155,11 @@ private fun SearchResults(
                 applicationData = applicationData,
                 textColor = MaterialTheme.colorScheme.onPrimary,
                 onClick = {
-                    openApp(applicationData.packageName, context)
+                    if (applicationData.packageName == context.packageName) {
+                        openSettings()
+                    } else {
+                        openApp(applicationData.packageName, context)
+                    }
                     onDismissRequest()
                 },
                 onLongClick = {

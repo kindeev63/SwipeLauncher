@@ -27,9 +27,10 @@ import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.presentation.uiElements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.ClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.SearchBox
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
+import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun LauncherScreen(
@@ -50,7 +51,7 @@ fun LauncherScreen(
             SearchBox(
                 mainAppViewModel = mainAppViewModel,
                 onDismissRequest = { showSearchBox = false },
-                onLongClick = {
+                openSettings = {
                     val intent = Intent(context, SettingsActivity::class.java)
                     context.startActivity(intent)
                     showSearchBox = false

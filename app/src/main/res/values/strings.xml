@@ -74,5 +74,6 @@
     <string name="all_circle_menus">All circle menus</string>
     <string name="open_last_app">Open the last remaining application</string>
     <string name="clickable_clock">Clicable clock</string>
+    <string name="launcher_settings">LauncherSettings</string>
 
 </resources>
