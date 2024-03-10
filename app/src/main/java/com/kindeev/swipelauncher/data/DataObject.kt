@@ -89,11 +89,13 @@ object DataObject {
             Pair(ApplicationSetting.OpenAllCircleMenus, R.string.all_circle_menus),
             Pair(ApplicationSetting.OpenLastApp, R.string.open_last_app),
             Pair(ApplicationSetting.ClickableClock, R.string.clickable_clock),
+            Pair(ApplicationSetting.ChangeDefaultLauncher, R.string.change_default_launcher),
         )
         val defaultSettings = listOf(
             SettingData(ApplicationSetting.OpenLastApp, OpenLastApp(true)),
             SettingData(ApplicationSetting.OpenAllCircleMenus),
-            SettingData(ApplicationSetting.ClickableClock, ClickableClock(false))
+            SettingData(ApplicationSetting.ClickableClock, ClickableClock(false)),
+            SettingData(ApplicationSetting.ChangeDefaultLauncher)
         )
         fun getSettingNameId(applicationSetting: ApplicationSetting) =
             settingsNames[applicationSetting] ?: 0
@@ -127,6 +129,7 @@ object DataObject {
                 ApplicationSetting.OpenAllCircleMenus -> null
                 ApplicationSetting.OpenLastApp -> OpenLastApp::class.java
                 ApplicationSetting.ClickableClock -> ClickableClock::class.java
+                ApplicationSetting.ChangeDefaultLauncher -> null
             }
         }
     }

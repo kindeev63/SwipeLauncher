@@ -75,5 +75,6 @@
     <string name="open_last_app">Open the last remaining application</string>
     <string name="clickable_clock">Clicable clock</string>
     <string name="launcher_settings">LauncherSettings</string>
+    <string name="change_default_launcher">Change default launcher</string>
 
 </resources>

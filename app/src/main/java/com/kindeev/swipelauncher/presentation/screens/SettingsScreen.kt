@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.kindeev.swipelauncher.data.DataObject
 import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.getSettingNameId
 import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.serializableSettingData
 import com.kindeev.swipelauncher.data.DataObject.getAs
@@ -65,6 +67,7 @@ fun SettingsScreenContent(
     navigateToAllCircleMenus: () -> Unit
 ) {
     val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -123,6 +126,15 @@ fun SettingsScreenContent(
                                 )
                             },
                             circleMenuAction = clickableClock.circleMenuAction
+                        )
+                    }
+
+                    ApplicationSetting.ChangeDefaultLauncher -> {
+                        ClickableSettingsItem(
+                            text = settingName,
+                            onClick = {
+                                DataObject.showLauncherSelection(context)
+                            }
                         )
                     }
                 }
