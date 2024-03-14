@@ -12,38 +12,38 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.getSettingNameId
-import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.serializableSettingData
-import com.kindeev.swipelauncher.data.DataObject.getAs
+import com.kindeev.swipelauncher.domain.DataObject
+import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.getSettingNameId
+import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.serializableSettingData
+import com.kindeev.swipelauncher.domain.DataObject.getAs
 import com.kindeev.swipelauncher.data.navigation.Screen
 import com.kindeev.swipelauncher.data.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.data.navigation.rememberNavigationState
-import com.kindeev.swipelauncher.data.settings.ApplicationSetting
-import com.kindeev.swipelauncher.data.settings.settingTypes.ClickableClock
-import com.kindeev.swipelauncher.data.settings.settingTypes.OpenLastApp
+import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
+import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
+import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
 import com.kindeev.swipelauncher.presentation.uiElements.ClickableSettingsItem
 import com.kindeev.swipelauncher.presentation.uiElements.SwitchAndActionSettingsItem
 import com.kindeev.swipelauncher.presentation.uiElements.SwitchSettingsItem
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 @Composable
 fun SettingsScreen(
-    mainAppViewModel: MainAppViewModel
+    mainAppVM: MainAppVM
 ) {
     val navigationState = rememberNavigationState()
     SettingsMainGraph(
         navHostController = navigationState.navHostController,
         mainSettingsScreen = {
             SettingsScreenContent(
-                mainAppViewModel = mainAppViewModel
+                mainAppVM = mainAppVM
             ) {
                 navigationState.navigateTo(Screen.AllCircleMenusScreenObject.route)
             }
         },
         allCircleMenusScreen = {
             AllCircleMenusScreen(
-                mainAppViewModel = mainAppViewModel,
+                mainAppVM = mainAppVM,
                 navigateToCircleMenu = { circleMenuId ->
                     navigationState.navigateToEditCircleMenu(circleMenuId)
                 }
@@ -51,7 +51,7 @@ fun SettingsScreen(
         },
         editCircleMenuScreen = { circleMenuId ->
             EditCircleMenuScreen(
-                mainAppViewModel = mainAppViewModel,
+                mainAppVM = mainAppVM,
                 circleMenuId = circleMenuId,
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
@@ -63,10 +63,10 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsScreenContent(
-    mainAppViewModel: MainAppViewModel,
+    mainAppVM: MainAppVM,
     navigateToAllCircleMenus: () -> Unit
 ) {
-    val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
+    val allSettings by mainAppVM.allSettings.observeAsState(emptyList())
     val context = LocalContext.current
     Box(
         modifier = Modifier
@@ -86,7 +86,7 @@ fun SettingsScreenContent(
                             text = settingName,
                             checked = settingData.getObjectData().getAs(OpenLastApp::class.java).value,
                             onCheckedChange = {
-                                mainAppViewModel.insertSetting(
+                                mainAppVM.insertSetting(
                                     settingData.copy(
                                         data = OpenLastApp(
                                             it
@@ -110,7 +110,7 @@ fun SettingsScreenContent(
                             text = settingName,
                             enabled = clickableClock.enabled,
                             onCheckedChange = {
-                                mainAppViewModel.insertSetting(
+                                mainAppVM.insertSetting(
                                     settingData.copy(
                                         data = clickableClock.copy(enabled = it)
                                             .serializableSettingData()
@@ -118,7 +118,7 @@ fun SettingsScreenContent(
                                 )
                             },
                             onActionChange = {
-                                mainAppViewModel.insertSetting(
+                                mainAppVM.insertSetting(
                                     settingData.copy(
                                         data = clickableClock.copy(circleMenuAction = it)
                                             .serializableSettingData()

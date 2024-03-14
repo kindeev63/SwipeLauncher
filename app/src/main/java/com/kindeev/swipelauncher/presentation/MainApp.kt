@@ -4,17 +4,17 @@ import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import com.kindeev.swipelauncher.presentation.activities.ErrorActivity
 import com.kindeev.swipelauncher.data.GlobalExceptionHandler
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 class MainApp: Application() {
-    val mainAppViewModel by lazy {
+    val mainAppVM by lazy {
         ViewModelProvider.AndroidViewModelFactory.getInstance(this)
-            .create(MainAppViewModel::class.java)
+            .create(MainAppVM::class.java)
     }
 
     override fun onCreate() {
         super.onCreate()
         GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
-        mainAppViewModel
+        mainAppVM
     }
 }

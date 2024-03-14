@@ -5,10 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.kindeev.swipelauncher.data.settings.SettingData
-import com.kindeev.swipelauncher.domain.AppDao
-import com.kindeev.swipelauncher.domain.CircleMenu
-import com.kindeev.swipelauncher.domain.DataBaseTypesConverter
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.dataBase.AppDao
+import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.DataBaseTypesConverter
 
 @Database(entities = [CircleMenu::class, SettingData::class], version = 1)
 @TypeConverters(DataBaseTypesConverter::class)

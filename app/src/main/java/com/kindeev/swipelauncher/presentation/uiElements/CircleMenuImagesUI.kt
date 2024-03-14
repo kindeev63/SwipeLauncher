@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemImage
-import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemsOffset
-import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
+import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemImage
+import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemsOffset
+import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 
 @Composable
 fun CircleMenuImagesUI(

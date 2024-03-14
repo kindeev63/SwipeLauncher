@@ -20,7 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.data.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
 
 @Composable
 fun AppItem(

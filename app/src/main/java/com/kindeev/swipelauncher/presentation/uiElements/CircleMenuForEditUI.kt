@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemsOffset
-import com.kindeev.swipelauncher.data.dataBaseElements.MenuImages
+import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
+import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemsOffset
+import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 
 @Composable
 fun CircleMenuForEditUI(

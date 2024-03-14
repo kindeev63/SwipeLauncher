@@ -17,45 +17,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.AppDataObject.deleteApp
-import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
-import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.openLastAppSettingValue
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.domain.DataObject
+import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.openLastAppSettingValue
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVM
 
 @Composable
 fun SearchBox(
-    mainAppViewModel: MainAppViewModel,
-    onDismissRequest: () -> Unit,
-    openSettings: () -> Unit
+    viewModel: LauncherScreenVM,
 ) {
-    val focusRequester = remember { FocusRequester() }
-    var searchText by remember {
-        mutableStateOf("")
-    }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-    BackHandler {
-        onDismissRequest()
-    }
+
+    BackHandler { viewModel.closeSearchBox() }
 
     // UI
     Column(
@@ -65,29 +48,23 @@ fun SearchBox(
             .fillMaxWidth()
             .fillMaxHeight(0.1f)
         )
-        SearchElement(
-            focusRequester = focusRequester,
-            searchText = searchText,
-            onTextChanged = { searchText = it }
-        )
+        SearchElement(viewModel = viewModel)
         Spacer(modifier = Modifier.height(10.dp))
-        SearchResults(
-            mainAppViewModel = mainAppViewModel,
-            searchText = searchText,
-            onDismissRequest = onDismissRequest,
-            openSettings = openSettings,
-        )
+        SearchResults(viewModel = viewModel)
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SearchElement(
-    focusRequester: FocusRequester,
-    searchText: String,
-    onTextChanged: (String) -> Unit
+    viewModel: LauncherScreenVM
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val searchText by viewModel.searchText.observeAsState("")
     val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -109,40 +86,20 @@ private fun SearchElement(
                 fontSize = (LocalConfiguration.current.screenWidthDp / 15).sp
             ),
             value = searchText,
-            onValueChange = onTextChanged
+            onValueChange = { viewModel.search(it) }
         )
         Spacer(modifier = Modifier.weight(0.1f))
     }
-
 }
 
 @Composable
-private fun SearchResults(
-    mainAppViewModel: MainAppViewModel,
-    searchText: String,
-    openSettings: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
+private fun SearchResults(viewModel: LauncherScreenVM) {
     val allApplicationData by DataObject.allApplicationData.observeAsState(emptyList())
-    val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
-    val settingsString = stringResource(
-        id = R.string.launcher_settings
-    )
-    val context = LocalContext.current
-    val allApplicationDataWithSettings = allApplicationData.toMutableList().apply {
-        this.replaceAll { applicationData ->
-            if (applicationData.packageName == context.packageName) {
-                applicationData.copy(name = settingsString)
-            } else applicationData
-        }
-    }
-    val filteredApps =
-        allApplicationDataWithSettings.filter {
-            it.name.lowercase().contains(searchText.lowercase())
-        }.sortedBy { it.name }
+    val allSettings by viewModel.mainAppVM.allSettings.observeAsState(emptyList())
+    val searchText by viewModel.searchText.observeAsState("")
+    val filteredApps = viewModel.filterAllAppsToSearchBoxUseCase.invoke(allApplicationData, searchText)
     if (filteredApps.size == 1 && openLastAppSettingValue(allSettings = allSettings)) {
-        openApp(filteredApps.first().packageName, context)
-        onDismissRequest()
+        viewModel.selectSearchElement(filteredApps.first().packageName)
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -155,15 +112,10 @@ private fun SearchResults(
                 applicationData = applicationData,
                 textColor = MaterialTheme.colorScheme.onPrimary,
                 onClick = {
-                    if (applicationData.packageName == context.packageName) {
-                        openSettings()
-                    } else {
-                        openApp(applicationData.packageName, context)
-                    }
-                    onDismissRequest()
+                    viewModel.selectSearchElement(applicationData.packageName)
                 },
                 onLongClick = {
-                    deleteApp(applicationData.packageName, context)
+                    viewModel.deleteAppUseCase.invoke(applicationData.packageName)
                 }
             )
         }

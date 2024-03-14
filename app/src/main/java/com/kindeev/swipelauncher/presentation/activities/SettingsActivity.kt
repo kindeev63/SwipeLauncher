@@ -11,9 +11,9 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val mainAppViewModel = (application as MainApp).mainAppViewModel
+            val mainAppViewModel = (application as MainApp).mainAppVM
             SettingsScreenTheme {
-                SettingsScreen(mainAppViewModel = mainAppViewModel)
+                SettingsScreen(mainAppVM = mainAppViewModel)
             }
         }
     }

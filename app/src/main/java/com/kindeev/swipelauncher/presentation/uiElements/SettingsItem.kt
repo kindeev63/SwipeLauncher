@@ -37,11 +37,11 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.DataObject
+import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialogWithoutOpenCircleMenu
 
 @Composable

@@ -45,21 +45,21 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.CircleMenuDirection
-import com.kindeev.swipelauncher.data.CircleMenuItem
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.CircleMenuDataObject.getItemImage
-import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.domain.CircleMenu
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.presentation.viewModels.EditCircleMenuScreenViewModel
-import com.kindeev.swipelauncher.presentation.viewModels.factories.EditCircleMenuScreenViewModelFactory
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
+import com.kindeev.swipelauncher.domain.DataObject
+import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemImage
+import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreen.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialog
@@ -67,21 +67,21 @@ import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickImageDialog
 
 @Composable
 fun EditCircleMenuScreen(
-    mainAppViewModel: MainAppViewModel,
+    mainAppVM: MainAppVM,
     circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
     // ViewModel
-    val viewModel: EditCircleMenuScreenViewModel = viewModel(
-        factory = EditCircleMenuScreenViewModelFactory(
-            mainAppViewModel, circleMenuId, stringResource(
+    val viewModel: EditCircleMenuScreenVM = viewModel(
+        factory = EditCircleMenuScreenVMFactory(
+            mainAppVM, circleMenuId, stringResource(
                 id = R.string.new_circle_menu_title
             )
         )
     )
 
     // Checking for update circle menus
-    mainAppViewModel.allCircleMenu.observe(LocalLifecycleOwner.current) {
+    mainAppVM.allCircleMenu.observe(LocalLifecycleOwner.current) {
         viewModel.updateCircleMenusEvent(it)
     }
 
@@ -128,7 +128,7 @@ fun EditCircleMenuScreen(
 
 @Composable
 fun EditCircleMenuToolbar(
-    viewModel: EditCircleMenuScreenViewModel,
+    viewModel: EditCircleMenuScreenVM,
     onBackPressed: () -> Unit
 ) {
     Row(
@@ -165,7 +165,7 @@ fun EditCircleMenuToolbar(
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onPrimary),
                     value = title.copy(text = circleMenu.value?.title ?: ""),
                     onValueChange = { newTitle ->
-                        viewModel.mainAppViewModel.insertCircleMenu(menu.copy(title = newTitle.text))
+                        viewModel.mainAppVM.insertCircleMenu(menu.copy(title = newTitle.text))
                         title = newTitle
                     }
                 )
@@ -203,7 +203,7 @@ private fun CircleMenuBox(
 @Composable
 private fun EditItemBox(
     circleMenuItem: CircleMenuItem,
-    viewModel: EditCircleMenuScreenViewModel,
+    viewModel: EditCircleMenuScreenVM,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
     Column(
@@ -277,7 +277,7 @@ private fun EditImageBox(
 @Composable
 private fun EditActionBox(
     circleMenuAction: CircleMenuAction,
-    viewModel: EditCircleMenuScreenViewModel,
+    viewModel: EditCircleMenuScreenVM,
     onChangeAction: (CircleMenuAction) -> Unit,
 ) {
     var openDialog by remember {
@@ -287,7 +287,7 @@ private fun EditActionBox(
     if (openDialog) {
         PickActionDialog(
             onDismissRequest = { openDialog = false },
-            mainAppViewModel = viewModel.mainAppViewModel,
+            mainAppVM = viewModel.mainAppVM,
             picked = circleMenuAction,
             onPick = {
                 onChangeAction(it)
@@ -310,7 +310,7 @@ private fun EditActionBox(
             CircleMenuActionTypes.OpenCircleMenu -> {
                 val openCircleMenu = circleMenuAction.data.getAs(OpenCircleMenu::class.java)
                 val circleMenu =
-                    viewModel.mainAppViewModel.allCircleMenu.value?.find { it.id == openCircleMenu.id }
+                    viewModel.mainAppVM.allCircleMenu.value?.find { it.id == openCircleMenu.id }
                 circleMenu?.let {
                     MiniCircleMenuItem(
                         size = LocalConfiguration.current.screenWidthDp / 6f,

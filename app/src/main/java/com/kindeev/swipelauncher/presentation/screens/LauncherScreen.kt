@@ -1,8 +1,5 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.content.Context
-import android.content.Intent
-import android.hardware.camera2.CameraManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,123 +9,71 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.kindeev.swipelauncher.data.DataObject.AppDataObject.openApp
-import com.kindeev.swipelauncher.data.DataObject.SettingDataObject.clickableClockSettingValue
-import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.clickableClockSettingValue
+import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.uiElements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.ClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.SearchBox
-import com.kindeev.swipelauncher.presentation.uiElements.SwipeBoxUI
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
-import kotlinx.coroutines.launch
+import com.kindeev.swipelauncher.presentation.uiElements.SwipeBox
+import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 
 @Composable
 fun LauncherScreen(
-    mainAppViewModel: MainAppViewModel
+    mainAppVM: MainAppVM
 ) {
     val context = LocalContext.current
-    var showSearchBox by remember {
-        mutableStateOf(false)
-    }
+    val viewModel: LauncherScreenVM = viewModel(
+        factory = LauncherScreenVMFactory(
+            mainAppVM = mainAppVM,
+            context = context
+        )
+    )
+    val screenState by viewModel.screenState.observeAsState(LauncherScreenState.SwipeBox)
     BackHandler {}
+    mainAppVM.allCircleMenu.observe(LocalLifecycleOwner.current) { allMenus ->
+        viewModel.setCircleMenu(
+            allMenus.find { it.id == viewModel.circleMenu.value?.id }
+                ?: allMenus.find { it.id == 0 }
+        )
+    }
 
     // UI
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        if (showSearchBox) {
-            SearchBox(
-                mainAppViewModel = mainAppViewModel,
-                onDismissRequest = { showSearchBox = false },
-                openSettings = {
-                    val intent = Intent(context, SettingsActivity::class.java)
-                    context.startActivity(intent)
-                    showSearchBox = false
-                }
-            )
-        } else {
-            SwipeBoxUI(
-                mainAppViewModel = mainAppViewModel,
-                onDoubleClick = { showSearchBox = true }
-            )
-            ScreenContent(
-                mainAppViewModel = mainAppViewModel
-            )
+        when (screenState) {
+            LauncherScreenState.SwipeBox -> {
+                ScreenContent(viewModel)
+            }
+
+            LauncherScreenState.SearchBox -> {
+                SearchBox(viewModel = viewModel)
+            }
         }
     }
-
 }
 
 
+
 @Composable
-private fun ScreenContent(
-    mainAppViewModel: MainAppViewModel
-) {
-    val allSettings by mainAppViewModel.allSettings.observeAsState(emptyList())
+private fun ScreenContent(viewModel: LauncherScreenVM) {
+    val allSettings by viewModel.mainAppVM.allSettings.observeAsState(emptyList())
     val clickableClockSetting = clickableClockSettingValue(allSettings)
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+
+    SwipeBox(viewModel = viewModel)
     Column {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (clickableClockSetting.enabled) {
             ClickableClockWidget {
-                when (clickableClockSetting.circleMenuAction?.type) {
-
-                    CircleMenuActionTypes.OpenSettings -> {
-                        val intent = Intent(context, SettingsActivity::class.java)
-                        context.startActivity(intent)
-                    }
-
-                    CircleMenuActionTypes.OpenApp -> {
-                        val currentApp =
-                            clickableClockSetting.circleMenuAction.data.getAs(OpenApp::class.java)
-                        openApp(currentApp.packageName, context)
-                    }
-
-                    CircleMenuActionTypes.FlashLightOn -> {
-                        scope.launch {
-                            val cameraManager =
-                                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                            cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
-                            mainAppViewModel.flashLightCondition = true
-                        }
-                    }
-
-                    CircleMenuActionTypes.FlashLightOff -> {
-                        scope.launch {
-                            val cameraManager =
-                                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                            cameraManager.setTorchMode(cameraManager.cameraIdList[0], false)
-                            mainAppViewModel.flashLightCondition = false
-                        }
-                    }
-
-                    CircleMenuActionTypes.ChangeFlashLightCondition -> {
-                        scope.launch {
-                            val cameraManager =
-                                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                            cameraManager.setTorchMode(
-                                cameraManager.cameraIdList[0],
-                                !mainAppViewModel.flashLightCondition
-                            )
-                            mainAppViewModel.flashLightCondition =
-                                !mainAppViewModel.flashLightCondition
-                        }
-                    }
-
-                    else -> {}
-                }
+                clickableClockSetting.circleMenuAction?.let { viewModel.executeAction(it) }
             }
         } else {
             ClockWidget()

@@ -35,22 +35,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.kindeev.swipelauncher.data.ActionDialogTabs
-import com.kindeev.swipelauncher.data.DataObject
-import com.kindeev.swipelauncher.data.DataObject.getAs
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.domain.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.data.dialogTabs.ActionDialogTabs
+import com.kindeev.swipelauncher.domain.DataObject
+import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.presentation.uiElements.AppItem
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.OtherActionItem
-import com.kindeev.swipelauncher.presentation.viewModels.MainAppViewModel
+import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 @Composable
 fun PickActionDialog(
     onDismissRequest: () -> Unit,
-    mainAppViewModel: MainAppViewModel,
+    mainAppVM: MainAppVM,
     picked: CircleMenuAction,
     onPick: (CircleMenuAction) -> Unit
 ) {
@@ -103,7 +103,7 @@ fun PickActionDialog(
                             if (selectedAction.type == CircleMenuActionTypes.OpenCircleMenu) {
                                 selectedAction.data.getAs(OpenCircleMenu::class.java)
                             } else null,
-                            mainAppViewModel = mainAppViewModel,
+                            mainAppVM = mainAppVM,
                             onPick = { selectedAction = it }
                         )
                     }
@@ -169,14 +169,14 @@ private fun PickAppAction(
 @Composable
 private fun PickCircleMenuAction(
     picked: OpenCircleMenu?,
-    mainAppViewModel: MainAppViewModel,
+    mainAppVM: MainAppVM,
     onPick: (CircleMenuAction) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
         items(
-            items = mainAppViewModel.allCircleMenu.value ?: emptyList()
+            items = mainAppVM.allCircleMenu.value ?: emptyList()
         ) { circleMenu ->
             MiniCircleMenuItem(
                 picked = circleMenu.id == picked?.id,
