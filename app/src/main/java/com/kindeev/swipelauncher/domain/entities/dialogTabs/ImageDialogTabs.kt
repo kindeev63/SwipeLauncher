@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.dialogTabs
+package com.kindeev.swipelauncher.domain.entities.dialogTabs
 
 import com.kindeev.swipelauncher.R
 

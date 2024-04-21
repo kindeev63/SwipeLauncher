@@ -35,22 +35,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.kindeev.swipelauncher.data.dialogTabs.ActionDialogTabs
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.entities.dialogTabs.ActionDialogTabs
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.presentation.uiElements.AppItem
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.OtherActionItem
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 @Composable
 fun PickActionDialog(
     onDismissRequest: () -> Unit,
-    mainAppVM: MainAppVM,
     picked: CircleMenuAction,
     onPick: (CircleMenuAction) -> Unit
 ) {
@@ -103,7 +102,6 @@ fun PickActionDialog(
                             if (selectedAction.type == CircleMenuActionTypes.OpenCircleMenu) {
                                 selectedAction.data.getAs(OpenCircleMenu::class.java)
                             } else null,
-                            mainAppVM = mainAppVM,
                             onPick = { selectedAction = it }
                         )
                     }
@@ -145,7 +143,7 @@ private fun PickAppAction(
     picked: OpenApp?,
     onPick: (CircleMenuAction) -> Unit
 ) {
-    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+    val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
     LazyColumn {
         items(
             items = allApplicationData.value,
@@ -169,14 +167,13 @@ private fun PickAppAction(
 @Composable
 private fun PickCircleMenuAction(
     picked: OpenCircleMenu?,
-    mainAppVM: MainAppVM,
     onPick: (CircleMenuAction) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
         items(
-            items = mainAppVM.allCircleMenu.value ?: emptyList()
+            items = LauncherData.allCircleMenus.value ?: emptyList()
         ) { circleMenu ->
             MiniCircleMenuItem(
                 picked = circleMenu.id == picked?.id,
@@ -206,7 +203,7 @@ fun PickOtherAction(
 
     LazyColumn {
         items(
-            items = DataObject.otherActionsList,
+            items = Constants.otherActionsList,
             key = { it.type }
         ) { otherAction ->
             OtherActionItem(otherAction = otherAction, picked = otherAction.type == picked) {
@@ -224,10 +221,10 @@ private fun DialogTabs(
     onSelectTab: (ActionDialogTabs) -> Unit
 ) {
     ScrollableTabRow(
-        selectedTabIndex = DataObject.actionDialogTabs.indexOf(selectedTab),
+        selectedTabIndex = Constants.actionDialogTabs.indexOf(selectedTab),
         edgePadding = 0.dp
     ) {
-        DataObject.actionDialogTabs.forEach { tab ->
+        Constants.actionDialogTabs.forEach { tab ->
             Tab(
                 selected = selectedTab == tab,
                 onClick = {
@@ -332,7 +329,7 @@ private fun DialogTabsWithoutOpenCircleMenu(
     onSelectTab: (ActionDialogTabs) -> Unit
 ) {
     val tabs = remember {
-        DataObject.actionDialogTabs.toMutableList().apply {
+        Constants.actionDialogTabs.toMutableList().apply {
             this.remove(ActionDialogTabs.OpenCircleMenuTab)
         }
     }   

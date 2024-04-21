@@ -13,31 +13,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.clickableClockSettingValue
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.clickableClockSettingValue
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.uiElements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.ClockWidget
 import com.kindeev.swipelauncher.presentation.uiElements.SearchBox
 import com.kindeev.swipelauncher.presentation.uiElements.SwipeBox
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
 
 
 @Composable
-fun LauncherScreen(
-    mainAppVM: MainAppVM
-) {
+fun LauncherScreen() {
     val context = LocalContext.current
     val viewModel: LauncherScreenVM = viewModel(
-        factory = LauncherScreenVMFactory(
-            mainAppVM = mainAppVM,
-            context = context
-        )
+        factory = LauncherScreenVMFactory(context = context)
     )
     val screenState by viewModel.screenState.observeAsState(LauncherScreenState.SwipeBox)
     BackHandler {}
-    mainAppVM.allCircleMenu.observe(LocalLifecycleOwner.current) { allMenus ->
+    LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) { allMenus ->
         viewModel.setCircleMenu(
             allMenus.find { it.id == viewModel.circleMenu.value?.id }
                 ?: allMenus.find { it.id == 0 }
@@ -65,9 +60,7 @@ fun LauncherScreen(
 
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val allSettings by viewModel.mainAppVM.allSettings.observeAsState(emptyList())
-    val clickableClockSetting = clickableClockSettingValue(allSettings)
-
+    val clickableClockSetting = clickableClockSettingValue()
     SwipeBox(viewModel = viewModel)
     Column {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))

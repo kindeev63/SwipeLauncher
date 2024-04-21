@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels.LauncherScreen
+package com.kindeev.swipelauncher.domain.viewModels.launcherScreen
 
 import android.content.Context
 import android.os.Vibrator
@@ -7,8 +7,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
-import com.kindeev.swipelauncher.domain.DataObject.getAs
 import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
@@ -23,12 +23,9 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAct
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import com.kindeev.swipelauncher.domain.getAs
 
-class LauncherScreenVM(
-    val mainAppVM: MainAppVM,
-    context: Context
-) : ViewModel() {
+class LauncherScreenVM(context: Context) : ViewModel() {
     private val _circleMenuOffset = MutableLiveData<CircleMenuOffset?>(null)
     val circleMenuOffset: LiveData<CircleMenuOffset?> = _circleMenuOffset
     private val _menuImages = MutableLiveData<MenuImages>()
@@ -48,7 +45,7 @@ class LauncherScreenVM(
     ) / 3 * 2f
     private val density = context.resources.displayMetrics.density
     private var clickTime = 0L
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(mainAppVM, context)
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val openAppUseCase = OpenAppUseCase(context)
     val deleteAppUseCase = DeleteAppUseCase(context)
@@ -163,7 +160,7 @@ class LauncherScreenVM(
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                setCircleMenu(mainAppVM.allCircleMenu.value?.find { it.id == 0 })
+                setCircleMenu(LauncherData.allCircleMenus.value?.find { it.id == 0 })
                 _circleMenuOffset.value = null
             }
         }
@@ -200,14 +197,14 @@ class LauncherScreenVM(
                 setNewCircleMenuOffset(direction = direction)
                 val openCircleMenu = action.data.getAs(OpenCircleMenu::class.java)
                 var circleMenuForCheck =
-                    mainAppVM.allCircleMenu.value?.find { it.id == openCircleMenu.id }
-                        ?: mainAppVM.allCircleMenu.value?.find { it.id == 0 }
+                    LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
+                        ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
                 circleMenuForCheck?.let { menu ->
                     circleMenuForCheck =
                         if (checkCircleMenuUseCase.invoke(menu)) {
                             menu
                         } else {
-                            mainAppVM.allCircleMenu.value?.find { it.id == 0 }
+                            LauncherData.allCircleMenus.value?.find { it.id == 0 }
                         }
                 }
                 setCircleMenu(circleMenuForCheck)
@@ -226,23 +223,23 @@ class LauncherScreenVM(
 
             CircleMenuActionTypes.FlashLightOn -> {
                 flashLightUseCase.on()
-                mainAppVM.flashLightCondition = true
+                LauncherData.flashLightCondition = true
                 _circleMenuOffset.value = null
             }
 
             CircleMenuActionTypes.FlashLightOff -> {
                 flashLightUseCase.off()
-                mainAppVM.flashLightCondition = false
+                LauncherData.flashLightCondition = false
                 _circleMenuOffset.value = null
             }
 
             CircleMenuActionTypes.ChangeFlashLightCondition -> {
-                if (mainAppVM.flashLightCondition) {
+                if (LauncherData.flashLightCondition) {
                     flashLightUseCase.off()
                 } else {
                     flashLightUseCase.on()
                 }
-                mainAppVM.flashLightCondition = !mainAppVM.flashLightCondition
+                LauncherData.flashLightCondition = !LauncherData.flashLightCondition
                 _circleMenuOffset.value = null
             }
         }
@@ -265,23 +262,23 @@ class LauncherScreenVM(
 
             CircleMenuActionTypes.FlashLightOn -> {
                 flashLightUseCase.on()
-                mainAppVM.flashLightCondition = true
+                LauncherData.flashLightCondition = true
                 _circleMenuOffset.value = null
             }
 
             CircleMenuActionTypes.FlashLightOff -> {
                 flashLightUseCase.off()
-                mainAppVM.flashLightCondition = false
+                LauncherData.flashLightCondition = false
                 _circleMenuOffset.value = null
             }
 
             CircleMenuActionTypes.ChangeFlashLightCondition -> {
-                if (mainAppVM.flashLightCondition) {
+                if (LauncherData.flashLightCondition) {
                     flashLightUseCase.off()
                 } else {
                     flashLightUseCase.on()
                 }
-                mainAppVM.flashLightCondition = !mainAppVM.flashLightCondition
+                LauncherData.flashLightCondition = !LauncherData.flashLightCondition
                 _circleMenuOffset.value = null
             }
 

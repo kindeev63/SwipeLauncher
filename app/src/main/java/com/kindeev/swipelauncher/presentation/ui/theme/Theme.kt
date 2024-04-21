@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.ui.theme
+package com.kindeev.swipelauncher.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

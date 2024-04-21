@@ -3,8 +3,8 @@ package com.kindeev.swipelauncher.domain.entities.settings
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.serializableSettingData
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.deserializableSettingData
+import com.kindeev.swipelauncher.domain.deserializableSettingData
+import com.kindeev.swipelauncher.domain.serializableSettingData
 
 @Entity(tableName = "table_settings")
 data class SettingData(

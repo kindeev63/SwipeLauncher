@@ -20,8 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.data.dialogTabs.OtherAction
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
 
 @Composable
 fun OtherActionItem(
@@ -38,7 +38,7 @@ fun OtherActionItem(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ){
-        DataObject.CircleMenuDataObject.defaultImages[otherAction.image]?.let { resourceId ->
+        Constants.defaultImages[otherAction.image]?.let { resourceId ->
             Image(
                 modifier = Modifier.size(50.dp),
                 painter = painterResource(id = resourceId),

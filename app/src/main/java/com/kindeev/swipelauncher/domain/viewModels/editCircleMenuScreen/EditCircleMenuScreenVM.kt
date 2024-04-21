@@ -1,20 +1,18 @@
-package com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreen
+package com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen
 
 import android.content.res.Configuration
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.emptyCircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.createEmptyCircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import kotlinx.coroutines.launch
 
-class EditCircleMenuScreenVM(
-    val mainAppVM: MainAppVM,
-    circleMenuId: Int?,
-    newCircleMenuTitle: String
-) : ViewModel() {
+class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
     private val _circleMenu = MutableLiveData<CircleMenu?>(null)
     val circleMenu: LiveData<CircleMenu?> = _circleMenu
     private val _selectedCircleMenuItem = MutableLiveData<CircleMenuItem?>(null)
@@ -24,23 +22,25 @@ class EditCircleMenuScreenVM(
 
     init {
         if (circleMenuId == null) {
-            val allIds = mainAppVM.allCircleMenu.value?.map { it.id } ?: emptyList()
+            val allIds = LauncherData.allCircleMenus.value?.map { it.id } ?: emptyList()
             var currentId = 0
             while (true) {
                 if (currentId !in allIds) break
                 currentId++
             }
-            val circleMenu = createEmptyCircleMenu(id = currentId, title = newCircleMenuTitle)
-            mainAppVM.insertCircleMenu(circleMenu = circleMenu)
+            val circleMenu = emptyCircleMenu(id = currentId)
+            viewModelScope.launch {
+                LauncherData.insertCircleMenu(circleMenu = circleMenu)
+            }
             _circleMenu.value = circleMenu
         } else {
-            _circleMenu.value = mainAppVM.allCircleMenu.value?.find { it.id == circleMenuId }
+            _circleMenu.value = LauncherData.allCircleMenus.value?.find { it.id == circleMenuId }
         }
 
     }
 
     fun goToCircleMenu(circleMenuId: Int) {
-        mainAppVM.allCircleMenu.value?.find { it.id == circleMenuId }?.let {
+        LauncherData.allCircleMenus.value?.find { it.id == circleMenuId }?.let {
             _circleMenu.value = it
         }
     }
@@ -54,13 +54,13 @@ class EditCircleMenuScreenVM(
         _selectedCircleMenuItem.value = getNowCircleMenuItem()
     }
 
-    fun updateCircleMenuItem(circleMenuItem: CircleMenuItem) {
+    fun updateCircleMenuItem(circleMenuItem: CircleMenuItem) = viewModelScope.launch {
         circleMenu.value?.let { circleMenu ->
             val newCircleMenu = updateCircleMenuItem(
                 circleMenu = circleMenu,
                 circleMenuItem = circleMenuItem
             )
-            mainAppVM.insertCircleMenu(newCircleMenu)
+            LauncherData.insertCircleMenu(newCircleMenu)
         }
     }
 
@@ -161,5 +161,9 @@ class EditCircleMenuScreenVM(
             }
         }
         return null
+    }
+
+    fun insertCircleMenu(circleMenu: CircleMenu) = viewModelScope.launch {
+        LauncherData.insertCircleMenu(circleMenu)
     }
 }

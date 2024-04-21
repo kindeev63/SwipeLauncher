@@ -37,11 +37,12 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialogWithoutOpenCircleMenu
 
 @Composable
@@ -169,7 +170,7 @@ fun SwitchAndActionSettingsItem(
                     }
                 )
             }
-            val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+            val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -242,7 +243,7 @@ fun SwitchAndActionSettingsItem(
                                 },
                             painter = painterResource(
                                 id =
-                                DataObject.CircleMenuDataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction?.type }?.image]
+                                Constants.defaultImages[Constants.otherActionsList.find { it.type == circleMenuAction?.type }?.image]
                                     ?: R.drawable.ic_error
                             ),
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),

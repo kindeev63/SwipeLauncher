@@ -1,21 +1,25 @@
 package com.kindeev.swipelauncher.presentation.uiElements
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getRootCircleMenu
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.setDefaultSettings
-import com.kindeev.swipelauncher.domain.DataObject.isMyLauncherDefault
-import com.kindeev.swipelauncher.domain.DataObject.showLauncherSelection
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.getRootCircleMenu
+import com.kindeev.swipelauncher.domain.isMyLauncherDefault
+import com.kindeev.swipelauncher.domain.showLauncherSelection
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 
 @Composable
-fun FirstScreenUI(mainAppVM: MainAppVM) {
+fun FirstScreenUI() {
     val context = LocalContext.current
-    mainAppVM.insertCircleMenu(getRootCircleMenu())
-    setDefaultSettings(mainAppVM = mainAppVM)
-    if (!isMyLauncherDefault(context)) {
-        showLauncherSelection(context)
+    LaunchedEffect(Unit) {
+        LauncherData.insertCircleMenu(getRootCircleMenu(context.resources.getString(R.string.root)))
+        LauncherData.insertSettings(Constants.defaultSettings)
     }
-    LauncherScreen(mainAppVM = mainAppVM)
+    if (!context.isMyLauncherDefault()) {
+        context.showLauncherSelection()
+    }
+    LauncherScreen()
 }

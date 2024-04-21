@@ -10,10 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemImage
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemsOffset
 import com.kindeev.swipelauncher.domain.dataBase.MenuImages
+import com.kindeev.swipelauncher.domain.getItemImage
+import com.kindeev.swipelauncher.domain.getItemsOffset
 
 @Composable
 fun CircleMenuImagesUI(
@@ -68,7 +69,7 @@ fun CircleMenuImagesUI(
                 menuImages.downImage,
                 menuImages.rightImage,
                 menuImages.leftImage,
-            )[index].getItemImage()?.let { painter ->
+            )[index].getItemImage(LocalContext.current)?.let { imageBitmap ->
                 Image(
                     modifier = Modifier
                         .offset(
@@ -76,7 +77,7 @@ fun CircleMenuImagesUI(
                             y = offset.y.dp
                         )
                         .size((menuSize / 10).dp),
-                    painter = painter,
+                    bitmap = imageBitmap,
                     contentDescription = null
                 )
             }

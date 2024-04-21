@@ -19,24 +19,18 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusScreen.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusScreen.AllCircleMenusScreenVMFactory
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import com.kindeev.swipelauncher.domain.viewModels.allCircleMenusScreen.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.DeleteCircleMenuDialog
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AllCircleMenusScreen(
-    mainAppVM: MainAppVM,
-    navigateToCircleMenu: (Int?) -> Unit
-) {
-    val viewModel: AllCircleMenusScreenVM = viewModel(
-        factory = AllCircleMenusScreenVMFactory(mainAppVM)
-    )
-    val allCircleMenus = mainAppVM.allCircleMenu.observeAsState()
+fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
+    val viewModel: AllCircleMenusScreenVM = viewModel()
+    val allCircleMenus = LauncherData.allCircleMenus.observeAsState()
     var deleteCircleMenuDialog by remember {
         mutableStateOf<CircleMenu?>(null)
     }

@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.navigation
+package com.kindeev.swipelauncher.presentation.navigation
 
 sealed class Screen(
     val route: String

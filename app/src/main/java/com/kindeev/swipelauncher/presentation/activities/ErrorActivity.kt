@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.gson.Gson
-import com.kindeev.swipelauncher.data.GlobalExceptionHandler
-import com.kindeev.swipelauncher.data.ui.theme.SettingsScreenTheme
+import com.kindeev.swipelauncher.presentation.GlobalExceptionHandler
+import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
 
 
 class ErrorActivity : ComponentActivity() {
@@ -23,7 +23,6 @@ class ErrorActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SettingsScreenTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

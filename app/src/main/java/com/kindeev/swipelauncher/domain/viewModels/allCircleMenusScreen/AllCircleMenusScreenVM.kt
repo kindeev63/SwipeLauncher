@@ -1,32 +1,35 @@
-package com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusScreen
+package com.kindeev.swipelauncher.domain.viewModels.allCircleMenusScreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ChangedCircleMenu
-import com.kindeev.swipelauncher.domain.DataObject.getAs
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import com.kindeev.swipelauncher.domain.getAs
+import kotlinx.coroutines.launch
 
-class AllCircleMenusScreenVM(
-    val mainAppVM: MainAppVM
-) : ViewModel() {
+class AllCircleMenusScreenVM : ViewModel() {
 
     fun deleteCircleMenu(circleMenu: CircleMenu) {
-        if (circleMenu.id == 0) return
-        mainAppVM.deleteCircleMenu(circleMenu)
-        mainAppVM.allCircleMenu.value?.let { circleMenus ->
-            val changedCircleMenus = mutableListOf<CircleMenu>()
-            circleMenus.forEach { currentCircleMenu ->
-                val changedCircleMenu = deleteOpenCircleMenuActions(
-                    circleMenu = currentCircleMenu,
-                    circleMenuId = circleMenu.id
-                )
-                if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
+        viewModelScope.launch {
+            if (circleMenu.id == 0) return@launch
+            LauncherData.deleteCircleMenu(circleMenu)
+            LauncherData.allCircleMenus.value?.let { circleMenus ->
+                val changedCircleMenus = mutableListOf<CircleMenu>()
+                circleMenus.forEach { currentCircleMenu ->
+                    val changedCircleMenu = deleteOpenCircleMenuActions(
+                        circleMenu = currentCircleMenu,
+                        circleMenuId = circleMenu.id
+                    )
+                    if (changedCircleMenu.changed) changedCircleMenus.add(changedCircleMenu.circleMenu)
+                }
+                LauncherData.insertCircleMenus(changedCircleMenus)
             }
-            mainAppVM.insertCircleMenus(changedCircleMenus)
         }
+
     }
 
     private fun deleteOpenCircleMenuActions(

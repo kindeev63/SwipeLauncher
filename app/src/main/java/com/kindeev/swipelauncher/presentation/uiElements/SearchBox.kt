@@ -29,9 +29,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.openLastAppSettingValue
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.openLastAppSettingValue
+import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVM
 
 @Composable
 fun SearchBox(
@@ -94,11 +94,10 @@ private fun SearchElement(
 
 @Composable
 private fun SearchResults(viewModel: LauncherScreenVM) {
-    val allApplicationData by DataObject.allApplicationData.observeAsState(emptyList())
-    val allSettings by viewModel.mainAppVM.allSettings.observeAsState(emptyList())
+    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
     val searchText by viewModel.searchText.observeAsState("")
     val filteredApps = viewModel.filterAllAppsToSearchBoxUseCase.invoke(allApplicationData, searchText)
-    if (filteredApps.size == 1 && openLastAppSettingValue(allSettings = allSettings)) {
+    if (filteredApps.size == 1 && openLastAppSettingValue()) {
         viewModel.selectSearchElement(filteredApps.first().packageName)
     }
     LazyColumn(

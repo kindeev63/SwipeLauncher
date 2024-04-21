@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.dataBaseElements
+package com.kindeev.swipelauncher.domain.dataBase
 
 import android.content.Context
 import androidx.room.Database
@@ -6,9 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.dataBase.AppDao
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.DataBaseTypesConverter
 
 @Database(entities = [CircleMenu::class, SettingData::class], version = 1)
 @TypeConverters(DataBaseTypesConverter::class)

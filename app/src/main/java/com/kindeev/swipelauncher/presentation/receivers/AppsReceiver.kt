@@ -5,46 +5,49 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.AppDataObject.getAllApplicationData
-import com.kindeev.swipelauncher.domain.DataObject.AppDataObject.isAppInstalled
-import com.kindeev.swipelauncher.domain.DataObject.AppDataObject.setAllApplicationData
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.checkCircleMenus
-import com.kindeev.swipelauncher.domain.DataObject.SettingDataObject.clickableClockSettingValue
-import com.kindeev.swipelauncher.domain.DataObject.getAs
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.clickableClockSettingValue
 import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.presentation.MainApp
+import com.kindeev.swipelauncher.domain.getAllApplicationData
+import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getOnlyChanged
+import com.kindeev.swipelauncher.domain.isAppInstalled
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 
 class AppsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Thread {
+        thread {
             val newApplicationData = context.getAllApplicationData()
             Handler(Looper.getMainLooper()).post {
-                val mainAppViewModel = (context.applicationContext as MainApp).mainAppVM
-                setAllApplicationData(newApplicationData)
-                checkCircleMenus(mainAppViewModel, context)
-                val clickableClockSetting = clickableClockSettingValue(
-                    mainAppViewModel.allSettings.value ?: emptyList()
-                )
-                clickableClockSetting.circleMenuAction?.let { circleMenuAction ->
-                    when (circleMenuAction.type) {
-                        CircleMenuActionTypes.OpenApp -> {
-                            val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
-                            if (!isAppInstalled(openApp.packageName, context)) {
-                                DataObject.SettingDataObject.defaultSettings.find { it.setting == ApplicationSetting.ClickableClock }
-                                    ?.let {
-                                        mainAppViewModel.insertSetting(it)
-                                    }
+                GlobalScope.launch {
+                    LauncherData.setAllApplicationData(newApplicationData)
+                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
+                        LauncherData.insertCircleMenus(allCircleMenus.getOnlyChanged(context))
+                    }
+                    clickableClockSettingValue().circleMenuAction?.let { circleMenuAction ->
+                        when (circleMenuAction.type) {
+                            CircleMenuActionTypes.OpenApp -> {
+                                val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
+                                if (!context.isAppInstalled(openApp.packageName)) {
+                                    Constants.defaultSettings.find { it.setting == ApplicationSetting.ClickableClock }
+                                        ?.let {
+                                            LauncherData.insertSetting(it)
+                                        }
+                                }
                             }
-                        }
 
-                        else -> {}
+                            else -> {}
+                        }
                     }
                 }
+
             }
-        }.start()
+        }
     }
 }

@@ -52,15 +52,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.getAs
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemImage
-import com.kindeev.swipelauncher.data.dialogTabs.ImageDialogTabs
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.entities.dialogTabs.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getItemImage
 import com.kindeev.swipelauncher.presentation.uiElements.AppItem
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -162,7 +163,7 @@ private fun PickAppImage(
     picked: AppImage?,
     onPick: (CircleMenuImage) -> Unit
 ) {
-    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+    val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
     LazyColumn {
         items(
             items = allApplicationData.value,
@@ -192,7 +193,7 @@ private fun PickDefaultImage(
         columns = GridCells.Fixed(((LocalConfiguration.current.screenWidthDp - 20) / 50).toInt())
     ) {
         items(
-            items = DataObject.CircleMenuDataObject.defaultImages.keys.toList()
+            items = Constants.defaultImages.keys.toList()
         ) { defaultImage ->
             Image(
                 modifier = Modifier
@@ -207,7 +208,7 @@ private fun PickDefaultImage(
                         )
                     },
                 painter = painterResource(
-                    id = DataObject.CircleMenuDataObject.defaultImages[defaultImage] ?: R.drawable.ic_error
+                    id = Constants.defaultImages[defaultImage] ?: R.drawable.ic_error
                 ),
                 contentDescription = null
             )
@@ -226,13 +227,13 @@ private fun PickOwnImage(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val ids = DataObject.CircleMenuDataObject.userImages.map { it.key }
+            val ids = LauncherData.userImages.map { it.key }
             var newId = 0
             while (newId in ids) {
                 newId++
             }
             val bitmap = createBitmapByUri(context, uri)
-            DataObject.CircleMenuDataObject.userImages = DataObject.CircleMenuDataObject.userImages.toMutableMap().apply {
+            LauncherData.userImages = LauncherData.userImages.toMutableMap().apply {
                 this[newId] = bitmap.asImageBitmap()
             }.toMap()
             createNewImageFile(context, "$newId.png", bitmap)
@@ -255,18 +256,18 @@ private fun PickOwnImage(
                 Text(text = stringResource(id = R.string.pick_image))
             }
         } else {
-            val painter = CircleMenuImage(
+            val imageBitmap = CircleMenuImage(
                 type = CircleMenuImageTypes.UserImage,
                 data = picked
-            ).getItemImage()
-            if (painter == null) {
+            ).getItemImage(context)
+            if (imageBitmap == null) {
                 Button(onClick = { launcher.launch("image/*") }) {
                     Text(text = stringResource(id = R.string.pick_image))
                 }
             } else {
                 Image(
                     modifier = Modifier.size((LocalConfiguration.current.screenWidthDp / 4).dp),
-                    painter = painter,
+                    bitmap = imageBitmap,
                     contentDescription = null
                 )
 
@@ -303,10 +304,10 @@ private fun DialogTabs(
     onSelectTab: (ImageDialogTabs) -> Unit
 ) {
     ScrollableTabRow(
-        selectedTabIndex = DataObject.imageDialogTabs.indexOf(selectedTab),
+        selectedTabIndex = Constants.imageDialogTabs.indexOf(selectedTab),
         edgePadding = 0.dp
     ) {
-        DataObject.imageDialogTabs.forEach { tab ->
+        Constants.imageDialogTabs.forEach { tab ->
             Tab(
                 selected = selectedTab == tab,
                 onClick = {

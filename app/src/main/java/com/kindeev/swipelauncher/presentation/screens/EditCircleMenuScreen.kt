@@ -45,11 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.getItemImage
-import com.kindeev.swipelauncher.domain.DataObject.getAs
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
@@ -57,9 +56,10 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.O
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreen.EditCircleMenuScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreen.EditCircleMenuScreenVMFactory
-import com.kindeev.swipelauncher.domain.viewModels.MainAppVM
+import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getItemImage
+import com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialog
@@ -67,21 +67,16 @@ import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickImageDialog
 
 @Composable
 fun EditCircleMenuScreen(
-    mainAppVM: MainAppVM,
     circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
     // ViewModel
     val viewModel: EditCircleMenuScreenVM = viewModel(
-        factory = EditCircleMenuScreenVMFactory(
-            mainAppVM, circleMenuId, stringResource(
-                id = R.string.new_circle_menu_title
-            )
-        )
+        factory = EditCircleMenuScreenVMFactory(circleMenuId)
     )
 
     // Checking for update circle menus
-    mainAppVM.allCircleMenu.observe(LocalLifecycleOwner.current) {
+    LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) {
         viewModel.updateCircleMenusEvent(it)
     }
 
@@ -165,7 +160,7 @@ fun EditCircleMenuToolbar(
                     textStyle = TextStyle(color = MaterialTheme.colorScheme.onPrimary),
                     value = title.copy(text = circleMenu.value?.title ?: ""),
                     onValueChange = { newTitle ->
-                        viewModel.mainAppVM.insertCircleMenu(menu.copy(title = newTitle.text))
+                        viewModel.insertCircleMenu(menu.copy(title = newTitle.text))
                         title = newTitle
                     }
                 )
@@ -256,20 +251,20 @@ private fun EditImageBox(
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(5.dp))
-        val painter = circleMenuImage.getItemImage()
-        if (painter == null) {
-            Button(onClick = { openDialog = true }) {
-                Text(text = stringResource(id = R.string.pick_image))
-            }
-        } else {
+        val imageBitmap = circleMenuImage.getItemImage(LocalContext.current)
+        if (imageBitmap != null) {
             Image(
                 modifier = Modifier
                     .size((LocalConfiguration.current.screenWidthDp / 6).dp)
                     .clickable { openDialog = true },
-                painter = painter,
+                bitmap = imageBitmap,
                 colorFilter = if (circleMenuImage.type == CircleMenuImageTypes.DefaultImage) ColorFilter.tint(MaterialTheme.colorScheme.onBackground) else null,
                 contentDescription = null,
             )
+        } else {
+            Button(onClick = { openDialog = true }) {
+                Text(text = stringResource(id = R.string.pick_image))
+            }
         }
     }
 }
@@ -283,11 +278,10 @@ private fun EditActionBox(
     var openDialog by remember {
         mutableStateOf(false)
     }
-    val allApplicationData = DataObject.allApplicationData.observeAsState(emptyList())
+    val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
     if (openDialog) {
         PickActionDialog(
             onDismissRequest = { openDialog = false },
-            mainAppVM = viewModel.mainAppVM,
             picked = circleMenuAction,
             onPick = {
                 onChangeAction(it)
@@ -310,7 +304,7 @@ private fun EditActionBox(
             CircleMenuActionTypes.OpenCircleMenu -> {
                 val openCircleMenu = circleMenuAction.data.getAs(OpenCircleMenu::class.java)
                 val circleMenu =
-                    viewModel.mainAppVM.allCircleMenu.value?.find { it.id == openCircleMenu.id }
+                    LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
                 circleMenu?.let {
                     MiniCircleMenuItem(
                         size = LocalConfiguration.current.screenWidthDp / 6f,
@@ -388,7 +382,7 @@ private fun EditActionBox(
                         },
                     painter = painterResource(
                         id =
-                        DataObject.CircleMenuDataObject.defaultImages[DataObject.otherActionsList.find { it.type == circleMenuAction.type }?.image]
+                        Constants.defaultImages[Constants.otherActionsList.find { it.type == circleMenuAction.type }?.image]
                             ?: R.drawable.ic_error
                     ),
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),

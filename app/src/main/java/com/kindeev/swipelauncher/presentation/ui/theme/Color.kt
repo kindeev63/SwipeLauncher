@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.ui.theme
+package com.kindeev.swipelauncher.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data
+package com.kindeev.swipelauncher.presentation
 
 import android.content.Context
 import android.content.Intent

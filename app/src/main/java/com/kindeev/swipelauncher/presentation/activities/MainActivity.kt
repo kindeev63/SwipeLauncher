@@ -9,51 +9,51 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import com.kindeev.swipelauncher.domain.DataObject
-import com.kindeev.swipelauncher.domain.DataObject.AppDataObject.getNotEmptyAllApplicationData
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.checkCircleMenuReturn
-import com.kindeev.swipelauncher.domain.DataObject.CircleMenuDataObject.setUserImages
-import com.kindeev.swipelauncher.domain.DataObject.ReceiverDataObject.registerAppsReceiver
-import com.kindeev.swipelauncher.domain.DataObject.ReceiverDataObject.unregisterAppsReceiver
-import com.kindeev.swipelauncher.data.ui.theme.LauncherScreenTheme
-import com.kindeev.swipelauncher.presentation.MainApp
+import androidx.compose.runtime.rememberCoroutineScope
+import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.getAllApplicationData
+import com.kindeev.swipelauncher.domain.getOnlyChanged
+import com.kindeev.swipelauncher.domain.getUserImages
+import com.kindeev.swipelauncher.domain.registerAppsReceiver
+import com.kindeev.swipelauncher.domain.removeUnusedUserImages
+import com.kindeev.swipelauncher.domain.unregisterAppsReceiver
+import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
+import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
-        val mainAppViewModel = (application as MainApp).mainAppVM
         registerAppsReceiver(appsReceiver)
         setContent {
+            val scope = rememberCoroutineScope()
             LauncherScreenTheme {
                 if (isFirstRun()) {
-                    FirstScreenUI(
-                        mainAppVM = mainAppViewModel
-                    )
+                    FirstScreenUI()
                 } else {
-                    LauncherScreen(mainAppVM = mainAppViewModel)
+                    LauncherScreen()
                 }
-                mainAppViewModel.allCircleMenu.observe(this) { allCircleMenus ->
-                    Thread {
-                        val allApplicationData = getNotEmptyAllApplicationData(this)
-                        if (DataObject.CircleMenuDataObject.userImages.isEmpty()) {
-                            setUserImages(mainAppVM = mainAppViewModel, context = this)
-                        }
-                        val changedCircleMenus = checkCircleMenuReturn(
-                            allCircleMenus = allCircleMenus,
-                            allAppData = allApplicationData,
-                            context = this
-                        )
+                LauncherData.allCircleMenus.observe(this) { allCircleMenus ->
+                    thread {
+                        LauncherData.setAllApplicationData(getAllApplicationData())
+                        removeUnusedUserImages(allCircleMenus)
+                        LauncherData.userImages = getUserImages()
+                        val changedCircleMenus = allCircleMenus.getOnlyChanged(this)
                         Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) mainAppViewModel.insertCircleMenus(
-                                changedCircleMenus
-                            )
+                            if (changedCircleMenus.isNotEmpty()) {
+                                scope.launch {
+                                    LauncherData.insertCircleMenus(
+                                        changedCircleMenus
+                                    )
+                                }
+                            }
                         }
-                    }.start()
+                    }
                 }
             }
         }
