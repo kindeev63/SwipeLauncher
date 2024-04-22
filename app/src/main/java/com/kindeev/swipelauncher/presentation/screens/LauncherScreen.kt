@@ -16,12 +16,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.clickableClockSettingValue
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVMFactory
-import com.kindeev.swipelauncher.presentation.uiElements.ClickableClockWidget
-import com.kindeev.swipelauncher.presentation.uiElements.ClockWidget
-import com.kindeev.swipelauncher.presentation.uiElements.SearchBox
-import com.kindeev.swipelauncher.presentation.uiElements.SwipeBox
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVMFactory
+import com.kindeev.swipelauncher.presentation.ui.uiElements.ClickableClockWidget
+import com.kindeev.swipelauncher.presentation.ui.uiElements.ClockWidget
+import com.kindeev.swipelauncher.presentation.ui.uiElements.SearchBox
+import com.kindeev.swipelauncher.presentation.ui.uiElements.SwipeBox
 
 
 @Composable
@@ -60,7 +60,8 @@ fun LauncherScreen() {
 
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val clickableClockSetting = clickableClockSettingValue()
+    val settings by LauncherData.allSettings.observeAsState(emptyList())
+    val clickableClockSetting = settings.clickableClockSettingValue()
     SwipeBox(viewModel = viewModel)
     Column {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))

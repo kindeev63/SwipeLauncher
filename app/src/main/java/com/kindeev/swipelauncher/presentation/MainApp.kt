@@ -12,7 +12,7 @@ class MainApp: Application() {
         GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
         val appDao = AppDataBase.getDataBase(this).getDao()
         LauncherData.setAppDao(appDao)
-        LauncherData.allCircleMenus = appDao.getAllCircleMenu()
         LauncherData.allSettings = appDao.getAllSettings()
+        LauncherData.allCircleMenus = appDao.getAllCircleMenu()
     }
 }

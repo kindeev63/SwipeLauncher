@@ -28,6 +28,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.App
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
 
@@ -444,12 +445,12 @@ fun Any?.serializableSettingData(): String {
     return gson.toJson(this)
 }
 
-fun clickableClockSettingValue(): ClickableClock {
-    val settings = LauncherData.allSettings.value?.find { it.setting == ApplicationSetting.ClickableClock } ?: return ClickableClock(enabled = false)
-    return settings.getObjectData().getAs(ClickableClock::class.java)
+fun List<SettingData>.clickableClockSettingValue(): ClickableClock {
+    val setting = this.find { it.setting == ApplicationSetting.ClickableClock } ?: return ClickableClock(enabled = false)
+    return setting.getObjectData().getAs(ClickableClock::class.java)
 }
 
-fun openLastAppSettingValue(): Boolean {
-    val setting = LauncherData.allSettings.value?.find { it.setting == ApplicationSetting.ClickableClock } ?: return true
+fun List<SettingData>.openLastAppSettingValue(): Boolean {
+    val setting = this.find { it.setting == ApplicationSetting.OpenLastApp } ?: return true
     return (setting.getObjectData().getAs(OpenLastApp::class.java)).value
 }

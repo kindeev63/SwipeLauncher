@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.ui.uiElements
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

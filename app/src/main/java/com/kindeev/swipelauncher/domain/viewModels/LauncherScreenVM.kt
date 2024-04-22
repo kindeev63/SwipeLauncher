@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels.launcherScreen
+package com.kindeev.swipelauncher.domain.viewModels
 
 import android.content.Context
 import android.os.Vibrator

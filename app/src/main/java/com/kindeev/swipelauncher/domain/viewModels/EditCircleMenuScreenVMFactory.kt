@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen
+package com.kindeev.swipelauncher.domain.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

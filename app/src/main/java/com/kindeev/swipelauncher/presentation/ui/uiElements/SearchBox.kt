@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.ui.uiElements
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.openLastAppSettingValue
-import com.kindeev.swipelauncher.domain.viewModels.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 
 @Composable
 fun SearchBox(
@@ -95,9 +95,10 @@ private fun SearchElement(
 @Composable
 private fun SearchResults(viewModel: LauncherScreenVM) {
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
+    val settings by LauncherData.allSettings.observeAsState(emptyList())
     val searchText by viewModel.searchText.observeAsState("")
     val filteredApps = viewModel.filterAllAppsToSearchBoxUseCase.invoke(allApplicationData, searchText)
-    if (filteredApps.size == 1 && openLastAppSettingValue()) {
+    if (filteredApps.size == 1 && settings.openLastAppSettingValue()) {
         viewModel.selectSearchElement(filteredApps.first().packageName)
     }
     LazyColumn(

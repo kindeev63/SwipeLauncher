@@ -20,7 +20,7 @@ import com.kindeev.swipelauncher.domain.unregisterAppsReceiver
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
-import com.kindeev.swipelauncher.presentation.uiElements.FirstScreenUI
+import com.kindeev.swipelauncher.presentation.ui.uiElements.FirstScreenUI
 import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 

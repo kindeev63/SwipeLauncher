@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements.dialogs
+package com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

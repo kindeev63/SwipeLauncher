@@ -58,12 +58,12 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImag
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getItemImage
-import com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen.EditCircleMenuScreenVMFactory
-import com.kindeev.swipelauncher.presentation.uiElements.CircleMenuForEditUI
-import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickActionDialog
-import com.kindeev.swipelauncher.presentation.uiElements.dialogs.PickImageDialog
+import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.presentation.ui.uiElements.CircleMenuForEditUI
+import com.kindeev.swipelauncher.presentation.ui.uiElements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs.PickActionDialog
+import com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs.PickImageDialog
 
 @Composable
 fun EditCircleMenuScreen(

@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,9 +25,9 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastA
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.serializableSettingData
 import com.kindeev.swipelauncher.domain.showLauncherSelection
-import com.kindeev.swipelauncher.presentation.uiElements.ClickableSettingsItem
-import com.kindeev.swipelauncher.presentation.uiElements.SwitchAndActionSettingsItem
-import com.kindeev.swipelauncher.presentation.uiElements.SwitchSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.ClickableSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.SwitchAndActionSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.SwitchSettingsItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -105,6 +106,7 @@ fun SettingsScreenContent(
 
                     ApplicationSetting.ClickableClock -> {
                         val clickableClock = settingData.getObjectData().getAs(ClickableClock::class.java)
+                        Log.e("test", clickableClock.toString())
                         SwitchAndActionSettingsItem(
                             text = settingName,
                             enabled = clickableClock.enabled,

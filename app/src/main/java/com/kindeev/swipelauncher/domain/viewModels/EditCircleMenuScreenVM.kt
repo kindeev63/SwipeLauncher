@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels.editCircleMenuScreen
+package com.kindeev.swipelauncher.domain.viewModels
 
 import android.content.res.Configuration
 import androidx.lifecycle.LiveData

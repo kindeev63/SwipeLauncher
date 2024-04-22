@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements
+package com.kindeev.swipelauncher.presentation.ui.uiElements
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi

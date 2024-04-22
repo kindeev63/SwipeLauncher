@@ -30,7 +30,7 @@ class AppsReceiver : BroadcastReceiver() {
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
                         LauncherData.insertCircleMenus(allCircleMenus.getOnlyChanged(context))
                     }
-                    clickableClockSettingValue().circleMenuAction?.let { circleMenuAction ->
+                    LauncherData.allSettings.value?.clickableClockSettingValue()?.circleMenuAction?.let { circleMenuAction ->
                         when (circleMenuAction.type) {
                             CircleMenuActionTypes.OpenApp -> {
                                 val openApp = circleMenuAction.data.getAs(OpenApp::class.java)

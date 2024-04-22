@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.uiElements.dialogs
+package com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,9 +43,9 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAct
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.getAs
-import com.kindeev.swipelauncher.presentation.uiElements.AppItem
-import com.kindeev.swipelauncher.presentation.uiElements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.uiElements.OtherActionItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.AppItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.ui.uiElements.OtherActionItem
 
 @Composable
 fun PickActionDialog(
