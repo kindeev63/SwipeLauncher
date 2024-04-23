@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.uiElements
+package com.kindeev.swipelauncher.presentation.ui.elements
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -24,12 +24,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.getAppDetails
 import com.kindeev.swipelauncher.domain.openLastAppSettingValue
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 
@@ -44,9 +46,10 @@ fun SearchBox(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.1f)
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.1f)
         )
         SearchElement(viewModel = viewModel)
         Spacer(modifier = Modifier.height(10.dp))
@@ -94,10 +97,13 @@ private fun SearchElement(
 
 @Composable
 private fun SearchResults(viewModel: LauncherScreenVM) {
+    val context = LocalContext.current
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
     val settings by LauncherData.allSettings.observeAsState(emptyList())
     val searchText by viewModel.searchText.observeAsState("")
-    val filteredApps = viewModel.filterAllAppsToSearchBoxUseCase.invoke(allApplicationData, searchText)
+    val filteredApps = allApplicationData.filter {
+        it.name.lowercase().contains(searchText.lowercase())
+    }.sortedBy { it.name }
     if (filteredApps.size == 1 && settings.openLastAppSettingValue()) {
         viewModel.selectSearchElement(filteredApps.first().packageName)
     }
@@ -108,14 +114,18 @@ private fun SearchResults(viewModel: LauncherScreenVM) {
             items = filteredApps,
             key = { it.packageName }
         ) { applicationData ->
-            AppItem(
+            SwipeAppItem(
                 applicationData = applicationData,
                 textColor = MaterialTheme.colorScheme.onPrimary,
+                onDelete = {
+                    viewModel.deleteAppUseCase.invoke(applicationData.packageName)
+                },
+                onGetAppInfo = {
+                    context.getAppDetails(applicationData.packageName)
+                    viewModel.closeSearchBox()
+                },
                 onClick = {
                     viewModel.selectSearchElement(applicationData.packageName)
-                },
-                onLongClick = {
-                    viewModel.deleteAppUseCase.invoke(applicationData.packageName)
                 }
             )
         }

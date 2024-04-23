@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.uiElements
+package com.kindeev.swipelauncher.presentation.ui.elements
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -43,7 +43,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAct
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.getAs
-import com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs.PickActionDialogWithoutOpenCircleMenu
+import com.kindeev.swipelauncher.presentation.ui.elements.dialogs.PickActionDialogWithoutOpenCircleMenu
 
 @Composable
 fun SwitchSettingsItem(

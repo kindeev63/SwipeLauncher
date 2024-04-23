@@ -25,9 +25,9 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastA
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.serializableSettingData
 import com.kindeev.swipelauncher.domain.showLauncherSelection
-import com.kindeev.swipelauncher.presentation.ui.uiElements.ClickableSettingsItem
-import com.kindeev.swipelauncher.presentation.ui.uiElements.SwitchAndActionSettingsItem
-import com.kindeev.swipelauncher.presentation.ui.uiElements.SwitchSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.elements.ClickableSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.elements.SwitchAndActionSettingsItem
+import com.kindeev.swipelauncher.presentation.ui.elements.SwitchSettingsItem
 import kotlinx.coroutines.launch
 
 @Composable

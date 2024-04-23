@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.uiElements
+package com.kindeev.swipelauncher.presentation.ui.elements
 
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background

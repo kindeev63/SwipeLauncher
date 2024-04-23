@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.ui.geometry.Offset
@@ -453,4 +454,11 @@ fun List<SettingData>.clickableClockSettingValue(): ClickableClock {
 fun List<SettingData>.openLastAppSettingValue(): Boolean {
     val setting = this.find { it.setting == ApplicationSetting.OpenLastApp } ?: return true
     return (setting.getObjectData().getAs(OpenLastApp::class.java)).value
+}
+
+fun Context.getAppDetails(packageName: String) {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    val uri = Uri.fromParts("package", packageName, null)
+    intent.data = uri
+    startActivity(intent)
 }

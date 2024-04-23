@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.uiElements
+package com.kindeev.swipelauncher.presentation.ui.elements
 
 import android.content.Context
 import androidx.compose.foundation.clickable

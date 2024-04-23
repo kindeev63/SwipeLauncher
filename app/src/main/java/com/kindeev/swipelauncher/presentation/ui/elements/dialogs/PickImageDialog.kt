@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.uiElements.dialogs
+package com.kindeev.swipelauncher.presentation.ui.elements.dialogs
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -62,7 +62,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.Def
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getItemImage
-import com.kindeev.swipelauncher.presentation.ui.uiElements.AppItem
+import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream

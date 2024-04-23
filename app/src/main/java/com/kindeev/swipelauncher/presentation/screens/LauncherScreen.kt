@@ -18,10 +18,10 @@ import com.kindeev.swipelauncher.domain.clickableClockSettingValue
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVMFactory
-import com.kindeev.swipelauncher.presentation.ui.uiElements.ClickableClockWidget
-import com.kindeev.swipelauncher.presentation.ui.uiElements.ClockWidget
-import com.kindeev.swipelauncher.presentation.ui.uiElements.SearchBox
-import com.kindeev.swipelauncher.presentation.ui.uiElements.SwipeBox
+import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
+import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
+import com.kindeev.swipelauncher.presentation.ui.elements.SearchBox
+import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBox
 
 
 @Composable

@@ -14,7 +14,6 @@ import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenuOffset
 import com.kindeev.swipelauncher.domain.useCases.DeleteAppUseCase
-import com.kindeev.swipelauncher.domain.useCases.FilterAllAppsToSearchBoxUseCase
 import com.kindeev.swipelauncher.domain.useCases.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
@@ -49,7 +48,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val openAppUseCase = OpenAppUseCase(context)
     val deleteAppUseCase = DeleteAppUseCase(context)
-    val filterAllAppsToSearchBoxUseCase = FilterAllAppsToSearchBoxUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
