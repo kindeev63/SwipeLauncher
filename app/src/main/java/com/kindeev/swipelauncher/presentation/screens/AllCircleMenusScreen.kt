@@ -23,7 +23,7 @@ import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.ui.elements.dialogs.DeleteCircleMenuDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.DeleteCircleMenuDialog
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

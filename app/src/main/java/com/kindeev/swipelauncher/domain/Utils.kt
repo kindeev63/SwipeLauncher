@@ -6,9 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.provider.Settings
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -32,6 +35,9 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 fun <T> Any?.getAs(classOfT: Class<T>): T {
     val gson = Gson()
@@ -461,4 +467,26 @@ fun Context.getAppDetails(packageName: String) {
     val uri = Uri.fromParts("package", packageName, null)
     intent.data = uri
     startActivity(intent)
+}
+
+fun Context.addUserImage(id: Int, bitmap: Bitmap) {
+    val file = File(filesDir, "$id.png")
+    file.createNewFile()
+    val fos = FileOutputStream(file)
+    val bos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+    fos.write(bos.toByteArray())
+    fos.flush()
+    fos.close()
+}
+
+fun Context.createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
+    MediaStore.Images
+        .Media.getBitmap(contentResolver, uri)
+
+} else {
+    ImageDecoder.decodeBitmap(
+        ImageDecoder
+            .createSource(contentResolver, uri)
+    )
 }

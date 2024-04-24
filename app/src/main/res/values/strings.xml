@@ -63,10 +63,10 @@
     <string name="root">Root</string>
     <string name="open_app_tab">Open App</string>
     <string name="open_circle_menu_tab">Open circle menu</string>
-    <string name="other">Other</string>
+    <string name="other_tab">Other</string>
     <string name="app_image_tab">Apps</string>
     <string name="default_image_tab">Default</string>
-    <string name="own">Own</string>
+    <string name="user_image_tab">Own</string>
     <string name="open_settings">Open settings</string>
     <string name="flashlight_on">Flashlight on</string>
     <string name="flashlight_off">FlashLight off</string>

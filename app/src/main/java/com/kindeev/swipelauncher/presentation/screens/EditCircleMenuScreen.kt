@@ -62,8 +62,8 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.ui.elements.dialogs.PickActionDialog
-import com.kindeev.swipelauncher.presentation.ui.elements.dialogs.PickImageDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.PickImageDialog
 
 @Composable
 fun EditCircleMenuScreen(

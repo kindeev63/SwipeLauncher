@@ -1,11 +1,10 @@
 package com.kindeev.swipelauncher.domain
 
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.entities.dialogTabs.ActionDialogTabs
-import com.kindeev.swipelauncher.domain.entities.dialogTabs.ImageDialogTabs
 import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.dialogTabs.DialogTab
 import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
@@ -13,14 +12,14 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastA
 
 object Constants {
     val imageDialogTabs = listOf(
-        ImageDialogTabs.AppImageTab,
-        ImageDialogTabs.DefaultImageTab,
-        ImageDialogTabs.UserImageTab
+        DialogTab(R.string.app_image_tab),
+        DialogTab(R.string.default_image_tab),
+        DialogTab(R.string.user_image_tab)
     )
     val actionDialogTabs = listOf(
-        ActionDialogTabs.OpenAppTab,
-        ActionDialogTabs.OpenCircleMenuTab,
-        ActionDialogTabs.OtherTab
+        DialogTab(R.string.open_app_tab),
+        DialogTab(R.string.open_circle_menu_tab),
+        DialogTab(R.string.other_tab)
     )
     val otherActionsList = listOf(
         OtherAction(

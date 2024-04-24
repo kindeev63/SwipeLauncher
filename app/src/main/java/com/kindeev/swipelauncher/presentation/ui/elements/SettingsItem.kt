@@ -43,7 +43,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAct
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
 import com.kindeev.swipelauncher.domain.getAs
-import com.kindeev.swipelauncher.presentation.ui.elements.dialogs.PickActionDialogWithoutOpenCircleMenu
+import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialogWithoutOpenCircleMenu
 
 @Composable
 fun SwitchSettingsItem(
