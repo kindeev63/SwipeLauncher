@@ -24,8 +24,8 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage

@@ -9,8 +9,23 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
 
 object Constants {
+
+    val actionTypes = listOf(
+        ActionType(
+            nameResId = R.string.open_app_tab,
+            imageResId = R.drawable.open_app_image,
+            type = CircleMenuActionTypes.OpenApp
+        ),
+        ActionType(
+            nameResId = R.string.open_circle_menu_tab,
+            imageResId = R.drawable.open_circle_menu_image,
+            type = CircleMenuActionTypes.OpenCircleMenu
+        ),
+    )
+
     val imageDialogTabs = listOf(
         DialogTab(R.string.app_image_tab),
         DialogTab(R.string.default_image_tab),

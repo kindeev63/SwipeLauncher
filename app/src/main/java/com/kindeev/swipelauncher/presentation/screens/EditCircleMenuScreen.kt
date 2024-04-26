@@ -52,14 +52,15 @@ import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getItemImage
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialog
@@ -280,14 +281,21 @@ private fun EditActionBox(
     }
     val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
     if (openDialog) {
-        PickActionDialog(
+        ActionDialog(
             onDismissRequest = { openDialog = false },
-            picked = circleMenuAction,
             onPick = {
                 onChangeAction(it)
                 openDialog = false
             }
         )
+//        PickActionDialog(
+//            onDismissRequest = { openDialog = false },
+//            picked = circleMenuAction,
+//            onPick = {
+//                onChangeAction(it)
+//                openDialog = false
+//            }
+//        )
     }
     Column(
         modifier = Modifier

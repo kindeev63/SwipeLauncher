@@ -41,7 +41,7 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialogWithoutOpenCircleMenu
 

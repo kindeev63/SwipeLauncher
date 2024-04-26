@@ -20,8 +20,8 @@ import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.domain.useCases.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionTypes.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.getAs
 
 class LauncherScreenVM(context: Context) : ViewModel() {
@@ -213,6 +213,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 _circleMenuOffset.value = null
                 openSettingsUseCase.invoke()
             }
+
+            CircleMenuActionTypes.Call -> {}
 
             CircleMenuActionTypes.OpenApp -> {
                 val currentApp = action.data.getAs(OpenApp::class.java)
