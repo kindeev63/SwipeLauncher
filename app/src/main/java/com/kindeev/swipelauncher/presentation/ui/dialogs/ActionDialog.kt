@@ -55,39 +55,41 @@ fun ActionDialog(
     onPick: (CircleMenuAction) -> Unit
 ) {
     var actionType by rememberSaveable {
-        mutableStateOf<CircleMenuActionTypes?>(null)
+        mutableStateOf<ActionTypes?>(null)
     }
     AllActionTypes(
         onPick = { actionType = it },
         onDismissRequest = onDismissRequest
     )
     when (actionType) {
-        CircleMenuActionTypes.OpenCircleMenu -> {
+        ActionTypes.OpenCircleMenu -> {
             OpenCircleMenuActionData(
                 onPick = onPick,
                 onDismissRequest = { actionType = null }
             )
         }
 
-        CircleMenuActionTypes.OpenSettings -> onPick(CircleMenuAction(type = CircleMenuActionTypes.OpenSettings))
-        CircleMenuActionTypes.OpenApp -> {
+        ActionTypes.OpenApp -> {
             OpenAppActionData(
                 onPick = onPick,
                 onDismissRequest = { actionType = null }
             )
         }
 
-        CircleMenuActionTypes.FlashLightOn -> onPick(CircleMenuAction(type = CircleMenuActionTypes.FlashLightOn))
-        CircleMenuActionTypes.FlashLightOff -> onPick(CircleMenuAction(type = CircleMenuActionTypes.FlashLightOff))
-        CircleMenuActionTypes.ChangeFlashLightCondition -> onPick(CircleMenuAction(type = CircleMenuActionTypes.ChangeFlashLightCondition))
-        CircleMenuActionTypes.Call -> TODO()
-        null -> {}
+        ActionTypes.Flashlight -> {
+            FlashlightActionData(
+                onPick = onPick,
+                onDismissRequest = { actionType = null }
+            )
+        }
+
+        else -> {}
     }
 }
 
 @Composable
 private fun AllActionTypes(
-    onPick: (CircleMenuActionTypes) -> Unit,
+    onPick: (ActionTypes) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
@@ -110,9 +112,12 @@ private fun AllActionTypes(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.actionTypes) { actionType ->
+                items(items = Constants.actionTypes.filter {
+                    it.name.lowercase().contains(searchText.lowercase())
+                }) { actionType ->
                     ActionTypeElement(
-                        actionType = actionType,
+                        name = actionType.name,
+                        imageResId = actionType.imageResId,
                         onClick = { onPick(actionType.type) }
                     )
                 }
@@ -159,7 +164,8 @@ private fun SearchElement(searchText: String, onTextChange: (String) -> Unit) {
 
 @Composable
 private fun ActionTypeElement(
-    actionType: ActionType,
+    name: String,
+    imageResId: Int,
     onClick: () -> Unit
 ) {
     Box(
@@ -179,17 +185,18 @@ private fun ActionTypeElement(
             Spacer(modifier = Modifier.width(10.dp))
             Image(
                 modifier = Modifier.size(50.dp),
-                painter = painterResource(id = actionType.imageResId),
+                painter = painterResource(id = imageResId),
                 contentDescription = "Action type image"
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = stringResource(id = actionType.nameResId),
+                text = name,
                 color = Color.White
             )
         }
     }
 }
+
 
 @Composable
 private fun OpenCircleMenuActionData(
@@ -283,6 +290,52 @@ private fun OpenAppActionData(
                             )
                         )
                     }
+                }
+            }
+            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+        }
+    }
+}
+
+@Composable
+private fun FlashlightActionData(
+    onPick: (CircleMenuAction) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val screenConfiguration = LocalConfiguration.current
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
+                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFBBDEFB))
+                .padding(20.dp)
+        ) {
+            var searchText by rememberSaveable {
+                mutableStateOf("")
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item { Spacer(modifier = Modifier.height(50.dp)) }
+                items(items = Constants.flashlightActionTypes.filter {
+                    it.name.lowercase().contains(searchText.lowercase())
+                }) { flashlightActionType ->
+                    ActionTypeElement(
+                        name = flashlightActionType.name,
+                        imageResId = flashlightActionType.imageResId,
+                        onClick = {
+                            onPick(
+                                CircleMenuAction(
+                                    type = flashlightActionType.type
+                                )
+                            )
+                        }
+                    )
                 }
             }
             SearchElement(searchText = searchText, onTextChange = { searchText = it })

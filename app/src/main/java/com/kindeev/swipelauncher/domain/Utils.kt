@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.google.gson.Gson
+import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.dataBase.MenuActions
 import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
@@ -35,6 +36,9 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionTypes
+import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -488,5 +492,42 @@ fun Context.createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
     ImageDecoder.decodeBitmap(
         ImageDecoder
             .createSource(contentResolver, uri)
+    )
+}
+
+fun Context.setActionTypes() {
+    Constants.actionTypes = listOf(
+        ActionType(
+            name = this.resources.getString(R.string.open_app_action),
+            imageResId = R.drawable.open_app_image,
+            type = ActionTypes.OpenApp
+        ),
+        ActionType(
+            name = this.resources.getString(R.string.open_circle_menu_action),
+            imageResId = R.drawable.open_circle_menu_image,
+            type = ActionTypes.OpenCircleMenu
+        ),
+        ActionType(
+            name = this.resources.getString(R.string.flashlight_action),
+            imageResId = R.drawable.flashlight_action,
+            type = ActionTypes.Flashlight
+        ),
+    )
+    Constants.flashlightActionTypes = listOf(
+        FlashlightActionType(
+            name = this.resources.getString(R.string.on_flashlight_action),
+            imageResId = R.drawable.on_flashlight_image,
+            type = CircleMenuActionTypes.FlashLightOn
+        ),
+        FlashlightActionType(
+            name = this.resources.getString(R.string.off_flashlight_action),
+            imageResId = R.drawable.off_flashlight_image,
+            type = CircleMenuActionTypes.FlashLightOff
+        ),
+        FlashlightActionType(
+            name = this.resources.getString(R.string.change_condition_flashlight_action),
+            imageResId = R.drawable.change_condition_flashlight_image,
+            type = CircleMenuActionTypes.ChangeFlashLightCondition
+        ),
     )
 }

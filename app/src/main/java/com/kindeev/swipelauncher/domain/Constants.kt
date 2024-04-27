@@ -10,21 +10,12 @@ import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
+import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
 
 object Constants {
 
-    val actionTypes = listOf(
-        ActionType(
-            nameResId = R.string.open_app_tab,
-            imageResId = R.drawable.open_app_image,
-            type = CircleMenuActionTypes.OpenApp
-        ),
-        ActionType(
-            nameResId = R.string.open_circle_menu_tab,
-            imageResId = R.drawable.open_circle_menu_image,
-            type = CircleMenuActionTypes.OpenCircleMenu
-        ),
-    )
+    var actionTypes = listOf<ActionType>()
+    var flashlightActionTypes = listOf<FlashlightActionType>()
 
     val imageDialogTabs = listOf(
         DialogTab(R.string.app_image_tab),

@@ -49,4 +49,10 @@
     <string name="clickable_clock">Нажатие на часы</string>
     <string name="launcher_settings">Настройки лаунчера</string>
     <string name="change_default_launcher">Изменить лаунчер по умолчанию</string>
+    <string name="open_app_action">Открыть приложение</string>
+    <string name="open_circle_menu_action">Открыть меню</string>
+    <string name="flashlight_action">Фонарик</string>
+    <string name="on_flashlight_action">Включить фонарик</string>
+    <string name="off_flashlight_action">Выключить фонарик</string>
+    <string name="change_condition_flashlight_action">Изменить состояние фонарика</string>
 </resources>

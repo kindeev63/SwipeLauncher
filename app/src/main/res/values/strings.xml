@@ -76,5 +76,11 @@
     <string name="clickable_clock">Clicable clock</string>
     <string name="launcher_settings">LauncherSettings</string>
     <string name="change_default_launcher">Change default launcher</string>
+    <string name="open_app_action">Open app</string>
+    <string name="open_circle_menu_action">Open circle menu</string>
+    <string name="flashlight_action">Flashlight</string>
+    <string name="on_flashlight_action">Flashlight on</string>
+    <string name="off_flashlight_action">Flashlight off</string>
+    <string name="change_condition_flashlight_action">Change flashlight condition</string>
 
 </resources>

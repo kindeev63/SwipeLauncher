@@ -16,6 +16,7 @@ import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.getUserImages
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
 import com.kindeev.swipelauncher.domain.removeUnusedUserImages
+import com.kindeev.swipelauncher.domain.setActionTypes
 import com.kindeev.swipelauncher.domain.unregisterAppsReceiver
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         registerAppsReceiver(appsReceiver)
+        setActionTypes()
         setContent {
             val scope = rememberCoroutineScope()
             LauncherScreenTheme {
