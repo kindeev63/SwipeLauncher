@@ -43,7 +43,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAct
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.getAs
-import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialogWithoutOpenCircleMenu
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 
 @Composable
 fun SwitchSettingsItem(
@@ -161,9 +161,8 @@ fun SwitchAndActionSettingsItem(
                 mutableStateOf(false)
             }
             if (openDialog) {
-                PickActionDialogWithoutOpenCircleMenu(
+                ActionDialog(
                     onDismissRequest = { openDialog = false },
-                    picked = circleMenuAction ?: CircleMenuAction(CircleMenuActionTypes.OpenSettings),
                     onPick = {
                         onActionChange(it)
                         openDialog = false

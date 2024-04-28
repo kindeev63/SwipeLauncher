@@ -63,7 +63,6 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.ui.dialogs.PickActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.PickImageDialog
 
 @Composable
@@ -288,14 +287,6 @@ private fun EditActionBox(
                 openDialog = false
             }
         )
-//        PickActionDialog(
-//            onDismissRequest = { openDialog = false },
-//            picked = circleMenuAction,
-//            onPick = {
-//                onChangeAction(it)
-//                openDialog = false
-//            }
-//        )
     }
     Column(
         modifier = Modifier
@@ -377,6 +368,30 @@ private fun EditActionBox(
                         },
                     painter = painterResource(id = R.drawable.ic_settings),
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+                    contentDescription = null
+                )
+            }
+
+            CircleMenuActionTypes.Call -> {
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painterResource(id = R.drawable.call_telephone_image),
+                    contentDescription = null
+                )
+            }
+
+            CircleMenuActionTypes.Dial -> {
+                Image(
+                    modifier = Modifier
+                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
+                        .clickable {
+                            openDialog = true
+                        },
+                    painter = painterResource(id = R.drawable.dial_telephone_image),
                     contentDescription = null
                 )
             }

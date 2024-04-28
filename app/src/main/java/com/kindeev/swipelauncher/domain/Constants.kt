@@ -11,21 +11,18 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.Clickable
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionType
 
 object Constants {
 
     var actionTypes = listOf<ActionType>()
     var flashlightActionTypes = listOf<FlashlightActionType>()
+    var telephoneActionTypes = listOf<TelephoneActionType>()
 
     val imageDialogTabs = listOf(
         DialogTab(R.string.app_image_tab),
         DialogTab(R.string.default_image_tab),
         DialogTab(R.string.user_image_tab)
-    )
-    val actionDialogTabs = listOf(
-        DialogTab(R.string.open_app_tab),
-        DialogTab(R.string.open_circle_menu_tab),
-        DialogTab(R.string.other_tab)
     )
     val otherActionsList = listOf(
         OtherAction(

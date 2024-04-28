@@ -1,3 +1,3 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData
 
-data class Call(val phoneNumber: String)
+data class Dial(val phoneNumber: String)

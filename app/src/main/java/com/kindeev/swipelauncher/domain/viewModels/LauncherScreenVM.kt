@@ -1,6 +1,8 @@
 package com.kindeev.swipelauncher.domain.viewModels
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
@@ -20,11 +22,13 @@ import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.domain.useCases.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.getAs
 
-class LauncherScreenVM(context: Context) : ViewModel() {
+class LauncherScreenVM(private val context: Context) : ViewModel() {
     private val _circleMenuOffset = MutableLiveData<CircleMenuOffset?>(null)
     val circleMenuOffset: LiveData<CircleMenuOffset?> = _circleMenuOffset
     private val _menuImages = MutableLiveData<MenuImages>()
@@ -214,8 +218,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 openSettingsUseCase.invoke()
             }
 
-            CircleMenuActionTypes.Call -> {}
-
             CircleMenuActionTypes.OpenApp -> {
                 val currentApp = action.data.getAs(OpenApp::class.java)
                 openAppUseCase.invoke(currentApp.packageName)
@@ -241,6 +243,20 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 }
                 LauncherData.flashLightCondition = !LauncherData.flashLightCondition
                 _circleMenuOffset.value = null
+            }
+
+            CircleMenuActionTypes.Call -> {
+                val call = action.data.getAs(Call::class.java)
+                val intent = Intent(Intent.ACTION_CALL)
+                intent.data = Uri.parse("tel:${call.phoneNumber}")
+                context.startActivity(intent)
+            }
+
+            CircleMenuActionTypes.Dial -> {
+                val dial = action.data.getAs(Dial::class.java)
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse("tel:${dial.phoneNumber}")
+                context.startActivity(intent)
             }
         }
     }

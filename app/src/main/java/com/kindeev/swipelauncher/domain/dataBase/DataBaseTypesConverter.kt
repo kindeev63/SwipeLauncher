@@ -6,6 +6,7 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
@@ -143,6 +144,7 @@ class DataBaseTypesConverter {
             CircleMenuActionTypes.OpenCircleMenu -> OpenCircleMenu::class.java
             CircleMenuActionTypes.OpenApp -> OpenApp::class.java
             CircleMenuActionTypes.Call -> Call::class.java
+            CircleMenuActionTypes.Dial -> Dial::class.java
             else -> null
         }
     }

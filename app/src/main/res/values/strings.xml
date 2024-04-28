@@ -82,5 +82,9 @@
     <string name="on_flashlight_action">Flashlight on</string>
     <string name="off_flashlight_action">Flashlight off</string>
     <string name="change_condition_flashlight_action">Change flashlight condition</string>
+    <string name="telephone_action">Telephone</string>
+    <string name="call_telephone_action">Call</string>
+    <string name="dial_telephone_action">Dial</string>
+    <string name="save">Save</string>
 
 </resources>

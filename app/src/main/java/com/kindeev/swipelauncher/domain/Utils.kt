@@ -39,6 +39,7 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastA
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionTypes
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionType
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -508,6 +509,11 @@ fun Context.setActionTypes() {
             type = ActionTypes.OpenCircleMenu
         ),
         ActionType(
+            name = this.resources.getString(R.string.telephone_action),
+            imageResId = R.drawable.telephone_image,
+            type = ActionTypes.Telephone
+        ),
+        ActionType(
             name = this.resources.getString(R.string.flashlight_action),
             imageResId = R.drawable.flashlight_action,
             type = ActionTypes.Flashlight
@@ -528,6 +534,18 @@ fun Context.setActionTypes() {
             name = this.resources.getString(R.string.change_condition_flashlight_action),
             imageResId = R.drawable.change_condition_flashlight_image,
             type = CircleMenuActionTypes.ChangeFlashLightCondition
+        ),
+    )
+    Constants.telephoneActionTypes = listOf(
+        TelephoneActionType(
+            name = this.resources.getString(R.string.call_telephone_action),
+            imageResId = R.drawable.call_telephone_image,
+            type = CircleMenuActionTypes.Call
+        ),
+        TelephoneActionType(
+            name = this.resources.getString(R.string.dial_telephone_action),
+            imageResId = R.drawable.dial_telephone_image,
+            type = CircleMenuActionTypes.Dial
         ),
     )
 }

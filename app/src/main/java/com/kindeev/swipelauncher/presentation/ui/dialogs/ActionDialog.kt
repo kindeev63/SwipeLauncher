@@ -1,11 +1,18 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import android.Manifest
+import android.provider.ContactsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +29,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -32,18 +40,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
@@ -78,6 +97,13 @@ fun ActionDialog(
 
         ActionTypes.Flashlight -> {
             FlashlightActionData(
+                onPick = onPick,
+                onDismissRequest = { actionType = null }
+            )
+        }
+
+        ActionTypes.Telephone -> {
+            TelephoneActionData(
                 onPick = onPick,
                 onDismissRequest = { actionType = null }
             )
@@ -342,3 +368,302 @@ private fun FlashlightActionData(
         }
     }
 }
+
+@Composable
+private fun TelephoneActionData(
+    onPick: (CircleMenuAction) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val screenConfiguration = LocalConfiguration.current
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
+                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFBBDEFB))
+                .padding(20.dp)
+        ) {
+            var actionType by rememberSaveable {
+                mutableStateOf<CircleMenuActionTypes?>(null)
+            }
+            if (actionType != null) {
+                if (actionType == CircleMenuActionTypes.Call) {
+                    var hasCallPermission by rememberSaveable {
+                        mutableStateOf<Boolean?>(null)
+                    }
+                    if (hasCallPermission == null) {
+                        CallPermission { hasCallPermission = it }
+                    } else {
+                        if (hasCallPermission == true) {
+                            EnterNumberDialog(
+                                onEnter = {
+                                    onPick(
+                                        CircleMenuAction(
+                                            type = actionType!!,
+                                            data = when (actionType) {
+                                                CircleMenuActionTypes.Call -> Call(it)
+                                                CircleMenuActionTypes.Dial -> Dial(it)
+                                                else -> null
+                                            }
+                                        )
+                                    )
+                                },
+                                onDismissRequest = {
+                                    actionType = null
+                                }
+                            )
+                        } else {
+                            actionType = null
+                        }
+                    }
+                } else {
+                    EnterNumberDialog(
+                        onEnter = {
+                            onPick(
+                                CircleMenuAction(
+                                    type = actionType!!,
+                                    data = when (actionType) {
+                                        CircleMenuActionTypes.Call -> Call(it)
+                                        CircleMenuActionTypes.Dial -> Dial(it)
+                                        else -> null
+                                    }
+                                )
+                            )
+                        },
+                        onDismissRequest = {
+                            actionType = null
+                        }
+                    )
+                }
+            }
+
+            var searchText by rememberSaveable {
+                mutableStateOf("")
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item { Spacer(modifier = Modifier.height(50.dp)) }
+                items(items = Constants.telephoneActionTypes.filter {
+                    it.name.lowercase().contains(searchText.lowercase())
+                }) { telephoneActionType ->
+                    ActionTypeElement(
+                        name = telephoneActionType.name,
+                        imageResId = telephoneActionType.imageResId,
+                        onClick = {
+                            actionType = telephoneActionType.type
+                        }
+                    )
+                }
+            }
+            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+        }
+    }
+}
+
+@Composable
+fun EnterNumberDialog(
+    onEnter: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val screenConfiguration = LocalConfiguration.current
+    val context = LocalContext.current
+
+    var phoneNumber by rememberSaveable {
+        mutableStateOf("")
+    }
+    var hasReadContactsPermission by rememberSaveable {
+        mutableStateOf<Boolean?>(null)
+    }
+    if (hasReadContactsPermission == null) {
+        ReadContactsPermission { hasReadContactsPermission = it }
+    }
+
+    val pickContactLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickContact(),
+        onResult = { uri ->
+            if (uri != null) {
+                val cursor = context.contentResolver.query(
+                    uri,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        val contactIdIndex = it.getColumnIndex(ContactsContract.Contacts._ID)
+                        val contactId = it.getString(contactIdIndex)
+                        val cursor2 = context.contentResolver.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId,
+                            null,
+                            null
+                        )
+                        cursor2?.use {
+                            if (cursor2.moveToNext()) {
+                                val contactNumberIndex =
+                                    cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                                val contactNumber = cursor2.getString(contactNumberIndex)
+                                phoneNumber = contactNumber
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
+
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
+                .height(screenConfiguration.screenWidthDp.dp / 2)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
+                .padding(20.dp)
+        ) {
+            Spacer(modifier = Modifier.fillMaxHeight(0.15f))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF2196F3))
+                        .padding(horizontal = 25.dp, vertical = 10.dp),
+                    value = phoneNumber,
+                    onValueChange = { value ->
+                        phoneNumber = value.filter { it.isDigit() }
+                    },
+                    singleLine = true,
+                    visualTransformation = if (phoneNumber.length <= 11) PhoneNumberVisualTransformation else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Phone
+                    ),
+                    textStyle = TextStyle.Default.copy(
+                        color = Color.White,
+                        fontSize = screenConfiguration.screenWidthDp.sp / 15
+                    )
+                )
+                if (hasReadContactsPermission == true) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Image(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable {
+                                pickContactLauncher.launch(null)
+                            },
+                        painter = painterResource(id = R.drawable.contact_image),
+                        contentDescription = "Contact image"
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceAround
+            )
+            {
+                Box(
+                    modifier = Modifier
+                        .width((screenConfiguration.screenWidthDp / 3).dp)
+                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF2196F3))
+                        .clickable { onDismissRequest() }
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White)
+                            .clickable { onDismissRequest() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.cancel),
+                            color = Color(0xFF2196F3),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .width((screenConfiguration.screenWidthDp / 3).dp)
+                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF2196F3))
+                        .clickable {
+                            if (phoneNumber.isNotEmpty()) {
+                                onEnter(phoneNumber)
+                                onDismissRequest()
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.save),
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ReadContactsPermission(
+    result: (Boolean) -> Unit
+) {
+    val permissionState = rememberPermissionState(Manifest.permission.READ_CONTACTS)
+    if (permissionState.status.isGranted) {
+        result(true)
+    } else {
+        if (permissionState.status.shouldShowRationale) {
+            result(false)
+        } else {
+            LaunchedEffect(permissionState) {
+                permissionState.launchPermissionRequest()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun CallPermission(
+    result: (Boolean) -> Unit
+) {
+    val permissionState = rememberPermissionState(Manifest.permission.CALL_PHONE)
+    if (permissionState.status.isGranted) {
+        result(true)
+    } else {
+        if (permissionState.status.shouldShowRationale) {
+            result(false)
+        } else {
+            LaunchedEffect(permissionState) {
+                permissionState.launchPermissionRequest()
+            }
+        }
+    }
+}
+
