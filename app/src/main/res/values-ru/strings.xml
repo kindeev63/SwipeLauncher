@@ -52,11 +52,14 @@
     <string name="open_app_action">Открыть приложение</string>
     <string name="open_circle_menu_action">Открыть меню</string>
     <string name="flashlight_action">Фонарик</string>
-    <string name="on_flashlight_action">Включить фонарик</string>
-    <string name="off_flashlight_action">Выключить фонарик</string>
-    <string name="change_condition_flashlight_action">Изменить состояние фонарика</string>
+    <string name="on_flashlight_action">Включить</string>
+    <string name="off_flashlight_action">Выключить</string>
+    <string name="change_condition_flashlight_action">Изменить состояние</string>
     <string name="telephone_action">Телефон</string>
     <string name="call_telephone_action">Позвонить</string>
     <string name="dial_telephone_action">Набрать номер</string>
     <string name="save">Сохранить</string>
+    <string name="open_settings_action">Открыть настройки</string>
+    <string name="error">Ошибка</string>
+    <string name="data">Данные</string>
 </resources>

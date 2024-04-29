@@ -9,9 +9,9 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
-import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
-import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionType
+import com.kindeev.swipelauncher.presentation.entities.ActionType
+import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
 
 object Constants {
 

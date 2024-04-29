@@ -79,12 +79,15 @@
     <string name="open_app_action">Open app</string>
     <string name="open_circle_menu_action">Open circle menu</string>
     <string name="flashlight_action">Flashlight</string>
-    <string name="on_flashlight_action">Flashlight on</string>
-    <string name="off_flashlight_action">Flashlight off</string>
-    <string name="change_condition_flashlight_action">Change flashlight condition</string>
+    <string name="on_flashlight_action">On</string>
+    <string name="off_flashlight_action">Off</string>
+    <string name="change_condition_flashlight_action">Change condition</string>
     <string name="telephone_action">Telephone</string>
     <string name="call_telephone_action">Call</string>
     <string name="dial_telephone_action">Dial</string>
     <string name="save">Save</string>
+    <string name="open_settings_action">Open settings</string>
+    <string name="error">Error</string>
+    <string name="data">Data</string>
 
 </resources>

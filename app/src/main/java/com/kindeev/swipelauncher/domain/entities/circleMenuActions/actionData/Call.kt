@@ -1,3 +1,5 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData
 
-data class Call(val phoneNumber: String)
+import java.io.Serializable
+
+data class Call(val phoneNumber: String): Serializable

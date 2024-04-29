@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -31,9 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -42,28 +37,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getItemImage
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
-import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.ui.dialogs.PickImageDialog
+import com.kindeev.swipelauncher.presentation.ui.elements.ActionDataItem
 
 @Composable
 fun EditCircleMenuScreen(
@@ -112,8 +99,7 @@ fun EditCircleMenuScreen(
         // CircleMenu image and action panel
         selectedCircleMenuItem.value?.let { circleMenuItem ->
             EditItemBox(
-                circleMenuItem = circleMenuItem,
-                viewModel = viewModel
+                circleMenuItem = circleMenuItem
             ) { changedItem ->
                 viewModel.updateCircleMenuItem(changedItem)
             }
@@ -198,7 +184,6 @@ private fun CircleMenuBox(
 @Composable
 private fun EditItemBox(
     circleMenuItem: CircleMenuItem,
-    viewModel: EditCircleMenuScreenVM,
     onEdit: (circleMenuItem: CircleMenuItem) -> Unit
 ) {
     Column(
@@ -214,12 +199,10 @@ private fun EditItemBox(
         }
 
         // Action
-        EditActionBox(
-            circleMenuAction = circleMenuItem.action,
-            viewModel = viewModel,
-        ) { changedAction ->
-            onEdit(circleMenuItem.copy(action = changedAction))
-        }
+        ActionDataItem(
+            action = circleMenuItem.action,
+            onChange = { onEdit(circleMenuItem.copy(action = it)) }
+        )
     }
 }
 
@@ -258,174 +241,15 @@ private fun EditImageBox(
                     .size((LocalConfiguration.current.screenWidthDp / 6).dp)
                     .clickable { openDialog = true },
                 bitmap = imageBitmap,
-                colorFilter = if (circleMenuImage.type == CircleMenuImageTypes.DefaultImage) ColorFilter.tint(MaterialTheme.colorScheme.onBackground) else null,
+                colorFilter = if (circleMenuImage.type == CircleMenuImageTypes.DefaultImage) ColorFilter.tint(
+                    MaterialTheme.colorScheme.onBackground
+                ) else null,
                 contentDescription = null,
             )
         } else {
             Button(onClick = { openDialog = true }) {
                 Text(text = stringResource(id = R.string.pick_image))
             }
-        }
-    }
-}
-
-@Composable
-private fun EditActionBox(
-    circleMenuAction: CircleMenuAction,
-    viewModel: EditCircleMenuScreenVM,
-    onChangeAction: (CircleMenuAction) -> Unit,
-) {
-    var openDialog by remember {
-        mutableStateOf(false)
-    }
-    val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
-    if (openDialog) {
-        ActionDialog(
-            onDismissRequest = { openDialog = false },
-            onPick = {
-                onChangeAction(it)
-                openDialog = false
-            }
-        )
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.action),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        when (circleMenuAction.type) {
-
-            CircleMenuActionTypes.OpenCircleMenu -> {
-                val openCircleMenu = circleMenuAction.data.getAs(OpenCircleMenu::class.java)
-                val circleMenu =
-                    LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
-                circleMenu?.let {
-                    MiniCircleMenuItem(
-                        size = LocalConfiguration.current.screenWidthDp / 6f,
-                        circleMenu = it
-                    ) {
-                        openDialog = true
-                    }
-                    GoToCircleMenu {
-                        viewModel.goToCircleMenu(circleMenuId = openCircleMenu.id)
-                    }
-                }
-
-            }
-
-            CircleMenuActionTypes.OpenApp -> {
-                val openApp = circleMenuAction.data.getAs(OpenApp::class.java)
-                val painter = when (val applicationData =
-                    allApplicationData.value.find { it.packageName == openApp.packageName }) {
-                    null -> {
-                        val context = LocalContext.current
-                        val applicationInfo =
-                            context.packageManager.getApplicationInfo(openApp.packageName, 0)
-                        val imageBitmap =
-                            applicationInfo.loadIcon(context.packageManager).toBitmap()
-                                .asImageBitmap()
-                        remember(imageBitmap) {
-                            BitmapPainter(
-                                imageBitmap,
-                                filterQuality = DrawScope.DefaultFilterQuality
-                            )
-                        }
-                    }
-
-                    else -> {
-                        val imageBitmap = applicationData.icon
-                        remember(imageBitmap) {
-                            BitmapPainter(
-                                imageBitmap,
-                                filterQuality = DrawScope.DefaultFilterQuality
-                            )
-                        }
-                    }
-                }
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painter,
-                    contentDescription = null
-                )
-
-            }
-
-            CircleMenuActionTypes.OpenSettings -> {
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painterResource(id = R.drawable.ic_settings),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                    contentDescription = null
-                )
-            }
-
-            CircleMenuActionTypes.Call -> {
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painterResource(id = R.drawable.call_telephone_image),
-                    contentDescription = null
-                )
-            }
-
-            CircleMenuActionTypes.Dial -> {
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painterResource(id = R.drawable.dial_telephone_image),
-                    contentDescription = null
-                )
-            }
-
-            else -> {
-                Image(
-                    modifier = Modifier
-                        .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                        .clickable {
-                            openDialog = true
-                        },
-                    painter = painterResource(
-                        id =
-                        Constants.defaultImages[Constants.otherActionsList.find { it.type == circleMenuAction.type }?.image]
-                            ?: R.drawable.ic_error
-                    ),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                    contentDescription = null
-                )
-            }
-        }
-
-    }
-}
-
-
-@Composable
-private fun GoToCircleMenu(goToCircleMenu: () -> Unit) {
-    Row {
-        Spacer(modifier = Modifier.width(5.dp))
-        TextButton(
-            onClick = goToCircleMenu
-        ) {
-            Text(text = stringResource(id = R.string.go_to_circle_menu))
         }
     }
 }

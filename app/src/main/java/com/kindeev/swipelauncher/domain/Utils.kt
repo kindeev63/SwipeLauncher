@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.domain
 
+import android.Manifest
 import android.app.role.RoleManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,12 +12,19 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.dataBase.MenuActions
@@ -36,13 +44,14 @@ import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionType
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionTypes
-import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionType
-import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionType
+import com.kindeev.swipelauncher.presentation.entities.ActionType
+import com.kindeev.swipelauncher.presentation.entities.ActionTypes
+import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+
 
 fun <T> Any?.getAs(classOfT: Class<T>): T {
     val gson = Gson()
@@ -419,10 +428,12 @@ fun Context.registerAppsReceiver(receiver: BroadcastReceiver) {
     }
     this.registerReceiver(receiver, filter)
 }
+
 fun Context.unregisterAppsReceiver(receiver: BroadcastReceiver) {
     try {
         this.unregisterReceiver(receiver)
-    } catch (_: Exception) {}
+    } catch (_: Exception) {
+    }
 }
 
 fun Context.isAppInstalled(packageName: String): Boolean {
@@ -458,7 +469,10 @@ fun Any?.serializableSettingData(): String {
 }
 
 fun List<SettingData>.clickableClockSettingValue(): ClickableClock {
-    val setting = this.find { it.setting == ApplicationSetting.ClickableClock } ?: return ClickableClock(enabled = false)
+    val setting =
+        this.find { it.setting == ApplicationSetting.ClickableClock } ?: return ClickableClock(
+            enabled = false
+        )
     return setting.getObjectData().getAs(ClickableClock::class.java)
 }
 
@@ -518,6 +532,11 @@ fun Context.setActionTypes() {
             imageResId = R.drawable.flashlight_action,
             type = ActionTypes.Flashlight
         ),
+        ActionType(
+            name = this.resources.getString(R.string.open_settings_action),
+            imageResId = R.drawable.open_settings_image,
+            type = ActionTypes.OpenSettings
+        ),
     )
     Constants.flashlightActionTypes = listOf(
         FlashlightActionType(
@@ -548,4 +567,94 @@ fun Context.setActionTypes() {
             type = CircleMenuActionTypes.Dial
         ),
     )
+}
+
+fun CircleMenuActionTypes.getActionType(): ActionType? {
+    return when (this) {
+        CircleMenuActionTypes.OpenCircleMenu -> Constants.actionTypes.find { it.type == ActionTypes.OpenCircleMenu }
+        CircleMenuActionTypes.OpenSettings -> Constants.actionTypes.find { it.type == ActionTypes.OpenSettings }
+        CircleMenuActionTypes.OpenApp -> Constants.actionTypes.find { it.type == ActionTypes.OpenApp }
+        CircleMenuActionTypes.FlashLightOn -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
+        CircleMenuActionTypes.FlashLightOff -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
+        CircleMenuActionTypes.ChangeFlashLightCondition -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
+        CircleMenuActionTypes.Call -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
+        CircleMenuActionTypes.Dial -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
+    }
+}
+
+fun Context.getApplicationData(packageName: String): ApplicationData {
+    val applicationData =
+        LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+    return if (applicationData == null) {
+        val applicationInfo =
+            packageManager.getApplicationInfo(packageName, 0)
+        ApplicationData(
+            name = applicationInfo.loadLabel(packageManager).toString(),
+            icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap(),
+            packageName = applicationInfo.packageName
+        )
+    } else {
+        applicationData
+    }
+}
+
+fun String.formatPhoneNumber(): String {
+    return if (this.length == 11) {
+        "${this[0]} (${this.substring(1, 4)}) ${
+            this.substring(4, 7)
+        }-${this.substring(7, 9)}-${this.substring(9)}"
+    } else this
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ReadContactsPermission(
+    result: (Boolean) -> Unit
+) {
+    val permissionState = rememberPermissionState(Manifest.permission.READ_CONTACTS)
+    if (permissionState.status.isGranted) {
+        result(true)
+    } else {
+        if (permissionState.status.shouldShowRationale) {
+            result(false)
+        } else {
+            LaunchedEffect(permissionState) {
+                permissionState.launchPermissionRequest()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun CallPermission(
+    result: (Boolean) -> Unit
+) {
+    val permissionState = rememberPermissionState(Manifest.permission.CALL_PHONE)
+    if (permissionState.status.isGranted) {
+        result(true)
+    } else {
+        if (permissionState.status.shouldShowRationale) {
+            result(false)
+        } else {
+            LaunchedEffect(permissionState) {
+                permissionState.launchPermissionRequest()
+            }
+        }
+    }
+}
+
+fun Context.getContactName(phoneNumber: String): String? {
+    val uri = Uri.withAppendedPath(
+        ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+        Uri.encode(phoneNumber)
+    )
+    val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
+    val cursor = contentResolver.query(uri, projection, null, null, null)
+    cursor?.use {
+        if (it.moveToFirst()) {
+            return cursor.getString(0)
+        }
+    }
+    return null
 }

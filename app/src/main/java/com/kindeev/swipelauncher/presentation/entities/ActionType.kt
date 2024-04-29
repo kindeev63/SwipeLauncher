@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.ui.dialogs
+package com.kindeev.swipelauncher.presentation.entities
 
 import java.io.Serializable
 

@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
-import android.Manifest
 import android.provider.ContactsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +28,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -52,19 +50,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
+import com.kindeev.swipelauncher.presentation.entities.ActionTypes
+import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 
@@ -83,33 +81,50 @@ fun ActionDialog(
     when (actionType) {
         ActionTypes.OpenCircleMenu -> {
             OpenCircleMenuActionData(
-                onPick = onPick,
+                onPick = {
+                    onPick(it)
+                    onDismissRequest()
+                },
                 onDismissRequest = { actionType = null }
             )
         }
 
         ActionTypes.OpenApp -> {
             OpenAppActionData(
-                onPick = onPick,
+                onPick = {
+                    onPick(it)
+                    onDismissRequest()
+                },
                 onDismissRequest = { actionType = null }
             )
         }
 
         ActionTypes.Flashlight -> {
             FlashlightActionData(
-                onPick = onPick,
+                onPick = {
+                    onPick(it)
+                    onDismissRequest()
+                },
                 onDismissRequest = { actionType = null }
             )
         }
 
         ActionTypes.Telephone -> {
             TelephoneActionData(
-                onPick = onPick,
+                onPick = {
+                    onPick(it)
+                    onDismissRequest()
+                },
                 onDismissRequest = { actionType = null }
             )
         }
 
-        else -> {}
+        ActionTypes.OpenSettings -> {
+            onPick(CircleMenuAction(type = CircleMenuActionTypes.OpenSettings))
+            onDismissRequest()
+        }
+
+        null -> {}
     }
 }
 
@@ -225,7 +240,7 @@ private fun ActionTypeElement(
 
 
 @Composable
-private fun OpenCircleMenuActionData(
+fun OpenCircleMenuActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -268,6 +283,7 @@ private fun OpenCircleMenuActionData(
                                 data = OpenCircleMenu(id = circleMenu.id)
                             )
                         )
+                        onDismissRequest()
                     }
                 }
             }
@@ -277,7 +293,7 @@ private fun OpenCircleMenuActionData(
 }
 
 @Composable
-private fun OpenAppActionData(
+fun OpenAppActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -315,6 +331,7 @@ private fun OpenAppActionData(
                                 data = OpenApp(packageName = applicationData.packageName)
                             )
                         )
+                        onDismissRequest()
                     }
                 }
             }
@@ -324,7 +341,7 @@ private fun OpenAppActionData(
 }
 
 @Composable
-private fun FlashlightActionData(
+fun FlashlightActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -360,6 +377,7 @@ private fun FlashlightActionData(
                                     type = flashlightActionType.type
                                 )
                             )
+                            onDismissRequest()
                         }
                     )
                 }
@@ -370,7 +388,7 @@ private fun FlashlightActionData(
 }
 
 @Composable
-private fun TelephoneActionData(
+fun TelephoneActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -411,6 +429,7 @@ private fun TelephoneActionData(
                                             }
                                         )
                                     )
+                                    onDismissRequest()
                                 },
                                 onDismissRequest = {
                                     actionType = null
@@ -433,6 +452,7 @@ private fun TelephoneActionData(
                                     }
                                 )
                             )
+                            onDismissRequest()
                         },
                         onDismissRequest = {
                             actionType = null
@@ -480,9 +500,10 @@ fun EnterNumberDialog(
         mutableStateOf<Boolean?>(null)
     }
     if (hasReadContactsPermission == null) {
-        ReadContactsPermission { hasReadContactsPermission = it }
+        ReadContactsPermission {
+            hasReadContactsPermission = it
+        }
     }
-
     val pickContactLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickContact(),
         onResult = { uri ->
@@ -510,7 +531,7 @@ fun EnterNumberDialog(
                                 val contactNumberIndex =
                                     cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                                 val contactNumber = cursor2.getString(contactNumberIndex)
-                                phoneNumber = contactNumber
+                                phoneNumber = contactNumber.replace("+7", "8")
                             }
                         }
                     }
@@ -624,44 +645,6 @@ fun EnterNumberDialog(
                         fontSize = 14.sp
                     )
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun ReadContactsPermission(
-    result: (Boolean) -> Unit
-) {
-    val permissionState = rememberPermissionState(Manifest.permission.READ_CONTACTS)
-    if (permissionState.status.isGranted) {
-        result(true)
-    } else {
-        if (permissionState.status.shouldShowRationale) {
-            result(false)
-        } else {
-            LaunchedEffect(permissionState) {
-                permissionState.launchPermissionRequest()
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun CallPermission(
-    result: (Boolean) -> Unit
-) {
-    val permissionState = rememberPermissionState(Manifest.permission.CALL_PHONE)
-    if (permissionState.status.isGranted) {
-        result(true)
-    } else {
-        if (permissionState.status.shouldShowRationale) {
-            result(false)
-        } else {
-            LaunchedEffect(permissionState) {
-                permissionState.launchPermissionRequest()
             }
         }
     }
