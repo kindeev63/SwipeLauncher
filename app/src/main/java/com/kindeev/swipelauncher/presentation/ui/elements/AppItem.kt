@@ -96,7 +96,7 @@ fun SwipeAppItem(
     )
     SwipeToDismiss(
         state = swipeState,
-        dismissThresholds = { FractionalThreshold(0.2f) },
+        dismissThresholds = { FractionalThreshold(0.4f) },
         background = {
             val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
             if (swipeState.targetValue == DismissValue.Default) return@SwipeToDismiss
