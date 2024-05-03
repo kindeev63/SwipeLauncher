@@ -5,12 +5,9 @@
     <string name="search">Search</string>
     <string name="image">Image</string>
     <string name="action">Action</string>
-    <string name="type">Type</string>
-    <string name="value">Value</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="cancel">Cancel</string>
-    <string name="go_to_circle_menu">Go to circle menu</string>
     <string name="delete_circle_menu_question">Delete circle menu?</string>
     <string name="monday">Mo</string>
     <string name="tuesday">Tu</string>
@@ -58,15 +55,7 @@
 
     </string-array>
     <string name="new_circle_menu_title">New</string>
-    <string name="pick_image">Pick image</string>
-    <string name="pick_action">Pick action</string>
     <string name="root">Root</string>
-    <string name="open_app_tab">Open App</string>
-    <string name="open_circle_menu_tab">Open circle menu</string>
-    <string name="other_tab">Other</string>
-    <string name="app_image_tab">Apps</string>
-    <string name="default_image_tab">Default</string>
-    <string name="user_image_tab">Own</string>
     <string name="open_settings">Open settings</string>
     <string name="flashlight_on">Flashlight on</string>
     <string name="flashlight_off">FlashLight off</string>

@@ -114,6 +114,7 @@ private fun ImageBox(
                     ),
                 onChangeImage = onChangeImage
             )
+            ImageDataByType(image = image, onChangeImage = onChangeImage)
         }
     }
 }

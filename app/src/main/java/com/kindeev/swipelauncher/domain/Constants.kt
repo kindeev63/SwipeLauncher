@@ -4,7 +4,6 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.dialogTabs.DialogTab
 import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
@@ -21,12 +20,6 @@ object Constants {
     var flashlightActionTypes = listOf<FlashlightActionType>()
     var telephoneActionTypes = listOf<TelephoneActionType>()
     var minScreenLength = 0f
-
-    val imageDialogTabs = listOf(
-        DialogTab(R.string.app_image_tab),
-        DialogTab(R.string.default_image_tab),
-        DialogTab(R.string.user_image_tab)
-    )
     val otherActionsList = listOf(
         OtherAction(
             type = CircleMenuActionTypes.OpenSettings,

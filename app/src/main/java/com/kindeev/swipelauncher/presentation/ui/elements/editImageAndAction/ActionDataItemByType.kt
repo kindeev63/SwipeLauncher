@@ -56,38 +56,38 @@ fun ActionDataByType(
 ) {
     when (action.type) {
         CircleMenuActionTypes.OpenCircleMenu -> {
-            OpenCircleMenuData(action = action, onChangeAction = onChangeAction)
+            OpenCircleMenuDataItem(action = action, onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.OpenSettings -> {}
         CircleMenuActionTypes.OpenApp -> {
-            OpenAppData(action = action, onChangeAction = onChangeAction)
+            OpenAppDataItem(action = action, onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.FlashLightOn -> {
-            FlashlightOnData(onChangeAction = onChangeAction)
+            FlashlightOnDataItem(onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.FlashLightOff -> {
-            FlashlightOffData(onChangeAction = onChangeAction)
+            FlashlightOffDataItem(onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.ChangeFlashLightCondition -> {
-            ChangeFlashlightConditionData(onChangeAction = onChangeAction)
+            ChangeFlashlightConditionDataItem(onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.Call -> {
-            CallData(action = action, onChangeAction = onChangeAction)
+            CallDataItem(action = action, onChangeAction = onChangeAction)
         }
 
         CircleMenuActionTypes.Dial -> {
-            DialData(action = action, onChangeAction = onChangeAction)
+            DialDataItem(action = action, onChangeAction = onChangeAction)
         }
     }
 }
 
 @Composable
-private fun OpenCircleMenuData(
+private fun OpenCircleMenuDataItem(
     action: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -126,7 +126,7 @@ private fun OpenCircleMenuData(
 }
 
 @Composable
-private fun OpenAppData(
+private fun OpenAppDataItem(
     action: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -163,7 +163,7 @@ private fun OpenAppData(
 }
 
 @Composable
-private fun FlashlightOnData(
+private fun FlashlightOnDataItem(
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -198,7 +198,7 @@ private fun FlashlightOnData(
 }
 
 @Composable
-private fun FlashlightOffData(
+private fun FlashlightOffDataItem(
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -233,7 +233,7 @@ private fun FlashlightOffData(
 }
 
 @Composable
-private fun ChangeFlashlightConditionData(
+private fun ChangeFlashlightConditionDataItem(
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -268,7 +268,7 @@ private fun ChangeFlashlightConditionData(
 }
 
 @Composable
-private fun CallData(
+private fun CallDataItem(
     action: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -363,7 +363,7 @@ private fun CallData(
 }
 
 @Composable
-private fun DialData(
+private fun DialDataItem(
     action: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {

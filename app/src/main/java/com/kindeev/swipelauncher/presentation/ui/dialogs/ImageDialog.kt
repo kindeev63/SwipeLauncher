@@ -276,10 +276,11 @@ fun DefaultImageData(
                 mutableStateOf("")
             }
             LazyVerticalGrid(
-                columns = GridCells.Fixed(((LocalConfiguration.current.screenWidthDp - 20) / 50))
+                columns = GridCells.Fixed(((Constants.minScreenLength.toInt() - 20) / 50))
             ) {
-                item { Spacer(modifier = Modifier.height(50.dp)) }
-                item { Spacer(modifier = Modifier.height(50.dp)) }
+                repeat(((Constants.minScreenLength.toInt() - 20) / 50)) {
+                    item { Spacer(modifier = Modifier.height(50.dp)) }
+                }
                 items(
                     items = Constants.defaultImages.keys.toList()
                         .filter { it.name.lowercase().contains(searchText.lowercase()) }

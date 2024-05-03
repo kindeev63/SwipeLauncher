@@ -1,20 +1,16 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,12 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -41,16 +34,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.getItemImage
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
-import com.kindeev.swipelauncher.presentation.ui.dialogs.PickImageDialog
-import com.kindeev.swipelauncher.presentation.ui.elements.ActionDataItem
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
 
 @Composable
@@ -86,23 +73,33 @@ fun EditCircleMenuScreen(
             onBackPressed = onBackPressed
         )
 
-        // CircleMenu UI
-        circleMenu.value?.let { notNullCircleMenu ->
-            CircleMenuBox(
-                circleMenu = notNullCircleMenu,
-                menuSize = viewModel.getMenuSize(LocalConfiguration.current),
-                direction = direction.value
-            ) { circleMenuDirection ->
-                viewModel.setDirection(circleMenuDirection)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // CircleMenu UI
+            circleMenu.value?.let { notNullCircleMenu ->
+                CircleMenuBox(
+                    circleMenu = notNullCircleMenu,
+                    menuSize = viewModel.getMenuSize(LocalConfiguration.current),
+                    direction = direction.value
+                ) { circleMenuDirection ->
+                    viewModel.setDirection(circleMenuDirection)
+                }
             }
-        }
 
-        // CircleMenu image and action panel
-        selectedCircleMenuItem.value?.let { circleMenuItem ->
-            EditItemBox(
-                circleMenuItem = circleMenuItem
-            ) { changedItem ->
-                viewModel.updateCircleMenuItem(changedItem)
+            // CircleMenu image and action panel
+            selectedCircleMenuItem.value?.let { circleMenuItem ->
+                ImageAndAction(
+                    circleMenuItem = circleMenuItem,
+                    onChangeAction = {
+                        viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
+                    },
+                    onChangeImage = {
+                        viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
+                    }
+                )
             }
         }
     }
@@ -179,83 +176,5 @@ private fun CircleMenuBox(
             leftImageClick = { onSelectAction(CircleMenuDirection.Left) },
             selectedDirection = direction
         )
-    }
-}
-
-@Composable
-private fun EditItemBox(
-    circleMenuItem: CircleMenuItem,
-    onEdit: (circleMenuItem: CircleMenuItem) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-
-        ImageAndAction(
-            circleMenuItem = circleMenuItem,
-            onChangeAction = { onEdit(circleMenuItem.copy(action = it)) },
-            onChangeImage = { onEdit(circleMenuItem.copy(image = it)) }
-        )
-//        // Image
-//        EditImageBox(
-//            circleMenuImage = circleMenuItem.image,
-//        ) { changedImage ->
-//            onEdit(circleMenuItem.copy(image = changedImage))
-//        }
-//
-//        // Action
-//        ActionDataItem(
-//            action = circleMenuItem.action,
-//            onChange = { onEdit(circleMenuItem.copy(action = it)) }
-//        )
-    }
-}
-
-@Composable
-private fun EditImageBox(
-    circleMenuImage: CircleMenuImage,
-    onChangeImage: (CircleMenuImage) -> Unit
-) {
-    var openDialog by remember {
-        mutableStateOf(false)
-    }
-    if (openDialog) {
-        PickImageDialog(
-            onDismissRequest = { openDialog = false },
-            picked = circleMenuImage,
-            onPick = {
-                onChangeImage(it)
-                openDialog = false
-            }
-        )
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-    ) {
-        Text(
-            text = stringResource(id = R.string.image),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        val imageBitmap = circleMenuImage.getItemImage(LocalContext.current)
-        if (imageBitmap != null) {
-            Image(
-                modifier = Modifier
-                    .size((LocalConfiguration.current.screenWidthDp / 6).dp)
-                    .clickable { openDialog = true },
-                bitmap = imageBitmap,
-                colorFilter = if (circleMenuImage.type == CircleMenuImageTypes.DefaultImage) ColorFilter.tint(
-                    MaterialTheme.colorScheme.onBackground
-                ) else null,
-                contentDescription = null,
-            )
-        } else {
-            Button(onClick = { openDialog = true }) {
-                Text(text = stringResource(id = R.string.pick_image))
-            }
-        }
     }
 }
