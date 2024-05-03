@@ -15,12 +15,16 @@ import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -52,6 +56,7 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastA
 import com.kindeev.swipelauncher.presentation.entities.ActionType
 import com.kindeev.swipelauncher.presentation.entities.ActionTypes
 import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.entities.ImageType
 import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -515,7 +520,7 @@ fun Context.createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
     )
 }
 
-fun Context.setActionTypes() {
+fun Context.setActionAndImageTypes() {
     Constants.actionTypes = listOf(
         ActionType(
             name = this.resources.getString(R.string.open_app_action),
@@ -572,6 +577,23 @@ fun Context.setActionTypes() {
             type = CircleMenuActionTypes.Dial
         ),
     )
+    Constants.imageTypes = listOf(
+        ImageType(
+            name = this.resources.getString(R.string.app_image),
+            imageResId = R.drawable.app_image,
+            type = CircleMenuImageTypes.AppImage
+        ),
+        ImageType(
+            name = this.resources.getString(R.string.default_image),
+            imageResId = R.drawable.default_image,
+            type = CircleMenuImageTypes.DefaultImage
+        ),
+        ImageType(
+            name = this.resources.getString(R.string.user_image),
+            imageResId = R.drawable.user_image,
+            type = CircleMenuImageTypes.UserImage
+        ),
+    )
 }
 
 fun CircleMenuActionTypes.getActionType(): ActionType? {
@@ -585,6 +607,9 @@ fun CircleMenuActionTypes.getActionType(): ActionType? {
         CircleMenuActionTypes.Call -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
         CircleMenuActionTypes.Dial -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
     }
+}
+fun CircleMenuImageTypes.getImageType(): ImageType? {
+    return Constants.imageTypes.find { it.type == this }
 }
 
 fun Context.getApplicationData(packageName: String): ApplicationData {
@@ -678,4 +703,34 @@ fun getMinScreenLengthDp(): Dp {
 fun getMinScreenLengthSp(): TextUnit {
     val configuration = LocalConfiguration.current
     return minOf(configuration.screenWidthDp, configuration.screenHeightDp).sp
+}
+
+@Composable
+fun pickUserImageLauncher(
+    onPick: (CircleMenuImage) -> Unit
+): ManagedActivityResultLauncher<String, Uri?> {
+    val context = LocalContext.current
+    return rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val ids = LauncherData.userImages.map { it.key }
+            var newId = 0
+            while (newId in ids) {
+                newId++
+            }
+            val bitmap = context.createBitmap(uri)
+            LauncherData.userImages = LauncherData.userImages.toMutableMap().apply {
+                this[newId] = bitmap.asImageBitmap()
+            }.toMap()
+            context.addUserImage(newId, bitmap)
+            onPick(
+                CircleMenuImage(
+                    type = CircleMenuImageTypes.UserImage,
+                    data = UserImage(id = newId)
+                )
+            )
+        }
+    }
 }

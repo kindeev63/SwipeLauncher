@@ -200,7 +200,6 @@ private fun SearchElement(searchText: String, onTextChange: (String) -> Unit) {
             )
         }
     }
-
 }
 
 @Composable

@@ -63,4 +63,7 @@
     <string name="open_settings_action">Открыть настройки</string>
     <string name="error">Ошибка</string>
     <string name="data">Данные</string>
+    <string name="app_image">Иконка приложение</string>
+    <string name="default_image">Из коллекции</string>
+    <string name="user_image">Из файла</string>
 </resources>

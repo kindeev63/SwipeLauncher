@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain
 
-import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
@@ -12,11 +11,13 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.Clickable
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
 import com.kindeev.swipelauncher.presentation.entities.ActionType
 import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
+import com.kindeev.swipelauncher.presentation.entities.ImageType
 import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
 
 object Constants {
 
     var actionTypes = listOf<ActionType>()
+    var imageTypes = listOf<ImageType>()
     var flashlightActionTypes = listOf<FlashlightActionType>()
     var telephoneActionTypes = listOf<TelephoneActionType>()
     var minScreenLength = 0f

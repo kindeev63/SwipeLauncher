@@ -41,10 +41,13 @@ import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.getActionType
+import com.kindeev.swipelauncher.domain.getImageType
 import com.kindeev.swipelauncher.domain.getMinScreenLengthDp
 import com.kindeev.swipelauncher.domain.getMinScreenLengthSp
 import com.kindeev.swipelauncher.presentation.entities.ActionType
+import com.kindeev.swipelauncher.presentation.entities.ImageType
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 
 @Composable
 fun ImageAndAction(
@@ -59,13 +62,60 @@ fun ImageAndAction(
             .fillMaxWidth()
             .background(Color(0xFFBBDEFB))
     ) {
+        ImageBox(image = circleMenuItem.image, onChangeImage = onChangeImage)
         ActionBox(action = circleMenuItem.action, onChangeAction = onChangeAction)
     }
 }
 
 @Composable
-private fun ImageBox() {
-
+private fun ImageBox(
+    image: CircleMenuImage,
+    onChangeImage: (CircleMenuImage) -> Unit
+) {
+    var showImage by rememberSaveable {
+        mutableStateOf(true)
+    }
+    val dropdownArrowRotation by animateFloatAsState(
+        targetValue = if (showImage) 0f else 180f,
+        label = ""
+    )
+    Row(
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { showImage = !showImage },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = stringResource(id = R.string.image),
+            color = Color.Black,
+            fontSize = Constants.minScreenLength.sp / 20
+        )
+        Spacer(modifier = Modifier.width(3.dp))
+        Icon(
+            modifier = Modifier
+                .size(Constants.minScreenLength.dp / 10)
+                .rotate(dropdownArrowRotation),
+            imageVector = Icons.Rounded.ArrowDropDown,
+            contentDescription = "Show or hide image data"
+        )
+    }
+    AnimatedVisibility(
+        visible = showImage,
+        enter = fadeIn() + expandVertically(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column {
+            ImageTypeItem(
+                imageType = image.type.getImageType()
+                    ?: throw IllegalAccessException(
+                        "Illegal image type"
+                    ),
+                onChangeImage = onChangeImage
+            )
+        }
+    }
 }
 
 @Composable
@@ -74,7 +124,7 @@ private fun ActionBox(
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showAction by rememberSaveable {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     val dropdownArrowRotation by animateFloatAsState(
         targetValue = if (showAction) 0f else 180f,
@@ -152,6 +202,44 @@ private fun ActionTypeItem(
         Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = actionType.name,
+            color = Color.White,
+            fontSize = getMinScreenLengthSp() / 25
+        )
+    }
+}
+
+@Composable
+private fun ImageTypeItem(
+    imageType: ImageType,
+    onChangeImage: (CircleMenuImage) -> Unit
+) {
+    var showImageDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showImageDialog) {
+        ImageDialog(
+            onDismissRequest = { showImageDialog = false },
+            onPick = onChangeImage
+        )
+    }
+    val minScreenLength = getMinScreenLengthDp()
+    Row(
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF2196F3))
+            .clickable { showImageDialog = true }
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(minScreenLength / 8),
+            painter = painterResource(id = imageType.imageResId),
+            contentDescription = "Action type image"
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = imageType.name,
             color = Color.White,
             fontSize = getMinScreenLengthSp() / 25
         )
