@@ -20,6 +20,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -657,4 +662,20 @@ fun Context.getContactName(phoneNumber: String): String? {
         }
     }
     return null
+}
+
+fun Context.getMinScreenLength(): Float {
+    return minOf(resources.configuration.screenWidthDp, resources.configuration.screenHeightDp).toFloat()
+}
+
+@Composable
+fun getMinScreenLengthDp(): Dp {
+    val configuration = LocalConfiguration.current
+    return minOf(configuration.screenWidthDp, configuration.screenHeightDp).dp
+}
+
+@Composable
+fun getMinScreenLengthSp(): TextUnit {
+    val configuration = LocalConfiguration.current
+    return minOf(configuration.screenWidthDp, configuration.screenHeightDp).sp
 }

@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.domain
 
+import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
@@ -18,6 +19,7 @@ object Constants {
     var actionTypes = listOf<ActionType>()
     var flashlightActionTypes = listOf<FlashlightActionType>()
     var telephoneActionTypes = listOf<TelephoneActionType>()
+    var minScreenLength = 0f
 
     val imageDialogTabs = listOf(
         DialogTab(R.string.app_image_tab),

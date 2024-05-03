@@ -1,0 +1,159 @@
+package com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.getActionType
+import com.kindeev.swipelauncher.domain.getMinScreenLengthDp
+import com.kindeev.swipelauncher.domain.getMinScreenLengthSp
+import com.kindeev.swipelauncher.presentation.entities.ActionType
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
+
+@Composable
+fun ImageAndAction(
+    circleMenuItem: CircleMenuItem,
+    onChangeAction: (CircleMenuAction) -> Unit,
+    onChangeImage: (CircleMenuImage) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(7.dp))
+            .fillMaxWidth()
+            .background(Color(0xFFBBDEFB))
+    ) {
+        ActionBox(action = circleMenuItem.action, onChangeAction = onChangeAction)
+    }
+}
+
+@Composable
+private fun ImageBox() {
+
+}
+
+@Composable
+private fun ActionBox(
+    action: CircleMenuAction,
+    onChangeAction: (CircleMenuAction) -> Unit
+) {
+    var showAction by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val dropdownArrowRotation by animateFloatAsState(
+        targetValue = if (showAction) 0f else 180f,
+        label = ""
+    )
+    Row(
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { showAction = !showAction },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = stringResource(id = R.string.action),
+            color = Color.Black,
+            fontSize = Constants.minScreenLength.sp / 20
+        )
+        Spacer(modifier = Modifier.width(3.dp))
+        Icon(
+            modifier = Modifier
+                .size(Constants.minScreenLength.dp / 10)
+                .rotate(dropdownArrowRotation),
+            imageVector = Icons.Rounded.ArrowDropDown,
+            contentDescription = "Show or hide action data"
+        )
+    }
+    AnimatedVisibility(
+        visible = showAction,
+        enter = fadeIn() + expandVertically(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
+        Column {
+            ActionTypeItem(
+                actionType = action.type.getActionType() ?: throw IllegalAccessException(
+                    "Illegal action type"
+                ),
+                onChangeAction = onChangeAction
+            )
+            ActionDataByType(action = action, onChangeAction = onChangeAction)
+        }
+    }
+}
+
+@Composable
+private fun ActionTypeItem(
+    actionType: ActionType,
+    onChangeAction: (CircleMenuAction) -> Unit
+) {
+    var showActionDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showActionDialog) {
+        ActionDialog(
+            onDismissRequest = { showActionDialog = false },
+            onPick = onChangeAction
+        )
+    }
+
+    val minScreenLength = getMinScreenLengthDp()
+    Row(
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF2196F3))
+            .clickable { showActionDialog = true }
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(minScreenLength / 8),
+            painter = painterResource(id = actionType.imageResId),
+            contentDescription = "Action type image"
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = actionType.name,
+            color = Color.White,
+            fontSize = getMinScreenLengthSp() / 25
+        )
+    }
+}

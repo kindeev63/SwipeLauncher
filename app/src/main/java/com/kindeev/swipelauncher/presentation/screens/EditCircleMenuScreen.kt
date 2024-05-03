@@ -51,6 +51,7 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.dialogs.PickImageDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.ActionDataItem
+import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
 
 @Composable
 fun EditCircleMenuScreen(
@@ -191,18 +192,23 @@ private fun EditItemBox(
             .fillMaxSize()
     ) {
 
-        // Image
-        EditImageBox(
-            circleMenuImage = circleMenuItem.image,
-        ) { changedImage ->
-            onEdit(circleMenuItem.copy(image = changedImage))
-        }
-
-        // Action
-        ActionDataItem(
-            action = circleMenuItem.action,
-            onChange = { onEdit(circleMenuItem.copy(action = it)) }
+        ImageAndAction(
+            circleMenuItem = circleMenuItem,
+            onChangeAction = { onEdit(circleMenuItem.copy(action = it)) },
+            onChangeImage = { onEdit(circleMenuItem.copy(image = it)) }
         )
+//        // Image
+//        EditImageBox(
+//            circleMenuImage = circleMenuItem.image,
+//        ) { changedImage ->
+//            onEdit(circleMenuItem.copy(image = changedImage))
+//        }
+//
+//        // Action
+//        ActionDataItem(
+//            action = circleMenuItem.action,
+//            onChange = { onEdit(circleMenuItem.copy(action = it)) }
+//        )
     }
 }
 

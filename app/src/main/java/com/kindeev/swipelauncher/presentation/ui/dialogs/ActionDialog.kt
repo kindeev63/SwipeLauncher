@@ -487,6 +487,7 @@ fun TelephoneActionData(
 
 @Composable
 fun EnterNumberDialog(
+    defNumber: String = "",
     onEnter: (String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -494,7 +495,7 @@ fun EnterNumberDialog(
     val context = LocalContext.current
 
     var phoneNumber by rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf(defNumber)
     }
     var hasReadContactsPermission by rememberSaveable {
         mutableStateOf<Boolean?>(null)
