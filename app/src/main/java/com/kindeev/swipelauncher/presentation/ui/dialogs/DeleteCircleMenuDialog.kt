@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -40,20 +40,29 @@ fun DeleteCircleMenuDialog(
                 .heightIn(max = (screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(id = R.string.delete_circle_menu_question))
+            Text(
+                text = stringResource(id = R.string.delete_circle_menu_question),
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(id = R.string.no))
+                    Text(
+                        text = stringResource(id = R.string.no),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
                 TextButton(onClick = onClickDelete) {
-                    Text(text = stringResource(id = R.string.yes))
+                    Text(
+                        text = stringResource(id = R.string.yes),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

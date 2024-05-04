@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -72,7 +72,7 @@ private fun AppImageDataItem(
     val applicationData = LocalContext.current.getApplicationData(appImage.packageName)
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showAppImageDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -85,7 +85,7 @@ private fun AppImageDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = applicationData.name,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -108,7 +108,7 @@ private fun DefaultImageDataItem(
     val defaultImage = image.data.getAs(DefaultImage::class.java)
     Image(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showDefaultImageDialog = true }
             .size(Constants.minScreenLength.dp / 3),
@@ -126,7 +126,7 @@ private fun UserImageDataItem(
     val userImage = image.data.getAs(UserImage::class.java)
     Image(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { launcher.launch("image/*") }
             .size(Constants.minScreenLength.dp / 3),

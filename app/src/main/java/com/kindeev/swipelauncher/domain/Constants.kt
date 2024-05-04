@@ -1,7 +1,7 @@
 package com.kindeev.swipelauncher.domain
 
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.entities.dialogTabs.OtherAction
+import com.kindeev.swipelauncher.domain.entities.OtherAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting

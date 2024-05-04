@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -107,7 +107,7 @@ private fun OpenCircleMenuDataItem(
         LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showOpenCircleMenuDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -120,7 +120,7 @@ private fun OpenCircleMenuDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = circleMenu.title,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -144,7 +144,7 @@ private fun OpenAppDataItem(
     val applicationData = LocalContext.current.getApplicationData(openApp.packageName)
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showOpenAppDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -157,7 +157,7 @@ private fun OpenAppDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = applicationData.name,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -179,7 +179,7 @@ private fun FlashlightOnDataItem(
 
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showFlashlightDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -192,7 +192,7 @@ private fun FlashlightOnDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.on_flashlight_action),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -214,7 +214,7 @@ private fun FlashlightOffDataItem(
 
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showFlashlightDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -227,7 +227,7 @@ private fun FlashlightOffDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.off_flashlight_action),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -249,7 +249,7 @@ private fun ChangeFlashlightConditionDataItem(
 
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showFlashlightDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -262,7 +262,7 @@ private fun ChangeFlashlightConditionDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.change_condition_flashlight_action),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -318,7 +318,7 @@ private fun CallDataItem(
     }
 
     Row(
-        modifier = Modifier.padding(5.dp),
+        modifier = Modifier.padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -333,7 +333,7 @@ private fun CallDataItem(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(30.dp))
-                .background(Color(0xFF2196F3))
+                .background(MaterialTheme.colorScheme.primary)
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -342,7 +342,7 @@ private fun CallDataItem(
             if (contactName == null) {
                 Text(
                     text = data.phoneNumber.formatPhoneNumber(),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 20
                 )
             } else {
@@ -357,7 +357,7 @@ private fun CallDataItem(
                 Text(
                     text = contactName
                         ?: stringResource(id = R.string.error),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 20,
                     textAlign = TextAlign.Center
                 )
@@ -416,7 +416,7 @@ private fun DialDataItem(
     }
 
     Row(
-        modifier = Modifier.padding(5.dp),
+        modifier = Modifier.padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -432,7 +432,7 @@ private fun DialDataItem(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(30.dp))
-                .background(Color(0xFF2196F3))
+                .background(MaterialTheme.colorScheme.primary)
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -441,7 +441,7 @@ private fun DialDataItem(
             if (contactName == null) {
                 Text(
                     text = data.phoneNumber.formatPhoneNumber(),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 20
                 )
             } else {
@@ -456,7 +456,7 @@ private fun DialDataItem(
                 Text(
                     text = contactName
                         ?: stringResource(id = R.string.error),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 20,
                     textAlign = TextAlign.Center
                 )

@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -143,7 +143,7 @@ private fun AllActionTypes(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             var searchText by rememberSaveable {
@@ -179,21 +179,21 @@ private fun SearchElement(searchText: String, onTextChange: (String) -> Unit) {
                 .fillMaxWidth()
                 .height(40.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF2196F3))
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             if (searchText.isEmpty()) {
                 Text(
                     text = stringResource(id = R.string.search),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
             BasicTextField(
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 textStyle = TextStyle(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 ),
                 value = searchText,
                 onValueChange = onTextChange
@@ -218,7 +218,7 @@ private fun ActionTypeElement(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF1976D2))
+                .background(MaterialTheme.colorScheme.primary)
                 .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -231,7 +231,7 @@ private fun ActionTypeElement(
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = name,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -253,7 +253,7 @@ fun OpenCircleMenuActionData(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             var searchText by rememberSaveable {
@@ -306,7 +306,7 @@ fun OpenAppActionData(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
@@ -354,7 +354,7 @@ fun FlashlightActionData(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             var searchText by rememberSaveable {
@@ -401,7 +401,7 @@ fun TelephoneActionData(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             var actionType by rememberSaveable {
@@ -549,7 +549,7 @@ fun EnterNumberDialog(
                 .width(screenConfiguration.screenWidthDp.dp - 20.dp)
                 .height(screenConfiguration.screenWidthDp.dp / 2)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp)
         ) {
             Spacer(modifier = Modifier.fillMaxHeight(0.15f))
@@ -562,7 +562,7 @@ fun EnterNumberDialog(
                 BasicTextField(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF2196F3))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(horizontal = 25.dp, vertical = 10.dp),
                     value = phoneNumber,
                     onValueChange = { value ->
@@ -575,7 +575,7 @@ fun EnterNumberDialog(
                         keyboardType = KeyboardType.Phone
                     ),
                     textStyle = TextStyle.Default.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = screenConfiguration.screenWidthDp.sp / 15
                     )
                 )
@@ -605,7 +605,7 @@ fun EnterNumberDialog(
                         .width((screenConfiguration.screenWidthDp / 3).dp)
                         .height((screenConfiguration.screenWidthDp / 9).dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF2196F3))
+                        .background(MaterialTheme.colorScheme.primary)
                         .clickable { onDismissRequest() }
                         .padding(2.dp),
                     contentAlignment = Alignment.Center
@@ -614,13 +614,13 @@ fun EnterNumberDialog(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White)
+                            .background(MaterialTheme.colorScheme.onPrimary)
                             .clickable { onDismissRequest() },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = stringResource(id = R.string.cancel),
-                            color = Color(0xFF2196F3),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 14.sp
                         )
                     }
@@ -630,7 +630,7 @@ fun EnterNumberDialog(
                         .width((screenConfiguration.screenWidthDp / 3).dp)
                         .height((screenConfiguration.screenWidthDp / 9).dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF2196F3))
+                        .background(MaterialTheme.colorScheme.primary)
                         .clickable {
                             if (phoneNumber.isNotEmpty()) {
                                 onEnter(phoneNumber)
@@ -641,7 +641,7 @@ fun EnterNumberDialog(
                 ) {
                     Text(
                         text = stringResource(id = R.string.save),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 14.sp
                     )
                 }

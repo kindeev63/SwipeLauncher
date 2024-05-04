@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,15 +41,12 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationData
 @Composable
 fun AppItem(
     applicationData: ApplicationData,
-    picked: Boolean = false,
-    textColor: Color = Color.Black,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(70.dp)
-            .background(if (picked) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
             .clip(RoundedCornerShape(10.dp))
             .clickable {
                 onClick()
@@ -62,9 +60,9 @@ fun AppItem(
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text=applicationData.name,
+            text = applicationData.name,
             fontSize = 14.sp,
-            color = textColor,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1
         )
     }
@@ -74,7 +72,6 @@ fun AppItem(
 @Composable
 fun SwipeAppItem(
     applicationData: ApplicationData,
-    textColor: Color = Color.Black,
     onDelete: () -> Unit,
     onGetAppInfo: () -> Unit,
     onClick: () -> Unit
@@ -153,9 +150,9 @@ fun SwipeAppItem(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text=applicationData.name,
+                    text = applicationData.name,
                     fontSize = 14.sp,
-                    color = textColor,
+                    color = Color.White,
                     maxLines = 1
                 )
             }

@@ -4,16 +4,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,15 +29,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
@@ -40,6 +47,7 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCircleMenuScreen(
     circleMenuId: Int?,
@@ -60,35 +68,33 @@ fun EditCircleMenuScreen(
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
 
-    // UI
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-
-        // Toolbar
-        EditCircleMenuToolbar(
-            viewModel = viewModel,
-            onBackPressed = onBackPressed
-        )
-
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            EditCircleMenuToolbar(
+                viewModel = viewModel,
+                onBackPressed = onBackPressed
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(30.dp))
             // CircleMenu UI
             circleMenu.value?.let { notNullCircleMenu ->
                 CircleMenuBox(
                     circleMenu = notNullCircleMenu,
-                    menuSize = viewModel.getMenuSize(LocalConfiguration.current),
                     direction = direction.value
                 ) { circleMenuDirection ->
                     viewModel.setDirection(circleMenuDirection)
                 }
             }
-
+            Spacer(modifier = Modifier.height(30.dp))
             // CircleMenu image and action panel
             selectedCircleMenuItem.value?.let { circleMenuItem ->
                 ImageAndAction(
@@ -100,6 +106,7 @@ fun EditCircleMenuScreen(
                         viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
                     }
                 )
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
     }
@@ -114,7 +121,7 @@ fun EditCircleMenuToolbar(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(MaterialTheme.colorScheme.secondary),
+            .background(MaterialTheme.colorScheme.primary),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val circleMenu = viewModel.circleMenu.observeAsState()
@@ -124,16 +131,19 @@ fun EditCircleMenuToolbar(
             }
         ) {
             Icon(
+                modifier = Modifier.size(24.dp),
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = null,
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
+        Spacer(modifier = Modifier.width(10.dp))
         circleMenu.value?.let { menu ->
             if (menu.id == 0) {
                 Text(
                     text = menu.title,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 20.sp
                 )
             } else {
                 var title by remember {
@@ -141,7 +151,10 @@ fun EditCircleMenuToolbar(
                 }
                 BasicTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onPrimary),
+                    textStyle = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 20.sp
+                    ),
                     value = title.copy(text = circleMenu.value?.title ?: ""),
                     onValueChange = { newTitle ->
                         viewModel.insertCircleMenu(menu.copy(title = newTitle.text))
@@ -149,7 +162,6 @@ fun EditCircleMenuToolbar(
                     }
                 )
             }
-
         }
     }
 }
@@ -157,18 +169,17 @@ fun EditCircleMenuToolbar(
 @Composable
 private fun CircleMenuBox(
     circleMenu: CircleMenu,
-    menuSize: Float,
     direction: CircleMenuDirection?,
     onSelectAction: (CircleMenuDirection) -> Unit
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.4f),
-        contentAlignment = Alignment.Center
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(10.dp)
     ) {
         CircleMenuForEditUI(
-            menuSize = menuSize,
+            menuSize = Constants.minScreenLength / 3 * 2,
             menuImages = circleMenu.menuImages,
             upImageClick = { onSelectAction(CircleMenuDirection.Up) },
             downImageClick = { onSelectAction(CircleMenuDirection.Down) },

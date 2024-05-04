@@ -23,7 +23,7 @@ fun SettingsMainGraph(
             allCircleMenusScreen()
         }
         composable(Screen.EditCircleMenuScreenObject.route) {
-            val circleMenuId = it.arguments?.get("circleMenuId").toString().toIntOrNull()
+            val circleMenuId = it.arguments?.getString("circleMenuId").toString().toIntOrNull()
             editCircleMenuScreen(circleMenuId)
         }
     }

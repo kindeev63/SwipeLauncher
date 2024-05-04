@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -57,12 +58,13 @@ fun ImageAndAction(
 ) {
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .width(Constants.minScreenLength.dp / 9 * 8)
             .clip(RoundedCornerShape(7.dp))
             .fillMaxWidth()
-            .background(Color(0xFFBBDEFB))
+            .background(MaterialTheme.colorScheme.primary)
     ) {
         ImageBox(image = circleMenuItem.image, onChangeImage = onChangeImage)
+        Divider(modifier = Modifier.padding(horizontal = 10.dp))
         ActionBox(action = circleMenuItem.action, onChangeAction = onChangeAction)
     }
 }
@@ -89,7 +91,7 @@ private fun ImageBox(
         Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = stringResource(id = R.string.image),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
         Spacer(modifier = Modifier.width(3.dp))
@@ -97,6 +99,7 @@ private fun ImageBox(
             modifier = Modifier
                 .size(Constants.minScreenLength.dp / 10)
                 .rotate(dropdownArrowRotation),
+            tint = MaterialTheme.colorScheme.onPrimary,
             imageVector = Icons.Rounded.ArrowDropDown,
             contentDescription = "Show or hide image data"
         )
@@ -141,7 +144,7 @@ private fun ActionBox(
         Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = stringResource(id = R.string.action),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )
         Spacer(modifier = Modifier.width(3.dp))
@@ -149,6 +152,7 @@ private fun ActionBox(
             modifier = Modifier
                 .size(Constants.minScreenLength.dp / 10)
                 .rotate(dropdownArrowRotation),
+            tint = MaterialTheme.colorScheme.onPrimary,
             imageVector = Icons.Rounded.ArrowDropDown,
             contentDescription = "Show or hide action data"
         )
@@ -188,11 +192,11 @@ private fun ActionTypeItem(
     val minScreenLength = getMinScreenLengthDp()
     Row(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF2196F3))
+            .background(MaterialTheme.colorScheme.secondary)
             .clickable { showActionDialog = true }
-            .padding(5.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -200,10 +204,10 @@ private fun ActionTypeItem(
             painter = painterResource(id = actionType.imageResId),
             contentDescription = "Action type image"
         )
-        Spacer(modifier = Modifier.width(5.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = actionType.name,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSecondary,
             fontSize = getMinScreenLengthSp() / 25
         )
     }
@@ -226,22 +230,22 @@ private fun ImageTypeItem(
     val minScreenLength = getMinScreenLengthDp()
     Row(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF2196F3))
+            .background(MaterialTheme.colorScheme.secondary)
             .clickable { showImageDialog = true }
-            .padding(5.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             modifier = Modifier.size(minScreenLength / 8),
             painter = painterResource(id = imageType.imageResId),
-            contentDescription = "Action type image"
+            contentDescription = "Image type image"
         )
-        Spacer(modifier = Modifier.width(5.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = imageType.name,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSecondary,
             fontSize = getMinScreenLengthSp() / 25
         )
     }

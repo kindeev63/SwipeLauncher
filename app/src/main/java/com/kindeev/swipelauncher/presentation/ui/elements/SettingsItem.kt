@@ -252,7 +252,5 @@ fun SwitchAndActionSettingsItem(
                 }
             }
         }
-
     }
-
 }

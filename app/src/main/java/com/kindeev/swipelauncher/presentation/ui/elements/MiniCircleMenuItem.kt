@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
@@ -25,7 +23,6 @@ import com.kindeev.swipelauncher.domain.entities.CircleMenu
 @Composable
 fun MiniCircleMenuItem(
     size: Float,
-    picked: Boolean = false,
     circleMenu: CircleMenu,
     onClick: () -> Unit
 ) {
@@ -39,7 +36,6 @@ fun MiniCircleMenuItem(
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.onTertiary
             ),
-            border = if (picked) BorderStroke(width = 2.dp, Color.Black) else null,
             onClick = onClick
         ) {
             Box(
@@ -72,7 +68,7 @@ fun MiniCircleMenuItem(
 @Composable
 fun MiniCircleMenuItem(
     size: Float,
-    picked: Boolean = false,
+    root: Boolean = false,
     circleMenu: CircleMenu,
     onClick: () -> Unit,
     onLongClick: () -> Unit
@@ -89,7 +85,7 @@ fun MiniCircleMenuItem(
                     onLongClick = onLongClick
                 ),
             colors = CardDefaults.cardColors(
-                containerColor = if (picked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                containerColor = if (root) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onSurface
             ),
         ) {

@@ -64,7 +64,7 @@ fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
             ) { circleMenu ->
                 MiniCircleMenuItem(
                     size = LocalConfiguration.current.screenWidthDp / 2f,
-                    picked = circleMenu.id == 0,
+                    root = circleMenu.id == 0,
                     circleMenu = circleMenu,
                     onClick = {
                         navigateToCircleMenu(circleMenu.id)

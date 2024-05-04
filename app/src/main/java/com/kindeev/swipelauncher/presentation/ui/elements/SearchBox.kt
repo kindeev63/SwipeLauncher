@@ -114,7 +114,6 @@ private fun SearchResults(viewModel: LauncherScreenVM) {
         ) { applicationData ->
             SwipeAppItem(
                 applicationData = applicationData,
-                textColor = MaterialTheme.colorScheme.onPrimary,
                 onDelete = {
                     viewModel.deleteAppUseCase.invoke(applicationData.packageName)
                 },

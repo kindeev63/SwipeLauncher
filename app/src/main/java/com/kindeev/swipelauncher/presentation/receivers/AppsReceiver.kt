@@ -15,6 +15,7 @@ import com.kindeev.swipelauncher.domain.getAllApplicationData
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.isAppInstalled
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
@@ -25,6 +26,8 @@ class AppsReceiver : BroadcastReceiver() {
         thread {
             val newApplicationData = context.getAllApplicationData()
             Handler(Looper.getMainLooper()).post {
+                this.goAsync()
+                @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
                     LauncherData.setAllApplicationData(newApplicationData)
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
@@ -46,7 +49,6 @@ class AppsReceiver : BroadcastReceiver() {
                         }
                     }
                 }
-
             }
         }
     }

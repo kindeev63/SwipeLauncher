@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.viewModels
 
-import android.content.res.Configuration
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,16 +36,6 @@ class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
             _circleMenu.value = LauncherData.allCircleMenus.value?.find { it.id == circleMenuId }
         }
 
-    }
-
-    fun goToCircleMenu(circleMenuId: Int) {
-        LauncherData.allCircleMenus.value?.find { it.id == circleMenuId }?.let {
-            _circleMenu.value = it
-        }
-    }
-
-    fun getMenuSize(configuration: Configuration): Float {
-        return Integer.min(configuration.screenHeightDp, configuration.screenWidthDp) / 3 * 2f
     }
 
     fun setDirection(circleMenuDirection: CircleMenuDirection) {

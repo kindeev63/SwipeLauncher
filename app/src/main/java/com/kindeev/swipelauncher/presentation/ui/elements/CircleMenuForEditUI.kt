@@ -112,8 +112,8 @@ private fun SelectedBox(
             )
             .size(size.dp)
             .background(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.tertiary,
+                shape = RoundedCornerShape(16.dp),
             )
     )
 }
