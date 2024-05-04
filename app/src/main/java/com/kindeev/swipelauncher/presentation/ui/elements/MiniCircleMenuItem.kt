@@ -89,8 +89,8 @@ fun MiniCircleMenuItem(
                     onLongClick = onLongClick
                 ),
             colors = CardDefaults.cardColors(
-                containerColor = if (picked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary
+                containerColor = if (picked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onSurface
             ),
         ) {
             Box(

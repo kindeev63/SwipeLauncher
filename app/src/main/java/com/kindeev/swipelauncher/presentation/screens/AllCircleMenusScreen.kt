@@ -47,7 +47,7 @@ fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = { navigateToCircleMenu(null) }
             ) {
