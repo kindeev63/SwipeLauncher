@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -317,7 +318,8 @@ private fun CallDataItem(
     }
 
     Row(
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             modifier = Modifier
@@ -327,9 +329,10 @@ private fun CallDataItem(
             painter = painterResource(id = R.drawable.call_telephone_image),
             contentDescription = "Call image"
         )
+        Spacer(modifier = Modifier.width(5.dp))
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(Color(0xFF2196F3))
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
@@ -350,6 +353,7 @@ private fun CallDataItem(
                     painter = painterResource(id = R.drawable.contact_image),
                     contentDescription = "Contact image"
                 )
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = contactName
                         ?: stringResource(id = R.string.error),
@@ -412,19 +416,22 @@ private fun DialDataItem(
     }
 
     Row(
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             modifier = Modifier
                 .size(Constants.minScreenLength.dp / 8)
                 .clip(CircleShape)
-                .clickable { showTelephoneDialog = true },
+                .clickable { showTelephoneDialog = true }
+                .padding(2.dp),
             painter = painterResource(id = R.drawable.dial_telephone_image),
             contentDescription = "Dial image"
         )
+        Spacer(modifier = Modifier.width(5.dp))
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(Color(0xFF2196F3))
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
@@ -445,6 +452,7 @@ private fun DialDataItem(
                     painter = painterResource(id = R.drawable.contact_image),
                     contentDescription = "Contact image"
                 )
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = contactName
                         ?: stringResource(id = R.string.error),
