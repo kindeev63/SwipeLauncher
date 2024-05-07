@@ -1,13 +1,11 @@
 package com.kindeev.swipelauncher.domain
 
+import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.entities.OtherAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
+import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
 import com.kindeev.swipelauncher.presentation.entities.ActionType
 import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
 import com.kindeev.swipelauncher.presentation.entities.ImageType
@@ -20,40 +18,10 @@ object Constants {
     var flashlightActionTypes = listOf<FlashlightActionType>()
     var telephoneActionTypes = listOf<TelephoneActionType>()
     var minScreenLength = 0f
-    val otherActionsList = listOf(
-        OtherAction(
-            type = CircleMenuActionTypes.OpenSettings,
-            nameResourceId = R.string.open_settings,
-            image = DefaultImage.Settings
-        ),
-        OtherAction(
-            type = CircleMenuActionTypes.FlashLightOn,
-            nameResourceId = R.string.flashlight_on,
-            image = DefaultImage.FlashLightOn
-        ),
-        OtherAction(
-            type = CircleMenuActionTypes.FlashLightOff,
-            nameResourceId = R.string.flashlight_off,
-            image = DefaultImage.FlashLightOff
-        ),
-        OtherAction(
-            type = CircleMenuActionTypes.ChangeFlashLightCondition,
-            nameResourceId = R.string.change_flashlight_condition,
-            image = DefaultImage.FlashLightOn
-        ),
-    )
-
-    val settingsNames = mapOf(
-        Pair(ApplicationSetting.OpenAllCircleMenus, R.string.all_circle_menus),
-        Pair(ApplicationSetting.OpenLastApp, R.string.open_last_app),
-        Pair(ApplicationSetting.ClickableClock, R.string.clickable_clock),
-        Pair(ApplicationSetting.ChangeDefaultLauncher, R.string.change_default_launcher),
-    )
+    var settingsTextSize = 0.sp
     val defaultSettings = listOf(
-        SettingData(ApplicationSetting.OpenLastApp, OpenLastApp(true)),
-        SettingData(ApplicationSetting.OpenAllCircleMenus),
-        SettingData(ApplicationSetting.ClickableClock, ClickableClock(false)),
-        SettingData(ApplicationSetting.ChangeDefaultLauncher)
+        SettingData(Setting.OpenLastApp, true),
+        SettingData(Setting.ClickOnClock, ClickOnClock(false))
     )
 
     val defaultImages = mapOf(

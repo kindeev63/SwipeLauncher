@@ -34,10 +34,6 @@
     <string name="flashlight_on">Включить фонарик</string>
     <string name="flashlight_off">Выключить фонарик</string>
     <string name="change_flashlight_condition">Изменить состояние фонарика</string>
-    <string name="all_circle_menus">Все меню</string>
-    <string name="open_last_app">Открыть последнее оставшееся приложение</string>
-    <string name="clickable_clock">Нажатие на часы</string>
-    <string name="launcher_settings">Настройки лаунчера</string>
     <string name="change_default_launcher">Изменить лаунчер по умолчанию</string>
     <string name="open_app_action">Открыть приложение</string>
     <string name="open_circle_menu_action">Открыть меню</string>
@@ -55,4 +51,8 @@
     <string name="app_image">Иконка приложение</string>
     <string name="default_image">Из коллекции</string>
     <string name="user_image">Из файла</string>
+    <string name="setting_open_last_app">Открыть последнее оставшееся приложение</string>
+    <string name="setting_all_circle_menus">Все меню</string>
+    <string name="setting_change_default_launcher">Изменить лаунчер по умолчанию</string>
+    <string name="setting_click_on_clock">Нажатие на часы</string>
 </resources>

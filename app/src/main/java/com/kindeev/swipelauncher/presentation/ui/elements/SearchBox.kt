@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,8 +29,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.getAppDetails
-import com.kindeev.swipelauncher.domain.openLastAppSettingValue
+import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 
 @Composable
@@ -83,7 +83,7 @@ private fun SearchElement(
                 },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             textStyle = TextStyle(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = LauncherData.textColorOnWallpaper,
                 fontSize = (LocalConfiguration.current.screenWidthDp / 15).sp
             ),
             value = searchText,
@@ -97,12 +97,12 @@ private fun SearchElement(
 private fun SearchResults(viewModel: LauncherScreenVM) {
     val context = LocalContext.current
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
-    val settings by LauncherData.allSettings.observeAsState(emptyList())
+    val settings by LauncherData.settings.observeAsState(emptyList())
     val searchText by viewModel.searchText.observeAsState("")
     val filteredApps = allApplicationData.filter {
         it.name.lowercase().contains(searchText.lowercase())
     }.sortedBy { it.name }
-    if (filteredApps.size == 1 && settings.openLastAppSettingValue()) {
+    if (filteredApps.size == 1 && settings.getValueOf(Setting.OpenLastApp, Boolean::class.java) == true) {
         viewModel.selectSearchElement(filteredApps.first().packageName)
     }
     LazyColumn(

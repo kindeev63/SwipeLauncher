@@ -60,10 +60,6 @@
     <string name="flashlight_on">Flashlight on</string>
     <string name="flashlight_off">FlashLight off</string>
     <string name="change_flashlight_condition">Change flashlight condition</string>
-    <string name="all_circle_menus">All circle menus</string>
-    <string name="open_last_app">Open the last remaining application</string>
-    <string name="clickable_clock">Clicable clock</string>
-    <string name="launcher_settings">LauncherSettings</string>
     <string name="change_default_launcher">Change default launcher</string>
     <string name="open_app_action">Open app</string>
     <string name="open_circle_menu_action">Open circle menu</string>
@@ -81,5 +77,9 @@
     <string name="app_image">App image</string>
     <string name="default_image">Default image</string>
     <string name="user_image">User image</string>
+    <string name="setting_open_last_app">Open last app</string>
+    <string name="setting_all_circle_menus">All circle menus</string>
+    <string name="setting_change_default_launcher">Change default launcher</string>
+    <string name="setting_click_on_clock">Click on clock</string>
 
 </resources>

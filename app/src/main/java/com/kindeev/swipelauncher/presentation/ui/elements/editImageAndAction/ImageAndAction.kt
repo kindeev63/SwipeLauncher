@@ -175,7 +175,7 @@ private fun ActionBox(
 }
 
 @Composable
-private fun ActionTypeItem(
+fun ActionTypeItem(
     actionType: ActionType,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {

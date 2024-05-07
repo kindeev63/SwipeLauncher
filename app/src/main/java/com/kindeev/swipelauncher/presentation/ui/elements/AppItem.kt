@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 
 @Composable
@@ -93,7 +94,8 @@ fun SwipeAppItem(
     )
     SwipeToDismiss(
         state = swipeState,
-        dismissThresholds = { FractionalThreshold(0.4f) },
+        dismissThresholds = {
+            FractionalThreshold(0.4f) },
         background = {
             val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
             if (swipeState.targetValue == DismissValue.Default) return@SwipeToDismiss
@@ -152,7 +154,7 @@ fun SwipeAppItem(
                 Text(
                     text = applicationData.name,
                     fontSize = 14.sp,
-                    color = Color.White,
+                    color = LauncherData.textColorOnWallpaper,
                     maxLines = 1
                 )
             }

@@ -3,19 +3,19 @@ package com.kindeev.swipelauncher.domain.entities.settings
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kindeev.swipelauncher.domain.deserializableSettingData
-import com.kindeev.swipelauncher.domain.serializableSettingData
+import com.kindeev.swipelauncher.domain.deserializableSettingValue
+import com.kindeev.swipelauncher.domain.serializableSettingValue
 
 @Entity(tableName = "table_settings")
 data class SettingData(
     @PrimaryKey(autoGenerate = false)
-    val setting: ApplicationSetting,
-    @ColumnInfo(name = "data")
-    val data: String
+    @ColumnInfo(name = "setting")
+    val setting: Setting,
+    @ColumnInfo(name = "value")
+     val _data: String
 ) {
-    constructor(setting: ApplicationSetting, data: Any? = null) : this(setting, data.serializableSettingData())
+    constructor(setting: Setting, value: Any? = null) : this(setting, value.serializableSettingValue())
 
-    fun getObjectData(): Any? {
-        return data.deserializableSettingData(setting)
-    }
+    val value: Any?
+        get() = _data.deserializableSettingValue(setting)
 }

@@ -2,7 +2,6 @@ package com.kindeev.swipelauncher.domain.dataBase
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
@@ -85,16 +84,6 @@ class DataBaseTypesConverter {
             leftAction = fromCircleMenuAction(menuActions.leftAction)
         }
         return gson.toJson(menuActionsToSave)
-    }
-
-    @TypeConverter
-    fun toApplicationSetting(data: String): ApplicationSetting {
-        return ApplicationSetting.valueOf(data)
-    }
-
-    @TypeConverter
-    fun fromApplicationSetting(applicationSetting: ApplicationSetting): String {
-        return applicationSetting.name
     }
 
 

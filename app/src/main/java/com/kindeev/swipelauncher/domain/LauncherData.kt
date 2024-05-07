@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.domain
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,13 +13,15 @@ object LauncherData {
 
     private lateinit var appDao: AppDao
     lateinit var allCircleMenus: LiveData<List<CircleMenu>>
-    lateinit var allSettings: LiveData<List<SettingData>>
+    lateinit var settings: LiveData<List<SettingData>>
 
     private val _allApplicationData = MutableLiveData<List<ApplicationData>>(emptyList())
     val allApplicationData: LiveData<List<ApplicationData>> = _allApplicationData
     var userImages = emptyMap<Int, ImageBitmap>()
 
     var flashLightCondition = false
+
+    var textColorOnWallpaper = Color.White
 
     fun setAppDao(appDao: AppDao) {
         this.appDao = appDao

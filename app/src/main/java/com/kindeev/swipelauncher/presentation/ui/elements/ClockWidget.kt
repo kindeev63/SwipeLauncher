@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.LauncherData
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
@@ -52,12 +52,12 @@ fun ClockWidget(
     ) {
         Text(
             text = time,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = LauncherData.textColorOnWallpaper,
             fontSize = (LocalConfiguration.current.screenWidthDp/5).sp
         )
         Text(
             text = date,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = LauncherData.textColorOnWallpaper,
             fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
         )
     }
@@ -98,12 +98,12 @@ fun ClickableClockWidget(
     ) {
         Text(
             text = time,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = LauncherData.textColorOnWallpaper,
             fontSize = (LocalConfiguration.current.screenWidthDp/5).sp
         )
         Text(
             text = date,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = LauncherData.textColorOnWallpaper,
             fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
         )
     }

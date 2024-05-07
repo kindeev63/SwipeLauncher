@@ -333,7 +333,7 @@ private fun CallDataItem(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(30.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.secondary)
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -432,7 +432,7 @@ private fun DialDataItem(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(30.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.secondary)
                 .clickable { showEnterNumberDialog = true }
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,

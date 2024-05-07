@@ -1,5 +1,7 @@
 package com.kindeev.swipelauncher.presentation.screens
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,20 +25,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
@@ -46,6 +54,7 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +62,17 @@ fun EditCircleMenuScreen(
     circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
+    val window = (LocalContext.current as Activity).window
+    val view = LocalView.current
+    val controller = WindowInsetsControllerCompat(window, view)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        controller.isAppearanceLightStatusBars = false
+    }
+    BackHandler {
+        scope.launch { controller.isAppearanceLightStatusBars = true }
+        onBackPressed()
+    }
     // ViewModel
     val viewModel: EditCircleMenuScreenVM = viewModel(
         factory = EditCircleMenuScreenVMFactory(circleMenuId)
@@ -67,13 +87,15 @@ fun EditCircleMenuScreen(
     val circleMenu = viewModel.circleMenu.observeAsState()
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             EditCircleMenuToolbar(
                 viewModel = viewModel,
-                onBackPressed = onBackPressed
+                onBackPressed = {
+                    scope.launch { controller.isAppearanceLightStatusBars = true }
+                    onBackPressed()
+                }
             )
         }
     ) { paddingValues ->
@@ -120,10 +142,15 @@ fun EditCircleMenuToolbar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.primary),
+            .height(90.dp)
+            .background(MaterialTheme.colorScheme.primary)
+            .systemBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val window = (LocalContext.current as Activity).window
+        val view = LocalView.current
+        val controller = remember { WindowInsetsControllerCompat(window, view) }
+        controller.isAppearanceLightStatusBars = false
         val circleMenu = viewModel.circleMenu.observeAsState()
         IconButton(
             onClick = {

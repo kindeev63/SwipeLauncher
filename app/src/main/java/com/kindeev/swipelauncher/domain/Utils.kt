@@ -49,10 +49,9 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImag
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.entities.settings.ApplicationSetting
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickableClock
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.OpenLastApp
+import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
 import com.kindeev.swipelauncher.presentation.entities.ActionType
 import com.kindeev.swipelauncher.presentation.entities.ActionTypes
 import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
@@ -455,40 +454,20 @@ fun Context.isAppInstalled(packageName: String): Boolean {
     }
 }
 
-private fun ApplicationSetting.getClassOfSettingData(): Class<*>? {
+private fun Setting.getClassOfSettingData(): Class<*> {
     return when (this) {
-        ApplicationSetting.OpenAllCircleMenus -> null
-        ApplicationSetting.OpenLastApp -> OpenLastApp::class.java
-        ApplicationSetting.ClickableClock -> ClickableClock::class.java
-        ApplicationSetting.ChangeDefaultLauncher -> null
+        Setting.OpenLastApp -> Boolean::class.java
+        Setting.ClickOnClock -> ClickOnClock::class.java
     }
 }
 
-fun String.deserializableSettingData(setting: ApplicationSetting): Any? {
-    val gson = Gson()
+fun String.deserializableSettingValue(setting: Setting): Any? {
     val classOfData = setting.getClassOfSettingData()
-    classOfData?.let {
-        return gson.fromJson(this, it)
-    }
-    return null
+    return Gson().fromJson(this, classOfData)
 }
 
-fun Any?.serializableSettingData(): String {
-    val gson = Gson()
-    return gson.toJson(this)
-}
-
-fun List<SettingData>.clickableClockSettingValue(): ClickableClock {
-    val setting =
-        this.find { it.setting == ApplicationSetting.ClickableClock } ?: return ClickableClock(
-            enabled = false
-        )
-    return setting.getObjectData().getAs(ClickableClock::class.java)
-}
-
-fun List<SettingData>.openLastAppSettingValue(): Boolean {
-    val setting = this.find { it.setting == ApplicationSetting.OpenLastApp } ?: return true
-    return (setting.getObjectData().getAs(OpenLastApp::class.java)).value
+fun Any?.serializableSettingValue(): String {
+    return Gson().toJson(this)
 }
 
 fun Context.getAppDetails(packageName: String) {
@@ -608,6 +587,7 @@ fun CircleMenuActionTypes.getActionType(): ActionType? {
         CircleMenuActionTypes.Dial -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
     }
 }
+
 fun CircleMenuImageTypes.getImageType(): ImageType? {
     return Constants.imageTypes.find { it.type == this }
 }
@@ -690,7 +670,10 @@ fun Context.getContactName(phoneNumber: String): String? {
 }
 
 fun Context.getMinScreenLength(): Float {
-    return minOf(resources.configuration.screenWidthDp, resources.configuration.screenHeightDp).toFloat()
+    return minOf(
+        resources.configuration.screenWidthDp,
+        resources.configuration.screenHeightDp
+    ).toFloat()
 }
 
 @Composable
@@ -733,4 +716,9 @@ fun pickUserImageLauncher(
             )
         }
     }
+}
+
+fun <T> List<SettingData>.getValueOf(setting: Setting, classOfT: Class<T>): T? {
+    val gson = Gson()
+    return gson.fromJson(gson.toJson(this.find { it.setting == setting }?.value ?: return null), classOfT)
 }
