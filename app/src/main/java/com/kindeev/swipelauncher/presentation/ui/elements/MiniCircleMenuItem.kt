@@ -33,7 +33,7 @@ fun MiniCircleMenuItem(
     ) {
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onTertiary
             ),
             onClick = onClick
@@ -57,6 +57,7 @@ fun MiniCircleMenuItem(
             ) {
                 Text(
                     text = circleMenu.title,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = (size / 12).sp
                 )
             }
@@ -108,24 +109,10 @@ fun MiniCircleMenuItem(
             ) {
                 Text(
                     text = circleMenu.title,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = (size / 12).sp
                 )
             }
         }
     }
-//    Column(
-//        modifier = Modifier
-//            .size(size.dp)
-//            .padding(3.dp)
-//            .clip(RoundedCornerShape(20.dp))
-//            .background(if (picked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary)
-//            .combinedClickable(
-//                onClick = onClick,
-//                onLongClick = onLongClick
-//            ),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//
-//    }
-
 }

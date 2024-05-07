@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,9 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -47,6 +42,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImag
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.pickUserImageLauncher
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
+import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 
 @Composable
 fun ImageDialog(
@@ -132,7 +128,7 @@ private fun AllImageTypes(
                     )
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -167,40 +163,6 @@ private fun ImageTypeElement(
             Text(
                 text = name,
                 color = Color.White
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchElement(searchText: String, onTextChange: (String) -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(2.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF2196F3))
-                .padding(horizontal = 15.dp, vertical = 5.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            if (searchText.isEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.search),
-                    color = Color.White
-                )
-            }
-            BasicTextField(
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                textStyle = TextStyle(
-                    color = Color.White,
-                ),
-                value = searchText,
-                onValueChange = onTextChange
             )
         }
     }
@@ -249,7 +211,7 @@ fun AppImageData(
                     }
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -303,7 +265,7 @@ fun DefaultImageData(
                     )
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }

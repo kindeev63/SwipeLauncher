@@ -43,7 +43,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -64,6 +63,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Op
 import com.kindeev.swipelauncher.presentation.entities.ActionTypes
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
+import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 
 @Composable
@@ -163,41 +163,7 @@ private fun AllActionTypes(
                     )
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
-        }
-    }
-}
-
-@Composable
-private fun SearchElement(searchText: String, onTextChange: (String) -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(2.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(horizontal = 15.dp, vertical = 5.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            if (searchText.isEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.search),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            BasicTextField(
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                textStyle = TextStyle(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                ),
-                value = searchText,
-                onValueChange = onTextChange
-            )
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -286,7 +252,7 @@ fun OpenCircleMenuActionData(
                     }
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -334,7 +300,7 @@ fun OpenAppActionData(
                     }
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -381,7 +347,7 @@ fun FlashlightActionData(
                     )
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }
@@ -479,7 +445,7 @@ fun TelephoneActionData(
                     )
                 }
             }
-            SearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }
     }
 }

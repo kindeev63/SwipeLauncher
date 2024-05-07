@@ -1,7 +1,7 @@
 package com.kindeev.swipelauncher.presentation.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -47,9 +47,6 @@ fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
         )
     }
     Scaffold(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
@@ -65,6 +62,8 @@ fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
         }
     ) {
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            item { Spacer(modifier = Modifier.systemBarsPadding()) }
+            item { Spacer(modifier = Modifier.systemBarsPadding()) }
             items(
                 items = allCircleMenus.value ?: emptyList()
             ) { circleMenu ->
