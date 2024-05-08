@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
@@ -38,6 +39,7 @@ fun SwipeBox(viewModel: LauncherScreenVM) {
 private fun DrawCircleMenu(
     viewModel: LauncherScreenVM,
 ) {
+    val density = LocalDensity.current.density
     val circleMenuOffset by viewModel.circleMenuOffset.observeAsState()
     val menuImages by viewModel.menuImages.observeAsState(initial = MenuImages.initial())
     circleMenuOffset?.let { menuOffset ->
@@ -52,11 +54,7 @@ private fun DrawCircleMenu(
             // Drawing items
             CircleMenuImagesUI(
                 menuSize = viewModel.menuSize,
-                menuImages = menuImages,
-                itemCircleColor = Color.Red,
-                itemCircleStroke = Stroke(
-                    width = 5f
-                )
+                menuImages = menuImages
             )
             // Drawing a center circle
             Canvas(
@@ -73,5 +71,4 @@ private fun DrawCircleMenu(
             }
         }
     }
-
 }
