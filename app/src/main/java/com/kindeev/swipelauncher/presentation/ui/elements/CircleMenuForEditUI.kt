@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -90,12 +89,11 @@ fun CircleMenuForEditUI(
                         y = offset.y.dp,
                     )
                     .size((menuSize / 5).dp)
-                    .clip(CircleShape)
+                    .clip(RoundedCornerShape(12.dp))
                     .clickable(onClick = function)
             )
         }
     }
-
 }
 
 @Composable

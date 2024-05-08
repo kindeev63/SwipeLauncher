@@ -27,10 +27,10 @@ object Constants {
 
     val defaultImages = mapOf(
         Pair(DefaultImage.Settings, R.drawable.ic_settings),
-        Pair(DefaultImage.UpArrow, R.drawable.ic_up_arrow),
-        Pair(DefaultImage.DownArrow, R.drawable.ic_down_arrow),
-        Pair(DefaultImage.RightArrow, R.drawable.ic_right_arrow),
-        Pair(DefaultImage.LeftArrow, R.drawable.ic_left_arrow),
+        Pair(DefaultImage.UpArrow, R.drawable.image_arrow_up),
+        Pair(DefaultImage.DownArrow, R.drawable.image_arrow_down),
+        Pair(DefaultImage.RightArrow, R.drawable.image_arrow_right),
+        Pair(DefaultImage.LeftArrow, R.drawable.image_arrow_left),
         Pair(DefaultImage.Alarm, R.drawable.ic_alarm),
         Pair(DefaultImage.Time, R.drawable.ic_time),
         Pair(DefaultImage.Wallet, R.drawable.ic_wallet),
