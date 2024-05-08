@@ -21,7 +21,8 @@ object Constants {
     var settingsTextSize = 0.sp
     val defaultSettings = listOf(
         SettingData(Setting.OpenLastApp, true),
-        SettingData(Setting.ClickOnClock, ClickOnClock(false))
+        SettingData(Setting.ClickOnClock, ClickOnClock(false)),
+        SettingData(Setting.BlackTextColorOnWallpaper, false)
     )
 
     val defaultImages = mapOf(

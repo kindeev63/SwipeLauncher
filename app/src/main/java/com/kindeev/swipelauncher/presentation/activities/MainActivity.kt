@@ -1,17 +1,16 @@
 package com.kindeev.swipelauncher.presentation.activities
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.rememberCoroutineScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.getAllApplicationData
+import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.getUserImages
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
@@ -29,7 +28,6 @@ class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         registerAppsReceiver(appsReceiver)
         setActionAndImageTypes()
         setContent {
@@ -76,5 +74,10 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterAppsReceiver(appsReceiver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        enableEdgeToEdge(statusBarStyle = getLauncherStatusBarStyle())
     }
 }

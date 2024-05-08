@@ -81,5 +81,6 @@
     <string name="setting_all_circle_menus">All circle menus</string>
     <string name="setting_change_default_launcher">Change default launcher</string>
     <string name="setting_click_on_clock">Click on clock</string>
+    <string name="setting_black_text_color_on_wallpaper">Black text color on wallpaper</string>
 
 </resources>

@@ -55,4 +55,5 @@
     <string name="setting_all_circle_menus">Все меню</string>
     <string name="setting_change_default_launcher">Изменить лаунчер по умолчанию</string>
     <string name="setting_click_on_clock">Нажатие на часы</string>
+    <string name="setting_black_text_color_on_wallpaper">Чёрный цвет текста на обоях</string>
 </resources>

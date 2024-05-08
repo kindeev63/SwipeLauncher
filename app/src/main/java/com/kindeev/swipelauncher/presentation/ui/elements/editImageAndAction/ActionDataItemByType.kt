@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,28 +54,37 @@ import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuImagesUI
 @Composable
 fun ActionDataByType(
     action: CircleMenuAction,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     when (action.type) {
         CircleMenuActionTypes.OpenCircleMenu -> {
-            OpenCircleMenuDataItem(action = action, onChangeAction = onChangeAction)
+            OpenCircleMenuDataItem(
+                action = action,
+                textColor = textColor,
+                onChangeAction = onChangeAction
+            )
         }
 
         CircleMenuActionTypes.OpenSettings -> {}
         CircleMenuActionTypes.OpenApp -> {
-            OpenAppDataItem(action = action, onChangeAction = onChangeAction)
+            OpenAppDataItem(
+                action = action,
+                textColor = textColor,
+                onChangeAction = onChangeAction
+            )
         }
 
         CircleMenuActionTypes.FlashLightOn -> {
-            FlashlightOnDataItem(onChangeAction = onChangeAction)
+            FlashlightOnDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
         CircleMenuActionTypes.FlashLightOff -> {
-            FlashlightOffDataItem(onChangeAction = onChangeAction)
+            FlashlightOffDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
         CircleMenuActionTypes.ChangeFlashLightCondition -> {
-            ChangeFlashlightConditionDataItem(onChangeAction = onChangeAction)
+            ChangeFlashlightConditionDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
         CircleMenuActionTypes.Call -> {
@@ -90,6 +100,7 @@ fun ActionDataByType(
 @Composable
 private fun OpenCircleMenuDataItem(
     action: CircleMenuAction,
+    textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showOpenCircleMenuDialog by rememberSaveable {
@@ -120,7 +131,7 @@ private fun OpenCircleMenuDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = circleMenu.title,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -129,6 +140,7 @@ private fun OpenCircleMenuDataItem(
 @Composable
 private fun OpenAppDataItem(
     action: CircleMenuAction,
+    textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showOpenAppDialog by rememberSaveable {
@@ -157,7 +169,7 @@ private fun OpenAppDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = applicationData.name,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -165,6 +177,7 @@ private fun OpenAppDataItem(
 
 @Composable
 private fun FlashlightOnDataItem(
+    textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -192,7 +205,7 @@ private fun FlashlightOnDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.on_flashlight_action),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -200,6 +213,7 @@ private fun FlashlightOnDataItem(
 
 @Composable
 private fun FlashlightOffDataItem(
+    textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -227,7 +241,7 @@ private fun FlashlightOffDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.off_flashlight_action),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -235,6 +249,7 @@ private fun FlashlightOffDataItem(
 
 @Composable
 private fun ChangeFlashlightConditionDataItem(
+    textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showFlashlightDialog by rememberSaveable {
@@ -262,7 +277,7 @@ private fun ChangeFlashlightConditionDataItem(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = stringResource(id = R.string.change_condition_flashlight_action),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }

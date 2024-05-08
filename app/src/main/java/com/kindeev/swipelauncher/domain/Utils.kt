@@ -15,6 +15,7 @@ import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -457,6 +458,7 @@ fun Context.isAppInstalled(packageName: String): Boolean {
 private fun Setting.getClassOfSettingData(): Class<*> {
     return when (this) {
         Setting.OpenLastApp -> Boolean::class.java
+        Setting.BlackTextColorOnWallpaper -> Boolean::class.java
         Setting.ClickOnClock -> ClickOnClock::class.java
     }
 }
@@ -489,6 +491,7 @@ fun Context.addUserImage(id: Int, bitmap: Bitmap) {
 }
 
 fun Context.createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
+    @Suppress("DEPRECATION")
     MediaStore.Images
         .Media.getBitmap(contentResolver, uri)
 
@@ -721,4 +724,12 @@ fun pickUserImageLauncher(
 fun <T> List<SettingData>.getValueOf(setting: Setting, classOfT: Class<T>): T? {
     val gson = Gson()
     return gson.fromJson(gson.toJson(this.find { it.setting == setting }?.value ?: return null), classOfT)
+}
+
+fun getLauncherStatusBarStyle(): SystemBarStyle {
+    return if (LauncherData.settings.value?.getValueOf(
+            Setting.BlackTextColorOnWallpaper,
+            Boolean::class.java
+        ) == true
+    ) SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT) else SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
 }

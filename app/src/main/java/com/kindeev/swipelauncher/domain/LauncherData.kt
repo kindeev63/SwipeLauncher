@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.kindeev.swipelauncher.domain.dataBase.AppDao
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 
 object LauncherData {
@@ -21,7 +22,12 @@ object LauncherData {
 
     var flashLightCondition = false
 
-    var textColorOnWallpaper = Color.White
+    val textColorOnWallpaper: Color
+        get() = if (settings.value?.getValueOf(
+                Setting.BlackTextColorOnWallpaper,
+                Boolean::class.java
+            ) == true
+        ) Color.Black else Color.White
 
     fun setAppDao(appDao: AppDao) {
         this.appDao = appDao

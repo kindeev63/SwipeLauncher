@@ -24,7 +24,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -164,43 +163,60 @@ fun SettingsScreenContent(
                                 .background(MaterialTheme.colorScheme.background)
                                 .padding(10.dp)
                         ) {
-                            // Material theme for change text color in ActionDataByType to black
-                            MaterialTheme(
-                                colorScheme = MaterialTheme.colorScheme.copy(onPrimary = Color.Black)
-                            ) {
-                                ActionTypeItem(
-                                    actionType = value?.action?.type?.getActionType()
-                                        ?: throw IllegalAccessException(
-                                            "Illegal action type"
-                                        ),
-                                    onChangeAction = {
-                                        scope.launch {
-                                            LauncherData.insertSetting(
-                                                SettingData(
-                                                    setting = Setting.ClickOnClock,
-                                                    value = ClickOnClock(true, it)
-                                                )
+                            ActionTypeItem(
+                                actionType = value?.action?.type?.getActionType()
+                                    ?: throw IllegalAccessException(
+                                        "Illegal action type"
+                                    ),
+                                onChangeAction = {
+                                    scope.launch {
+                                        LauncherData.insertSetting(
+                                            SettingData(
+                                                setting = Setting.ClickOnClock,
+                                                value = ClickOnClock(true, it)
                                             )
-                                        }
+                                        )
                                     }
-                                )
-                                ActionDataByType(
-                                    action = value.action,
-                                    onChangeAction = {
-                                        scope.launch {
-                                            LauncherData.insertSetting(
-                                                SettingData(
-                                                    setting = Setting.ClickOnClock,
-                                                    value = ClickOnClock(true, it)
-                                                )
+                                }
+                            )
+                            ActionDataByType(
+                                action = value.action,
+                                textColor = MaterialTheme.colorScheme.onBackground,
+                                onChangeAction = {
+                                    scope.launch {
+                                        LauncherData.insertSetting(
+                                            SettingData(
+                                                setting = Setting.ClickOnClock,
+                                                value = ClickOnClock(true, it)
                                             )
-                                        }
+                                        )
                                     }
-                                )
-                            }
+                                }
+                            )
                         }
                     }
                 }
+            }
+
+            spacer()
+
+            // Black text color on wallpaper
+            item {
+                SwitchSettingItem(
+                    text = stringResource(id = R.string.setting_black_text_color_on_wallpaper),
+                    value = settings.getValueOf(Setting.BlackTextColorOnWallpaper, Boolean::class.java)
+                        ?: throw IllegalArgumentException("Illegal black text color on wallpaper setting value"),
+                    onChangeValue = {
+                        scope.launch {
+                            LauncherData.insertSetting(
+                                SettingData(
+                                    setting = Setting.BlackTextColorOnWallpaper,
+                                    value = it
+                                )
+                            )
+                        }
+                    }
+                )
             }
         }
     }
