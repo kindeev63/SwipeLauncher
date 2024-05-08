@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -65,7 +66,10 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by LauncherData.settings.observeAsState(emptyList())
     val clickOnClock = settings.getValueOf(Setting.ClickOnClock, ClickOnClock::class.java)
     SwipeBox(viewModel = viewModel)
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (clickOnClock?.enabled == true) {
             ClickableClockWidget {

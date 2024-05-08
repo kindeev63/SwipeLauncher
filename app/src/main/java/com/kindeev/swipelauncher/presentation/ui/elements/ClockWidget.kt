@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,10 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -46,19 +45,17 @@ fun ClockWidget(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = time,
             color = LauncherData.textColorOnWallpaper,
-            fontSize = (LocalConfiguration.current.screenWidthDp/5).sp
+            fontSize = Constants.minScreenLength.sp / 5
         )
         Text(
             text = date,
             color = LauncherData.textColorOnWallpaper,
-            fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
+            fontSize = Constants.minScreenLength.sp / 20
         )
     }
 }
@@ -88,7 +85,6 @@ fun ClickableClockWidget(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
             .clickable(
                 onClick = onClick,
                 indication = null,
@@ -99,12 +95,12 @@ fun ClickableClockWidget(
         Text(
             text = time,
             color = LauncherData.textColorOnWallpaper,
-            fontSize = (LocalConfiguration.current.screenWidthDp/5).sp
+            fontSize = Constants.minScreenLength.sp / 5
         )
         Text(
             text = date,
             color = LauncherData.textColorOnWallpaper,
-            fontSize = (LocalConfiguration.current.screenWidthDp/20).sp
+            fontSize = Constants.minScreenLength.sp / 20
         )
     }
 }

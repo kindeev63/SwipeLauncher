@@ -43,7 +43,7 @@
             android:theme="@style/Theme.SwipeLauncher" />
         <activity
             android:name=".presentation.activities.MainActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="nosensor"
             android:exported="true"
             android:theme="@style/Theme.SwipeLauncher">
             <intent-filter>
