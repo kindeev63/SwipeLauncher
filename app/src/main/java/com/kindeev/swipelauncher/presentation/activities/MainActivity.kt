@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.activities
 
+import android.R.id.content
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -8,6 +9,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.getAllApplicationData
 import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
@@ -28,6 +32,7 @@ class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hideNavigationBar()
         registerAppsReceiver(appsReceiver)
         setActionAndImageTypes()
         setContent {
@@ -79,5 +84,14 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         enableEdgeToEdge(statusBarStyle = getLauncherStatusBarStyle())
+    }
+
+    private fun hideNavigationBar() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window,
+            window.decorView.findViewById(content)).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 }

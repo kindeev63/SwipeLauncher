@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
@@ -53,12 +54,13 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 @Composable
 fun ImageAndAction(
     circleMenuItem: CircleMenuItem,
+    width: Dp = Constants.minScreenLength.dp / 9 * 8,
     onChangeAction: (CircleMenuAction) -> Unit,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .width(Constants.minScreenLength.dp / 9 * 8)
+            .width(width)
             .clip(RoundedCornerShape(7.dp))
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary)

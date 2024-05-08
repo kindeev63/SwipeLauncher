@@ -2,7 +2,7 @@ package com.kindeev.swipelauncher.presentation.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -62,8 +62,8 @@ fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
         }
     ) {
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            item { Spacer(modifier = Modifier.systemBarsPadding()) }
-            item { Spacer(modifier = Modifier.systemBarsPadding()) }
+            item { Spacer(modifier = Modifier.statusBarsPadding()) }
+            item { Spacer(modifier = Modifier.statusBarsPadding()) }
             items(
                 items = allCircleMenus.value ?: emptyList()
             ) { circleMenu ->

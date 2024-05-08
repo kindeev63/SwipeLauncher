@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.presentation.screens
 
 import android.app.Activity
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
@@ -87,6 +89,8 @@ fun EditCircleMenuScreen(
     val circleMenu = viewModel.circleMenu.observeAsState()
     val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
     val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
+
+    // UI
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -99,36 +103,86 @@ fun EditCircleMenuScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(30.dp))
-            // CircleMenu UI
-            circleMenu.value?.let { notNullCircleMenu ->
-                CircleMenuBox(
-                    circleMenu = notNullCircleMenu,
-                    direction = direction.value
-                ) { circleMenuDirection ->
-                    viewModel.setDirection(circleMenuDirection)
+
+        if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // CircleMenu UI
+                circleMenu.value?.let { notNullCircleMenu ->
+                    Box(
+                        modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp / 2),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircleMenuBox(
+                            circleMenu = notNullCircleMenu,
+                            menuSize = LocalConfiguration.current.screenWidthDp / 2f - 40f,
+                            direction = direction.value
+                        ) { circleMenuDirection ->
+                            viewModel.setDirection(circleMenuDirection)
+                        }
+                    }
+
+                }
+                // CircleMenu image and action panel
+                selectedCircleMenuItem.value?.let { circleMenuItem ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(30.dp))
+                        ImageAndAction(
+                            width = LocalConfiguration.current.screenWidthDp.dp / 2 - 10.dp,
+                            circleMenuItem = circleMenuItem,
+                            onChangeAction = {
+                                viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
+                            },
+                            onChangeImage = {
+                                viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
+
                 }
             }
-            Spacer(modifier = Modifier.height(30.dp))
-            // CircleMenu image and action panel
-            selectedCircleMenuItem.value?.let { circleMenuItem ->
-                ImageAndAction(
-                    circleMenuItem = circleMenuItem,
-                    onChangeAction = {
-                        viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
-                    },
-                    onChangeImage = {
-                        viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
-                    }
-                )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Spacer(modifier = Modifier.height(30.dp))
+                // CircleMenu UI
+                circleMenu.value?.let { notNullCircleMenu ->
+                    CircleMenuBox(
+                        circleMenu = notNullCircleMenu,
+                        direction = direction.value
+                    ) { circleMenuDirection ->
+                        viewModel.setDirection(circleMenuDirection)
+                    }
+                }
+                Spacer(modifier = Modifier.height(30.dp))
+                // CircleMenu image and action panel
+                selectedCircleMenuItem.value?.let { circleMenuItem ->
+                    ImageAndAction(
+                        circleMenuItem = circleMenuItem,
+                        onChangeAction = {
+                            viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
+                        },
+                        onChangeImage = {
+                            viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
     }
@@ -144,7 +198,7 @@ fun EditCircleMenuToolbar(
             .fillMaxWidth()
             .height(90.dp)
             .background(MaterialTheme.colorScheme.primary)
-            .systemBarsPadding(),
+            .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val window = (LocalContext.current as Activity).window
@@ -197,6 +251,7 @@ fun EditCircleMenuToolbar(
 private fun CircleMenuBox(
     circleMenu: CircleMenu,
     direction: CircleMenuDirection?,
+    menuSize: Float = Constants.minScreenLength / 3 * 2,
     onSelectAction: (CircleMenuDirection) -> Unit
 ) {
     Box(
@@ -206,7 +261,7 @@ private fun CircleMenuBox(
             .padding(10.dp)
     ) {
         CircleMenuForEditUI(
-            menuSize = Constants.minScreenLength / 3 * 2,
+            menuSize = menuSize,
             menuImages = circleMenu.menuImages,
             upImageClick = { onSelectAction(CircleMenuDirection.Up) },
             downImageClick = { onSelectAction(CircleMenuDirection.Down) },
