@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
     private val _circleMenu = MutableLiveData<CircleMenu?>(null)
     val circleMenu: LiveData<CircleMenu?> = _circleMenu
-    private val _item = MutableLiveData(circleMenu.value?.items?.first())
+    private val _item = MutableLiveData(circleMenu.value?.items?.firstOrNull())
     val item: LiveData<CircleMenuItem?> = _item
 
 
@@ -82,7 +82,7 @@ class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
         circleMenus.find { it.id == circleMenu.value?.id }?.let {
             _circleMenu.value = it
             _item.postValue(it.items.find { newItem -> newItem.offset == item.value?.offset }
-                ?: it.items.first())
+                ?: it.items.firstOrNull())
         }
     }
 

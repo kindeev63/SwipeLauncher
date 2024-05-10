@@ -103,7 +103,7 @@ private fun SearchResults(viewModel: LauncherScreenVM) {
         it.name.lowercase().contains(searchText.lowercase())
     }.sortedBy { it.name }
     if (filteredApps.size == 1 && settings.getValueOf(Setting.OpenLastApp, Boolean::class.java) == true) {
-        viewModel.selectSearchElement(filteredApps.first().packageName)
+        filteredApps.firstOrNull()?.let { viewModel.selectSearchElement(it.packageName) }
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize()

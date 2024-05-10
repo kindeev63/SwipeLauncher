@@ -27,7 +27,7 @@ import com.kindeev.swipelauncher.domain.getItemOffset
 fun CircleMenuForEditUI(
     menuSize: Float,
     items: List<CircleMenuItem>,
-    selectedBoxOffset: Offset,
+    selectedBoxOffset: Offset?,
     onSelectItem: (CircleMenuItem) -> Unit,
     onAdd: (Offset) -> Unit
 ) {
@@ -35,7 +35,7 @@ fun CircleMenuForEditUI(
         modifier = Modifier
             .size(menuSize.dp)
     ) {
-        SelectedBox(cords = selectedBoxOffset, size = menuSize / 4)
+        selectedBoxOffset?.let { SelectedBox(cords = it, size = menuSize / 4) }
         CircleMenuItems(items = items, menuSize = menuSize)
         items.forEach { item ->
             val offset = item.offset.getItemOffset(menuSize)

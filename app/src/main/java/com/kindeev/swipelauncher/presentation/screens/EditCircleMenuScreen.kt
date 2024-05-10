@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -300,7 +299,7 @@ private fun CircleMenuBox(
     ) {
         CircleMenuForEditUI(
             items = circleMenu?.items ?: emptyList(),
-            selectedBoxOffset = item?.offset?.getSelectedBoxOffset(menuSize) ?: Offset.Zero,
+            selectedBoxOffset = item?.offset?.getSelectedBoxOffset(menuSize),
             menuSize = menuSize,
             onSelectItem = { viewModel.setItem(it) },
             onAdd = {
