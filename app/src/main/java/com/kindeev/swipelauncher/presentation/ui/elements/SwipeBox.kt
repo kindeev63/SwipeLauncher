@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -41,7 +40,7 @@ private fun DrawCircleMenu(
 ) {
     val density = LocalDensity.current.density
     val circleMenuOffset by viewModel.circleMenuOffset.observeAsState()
-    val menuImages by viewModel.menuImages.observeAsState(initial = MenuImages.initial())
+    val circleMenu by viewModel.circleMenu.observeAsState()
     circleMenuOffset?.let { menuOffset ->
         Box(
             modifier = Modifier
@@ -52,10 +51,7 @@ private fun DrawCircleMenu(
                 .size(viewModel.menuSize.dp)
         ) {
             // Drawing items
-            CircleMenuImagesUI(
-                menuSize = viewModel.menuSize,
-                menuImages = menuImages
-            )
+            CircleMenuItems(items = circleMenu?.items ?: emptyList(), menuSize = viewModel.menuSize)
             // Drawing a center circle
             Canvas(
                 modifier = Modifier.fillMaxSize()
@@ -66,7 +62,7 @@ private fun DrawCircleMenu(
                     style = Stroke(
                         width = 5f
                     ),
-                    radius = viewModel.menuSize * density / 5.8f
+                    radius = viewModel.menuSize / 7.5f * density
                 )
             }
         }

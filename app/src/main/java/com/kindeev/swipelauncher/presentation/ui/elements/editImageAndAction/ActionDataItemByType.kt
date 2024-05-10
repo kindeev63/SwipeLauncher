@@ -49,7 +49,7 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenAppActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenCircleMenuActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionData
-import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuImagesUI
+import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 
 @Composable
 fun ActionDataByType(
@@ -123,17 +123,18 @@ private fun OpenCircleMenuDataItem(
             .clickable { showOpenCircleMenuDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CircleMenuImagesUI(
-            menuSize = Constants.minScreenLength / 3f,
-            menuImages = circleMenu?.menuImages
-                ?: throw IllegalArgumentException("Illegal MenuImages")
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = circleMenu.title,
-            color = textColor,
-            fontSize = Constants.minScreenLength.sp / 20
-        )
+        circleMenu?.let {
+            CircleMenuItems(
+                menuSize = Constants.minScreenLength / 3f,
+                items = circleMenu.items
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = circleMenu.title,
+                color = textColor,
+                fontSize = Constants.minScreenLength.sp / 20
+            )
+        }
     }
 }
 

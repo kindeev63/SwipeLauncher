@@ -19,29 +19,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.ui.dialogs.DeleteCircleMenuDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllCircleMenusScreen(navigateToCircleMenu: (Int?) -> Unit) {
     val viewModel: AllCircleMenusScreenVM = viewModel()
+    val context = LocalContext.current
     val allCircleMenus = LauncherData.allCircleMenus.observeAsState()
     var deleteCircleMenuDialog by remember {
         mutableStateOf<CircleMenu?>(null)
     }
     deleteCircleMenuDialog?.let { circleMenu ->
-        DeleteCircleMenuDialog(
+        QuestionDialog(
+            text = stringResource(id = R.string.delete_circle_menu_question),
             onDismissRequest = { deleteCircleMenuDialog = null },
-            onClickDelete = {
-                viewModel.deleteCircleMenu(circleMenu)
+            onClickYes = {
+                viewModel.deleteCircleMenu(circleMenu, context)
                 deleteCircleMenuDialog = null
             }
         )

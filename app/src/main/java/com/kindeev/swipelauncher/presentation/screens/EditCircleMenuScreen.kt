@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,11 +39,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -50,13 +56,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.getSelectedBoxOffset
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,9 +99,21 @@ fun EditCircleMenuScreen(
     }
 
     // States
-    val circleMenu = viewModel.circleMenu.observeAsState()
-    val direction = viewModel.direction.observeAsState(initial = CircleMenuDirection.Up)
-    val selectedCircleMenuItem = viewModel.selectedCircleMenuItem.observeAsState()
+    val item by viewModel.item.observeAsState()
+
+    var deleteItemDialog by remember {
+        mutableStateOf<CircleMenuItem?>(null)
+    }
+    deleteItemDialog?.let { thisItem ->
+        QuestionDialog(
+            text = stringResource(id = R.string.delete_item_question),
+            onDismissRequest = { deleteItemDialog = null },
+            onClickYes = {
+                viewModel.deleteItem(thisItem)
+                deleteItemDialog = null
+            }
+        )
+    }
 
     // UI
     Scaffold(
@@ -112,23 +137,20 @@ fun EditCircleMenuScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // CircleMenu UI
-                circleMenu.value?.let { notNullCircleMenu ->
-                    Box(
-                        modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp / 2),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircleMenuBox(
-                            circleMenu = notNullCircleMenu,
-                            menuSize = LocalConfiguration.current.screenWidthDp / 2f - 40f,
-                            direction = direction.value
-                        ) { circleMenuDirection ->
-                            viewModel.setDirection(circleMenuDirection)
-                        }
-                    }
-
+                Box(
+                    modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp / 2),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircleMenuBox(
+                        viewModel = viewModel,
+                        menuSize = max(
+                            LocalConfiguration.current.screenWidthDp,
+                            LocalConfiguration.current.screenHeightDp
+                        ) / 3f
+                    )
                 }
                 // CircleMenu image and action panel
-                selectedCircleMenuItem.value?.let { circleMenuItem ->
+                item?.let { circleMenuItem ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -147,6 +169,26 @@ fun EditCircleMenuScreen(
                             }
                         )
                         Spacer(modifier = Modifier.height(30.dp))
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.Red)
+                                .clickable { deleteItemDialog = item }
+                                .padding(horizontal = 10.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(50.dp),
+                                imageVector = Icons.Rounded.Delete,
+                                tint = Color.White,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = stringResource(id = R.string.delete),
+                                color = Color.White
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
                     }
 
                 }
@@ -161,17 +203,13 @@ fun EditCircleMenuScreen(
             ) {
                 Spacer(modifier = Modifier.height(30.dp))
                 // CircleMenu UI
-                circleMenu.value?.let { notNullCircleMenu ->
-                    CircleMenuBox(
-                        circleMenu = notNullCircleMenu,
-                        direction = direction.value
-                    ) { circleMenuDirection ->
-                        viewModel.setDirection(circleMenuDirection)
-                    }
-                }
+                CircleMenuBox(
+                    viewModel = viewModel,
+                    menuSize = Constants.minScreenLength / 3 * 2
+                )
                 Spacer(modifier = Modifier.height(30.dp))
                 // CircleMenu image and action panel
-                selectedCircleMenuItem.value?.let { circleMenuItem ->
+                item?.let { circleMenuItem ->
                     ImageAndAction(
                         circleMenuItem = circleMenuItem,
                         onChangeAction = {
@@ -181,6 +219,26 @@ fun EditCircleMenuScreen(
                             viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
                         }
                     )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.Red)
+                            .clickable { deleteItemDialog = item }
+                            .padding(horizontal = 10.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(50.dp),
+                            imageVector = Icons.Rounded.Delete,
+                            tint = Color.White,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = stringResource(id = R.string.delete),
+                            color = Color.White
+                        )
+                    }
                     Spacer(modifier = Modifier.height(30.dp))
                 }
             }
@@ -249,25 +307,34 @@ fun EditCircleMenuToolbar(
 
 @Composable
 private fun CircleMenuBox(
-    circleMenu: CircleMenu,
-    direction: CircleMenuDirection?,
-    menuSize: Float = Constants.minScreenLength / 3 * 2,
-    onSelectAction: (CircleMenuDirection) -> Unit
+    viewModel: EditCircleMenuScreenVM,
+    menuSize: Float
 ) {
+    val circleMenu by viewModel.circleMenu.observeAsState()
+    val item by viewModel.item.observeAsState()
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(10.dp)
+            .padding(20.dp)
     ) {
         CircleMenuForEditUI(
+            items = circleMenu?.items ?: emptyList(),
+            selectedBoxOffset = item?.offset?.getSelectedBoxOffset(menuSize) ?: Offset.Zero,
             menuSize = menuSize,
-            menuImages = circleMenu.menuImages,
-            upImageClick = { onSelectAction(CircleMenuDirection.Up) },
-            downImageClick = { onSelectAction(CircleMenuDirection.Down) },
-            rightImageClick = { onSelectAction(CircleMenuDirection.Right) },
-            leftImageClick = { onSelectAction(CircleMenuDirection.Left) },
-            selectedDirection = direction
+            onSelectItem = { viewModel.setItem(it) },
+            onAdd = {
+                viewModel.insertItem(
+                    CircleMenuItem(
+                        offset = it,
+                        image = CircleMenuImage(
+                            type = CircleMenuImageTypes.DefaultImage,
+                            data = DefaultImage.Settings
+                        ),
+                        action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
+                    )
+                )
+            }
         )
     }
 }

@@ -73,7 +73,7 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (clickOnClock?.enabled == true) {
             ClickableClockWidget {
-                viewModel.executeAction(clickOnClock.action)
+                viewModel.executeClickOnClockAction(clickOnClock.action)
             }
         } else {
             ClockWidget()

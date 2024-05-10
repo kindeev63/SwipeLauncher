@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.domain
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
@@ -23,6 +24,17 @@ object Constants {
         SettingData(Setting.OpenLastApp, true),
         SettingData(Setting.ClickOnClock, ClickOnClock(false)),
         SettingData(Setting.BlackTextColorOnWallpaper, false)
+    )
+
+    val menuCords = listOf(
+        Offset(0f, -4f), // 1
+        Offset(3f, -3f), // 2
+        Offset(4f, 0f), // 3
+        Offset(3f, 3f), // 4
+        Offset(0f, 4f), // 5
+        Offset(-3f, 3f), // 6
+        Offset(-4f, 0f), // 7
+        Offset(-3f, -3f), // 8
     )
 
     val defaultImages = mapOf(

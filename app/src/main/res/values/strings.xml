@@ -8,7 +8,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="cancel">Cancel</string>
-    <string name="delete_circle_menu_question">Delete circle menu?</string>
+    <string name="delete_circle_menu_question">Delete this circle menu?</string>
     <string name="monday">Mo</string>
     <string name="tuesday">Tu</string>
     <string name="wednesday">We</string>
@@ -82,5 +82,7 @@
     <string name="setting_change_default_launcher">Change default launcher</string>
     <string name="setting_click_on_clock">Click on clock</string>
     <string name="setting_black_text_color_on_wallpaper">Black text color on wallpaper</string>
+    <string name="delete">Delete</string>
+    <string name="delete_item_question">Delete this item?</string>
 
 </resources>

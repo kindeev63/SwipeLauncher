@@ -1,7 +1,10 @@
 package com.kindeev.swipelauncher.domain.dataBase
 
+import androidx.compose.ui.geometry.Offset
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
@@ -15,81 +18,49 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.Def
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
 class DataBaseTypesConverter {
 
-    private class MenuActionsToSave {
-        var upAction = ""
-        var downAction = ""
-        var rightAction = ""
-        var leftAction = ""
-    }
-
-    private class CircleMenuActionToSave {
-        var type: CircleMenuActionTypes = CircleMenuActionTypes.OpenSettings
-        var data: String = ""
-    }
-
-    private class MenuImagesToSave {
-        var upImage = ""
-        var downImage = ""
-        var rightImage = ""
-        var leftImage = ""
-    }
-
-    private class CircleMenuImageToSave {
-        var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
-        var data: String = ""
-    }
     @TypeConverter
-    fun toMenuImages(data: String): MenuImages {
+    fun toCircleMenuItems(data: String): List<CircleMenuItem> {
+        val type = object : TypeToken<List<String>>() {}.type
+        return Gson().fromJson<List<String>>(data, type).map { it.toCircleMenuItem() }
+    }
+
+    @TypeConverter
+    fun fromCircleMenuItem(items: List<CircleMenuItem>): String {
+        return Gson().toJson(items.map { it.fromCircleMenuItem() })
+    }
+
+
+
+    private fun String.toCircleMenuItem(): CircleMenuItem {
         val gson = Gson()
-        val menuImagesToSave = gson.fromJson(data, MenuImagesToSave::class.java)
-        return MenuImages(
-            upImage = toCircleMenuImage(menuImagesToSave.upImage),
-            downImage = toCircleMenuImage(menuImagesToSave.downImage),
-            rightImage = toCircleMenuImage(menuImagesToSave.rightImage),
-            leftImage = toCircleMenuImage(menuImagesToSave.leftImage),
+        val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
+        val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
+        val image = circleMenuItemToSave.image.toCircleMenuImage()
+        val action = circleMenuItemToSave.action.toCircleMenuAction()
+        return CircleMenuItem(
+            offset = offset,
+            image = image,
+            action = action
         )
     }
 
-    @TypeConverter
-    fun fromMenuImages(menuImages: MenuImages): String {
+    private fun CircleMenuItem.fromCircleMenuItem(): String {
         val gson = Gson()
-        val menuImagesToSave = MenuImagesToSave().apply {
-            upImage = fromCircleMenuImage(menuImages.upImage)
-            downImage = fromCircleMenuImage(menuImages.downImage)
-            rightImage = fromCircleMenuImage(menuImages.rightImage)
-            leftImage = fromCircleMenuImage(menuImages.leftImage)
-        }
-        return gson.toJson(menuImagesToSave)
-    }
-
-    @TypeConverter
-    fun toMenuActions(data: String): MenuActions {
-        val gson = Gson()
-        val menuActionsToSave = gson.fromJson(data, MenuActionsToSave::class.java)
-        return MenuActions(
-            upAction = toCircleMenuAction(menuActionsToSave.upAction),
-            downAction = toCircleMenuAction(menuActionsToSave.downAction),
-            rightAction = toCircleMenuAction(menuActionsToSave.rightAction),
-            leftAction = toCircleMenuAction(menuActionsToSave.leftAction),
+        val image = this.image.fromCircleMenuImage()
+        val action = this.action.fromCircleMenuAction()
+        val offset = gson.toJson(this.offset)
+        return gson.toJson(
+            CircleMenuItemToSave().apply {
+                this.image = image
+                this.action = action
+                this.offset = offset
+            }
         )
     }
 
-    @TypeConverter
-    fun fromMenuActions(menuActions: MenuActions): String {
+    private fun String.toCircleMenuAction(): CircleMenuAction {
         val gson = Gson()
-        val menuActionsToSave = MenuActionsToSave().apply {
-            upAction = fromCircleMenuAction(menuActions.upAction)
-            downAction = fromCircleMenuAction(menuActions.downAction)
-            rightAction = fromCircleMenuAction(menuActions.rightAction)
-            leftAction = fromCircleMenuAction(menuActions.leftAction)
-        }
-        return gson.toJson(menuActionsToSave)
-    }
-
-
-    private fun toCircleMenuAction(data: String): CircleMenuAction {
-        val gson = Gson()
-        val circleMenuActionToSave = gson.fromJson(data, CircleMenuActionToSave::class.java)
+        val circleMenuActionToSave = gson.fromJson(this, CircleMenuActionToSave::class.java)
         val classOfData = getClassOfActionData(circleMenuActionToSave.type)
         return CircleMenuAction(
             type = circleMenuActionToSave.type,
@@ -100,32 +71,50 @@ class DataBaseTypesConverter {
         )
     }
 
-    private fun fromCircleMenuAction(circleMenuAction: CircleMenuAction): String {
+    private fun CircleMenuAction.fromCircleMenuAction(): String {
         val gson = Gson()
-        val circleMenuData = gson.toJson(circleMenuAction.data)
+        val type = this.type
+        val circleMenuData = gson.toJson(this.data)
         val circleMenuActionToSave = CircleMenuActionToSave().apply {
-            type = circleMenuAction.type
+            this.type = type
             data = circleMenuData
         }
         return gson.toJson(circleMenuActionToSave)
     }
 
-    private fun toCircleMenuImage(data: String): CircleMenuImage {
+    private fun String.toCircleMenuImage(): CircleMenuImage {
         val gson = Gson()
-        val circleMenuImageToSave = gson.fromJson(data, CircleMenuImageToSave::class.java)
+        val circleMenuImageToSave = gson.fromJson(this, CircleMenuImageToSave::class.java)
         val classOfData = getClassOfImageData(circleMenuImageToSave.type)
         val circleMenuData = gson.fromJson(circleMenuImageToSave.data, classOfData)
         return CircleMenuImage(type = circleMenuImageToSave.type, data = circleMenuData)
     }
 
-    private fun fromCircleMenuImage(circleMenuImage: CircleMenuImage): String {
+    private fun CircleMenuImage.fromCircleMenuImage(): String {
         val gson = Gson()
-        val circleMenuData = gson.toJson(circleMenuImage.data)
+        val type = this.type
+        val circleMenuData = gson.toJson(this.data)
         val circleMenuImageToSave = CircleMenuImageToSave().apply {
-            type = circleMenuImage.type
+            this.type = type
             data = circleMenuData
         }
         return gson.toJson(circleMenuImageToSave)
+    }
+
+    private class CircleMenuItemToSave {
+        var offset: String = ""
+        var image: String = ""
+        var action: String = ""
+    }
+
+    private class CircleMenuActionToSave {
+        var type: CircleMenuActionTypes = CircleMenuActionTypes.OpenSettings
+        var data: String = ""
+    }
+
+    private class CircleMenuImageToSave {
+        var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
+        var data: String = ""
     }
 
     private fun getClassOfActionData(type: CircleMenuActionTypes): Class<*>? {

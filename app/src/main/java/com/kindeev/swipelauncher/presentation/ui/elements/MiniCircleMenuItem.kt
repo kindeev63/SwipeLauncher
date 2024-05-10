@@ -44,9 +44,9 @@ fun MiniCircleMenuItem(
                     .fillMaxHeight(5 / 6f),
                 contentAlignment = Alignment.Center
             ) {
-                CircleMenuImagesUI(
+                CircleMenuItems(
+                    items = circleMenu.items,
                     menuSize = (size - 6) * 4 / 6f,
-                    menuImages = circleMenu.menuImages
                 )
             }
             Box(
@@ -96,9 +96,9 @@ fun MiniCircleMenuItem(
                     .fillMaxHeight(5 / 6f),
                 contentAlignment = Alignment.Center
             ) {
-                CircleMenuImagesUI(
+                CircleMenuItems(
+                    items = circleMenu.items,
                     menuSize = (size - 6) * 4 / 6f,
-                    menuImages = circleMenu.menuImages
                 )
             }
             Box(

@@ -25,9 +25,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 
 @Composable
-fun DeleteCircleMenuDialog(
+fun QuestionDialog(
+    text: String,
     onDismissRequest: () -> Unit,
-    onClickDelete: () -> Unit
+    onClickYes: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
     Dialog(
@@ -45,7 +46,7 @@ fun DeleteCircleMenuDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(id = R.string.delete_circle_menu_question),
+                text = text,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Row(
@@ -58,7 +59,7 @@ fun DeleteCircleMenuDialog(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                TextButton(onClick = onClickDelete) {
+                TextButton(onClick = onClickYes) {
                     Text(
                         text = stringResource(id = R.string.yes),
                         color = MaterialTheme.colorScheme.primary

@@ -8,30 +8,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.dataBase.MenuImages
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.getItemImage
-import com.kindeev.swipelauncher.domain.getItemsOffset
+import com.kindeev.swipelauncher.domain.getItemOffset
 
 @Composable
-fun CircleMenuImagesUI(
-    menuSize: Float,
-    menuImages: MenuImages
+fun CircleMenuItems(
+    items: List<CircleMenuItem>,
+    menuSize: Float
 ) {
-    val imagesOffsetList =
-        getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
-    val imagesList = listOf(
-        menuImages.upImage,
-        menuImages.downImage,
-        menuImages.rightImage,
-        menuImages.leftImage,
-    )
     Box(
         modifier = Modifier
             .size(menuSize.dp)
     ) {
-        for (index in 0 ..3) {
-            imagesList[index].getItemImage(LocalContext.current)?.let { imageBitmap ->
-                val offset = imagesOffsetList[index]
+        val context = LocalContext.current
+        items.forEach { item ->
+            item.image.getItemImage(context)?.let { imageBitmap ->
+                val offset = item.offset.getItemOffset(menuSize)
                 Image(
                     modifier = Modifier
                         .offset(

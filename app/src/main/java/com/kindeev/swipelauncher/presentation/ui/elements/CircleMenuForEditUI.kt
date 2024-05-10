@@ -7,81 +7,36 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
-import com.kindeev.swipelauncher.domain.dataBase.MenuImages
-import com.kindeev.swipelauncher.domain.getItemsOffset
+import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
+import com.kindeev.swipelauncher.domain.getItemOffset
 
 @Composable
 fun CircleMenuForEditUI(
     menuSize: Float,
-    menuImages: MenuImages,
-    upImageClick: () -> Unit,
-    downImageClick: () -> Unit,
-    rightImageClick: () -> Unit,
-    leftImageClick: () -> Unit,
-    selectedDirection: CircleMenuDirection?
+    items: List<CircleMenuItem>,
+    selectedBoxOffset: Offset,
+    onSelectItem: (CircleMenuItem) -> Unit,
+    onAdd: (Offset) -> Unit
 ) {
     Box(
         modifier = Modifier
             .size(menuSize.dp)
     ) {
-        selectedDirection?.let {
-            SelectedBox(
-                cords = when (selectedDirection) {
-                    CircleMenuDirection.Up -> {
-                        Offset(
-                            x = menuSize * 3 / 8,
-                            y = menuSize / 24
-                        )
-                    }
-
-                    CircleMenuDirection.Down -> {
-                        Offset(
-                            x = menuSize * 3 / 8,
-                            y = menuSize / 24 * 17
-                        )
-                    }
-
-                    CircleMenuDirection.Right -> {
-                        Offset(
-                            x = menuSize / 24 * 17,
-                            y = menuSize * 3 / 8
-                        )
-                    }
-
-                    CircleMenuDirection.Left -> {
-                        Offset(
-                            x = menuSize / 24,
-                            y = menuSize * 3 / 8
-                        )
-                    }
-                },
-                size = menuSize / 4
-            )
-
-        }
-        CircleMenuImagesUI(
-            menuSize = menuSize,
-            menuImages = menuImages,
-        )
-        val functions = listOf(
-            upImageClick,
-            downImageClick,
-            rightImageClick,
-            leftImageClick
-        )
-        val itemsOffset =
-            getItemsOffset(menuSize = menuSize, itemSize = menuSize / 5)
-        listOf(0, 1, 2, 3).forEach { index ->
-            val offset = itemsOffset[index]
-            val function = functions[index]
+        SelectedBox(cords = selectedBoxOffset, size = menuSize / 4)
+        CircleMenuItems(items = items, menuSize = menuSize)
+        items.forEach { item ->
+            val offset = item.offset.getItemOffset(menuSize)
             Box(
                 modifier = Modifier
                     .offset(
@@ -90,8 +45,35 @@ fun CircleMenuForEditUI(
                     )
                     .size((menuSize / 5).dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable(onClick = function)
+                    .clickable(
+                        onClick = {
+                            onSelectItem(item)
+                        }
+                    )
             )
+        }
+        val itemCords = items.map { it.offset }
+        Constants.menuCords.forEach { cords ->
+            if (cords !in itemCords) {
+                val offset = cords.getItemOffset(menuSize)
+                Icon(
+                    modifier = Modifier
+                        .offset(
+                            x = offset.x.dp,
+                            y = offset.y.dp,
+                        )
+                        .size((menuSize / 5).dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(
+                            onClick = {
+                                onAdd(cords)
+                            }
+                        ),
+                    painter = painterResource(id = R.drawable.ic_add),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    contentDescription = null
+                )
+            }
         }
     }
 }

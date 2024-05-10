@@ -9,11 +9,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.CircleMenuDirection
-import com.kindeev.swipelauncher.domain.dataBase.MenuImages
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenuOffset
 import com.kindeev.swipelauncher.domain.useCases.DeleteAppUseCase
 import com.kindeev.swipelauncher.domain.useCases.FlashLightUseCase
@@ -27,25 +27,18 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Di
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getCircleMenuItem
+import com.kindeev.swipelauncher.domain.getCircleMenuOffset
 
 class LauncherScreenVM(private val context: Context) : ViewModel() {
     private val _circleMenuOffset = MutableLiveData<CircleMenuOffset?>(null)
     val circleMenuOffset: LiveData<CircleMenuOffset?> = _circleMenuOffset
-    private val _menuImages = MutableLiveData<MenuImages>()
-    val menuImages: LiveData<MenuImages> = _menuImages
     private val _circleMenu = MutableLiveData<CircleMenu>()
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
     val screenState: LiveData<LauncherScreenState> = _screenState
     private val _searchText = MutableLiveData("")
     val searchText: LiveData<String> = _searchText
-
-
-
-    val menuSize = Integer.min(
-        context.resources.configuration.screenWidthDp,
-        context.resources.configuration.screenHeightDp
-    ) / 3 * 2f
     private val density = context.resources.displayMetrics.density
     private var clickTime = 0L
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase(context)
@@ -56,6 +49,8 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     private val packageName = context.packageName
+
+    val menuSize = Constants.minScreenLength / 3 * 2
 
     fun centerCircleCenterOffset(): Offset {
         circleMenuOffset.value?.let { offset ->
@@ -93,7 +88,6 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
 
     fun setCircleMenu(circleMenu: CircleMenu?) {
         _circleMenu.value = circleMenu
-        circleMenu?.menuImages?.let { _menuImages.value = it }
     }
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         when (event.action) {
@@ -118,45 +112,22 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
 
             MotionEvent.ACTION_MOVE -> {
                 _circleMenuOffset.value?.let { notNullMenuOffset ->
-                    val direction = getItemDirection(
+                    val item = circleMenu.value?.getCircleMenuItem(
                         menuSize = menuSize,
-                        cordsX = notNullMenuOffset.swipe.x - notNullMenuOffset.start.x,
-                        cordsY = notNullMenuOffset.swipe.y - notNullMenuOffset.start.y
+                        offset = Offset(
+                            x = notNullMenuOffset.swipe.x - notNullMenuOffset.start.x,
+                            y = notNullMenuOffset.swipe.y - notNullMenuOffset.start.y
+                        )
                     )
-                    when (direction) {
-                        null -> {
-                            _circleMenuOffset.value = _circleMenuOffset.value?.copy(
-                                swipe = Offset(
-                                    x = event.x / density,
-                                    y = event.y / density
-                                )
+                    if (item == null) {
+                        _circleMenuOffset.value = _circleMenuOffset.value?.copy(
+                            swipe = Offset(
+                                x = event.x / density,
+                                y = event.y / density
                             )
-                        }
-
-                        else -> {
-                            circleMenu.value?.let { circleMenu ->
-                                executeAction(
-                                    action = when (direction) {
-                                        CircleMenuDirection.Up -> {
-                                            circleMenu.menuActions.upAction
-                                        }
-
-                                        CircleMenuDirection.Down -> {
-                                            circleMenu.menuActions.downAction
-                                        }
-
-                                        CircleMenuDirection.Right -> {
-                                            circleMenu.menuActions.rightAction
-                                        }
-
-                                        CircleMenuDirection.Left -> {
-                                            circleMenu.menuActions.leftAction
-                                        }
-                                    },
-                                    direction = direction
-                                )
-                            }
-                        }
+                        )
+                    } else {
+                        executeAction(item)
                     }
                 }
             }
@@ -173,31 +144,14 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         _screenState.value = LauncherScreenState.SwipeBox
     }
 
-    private fun getItemDirection(
-        menuSize: Float,
-        cordsX: Float,
-        cordsY: Float,
-    ): CircleMenuDirection? {
-        val border = object {
-            val big = menuSize / 2 - (menuSize / 6 + menuSize / 10)
-            val small = menuSize / 10
-        }
-        if (cordsY <= -border.big && -border.small <= cordsX && cordsX <= border.small) return CircleMenuDirection.Up
-        if (cordsY >= border.big && -border.small <= cordsX && cordsX <= border.small) return CircleMenuDirection.Down
-        if (cordsX >= border.big && -border.small <= cordsY && cordsY <= border.small) return CircleMenuDirection.Right
-        if (cordsX <= -border.big && -border.small <= cordsY && cordsY <= border.small) return CircleMenuDirection.Left
-        return null
-    }
-
     private fun executeAction(
-        action: CircleMenuAction,
-        direction: CircleMenuDirection
+        item: CircleMenuItem,
     ) {
-        when (action.type) {
+        when (item.action.type) {
 
             CircleMenuActionTypes.OpenCircleMenu -> {
-                setNewCircleMenuOffset(direction = direction)
-                val openCircleMenu = action.data.getAs(OpenCircleMenu::class.java)
+                setNewCircleMenuOffset(item.offset)
+                val openCircleMenu = item.action.data.getAs(OpenCircleMenu::class.java)
                 var circleMenuForCheck =
                     LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
                         ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
@@ -219,7 +173,7 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
             }
 
             CircleMenuActionTypes.OpenApp -> {
-                val currentApp = action.data.getAs(OpenApp::class.java)
+                val currentApp = item.action.data.getAs(OpenApp::class.java)
                 openAppUseCase.invoke(currentApp.packageName)
             }
 
@@ -246,14 +200,14 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
             }
 
             CircleMenuActionTypes.Call -> {
-                val call = action.data.getAs(Call::class.java)
+                val call = item.action.data.getAs(Call::class.java)
                 val intent = Intent(Intent.ACTION_CALL)
                 intent.data = Uri.parse("tel:${call.phoneNumber}")
                 context.startActivity(intent)
             }
 
             CircleMenuActionTypes.Dial -> {
-                val dial = action.data.getAs(Dial::class.java)
+                val dial = item.action.data.getAs(Dial::class.java)
                 val intent = Intent(Intent.ACTION_DIAL)
                 intent.data = Uri.parse("tel:${dial.phoneNumber}")
                 context.startActivity(intent)
@@ -261,7 +215,7 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         }
     }
 
-    fun executeAction(
+    fun executeClickOnClockAction(
         action: CircleMenuAction
     ) {
         when (action.type) {
@@ -302,42 +256,13 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         }
     }
 
-    private fun setNewCircleMenuOffset(direction: CircleMenuDirection) {
+    private fun setNewCircleMenuOffset(offset: Offset) {
         _circleMenuOffset.value?.let { circleMenuOffset ->
-            val newOffset = menuSize / 2 - (menuSize / 6 + menuSize / 10)
-            val offset = when (direction) {
-                CircleMenuDirection.Up -> {
-                    Offset(
-                        x = 0f,
-                        y = -newOffset
-                    )
-                }
-
-                CircleMenuDirection.Down -> {
-                    Offset(
-                        x = 0f,
-                        y = newOffset
-                    )
-                }
-
-                CircleMenuDirection.Right -> {
-                    Offset(
-                        x = newOffset,
-                        y = 0f
-                    )
-                }
-
-                CircleMenuDirection.Left -> {
-                    Offset(
-                        x = -newOffset,
-                        y = 0f
-                    )
-                }
-            }
+            val newOffset = offset.getCircleMenuOffset(menuSize)
             _circleMenuOffset.value = circleMenuOffset.copy(
                 start = Offset(
-                    x = circleMenuOffset.start.x + offset.x,
-                    y = circleMenuOffset.start.y + offset.y
+                    x = circleMenuOffset.start.x + newOffset.x,
+                    y = circleMenuOffset.start.y + newOffset.y
                 )
             )
         }
