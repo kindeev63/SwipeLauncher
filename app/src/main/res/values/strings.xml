@@ -84,5 +84,7 @@
     <string name="setting_black_text_color_on_wallpaper">Black text color on wallpaper</string>
     <string name="delete">Delete</string>
     <string name="delete_item_question">Delete this item?</string>
+    <string name="setting_pick_app_action_with_image">Pick open app action with app image</string>
+    <string name="all_circle_menus">All circle menus</string>
 
 </resources>

@@ -23,7 +23,8 @@ object Constants {
     val defaultSettings = listOf(
         SettingData(Setting.OpenLastApp, true),
         SettingData(Setting.ClickOnClock, ClickOnClock(false)),
-        SettingData(Setting.BlackTextColorOnWallpaper, false)
+        SettingData(Setting.BlackTextColorOnWallpaper, false),
+        SettingData(Setting.PickAppActionWithImage, true)
     )
 
     val menuCords = listOf(

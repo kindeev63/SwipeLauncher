@@ -56,6 +56,9 @@ fun SettingsScreen() {
         },
         allCircleMenusScreen = {
             AllCircleMenusScreen(
+                onBackPressed = {
+                    navigationState.navHostController.popBackStack()
+                },
                 navigateToCircleMenu = { circleMenuId ->
                     navigationState.navigateToEditCircleMenu(circleMenuId)
                 }
@@ -218,10 +221,31 @@ fun SettingsScreenContent(
                     }
                 )
             }
+
+            spacer()
+
+            // Pick open app action with app image
+            item {
+                SwitchSettingItem(
+                    text = stringResource(id = R.string.setting_pick_app_action_with_image),
+                    value = settings.getValueOf(Setting.PickAppActionWithImage, Boolean::class.java)
+                        ?: throw IllegalArgumentException("Illegal pick app action with image setting value"),
+                    onChangeValue = {
+                        scope.launch {
+                            LauncherData.insertSetting(
+                                SettingData(
+                                    setting = Setting.PickAppActionWithImage,
+                                    value = it
+                                )
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
 }
 
-fun LazyListScope.spacer() {
+private fun LazyListScope.spacer() {
     item { Spacer(modifier = Modifier.height(5.dp)) }
 }

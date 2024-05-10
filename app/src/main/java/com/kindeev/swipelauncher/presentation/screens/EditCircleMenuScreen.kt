@@ -1,8 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.app.Activity
 import android.content.res.Configuration
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,12 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,16 +38,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
@@ -68,7 +61,6 @@ import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
-import kotlinx.coroutines.launch
 import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,17 +69,6 @@ fun EditCircleMenuScreen(
     circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
-    val window = (LocalContext.current as Activity).window
-    val view = LocalView.current
-    val controller = WindowInsetsControllerCompat(window, view)
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        controller.isAppearanceLightStatusBars = false
-    }
-    BackHandler {
-        scope.launch { controller.isAppearanceLightStatusBars = true }
-        onBackPressed()
-    }
     // ViewModel
     val viewModel: EditCircleMenuScreenVM = viewModel(
         factory = EditCircleMenuScreenVMFactory(circleMenuId)
@@ -121,15 +102,15 @@ fun EditCircleMenuScreen(
         topBar = {
             EditCircleMenuToolbar(
                 viewModel = viewModel,
-                onBackPressed = {
-                    scope.launch { controller.isAppearanceLightStatusBars = true }
-                    onBackPressed()
-                }
+                onBackPressed = onBackPressed
             )
         }
     ) { paddingValues ->
 
         if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+            // Tablet
+
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -165,7 +146,7 @@ fun EditCircleMenuScreen(
                                 viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
                             },
                             onChangeImage = {
-                                viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
+                                viewModel.updateImage(circleMenuItem.copy(image = it))
                             }
                         )
                         Spacer(modifier = Modifier.height(30.dp))
@@ -194,6 +175,9 @@ fun EditCircleMenuScreen(
                 }
             }
         } else {
+
+            // Phone
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -216,7 +200,7 @@ fun EditCircleMenuScreen(
                             viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
                         },
                         onChangeImage = {
-                            viewModel.updateCircleMenuItem(circleMenuItem.copy(image = it))
+                            viewModel.updateImage(circleMenuItem.copy(image = it))
                         }
                     )
                     Spacer(modifier = Modifier.height(30.dp))
@@ -247,7 +231,7 @@ fun EditCircleMenuScreen(
 }
 
 @Composable
-fun EditCircleMenuToolbar(
+private fun EditCircleMenuToolbar(
     viewModel: EditCircleMenuScreenVM,
     onBackPressed: () -> Unit
 ) {
@@ -259,10 +243,6 @@ fun EditCircleMenuToolbar(
             .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val window = (LocalContext.current as Activity).window
-        val view = LocalView.current
-        val controller = remember { WindowInsetsControllerCompat(window, view) }
-        controller.isAppearanceLightStatusBars = false
         val circleMenu = viewModel.circleMenu.observeAsState()
         IconButton(
             onClick = {

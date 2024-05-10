@@ -8,6 +8,14 @@ import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.emptyCircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
+import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getValueOf
 import kotlinx.coroutines.launch
 
 class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
@@ -46,6 +54,26 @@ class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
                 circleMenu.copy(
                     items = circleMenu.items.toMutableList()
                         .apply { replaceAll { if (it.offset == item.offset) item else it } })
+            )
+        }
+    }
+
+    fun updateImage(item: CircleMenuItem) = viewModelScope.launch {
+        var action = item.action
+        if (item.image.type == CircleMenuImageTypes.AppImage) {
+            if (LauncherData.settings.value?.getValueOf(Setting.PickAppActionWithImage, Boolean::class.java) == true) {
+                val appImage = item.image.data.getAs(AppImage::class.java)
+                action = CircleMenuAction(
+                    type = CircleMenuActionTypes.OpenApp,
+                    data = OpenApp(appImage.packageName)
+                )
+            }
+        }
+        circleMenu.value?.let { circleMenu ->
+            LauncherData.insertCircleMenu(
+                circleMenu.copy(
+                    items = circleMenu.items.toMutableList()
+                        .apply { replaceAll { if (it.offset == item.offset) item.copy(action = action) else it } })
             )
         }
     }

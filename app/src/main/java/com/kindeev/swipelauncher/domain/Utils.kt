@@ -363,6 +363,7 @@ private fun Setting.getClassOfSettingData(): Class<*> {
         Setting.OpenLastApp -> Boolean::class.java
         Setting.BlackTextColorOnWallpaper -> Boolean::class.java
         Setting.ClickOnClock -> ClickOnClock::class.java
+        Setting.PickAppActionWithImage -> Boolean::class.java
     }
 }
 
