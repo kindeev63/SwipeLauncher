@@ -52,11 +52,14 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.Use
 import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
+import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.presentation.entities.ActionType
 import com.kindeev.swipelauncher.presentation.entities.ActionTypes
 import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
 import com.kindeev.swipelauncher.presentation.entities.ImageType
 import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
+import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
+import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -68,7 +71,6 @@ fun <T> Any?.getAs(classOfT: Class<T>): T {
 }
 
 fun emptyCircleMenu(id: Int): CircleMenu {
-
     return CircleMenu(
         id = id,
         title = "New",
@@ -686,4 +688,23 @@ fun Offset.getSelectedBoxOffset(menuSize: Float): Offset {
     val x = (menuSize / 2 - itemSize / 2) + this.x * menuSize / 10
     val y = (menuSize / 2 - itemSize / 2) + this.y * menuSize / 10
     return Offset(x, y)
+}
+
+fun Context.openApp(packageName: String) {
+    val intent =
+        this.packageManager.getLaunchIntentForPackage(packageName)
+    intent?.let { this.startActivity(it) }
+}
+
+fun Context.executeSearchResult(result: SearchBoxResult) {
+    when (result) {
+        is AppSBR -> {
+            if (result.applicationData.packageName == packageName) {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+            } else {
+                openApp(result.applicationData.packageName)
+            }
+        }
+    }
 }

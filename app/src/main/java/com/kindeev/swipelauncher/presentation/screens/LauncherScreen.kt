@@ -23,8 +23,8 @@ import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
-import com.kindeev.swipelauncher.presentation.ui.elements.SearchBox
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBox
+import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
 
 
 @Composable
@@ -53,7 +53,7 @@ fun LauncherScreen() {
             }
 
             LauncherScreenState.SearchBox -> {
-                SearchBox(viewModel = viewModel)
+                SearchBoxUI(onClose = { viewModel.closeSearchBox() })
             }
         }
     }
