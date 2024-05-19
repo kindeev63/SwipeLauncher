@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.executeSearchResult
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationDataDialog
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -29,6 +34,15 @@ fun AppSBRItem(
     onClose: () -> Unit
 ) {
     val context = LocalContext.current
+    var showApplicationDataDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showApplicationDataDialog) {
+        ApplicationDataDialog(
+            applicationData = data.applicationData,
+            onDismissRequest = { showApplicationDataDialog = false }
+        )
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,7 +52,8 @@ fun AppSBRItem(
                 onClick = {
                     context.executeSearchResult(data)
                     onClose()
-                }
+                },
+                onLongClick = { showApplicationDataDialog = true }
             ),
         verticalAlignment = Alignment.CenterVertically
     ){

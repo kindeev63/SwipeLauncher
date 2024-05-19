@@ -708,3 +708,19 @@ fun Context.executeSearchResult(result: SearchBoxResult) {
         }
     }
 }
+
+fun Context.getNotMaskApplicationData(packageName: String): ApplicationData {
+    val applicationInfo =
+        packageManager.getApplicationInfo(packageName, 0)
+    return ApplicationData(
+        name = applicationInfo.loadLabel(packageManager).toString(),
+        icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap(),
+        packageName = applicationInfo.packageName
+    )
+}
+
+fun Context.deleteApp(packageName: String) {
+    val packageUri = Uri.parse("package:$packageName")
+    val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
+    startActivity(uninstallIntent)
+}
