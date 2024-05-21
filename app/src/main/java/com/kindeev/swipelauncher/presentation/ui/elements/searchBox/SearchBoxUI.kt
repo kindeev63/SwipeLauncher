@@ -17,9 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.executeSearchResult
+import com.kindeev.swipelauncher.domain.getNotHidden
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
@@ -33,9 +34,9 @@ fun SearchBoxUI(
         mutableStateOf("")
     }
 
-    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
+    val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
     val settings by LauncherData.settings.observeAsState(emptyList())
-    val searchResults = searchText.getSearchResults(allApplicationData)
+    val searchResults = searchText.getSearchResults(allApplicationInfo)
     if (searchResults.size == 1 && settings.getValueOf(Setting.OpenLastApp, Boolean::class.java) == true) {
         searchResults.firstOrNull()?.let { LocalContext.current.executeSearchResult(it) }
         onClose()
@@ -54,6 +55,6 @@ fun SearchBoxUI(
     }
 }
 
-fun String.getSearchResults(allApplicationData: List<ApplicationData>): List<SearchBoxResult> {
-    return allApplicationData.filter { it.name.contains(this) }.map { AppSBR(it) }
+fun String.getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
+    return allApplicationInfo.getNotHidden().filter { it.title.contains(this) }.map { AppSBR(it) }
 }

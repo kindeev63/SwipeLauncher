@@ -17,6 +17,7 @@ class MainApp: Application() {
         LauncherData.setAppDao(appDao)
         LauncherData.settings = appDao.getAllSettings()
         LauncherData.allCircleMenus = appDao.getAllCircleMenu()
+        LauncherData.allApplicationData = appDao.getAllApplicationData()
         setConstants()
     }
 

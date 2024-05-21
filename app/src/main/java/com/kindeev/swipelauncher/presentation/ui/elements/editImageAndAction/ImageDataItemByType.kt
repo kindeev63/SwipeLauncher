@@ -30,7 +30,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImag
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.getApplicationData
+import com.kindeev.swipelauncher.domain.getApplicationInfo
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.pickUserImageLauncher
 import com.kindeev.swipelauncher.presentation.ui.dialogs.AppImageData
@@ -69,7 +69,7 @@ private fun AppImageDataItem(
         )
     }
     val appImage = image.data.getAs(AppImage::class.java)
-    val applicationData = LocalContext.current.getApplicationData(appImage.packageName)
+    val applicationData = LocalContext.current.getApplicationInfo(appImage.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -84,7 +84,7 @@ private fun AppImageDataItem(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = applicationData.name,
+            text = applicationData.title,
             color = MaterialTheme.colorScheme.onPrimary,
             fontSize = Constants.minScreenLength.sp / 20
         )

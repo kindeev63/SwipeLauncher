@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.screens
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -13,11 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,13 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -43,20 +36,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.getOnlyChanged
-import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
+import com.kindeev.swipelauncher.domain.getHidden
+import com.kindeev.swipelauncher.presentation.ui.elements.HiddenAppItem
 import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AllCircleMenusScreen(
-    navigateToCircleMenu: (Int?) -> Unit,
+fun HiddenAppsScreen(
     onBackPressed: () -> Unit
 ) {
-
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
@@ -68,30 +56,11 @@ fun AllCircleMenusScreen(
         scope.launch { controller.isAppearanceLightStatusBars = true }
         onBackPressed()
     }
-
-    val context = LocalContext.current
-    val allCircleMenus = LauncherData.allCircleMenus.observeAsState()
-    var deleteCircleMenuDialog by remember {
-        mutableStateOf<CircleMenu?>(null)
-    }
-    deleteCircleMenuDialog?.let { circleMenu ->
-        QuestionDialog(
-            text = stringResource(id = R.string.delete_circle_menu_question),
-            onDismissRequest = { deleteCircleMenuDialog = null },
-            onClickYes = {
-                if (circleMenu.id != 0) {
-                    scope.launch {
-                        LauncherData.deleteCircleMenu(circleMenu)
-                        LauncherData.allCircleMenus.value?.getOnlyChanged(context)?.let { LauncherData.insertCircleMenus(it) }
-                    }
-                }
-                deleteCircleMenuDialog = null
-            }
-        )
-    }
+    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
+    val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
     Scaffold(
         topBar = {
-            AllCircleMenusToolbar(
+            HiddenAppsToolbar(
                 onBackPressed = {
                     scope.launch { controller.isAppearanceLightStatusBars = true }
                     onBackPressed()
@@ -99,47 +68,24 @@ fun AllCircleMenusScreen(
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                onClick = { navigateToCircleMenu(null) }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = null,
-                )
-            }
-        }
     ) { paddingValues ->
-        LazyVerticalGrid(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            columns = GridCells.Fixed(2)
+                .padding(paddingValues)
         ) {
             items(
-                items = allCircleMenus.value ?: emptyList()
-            ) { circleMenu ->
-                MiniCircleMenuItem(
-                    size = LocalConfiguration.current.screenWidthDp / 2f,
-                    root = circleMenu.id == 0,
-                    circleMenu = circleMenu,
-                    onClick = {
-                        navigateToCircleMenu(circleMenu.id)
-                    },
-                    onLongClick = {
-                        if (circleMenu.id == 0) navigateToCircleMenu(0) else deleteCircleMenuDialog =
-                            circleMenu
-                    }
-                )
+                items = allApplicationInfo.getHidden(allApplicationData)
+            ) {
+                HiddenAppItem(applicationInfo = it)
             }
         }
+
     }
 }
 
 @Composable
-private fun AllCircleMenusToolbar(
+private fun HiddenAppsToolbar(
     onBackPressed: () -> Unit
 ) {
     Row(
@@ -164,7 +110,7 @@ private fun AllCircleMenusToolbar(
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = stringResource(id = R.string.all_circle_menus),
+            text = stringResource(id = R.string.setting_hidden_apps),
             color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 20.sp
         )

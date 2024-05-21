@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.executeSearchResult
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationDataDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -38,8 +38,8 @@ fun AppSBRItem(
         mutableStateOf(false)
     }
     if (showApplicationDataDialog) {
-        ApplicationDataDialog(
-            applicationData = data.applicationData,
+        ApplicationInfoDialog(
+            applicationInfo = data.applicationInfo,
             onDismissRequest = { showApplicationDataDialog = false }
         )
     }
@@ -59,12 +59,12 @@ fun AppSBRItem(
     ){
         Image(
             modifier = Modifier.size(50.dp),
-            bitmap = data.applicationData.icon,
+            bitmap = data.applicationInfo.icon,
             contentDescription = null
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = data.applicationData.name,
+            text = data.applicationInfo.title,
             fontSize = 14.sp,
             color = LauncherData.textColorOnWallpaper,
             maxLines = 1

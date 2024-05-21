@@ -60,4 +60,5 @@
     <string name="delete_item_question">Удалить этот элемент?</string>
     <string name="setting_pick_app_action_with_image">Выбрать действие открыть приложение при выборе иконки приложения</string>
     <string name="all_circle_menus">Все меню</string>
+    <string name="setting_hidden_apps">Скрытые приложения</string>
 </resources>

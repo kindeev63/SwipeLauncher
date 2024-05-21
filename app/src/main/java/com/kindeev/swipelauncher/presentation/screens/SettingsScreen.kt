@@ -50,9 +50,14 @@ fun SettingsScreen() {
     SettingsMainGraph(
         navHostController = navigationState.navHostController,
         mainSettingsScreen = {
-            SettingsScreenContent {
-                navigationState.navigateTo(Screen.AllCircleMenusScreenObject.route)
-            }
+            SettingsScreenContent(
+                navigateToAllCircleMenus = {
+                    navigationState.navigateTo(Screen.AllCircleMenusScreenObject.route)
+                },
+                navigateToHiddenApps = {
+                    navigationState.navigateTo(Screen.HiddenAppsScreenObject.route)
+                }
+            )
         },
         allCircleMenusScreen = {
             AllCircleMenusScreen(
@@ -71,15 +76,24 @@ fun SettingsScreen() {
                     navigationState.navHostController.popBackStack()
                 }
             )
+        },
+        hiddenAppsScreen = {
+            HiddenAppsScreen(
+                onBackPressed = {
+                    navigationState.navHostController.popBackStack()
+                }
+            )
         }
     )
 }
 
 @Composable
 fun SettingsScreenContent(
-    navigateToAllCircleMenus: () -> Unit
+    navigateToAllCircleMenus: () -> Unit,
+    navigateToHiddenApps: () -> Unit
 ) {
     val settings by LauncherData.settings.observeAsState(emptyList())
+    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     Box(
@@ -100,6 +114,18 @@ fun SettingsScreenContent(
                     text = stringResource(id = R.string.setting_all_circle_menus),
                     onClick = navigateToAllCircleMenus
                 )
+            }
+
+            spacer()
+
+            // Hidden apps
+            if (allApplicationData.filter { it.hidden }.isNotEmpty()) {
+                item {
+                    ClickableSettingItem(
+                        text = stringResource(id = R.string.setting_hidden_apps),
+                        onClick = navigateToHiddenApps
+                    )
+                }
             }
 
             spacer()

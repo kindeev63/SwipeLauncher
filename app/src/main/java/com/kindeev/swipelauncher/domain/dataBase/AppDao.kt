@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 
@@ -32,4 +33,22 @@ interface AppDao {
 
     @Insert(SettingData::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSettings(settingsData: List<SettingData>)
+
+    @Query("SELECT * FROM table_application_data")
+    fun getAllApplicationData(): LiveData<List<ApplicationData>>
+
+    @Insert(ApplicationData::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertApplicationsData(applicationsData: List<ApplicationData>)
+
+    @Insert(ApplicationData::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertApplicationData(applicationData: ApplicationData)
+
+    @Delete(ApplicationData::class)
+    suspend fun deleteApplicationData(applicationData: ApplicationData)
+
+    @Delete(ApplicationData::class)
+    suspend fun deleteApplicationsData(applicationsData: List<ApplicationData>)
+
+    @Query("DELETE FROM table_application_data WHERE packageName = :packageName")
+    suspend fun deleteApplicationDataByPackageName(packageName: String)
 }

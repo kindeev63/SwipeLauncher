@@ -13,7 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.getAllApplicationData
+import com.kindeev.swipelauncher.domain.getAllApplicationInfo
 import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.getUserImages
@@ -43,10 +43,29 @@ class MainActivity : ComponentActivity() {
                 } else {
                     LauncherScreen()
                 }
+                LauncherData.allApplicationData.observe(this) {
+                    thread {
+                        LauncherData.setAllApplications(getAllApplicationInfo())
+                        LauncherData.allCircleMenus.value?.let { allCircleMenus ->
+                            removeUnusedUserImages(allCircleMenus, LauncherData.allApplicationData.value ?: emptyList())
+                            LauncherData.userImages = getUserImages()
+                            val changedCircleMenus = allCircleMenus.getOnlyChanged(this)
+                            Handler(Looper.getMainLooper()).post {
+                                if (changedCircleMenus.isNotEmpty()) {
+                                    scope.launch {
+                                        LauncherData.insertCircleMenus(
+                                            changedCircleMenus
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 LauncherData.allCircleMenus.observe(this) { allCircleMenus ->
                     thread {
-                        LauncherData.setAllApplicationData(getAllApplicationData())
-                        removeUnusedUserImages(allCircleMenus)
+                        LauncherData.setAllApplications(getAllApplicationInfo())
+                        removeUnusedUserImages(allCircleMenus, LauncherData.allApplicationData.value ?: emptyList())
                         LauncherData.userImages = getUserImages()
                         val changedCircleMenus = allCircleMenus.getOnlyChanged(this)
                         Handler(Looper.getMainLooper()).post {

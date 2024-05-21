@@ -38,6 +38,7 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
@@ -108,19 +109,52 @@ fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
                 DefaultImage::class.java
             )] ?: return null
             context.resources.getDrawable(resourceId, context.theme).toBitmap().asImageBitmap()
-
         }
 
         CircleMenuImageTypes.AppImage -> {
             val appImage = data.getAs(AppImage::class.java)
-            val applicationData =
-                LauncherData.allApplicationData.value?.find { it.packageName == appImage.packageName }
-            if (applicationData == null) {
+            val applicationData = context.getApplicationData(appImage.packageName)
+            if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(AppImage::class.java).packageName == applicationData.packageName) {
                 val applicationInfo =
                     context.packageManager.getApplicationInfo(appImage.packageName, 0)
                 applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
             } else {
-                applicationData.icon
+                applicationData.image.getItemImage(context)
+            }
+        }
+
+        CircleMenuImageTypes.UserImage -> {
+            val userImage = data.getAs(UserImage::class.java)
+            LauncherData.userImages[userImage.id]
+        }
+    }
+}
+
+fun CircleMenuImage.getItemImageForApplicationInfoDialog(context: Context, packageName: String): ImageBitmap? {
+    return when (type) {
+
+        CircleMenuImageTypes.DefaultImage -> {
+            val resourceId = Constants.defaultImages[data.getAs(
+                DefaultImage::class.java
+            )] ?: return null
+            context.resources.getDrawable(resourceId, context.theme).toBitmap().asImageBitmap()
+        }
+
+        CircleMenuImageTypes.AppImage -> {
+            val appImage = data.getAs(AppImage::class.java)
+            if (appImage.packageName == packageName) {
+                val applicationInfo =
+                    context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+            } else {
+                val applicationData = context.getApplicationData(appImage.packageName)
+                if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(AppImage::class.java).packageName == applicationData.packageName) {
+                    val applicationInfo =
+                        context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                    applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                } else {
+                    applicationData.image.getItemImage(context)
+                }
             }
         }
 
@@ -263,32 +297,66 @@ fun List<CircleMenu>.getOnlyChanged(
     return changedCircleMenus
 }
 
-fun Context.getAllApplicationData(): List<ApplicationData> {
+fun Context.getAllApplicationInfo(): List<ApplicationInfo> {
     val intent = Intent(Intent.ACTION_MAIN, null)
     intent.addCategory(Intent.CATEGORY_LAUNCHER)
-    val allAppData = packageManager.queryIntentActivities(intent, 0)
+    val allAppInfo = packageManager.queryIntentActivities(intent, 0)
         .map { it.activityInfo.applicationInfo }
         .map {
-            ApplicationData(
-                name = it.loadLabel(packageManager).toString(),
+            ApplicationInfo(
+                title = it.loadLabel(packageManager).toString(),
                 icon = it.loadIcon(packageManager).toBitmap().asImageBitmap(),
                 packageName = it.packageName
             )
         }
-    val mutableAllApplicationData = allAppData.toMutableList()
-    allAppData.forEach { applicationData ->
-        if (mutableAllApplicationData.count { it.packageName == applicationData.packageName } > 1) {
-            mutableAllApplicationData.remove(applicationData)
+    val mutableAllApplicationInfo = allAppInfo.toMutableList()
+    allAppInfo.forEach { applicationData ->
+        if (mutableAllApplicationInfo.count { it.packageName == applicationData.packageName } > 1) {
+            mutableAllApplicationInfo.remove(applicationData)
         }
     }
-    return mutableAllApplicationData.sortedBy { it.name }
+
+    val allApplicationData = LauncherData.allApplicationData.value ?: emptyList()
+    mutableAllApplicationInfo.replaceAll { applicationInfo ->
+        allApplicationData.find { it.packageName == applicationInfo.packageName }
+            ?.let { applicationData ->
+                ApplicationInfo(
+                    title = applicationData.title,
+                    icon = applicationData.image.getItemImage(this)
+                        ?: throw IllegalArgumentException("Illegal image"),
+                    packageName = applicationData.packageName
+                )
+            } ?: applicationInfo
+    }
+    return mutableAllApplicationInfo.sortedBy { it.title }
+}
+
+fun Context.getApplications(): List<ApplicationInfo> {
+    val intent = Intent(Intent.ACTION_MAIN, null)
+    intent.addCategory(Intent.CATEGORY_LAUNCHER)
+    val allAppInfo = packageManager.queryIntentActivities(intent, 0)
+        .map { it.activityInfo.applicationInfo }
+        .map {
+            ApplicationInfo(
+                title = it.loadLabel(packageManager).toString(),
+                icon = it.loadIcon(packageManager).toBitmap().asImageBitmap(),
+                packageName = it.packageName
+            )
+        }
+    val mutableAllApplicationInfo = allAppInfo.toMutableList()
+    allAppInfo.forEach { applicationData ->
+        if (mutableAllApplicationInfo.count { it.packageName == applicationData.packageName } > 1) {
+            mutableAllApplicationInfo.remove(applicationData)
+        }
+    }
+    return mutableAllApplicationInfo.sortedBy { it.title }
 }
 
 fun List<CircleMenu>.getOnlyChanged(
     context: Context
 ) = this.getOnlyChanged(
     allCircleMenuIds = LauncherData.allCircleMenus.value?.map { it.id } ?: emptyList(),
-    allPackageNames = context.getAllApplicationData().map { it.packageName },
+    allPackageNames = context.getApplications().map { it.packageName },
     userImageIds = context.getUserImageIds()
 )
 
@@ -313,22 +381,34 @@ fun Context.getUserImages(): Map<Int, ImageBitmap> {
 }
 
 fun Context.removeUnusedUserImages(
-    allCircleMenus: List<CircleMenu>
+    allCircleMenus: List<CircleMenu>,
+    allApplicationData: List<ApplicationData>
 ) {
-    val allUserImageNamesInCircleMenus = allCircleMenus.getUserImageNames()
+    val allUserImageNamesInCircleMenus = allCircleMenus.getUserImageNamesFromCircleMenus()
+    val allUserImageNamesInApplicationData =
+        allApplicationData.getUserImageNamesFromApplicationsData()
     this.filesDir.listFiles()?.forEach { file ->
-        if (file.name.contains(".png") && file.name !in allUserImageNamesInCircleMenus) {
+        if (file.name.contains(".png") && file.name !in allUserImageNamesInCircleMenus && file.name !in allUserImageNamesInApplicationData) {
             file.delete()
         }
     }
 }
 
-private fun List<CircleMenu>.getUserImageNames(): List<String> {
+private fun List<CircleMenu>.getUserImageNamesFromCircleMenus(): List<String> {
     return this
         .asSequence()
         .map { it.items } // get lists of items
         .flatten() // get one list with all items
         .map { it.image } // list with CircleMenuImage
+        .filter { it.type == CircleMenuImageTypes.UserImage } // list with CircleMenuImage when type = UserImage
+        .map { "${it.data.getAs(UserImage::class.java).id}.png" }
+        .toList() // list of filenames
+}
+
+private fun List<ApplicationData>.getUserImageNamesFromApplicationsData(): List<String> {
+    return this
+        .asSequence()
+        .map { it.image } // get lists of items
         .filter { it.type == CircleMenuImageTypes.UserImage } // list with CircleMenuImage when type = UserImage
         .map { "${it.data.getAs(UserImage::class.java).id}.png" }
         .toList() // list of filenames
@@ -501,6 +581,22 @@ fun CircleMenuImageTypes.getImageType(): ImageType? {
     return Constants.imageTypes.find { it.type == this }
 }
 
+fun Context.getApplicationInfo(packageName: String): ApplicationInfo {
+    val applicationInfo =
+        LauncherData.allApplicationInfo.value?.find { it.packageName == packageName }
+    return if (applicationInfo == null) {
+        val appInfo =
+            packageManager.getApplicationInfo(packageName, 0)
+        ApplicationInfo(
+            title = appInfo.loadLabel(packageManager).toString(),
+            icon = appInfo.loadIcon(packageManager).toBitmap().asImageBitmap(),
+            packageName = appInfo.packageName
+        )
+    } else {
+        applicationInfo
+    }
+}
+
 fun Context.getApplicationData(packageName: String): ApplicationData {
     val applicationData =
         LauncherData.allApplicationData.value?.find { it.packageName == packageName }
@@ -508,8 +604,11 @@ fun Context.getApplicationData(packageName: String): ApplicationData {
         val applicationInfo =
             packageManager.getApplicationInfo(packageName, 0)
         ApplicationData(
-            name = applicationInfo.loadLabel(packageManager).toString(),
-            icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap(),
+            title = applicationInfo.loadLabel(packageManager).toString(),
+            image = CircleMenuImage(
+                type = CircleMenuImageTypes.AppImage,
+                data = AppImage(packageName)
+            ),
             packageName = applicationInfo.packageName
         )
     } else {
@@ -699,11 +798,11 @@ fun Context.openApp(packageName: String) {
 fun Context.executeSearchResult(result: SearchBoxResult) {
     when (result) {
         is AppSBR -> {
-            if (result.applicationData.packageName == packageName) {
+            if (result.applicationInfo.packageName == packageName) {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
             } else {
-                openApp(result.applicationData.packageName)
+                openApp(result.applicationInfo.packageName)
             }
         }
     }
@@ -713,8 +812,8 @@ fun Context.getNotMaskApplicationData(packageName: String): ApplicationData {
     val applicationInfo =
         packageManager.getApplicationInfo(packageName, 0)
     return ApplicationData(
-        name = applicationInfo.loadLabel(packageManager).toString(),
-        icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap(),
+        title = applicationInfo.loadLabel(packageManager).toString(),
+        image = CircleMenuImage(type = CircleMenuImageTypes.AppImage, data = AppImage(packageName)),
         packageName = applicationInfo.packageName
     )
 }
@@ -723,4 +822,100 @@ fun Context.deleteApp(packageName: String) {
     val packageUri = Uri.parse("package:$packageName")
     val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
     startActivity(uninstallIntent)
+}
+
+suspend fun List<ApplicationData>.check(
+    allApplicationInfo: List<ApplicationInfo>,
+    context: Context
+) {
+    val allPackageNames = allApplicationInfo.map { it.packageName }
+    val toDelete = mutableListOf<ApplicationData>()
+    val toChange = mutableListOf<ApplicationData>()
+    this.forEach { applicationData ->
+        if (applicationData.packageName !in allApplicationInfo.map { it.packageName }) {
+            toDelete.add(applicationData)
+        } else {
+            if (applicationData.image.type == CircleMenuImageTypes.AppImage) {
+                if (applicationData.image.data.getAs(AppImage::class.java).packageName !in allPackageNames) {
+                    val appInfo = context.getNotMaskApplicationData(applicationData.packageName)
+                    if (appInfo.title == applicationData.title && !applicationData.hidden) {
+                        toDelete.add(applicationData)
+                    } else {
+                        toChange.add(
+                            applicationData.copy(
+                                image = CircleMenuImage(
+                                    type = CircleMenuImageTypes.AppImage,
+                                    data = AppImage(applicationData.packageName)
+                                )
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+    LauncherData.insertApplicationsData(toChange)
+    LauncherData.deleteApplicationsData(toDelete)
+}
+
+suspend fun Context.hideApp(packageName: String) {
+    LauncherData.insertApplicationData(
+        LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+            ?.copy(hidden = true)
+            ?: this.getApplicationData(packageName).copy(hidden = true)
+    )
+}
+
+suspend fun Context.showApp(packageName: String) {
+    LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+        ?.let { applicationData ->
+            val appInfo = getNotMaskApplicationData(applicationData.packageName)
+            if (applicationData.title == appInfo.title && applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
+                    AppImage::class.java
+                ).packageName == appInfo.packageName
+            ) {
+                LauncherData.deleteApplicationData(applicationData)
+            } else {
+                LauncherData.insertApplicationData(applicationData.copy(hidden = false))
+            }
+        }
+}
+
+suspend fun Context.changeApp(applicationData: ApplicationData) {
+    val appInfo = getNotMaskApplicationData(applicationData.packageName)
+    if (applicationData.title == appInfo.title && applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
+            AppImage::class.java
+        ).packageName == appInfo.packageName
+    ) {
+        LauncherData.deleteApplicationDataByPackageName(applicationData.packageName)
+    } else {
+        LauncherData.insertApplicationData(
+            LauncherData.allApplicationData.value?.find { it.packageName == applicationData.packageName }
+                ?.copy(title = applicationData.title, image = applicationData.image)
+                ?: applicationData
+        )
+    }
+}
+
+fun List<ApplicationInfo>.getNotHidden(): List<ApplicationInfo> {
+    val result = this.toMutableList()
+    val hidden = LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
+        ?: emptyList()
+    this.forEach {
+        if (it.packageName in hidden) {
+            result.remove(it)
+        }
+    }
+    return result
+}
+
+fun List<ApplicationInfo>.getHidden(allApplicationData: List<ApplicationData>): List<ApplicationInfo> {
+    val result = mutableListOf<ApplicationInfo>()
+    val hidden = allApplicationData.filter { it.hidden }.map { it.packageName }
+    this.forEach {
+        if (it.packageName in hidden) {
+            result.add(it)
+        }
+    }
+    return result
 }

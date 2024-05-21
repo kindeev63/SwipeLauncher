@@ -1,5 +1,5 @@
 package com.kindeev.swipelauncher.presentation.entities.searchBox
 
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 
-data class AppSBR(val applicationData: ApplicationData): SearchBoxResult
+data class AppSBR(val applicationInfo: ApplicationInfo): SearchBoxResult

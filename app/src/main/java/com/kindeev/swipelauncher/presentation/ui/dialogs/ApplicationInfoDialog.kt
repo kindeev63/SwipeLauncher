@@ -24,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,20 +42,36 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.changeApp
 import com.kindeev.swipelauncher.domain.deleteApp
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.getAppDetails
+import com.kindeev.swipelauncher.domain.getApplicationData
+import com.kindeev.swipelauncher.domain.getItemImageForApplicationInfoDialog
 import com.kindeev.swipelauncher.domain.getNotMaskApplicationData
+import com.kindeev.swipelauncher.domain.hideApp
+import kotlinx.coroutines.launch
 
 @Composable
-fun ApplicationDataDialog(
-    applicationData: ApplicationData,
+fun ApplicationInfoDialog(
+    applicationInfo: ApplicationInfo,
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
-
+    val firstAppData = remember { context.getApplicationData(applicationInfo.packageName) }
+    val scope = rememberCoroutineScope()
     var appData by remember {
-        mutableStateOf(applicationData)
+        mutableStateOf(firstAppData)
+    }
+
+    var showImageDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showImageDialog) {
+        ImageDialog(
+            onDismissRequest = { showImageDialog = false },
+            onPick = { appData = appData.copy(image = it) }
+        )
     }
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -76,8 +94,13 @@ fun ApplicationDataDialog(
             ) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Image(
-                    modifier = Modifier.size(Constants.minScreenLength.dp / 7),
-                    bitmap = appData.icon,
+                    modifier = Modifier
+                        .size(Constants.minScreenLength.dp / 7 + 10.dp)
+                        .clip(RoundedCornerShape(7.dp))
+                        .clickable { showImageDialog = true }
+                        .padding(5.dp),
+                    bitmap = appData.image.getItemImageForApplicationInfoDialog(context, appData.packageName)
+                        ?: throw IllegalArgumentException("Illegal image"),
                     contentDescription = "Application Image"
                 )
                 Spacer(modifier = Modifier.width(15.dp))
@@ -96,8 +119,8 @@ fun ApplicationDataDialog(
                             color = Color.Black,
                             fontSize = 20.sp
                         ),
-                        value = appData.name,
-                        onValueChange = { appData = appData.copy(name = it) }
+                        value = appData.title,
+                        onValueChange = { appData = appData.copy(title = it) }
                     )
                 }
                 Spacer(modifier = Modifier.width(15.dp))
@@ -153,26 +176,67 @@ fun ApplicationDataDialog(
                             contentDescription = "Delete app"
                         )
                     }
+                    Box(
+                        modifier = Modifier
+                            .size(Constants.minScreenLength.dp / 10)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(Color.Green)
+                            .clickable {
+                                scope.launch {
+                                    context.hideApp(appData.packageName)
+                                    onDismissRequest()
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            modifier = Modifier.size(Constants.minScreenLength.dp / 12),
+                            painter = painterResource(id = R.drawable.hide_image),
+                            contentDescription = "Hide app"
+                        )
+                    }
                 }
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .height(Constants.minScreenLength.dp / 10)
-                            .clip(RoundedCornerShape(7.dp))
-                            .background(if (applicationData == appData) Color(0xFFBDBDBD) else MaterialTheme.colorScheme.primary)
-                            .padding(horizontal = 20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.save),
-                            color = if (applicationData == appData) Color(0xFF686868) else MaterialTheme.colorScheme.onPrimary,
-                            textAlign = TextAlign.Center
-                        )
+                    if (firstAppData == appData) {
+                        Box(
+                            modifier = Modifier
+                                .height(Constants.minScreenLength.dp / 10)
+                                .clip(RoundedCornerShape(7.dp))
+                                .background(Color(0xFFBDBDBD))
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.save),
+                                color = Color(0xFF686868),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .height(Constants.minScreenLength.dp / 10)
+                                .clip(RoundedCornerShape(7.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable {
+                                    scope.launch {
+                                        context.changeApp(appData)
+                                        onDismissRequest()
+                                    }
+                                }
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.save),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
-
                 }
             }
         }

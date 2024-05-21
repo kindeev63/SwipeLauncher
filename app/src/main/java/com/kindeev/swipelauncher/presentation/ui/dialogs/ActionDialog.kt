@@ -275,25 +275,25 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
+            val allApplicationInfo = LauncherData.allApplicationInfo.observeAsState(emptyList())
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = allApplicationData.value.filter {
-                        it.name.lowercase().contains(searchText.lowercase())
+                    items = allApplicationInfo.value.filter {
+                        it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationData ->
+                ) { applicationInfo ->
                     AppItem(
-                        applicationData = applicationData
+                        applicationInfo = applicationInfo
                     ) {
                         onPick(
                             CircleMenuAction(
                                 type = CircleMenuActionTypes.OpenApp,
-                                data = OpenApp(packageName = applicationData.packageName)
+                                data = OpenApp(packageName = applicationInfo.packageName)
                             )
                         )
                         onDismissRequest()

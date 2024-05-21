@@ -7,11 +7,12 @@ import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.check
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
-import com.kindeev.swipelauncher.domain.getAllApplicationData
+import com.kindeev.swipelauncher.domain.getAllApplicationInfo
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.getValueOf
@@ -25,12 +26,12 @@ import kotlin.concurrent.thread
 class AppsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         thread {
-            val newApplicationData = context.getAllApplicationData()
+            val newApplicationsInfo = context.getAllApplicationInfo()
             Handler(Looper.getMainLooper()).post {
                 this.goAsync()
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
-                    LauncherData.setAllApplicationData(newApplicationData)
+                    LauncherData.setAllApplications(newApplicationsInfo)
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
                         LauncherData.insertCircleMenus(allCircleMenus.getOnlyChanged(context))
                     }
@@ -49,6 +50,7 @@ class AppsReceiver : BroadcastReceiver() {
                             else -> {}
                         }
                     }
+                    LauncherData.allApplicationData.value?.check(newApplicationsInfo, context)
                 }
             }
         }

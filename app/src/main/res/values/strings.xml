@@ -86,5 +86,6 @@
     <string name="delete_item_question">Delete this item?</string>
     <string name="setting_pick_app_action_with_image">Pick open app action with app image</string>
     <string name="all_circle_menus">All circle menus</string>
+    <string name="setting_hidden_apps">Hidden apps</string>
 
 </resources>

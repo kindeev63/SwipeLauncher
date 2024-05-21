@@ -41,7 +41,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Di
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.formatPhoneNumber
-import com.kindeev.swipelauncher.domain.getApplicationData
+import com.kindeev.swipelauncher.domain.getApplicationInfo
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getContactName
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
@@ -154,7 +154,7 @@ private fun OpenAppDataItem(
         )
     }
     val openApp = action.data.getAs(OpenApp::class.java)
-    val applicationData = LocalContext.current.getApplicationData(openApp.packageName)
+    val applicationData = LocalContext.current.getApplicationInfo(openApp.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -169,7 +169,7 @@ private fun OpenAppDataItem(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = applicationData.name,
+            text = applicationData.title,
             color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )

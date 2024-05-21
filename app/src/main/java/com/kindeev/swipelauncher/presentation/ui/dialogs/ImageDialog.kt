@@ -157,7 +157,7 @@ private fun ImageTypeElement(
             Image(
                 modifier = Modifier.size(50.dp),
                 painter = painterResource(id = imageResId),
-                contentDescription = "Action type image"
+                contentDescription = "Image type image"
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
@@ -186,25 +186,25 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val allApplicationData = LauncherData.allApplicationData.observeAsState(emptyList())
+            val allApplicationInfo = LauncherData.allApplicationInfo.observeAsState(emptyList())
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = allApplicationData.value.filter {
-                        it.name.lowercase().contains(searchText.lowercase())
+                    items = allApplicationInfo.value.filter {
+                        it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationData ->
+                ) { applicationInfo ->
                     AppItem(
-                        applicationData = applicationData
+                        applicationInfo = applicationInfo
                     ) {
                         onPick(
                             CircleMenuImage(
                                 type = CircleMenuImageTypes.AppImage,
-                                data = AppImage(packageName = applicationData.packageName)
+                                data = AppImage(packageName = applicationInfo.packageName)
                             )
                         )
                         onDismissRequest()
