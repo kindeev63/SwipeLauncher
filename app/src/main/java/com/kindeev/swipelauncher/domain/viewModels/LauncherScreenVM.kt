@@ -67,6 +67,28 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         return Offset.Zero
     }
 
+    fun swipeOffsetInBorders(): Offset {
+        circleMenuOffset.value?.let { offset ->
+            val x = offset.swipe.x - offset.start.x
+            val y = offset.swipe.y - offset.start.y
+            val boarderOffset = menuSize / 2
+            val res =  Offset(
+                x = if (x > boarderOffset) {
+                    boarderOffset
+                } else if (x < -boarderOffset) {
+                    -boarderOffset
+                } else x,
+                y = if (y > boarderOffset) {
+                    boarderOffset
+                } else if (y < -boarderOffset) {
+                    -boarderOffset
+                } else y,
+            )
+            return res
+        }
+        return Offset.Zero
+    }
+
     fun setCircleMenu(circleMenu: CircleMenu?) {
         _circleMenu.value = circleMenu
     }
@@ -94,10 +116,7 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
                 _circleMenuOffset.value?.let { notNullMenuOffset ->
                     val item = circleMenu.value?.getCircleMenuItem(
                         menuSize = menuSize,
-                        offset = Offset(
-                            x = notNullMenuOffset.swipe.x - notNullMenuOffset.start.x,
-                            y = notNullMenuOffset.swipe.y - notNullMenuOffset.start.y
-                        )
+                        offset = swipeOffsetInBorders()
                     )
                     if (item == null) {
                         _circleMenuOffset.value = _circleMenuOffset.value?.copy(

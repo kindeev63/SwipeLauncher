@@ -15,7 +15,6 @@ import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -114,17 +113,9 @@ fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
 
         CircleMenuImageTypes.AppImage -> {
             val appImage = data.getAs(AppImage::class.java)
-            val applicationData = context.getApplicationData(appImage.packageName)
-            if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
-                    AppImage::class.java
-                ).packageName == applicationData.packageName
-            ) {
-                val applicationInfo =
-                    context.packageManager.getApplicationInfo(appImage.packageName, 0)
-                applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
-            } else {
-                applicationData.image.getItemImage(context)
-            }
+            LauncherData.allApplicationInfo.value?.find { it.packageName == appImage.packageName }?.icon
+                ?: context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                    .loadIcon(context.packageManager).toBitmap().asImageBitmap()
         }
 
         CircleMenuImageTypes.UserImage -> {
@@ -767,7 +758,6 @@ private data class ItemCords(val xStart: Float, val xEnd: Float, val yStart: Flo
 fun CircleMenu.getCircleMenuItem(offset: Offset, menuSize: Float): CircleMenuItem? {
     for (item in items) {
         val itemCords = item.offset.getItemCords(menuSize)
-        Log.e("test", "$itemCords, $offset")
         if (offset.x < itemCords.xStart || offset.x > itemCords.xEnd) continue
         if (offset.y > itemCords.yStart || offset.y < itemCords.yEnd) continue
         return item
