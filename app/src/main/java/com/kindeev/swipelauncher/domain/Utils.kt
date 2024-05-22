@@ -15,6 +15,7 @@ import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -114,7 +115,10 @@ fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
         CircleMenuImageTypes.AppImage -> {
             val appImage = data.getAs(AppImage::class.java)
             val applicationData = context.getApplicationData(appImage.packageName)
-            if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(AppImage::class.java).packageName == applicationData.packageName) {
+            if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
+                    AppImage::class.java
+                ).packageName == applicationData.packageName
+            ) {
                 val applicationInfo =
                     context.packageManager.getApplicationInfo(appImage.packageName, 0)
                 applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
@@ -130,7 +134,10 @@ fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
     }
 }
 
-fun CircleMenuImage.getItemImageForApplicationInfoDialog(context: Context, packageName: String): ImageBitmap? {
+fun CircleMenuImage.getItemImageForApplicationInfoDialog(
+    context: Context,
+    packageName: String
+): ImageBitmap? {
     return when (type) {
 
         CircleMenuImageTypes.DefaultImage -> {
@@ -148,7 +155,10 @@ fun CircleMenuImage.getItemImageForApplicationInfoDialog(context: Context, packa
                 applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
             } else {
                 val applicationData = context.getApplicationData(appImage.packageName)
-                if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(AppImage::class.java).packageName == applicationData.packageName) {
+                if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
+                        AppImage::class.java
+                    ).packageName == applicationData.packageName
+                ) {
                     val applicationInfo =
                         context.packageManager.getApplicationInfo(appImage.packageName, 0)
                     applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
@@ -752,25 +762,84 @@ fun Offset.getItemOffset(menuSize: Float): Offset {
     return Offset(x, y)
 }
 
-fun Offset.getCircleMenuOffset(menuSize: Float): Offset {
-    val x = this.x * menuSize / 10
-    val y = this.y * menuSize / 10
-    return Offset(x, y)
-}
-
 private data class ItemCords(val xStart: Float, val xEnd: Float, val yStart: Float, val yEnd: Float)
 
 fun CircleMenu.getCircleMenuItem(offset: Offset, menuSize: Float): CircleMenuItem? {
     for (item in items) {
         val itemCords = item.offset.getItemCords(menuSize)
+        Log.e("test", "$itemCords, $offset")
         if (offset.x < itemCords.xStart || offset.x > itemCords.xEnd) continue
-        if (offset.y < itemCords.yStart || offset.y > itemCords.yEnd) continue
+        if (offset.y > itemCords.yStart || offset.y < itemCords.yEnd) continue
         return item
     }
     return null
 }
 
 private fun Offset.getItemCords(menuSize: Float): ItemCords {
+    if (x == 0f && y == -4f) { // 1
+        return ItemCords(
+            xStart = -menuSize / 10,
+            xEnd = menuSize / 10,
+            yStart = -menuSize / 2 + menuSize / 5,
+            yEnd = -menuSize / 2
+        )
+    }
+    if (x == 3f && y == -3f) { // 2
+        return ItemCords(
+            xStart = menuSize / 10 * 3 - menuSize / 12,
+            xEnd = menuSize / 2,
+            yStart = -menuSize / 10 * 3 + menuSize / 12,
+            yEnd = -menuSize / 2
+        )
+    }
+    if (x == 4f && y == 0f) { // 3
+        return ItemCords(
+            xStart = menuSize / 2 - menuSize / 5,
+            xEnd = menuSize / 2,
+            yStart = menuSize / 10,
+            yEnd = -menuSize / 10
+        )
+    }
+    if (x == 3f && y == 3f) { // 4
+        return ItemCords(
+            xStart = menuSize / 10 * 3 - menuSize / 12,
+            xEnd = menuSize / 2,
+            yStart = menuSize / 2,
+            yEnd = menuSize / 10 * 3 - menuSize / 12
+        )
+    }
+    if (x == 0f && y == 4f) { // 5
+        return ItemCords(
+            xStart = -menuSize / 10,
+            xEnd = menuSize / 10,
+            yStart = menuSize / 2,
+            yEnd = menuSize / 2 - menuSize / 5
+        )
+    }
+    if (x == -3f && y == 3f) { // 6
+        return ItemCords(
+            xStart = -menuSize / 2,
+            xEnd = -menuSize / 10 * 3 + menuSize / 12,
+            yStart = menuSize / 2,
+            yEnd = menuSize / 10 * 3 - menuSize / 12
+        )
+    }
+    if (x == -4f && y == 0f) { // 7
+        return ItemCords(
+            xStart = -menuSize / 2,
+            xEnd = -menuSize / 2 + menuSize / 5,
+            yStart = menuSize / 10,
+            yEnd = -menuSize / 10
+        )
+    }
+    if (x == -3f && y == -3f) { // 8
+        return ItemCords(
+            xStart = -menuSize / 2,
+            xEnd = -menuSize / 10 * 3 + menuSize / 12,
+            yStart = -menuSize / 10 * 3 + menuSize / 12,
+            yEnd = -menuSize / 2
+        )
+    }
     val itemSize = menuSize / 6
     val x = this.x * menuSize / 10
     val y = this.y * menuSize / 10

@@ -15,7 +15,6 @@ import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.entities.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.CircleMenuOffset
-import com.kindeev.swipelauncher.domain.useCases.DeleteAppUseCase
 import com.kindeev.swipelauncher.domain.useCases.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
@@ -28,7 +27,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Op
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getCircleMenuItem
-import com.kindeev.swipelauncher.domain.getCircleMenuOffset
 
 class LauncherScreenVM(private val context: Context) : ViewModel() {
     private val _circleMenuOffset = MutableLiveData<CircleMenuOffset?>(null)
@@ -37,18 +35,14 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
     val circleMenu: LiveData<CircleMenu> = _circleMenu
     private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
     val screenState: LiveData<LauncherScreenState> = _screenState
-    private val _searchText = MutableLiveData("")
-    val searchText: LiveData<String> = _searchText
     private val density = context.resources.displayMetrics.density
     private var clickTime = 0L
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val openAppUseCase = OpenAppUseCase(context)
-    val deleteAppUseCase = DeleteAppUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private val packageName = context.packageName
 
     val menuSize = Constants.minScreenLength / 3 * 2
 
@@ -73,19 +67,6 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         return Offset.Zero
     }
 
-    fun search(searchText: String) {
-        _searchText.value = searchText
-    }
-
-    fun selectSearchElement(packageName: String) {
-        if (packageName == this.packageName) {
-            openSettingsUseCase.invoke()
-        } else {
-            openAppUseCase.invoke(packageName)
-        }
-        closeSearchBox()
-    }
-
     fun setCircleMenu(circleMenu: CircleMenu?) {
         _circleMenu.value = circleMenu
     }
@@ -95,7 +76,6 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
                 if (event.eventTime - clickTime < 300L) {
 
                     // Double click
-                    _searchText.value = ""
                     _screenState.value = LauncherScreenState.SearchBox
                 } else {
                     val offset = Offset(
@@ -150,7 +130,7 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         when (item.action.type) {
 
             CircleMenuActionTypes.OpenCircleMenu -> {
-                setNewCircleMenuOffset(item.offset)
+                setNewCircleMenuOffset()
                 val openCircleMenu = item.action.data.getAs(OpenCircleMenu::class.java)
                 var circleMenuForCheck =
                     LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
@@ -256,13 +236,12 @@ class LauncherScreenVM(private val context: Context) : ViewModel() {
         }
     }
 
-    private fun setNewCircleMenuOffset(offset: Offset) {
+    private fun setNewCircleMenuOffset() {
         _circleMenuOffset.value?.let { circleMenuOffset ->
-            val newOffset = offset.getCircleMenuOffset(menuSize)
             _circleMenuOffset.value = circleMenuOffset.copy(
                 start = Offset(
-                    x = circleMenuOffset.start.x + newOffset.x,
-                    y = circleMenuOffset.start.y + newOffset.y
+                    x = circleMenuOffset.swipe.x,
+                    y = circleMenuOffset.swipe.y
                 )
             )
         }
