@@ -27,6 +27,17 @@ object Constants {
         SettingData(Setting.PickAppActionWithImage, true)
     )
 
+    val onBoarding2MenuImageResIds = listOf(
+        R.drawable.on_boarding_2_1_image,
+        R.drawable.on_boarding_2_2_image,
+        R.drawable.on_boarding_2_3_image,
+        R.drawable.on_boarding_2_4_image,
+        R.drawable.on_boarding_2_5_image,
+        R.drawable.on_boarding_2_6_image,
+        R.drawable.on_boarding_2_7_image,
+        R.drawable.on_boarding_2_8_image,
+    )
+
     val menuCords = listOf(
         Offset(0f, -4f), // 1
         Offset(3f, -3f), // 2

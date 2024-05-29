@@ -1,15 +1,15 @@
 package com.kindeev.swipelauncher.presentation.navigation
 
-sealed class Screen(
+sealed class ScreensSettings(
     val route: String
 ) {
 
-    object MainSettingsScreenObject: Screen(ROUTE_MAIN_SETTINGS_SCREEN)
+    object MainSettingsScreenObject: ScreensSettings(ROUTE_MAIN_SETTINGS_SCREEN)
 
-    object AllCircleMenusScreenObject: Screen(ROUTE_ALL_CIRCLE_MENUS_SCREEN)
+    object AllCircleMenusScreenObject: ScreensSettings(ROUTE_ALL_CIRCLE_MENUS_SCREEN)
 
-    object HiddenAppsScreenObject: Screen(ROUTE_HIDDEN_APPS_SCREEN)
-    object EditCircleMenuScreenObject: Screen(ROUTE_EDIT_CIRCLE_MENU_SCREEN) {
+    object HiddenAppsScreenObject: ScreensSettings(ROUTE_HIDDEN_APPS_SCREEN)
+    object EditCircleMenuScreenObject: ScreensSettings(ROUTE_EDIT_CIRCLE_MENU_SCREEN) {
         private const val ROUTE_FOR_ARGS = "edit_circle_menu_screen"
 
         fun getRouteWithArgs(circleMenuId: Int?) = "$ROUTE_FOR_ARGS/$circleMenuId"

@@ -8,25 +8,38 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.getAllApplicationInfo
 import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.getOnlyChanged
+import com.kindeev.swipelauncher.domain.getRootCircleMenu
 import com.kindeev.swipelauncher.domain.getUserImages
+import com.kindeev.swipelauncher.domain.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
 import com.kindeev.swipelauncher.domain.removeUnusedUserImages
 import com.kindeev.swipelauncher.domain.setActionAndImageTypes
 import com.kindeev.swipelauncher.domain.unregisterAppsReceiver
+import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
+import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
+import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
-import com.kindeev.swipelauncher.presentation.ui.elements.FirstScreenUI
+import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
@@ -37,19 +50,65 @@ class MainActivity : ComponentActivity() {
         setActionAndImageTypes()
         setContent {
             val scope = rememberCoroutineScope()
+            val context = LocalContext.current
             LauncherScreenTheme {
-                if (isFirstRun()) {
-                    FirstScreenUI()
-                } else {
-                    LauncherScreen()
+                var startDestination by rememberSaveable {
+                    mutableStateOf(ScreensOnBoarding.MainScreenObject.route)
+                }
+                val navigationState = rememberNavigationState()
+                OnBoardingNavGraph(
+                    navHostController = navigationState.navHostController,
+                    mainScreen = {
+                        LauncherScreen()
+                    },
+                    onboardingScreen = {
+                        OnboardingScreen(
+                            onFinish = {
+                                scope.launch {
+                                    LauncherData.insertCircleMenu(
+                                        getRootCircleMenu(
+                                            context.resources.getString(
+                                                R.string.root
+                                            )
+                                        )
+                                    )
+                                    LauncherData.insertSettings(Constants.defaultSettings)
+                                }
+                                onBoardingComplete()
+                                navigationState.navHostController.popBackStack()
+                                navigationState.navigateTo(ScreensOnBoarding.MainScreenObject.route)
+                            }
+                        )
+                    },
+                    startDestination = startDestination
+                )
+                LaunchedEffect(Unit) {
+                    startDestination = if (context.isMyLauncherDefault()) {
+                        LauncherData.insertCircleMenu(
+                            getRootCircleMenu(
+                                context.resources.getString(
+                                    R.string.root
+                                )
+                            )
+                        )
+                        LauncherData.insertSettings(Constants.defaultSettings)
+                        onBoardingComplete()
+                        ScreensOnBoarding.MainScreenObject.route
+                    } else {
+                        if (isFirstRun()) ScreensOnBoarding.OnBoardingScreenObject.route else ScreensOnBoarding.MainScreenObject.route
+                    }
                 }
                 LauncherData.allApplicationData.observe(this) {
-                    thread {
+                    scope.launch(Dispatchers.IO) {
                         LauncherData.setAllApplications(getAllApplicationInfo())
                         LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                            removeUnusedUserImages(allCircleMenus, LauncherData.allApplicationData.value ?: emptyList())
+                            removeUnusedUserImages(
+                                allCircleMenus,
+                                LauncherData.allApplicationData.value ?: emptyList()
+                            )
                             LauncherData.userImages = getUserImages()
-                            val changedCircleMenus = allCircleMenus.getOnlyChanged(this)
+                            val changedCircleMenus =
+                                allCircleMenus.getOnlyChanged(this@MainActivity)
                             Handler(Looper.getMainLooper()).post {
                                 if (changedCircleMenus.isNotEmpty()) {
                                     scope.launch {
@@ -63,11 +122,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 LauncherData.allCircleMenus.observe(this) { allCircleMenus ->
-                    thread {
+                    scope.launch(Dispatchers.IO) {
                         LauncherData.setAllApplications(getAllApplicationInfo())
-                        removeUnusedUserImages(allCircleMenus, LauncherData.allApplicationData.value ?: emptyList())
+                        removeUnusedUserImages(
+                            allCircleMenus,
+                            LauncherData.allApplicationData.value ?: emptyList()
+                        )
                         LauncherData.userImages = getUserImages()
-                        val changedCircleMenus = allCircleMenus.getOnlyChanged(this)
+                        val changedCircleMenus = allCircleMenus.getOnlyChanged(this@MainActivity)
                         Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) {
                                 scope.launch {
@@ -85,14 +147,14 @@ class MainActivity : ComponentActivity() {
 
     private fun isFirstRun(): Boolean {
         val prefs = getSharedPreferences("data", Context.MODE_PRIVATE)
-        return if (prefs.contains("first_run")) {
-            false
-        } else {
-            val editor = prefs.edit()
-            editor.putString("first_run", "false")
-            editor.apply()
-            true
-        }
+        return !prefs.contains("first_run")
+    }
+
+    private fun onBoardingComplete() {
+        val prefs = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("first_run", "false")
+        editor.apply()
     }
 
     override fun onDestroy() {
@@ -107,10 +169,13 @@ class MainActivity : ComponentActivity() {
 
     private fun hideNavigationBar() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window,
-            window.decorView.findViewById(content)).let { controller ->
+        WindowInsetsControllerCompat(
+            window,
+            window.decorView.findViewById(content)
+        ).let { controller ->
             controller.hide(WindowInsetsCompat.Type.navigationBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 }

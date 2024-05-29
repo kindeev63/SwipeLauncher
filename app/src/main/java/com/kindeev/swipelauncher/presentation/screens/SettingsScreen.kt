@@ -31,7 +31,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.presentation.navigation.Screen
+import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
@@ -52,10 +52,10 @@ fun SettingsScreen() {
         mainSettingsScreen = {
             SettingsScreenContent(
                 navigateToAllCircleMenus = {
-                    navigationState.navigateTo(Screen.AllCircleMenusScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.AllCircleMenusScreenObject.route)
                 },
                 navigateToHiddenApps = {
-                    navigationState.navigateTo(Screen.HiddenAppsScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.HiddenAppsScreenObject.route)
                 }
             )
         },

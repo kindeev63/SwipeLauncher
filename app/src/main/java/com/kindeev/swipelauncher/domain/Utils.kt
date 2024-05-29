@@ -598,6 +598,10 @@ fun Context.getApplicationInfo(packageName: String): ApplicationInfo {
     }
 }
 
+fun Context.getThisAppIcon() =
+    packageManager.getApplicationInfo(packageName, 0).loadIcon(packageManager).toBitmap()
+        .asImageBitmap()
+
 fun Context.getApplicationData(packageName: String): ApplicationData {
     val applicationData =
         LauncherData.allApplicationData.value?.find { it.packageName == packageName }

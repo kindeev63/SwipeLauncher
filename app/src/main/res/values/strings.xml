@@ -88,4 +88,13 @@
     <string name="all_circle_menus">All circle menus</string>
     <string name="setting_hidden_apps">Hidden apps</string>
 
+    <string name="on_boarding_first_title" translatable="false">SwipeLauncher</string>
+    <string name="on_boarding_first_desc">This is a launcher that works on swipes. Tap anywhere on the screen to bring up the menu, then, without releasing your finger, drag it to the item you need. The action specified for this element will be executed.</string>
+    <string name="on_boarding_second_title">Menu</string>
+    <string name="on_boarding_second_desc">A menu can have up to 8 items. They are located as shown above. There is a blue circle in the middle of the menu. This is a pointer that moves with your finger. An element is considered selected if the center of the circle is on this element.</string>
+    <string name="on_boarding_third_title">Apps list</string>
+    <string name="on_boarding_third_desc">To open a list of all applications, double-tap anywhere. Clicking on an application will open it. When you press and hold, an application editing window will appear, in which you can change its name and icon, as well as hide, delete, or view detailed information about it. You can find all hidden applications in settings.</string>
+    <string name="on_boarding_fourth_title">Set as default launcher</string>
+    <string name="on_boarding_fourth_desc">You can set SwipeLauncher as your default launcher in system settings. Your choice can always be changed in the launcher settings and in the system settings.</string>
+
 </resources>
