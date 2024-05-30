@@ -119,7 +119,7 @@ fun SettingsScreenContent(
             spacer()
 
             // Hidden apps
-            if (allApplicationData.filter { it.hidden }.isNotEmpty()) {
+            if (allApplicationData.any { it.hidden }) {
                 item {
                     ClickableSettingItem(
                         text = stringResource(id = R.string.setting_hidden_apps),

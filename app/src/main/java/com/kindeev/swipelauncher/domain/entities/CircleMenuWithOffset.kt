@@ -2,4 +2,4 @@ package com.kindeev.swipelauncher.domain.entities
 
 import androidx.compose.ui.geometry.Offset
 
-data class CircleMenuOffset(val start: Offset, val swipe: Offset)
+data class CircleMenuWithOffset(val circleMenu: CircleMenu, val offset: Offset?)

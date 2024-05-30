@@ -16,7 +16,7 @@ import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SwipeBox(viewModel: LauncherScreenVM) {
-    val circleMenuOffset by viewModel.circleMenuOffset.observeAsState()
+    val currentMenu by viewModel.currentMenu.observeAsState()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -24,7 +24,7 @@ fun SwipeBox(viewModel: LauncherScreenVM) {
                 onTouchEvent = viewModel.onSwipe()
             )
     ) {
-        circleMenuOffset?.let {
+        currentMenu?.let {
             DrawCircleMenu(viewModel = viewModel)
         }
     }
@@ -34,18 +34,17 @@ fun SwipeBox(viewModel: LauncherScreenVM) {
 private fun DrawCircleMenu(
     viewModel: LauncherScreenVM,
 ) {
-    val circleMenuOffset by viewModel.circleMenuOffset.observeAsState()
-    val circleMenu by viewModel.circleMenu.observeAsState()
-    circleMenuOffset?.let { menuOffset ->
+    val currentMenu by viewModel.currentMenu.observeAsState()
+    currentMenu?.offset?.let { offset ->
         Box(
             modifier = Modifier
                 .offset(
-                    x = menuOffset.x.dp - (viewModel.menuSize / 2).dp,
-                    y = menuOffset.y.dp - (viewModel.menuSize / 2).dp
+                    x = offset.x.dp - (viewModel.menuSize / 2).dp,
+                    y = offset.y.dp - (viewModel.menuSize / 2).dp
                 )
                 .size(viewModel.menuSize.dp)
         ) {
-            CircleMenuItems(items = circleMenu?.items ?: emptyList(), menuSize = viewModel.menuSize)
+            CircleMenuItems(items = currentMenu?.circleMenu?.items ?: emptyList(), menuSize = viewModel.menuSize)
         }
     }
 }

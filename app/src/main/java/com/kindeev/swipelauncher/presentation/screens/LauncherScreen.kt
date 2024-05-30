@@ -36,10 +36,9 @@ fun LauncherScreen() {
     val screenState by viewModel.screenState.observeAsState(LauncherScreenState.SwipeBox)
     BackHandler {}
     LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) { allMenus ->
-        viewModel.setCircleMenu(
-            allMenus.find { it.id == viewModel.circleMenu.value?.id }
-                ?: allMenus.find { it.id == 0 }
-        )
+        (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
+            ?: allMenus.find { it.id == 0 })?.let { viewModel.setCircleMenu(it) }
+
     }
 
     // UI

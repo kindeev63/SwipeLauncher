@@ -83,20 +83,22 @@ class MainActivity : ComponentActivity() {
                     startDestination = startDestination
                 )
                 LaunchedEffect(Unit) {
-                    startDestination = if (context.isMyLauncherDefault()) {
-                        LauncherData.insertCircleMenu(
-                            getRootCircleMenu(
-                                context.resources.getString(
-                                    R.string.root
+                    startDestination = if (isFirstRun()) {
+                        if (context.isMyLauncherDefault()) {
+                            LauncherData.insertCircleMenu(
+                                getRootCircleMenu(
+                                    context.resources.getString(
+                                        R.string.root
+                                    )
                                 )
                             )
-                        )
-                        LauncherData.insertSettings(Constants.defaultSettings)
-                        onBoardingComplete()
-                        ScreensOnBoarding.MainScreenObject.route
-                    } else {
-                        if (isFirstRun()) ScreensOnBoarding.OnBoardingScreenObject.route else ScreensOnBoarding.MainScreenObject.route
-                    }
+                            LauncherData.insertSettings(Constants.defaultSettings)
+                            onBoardingComplete()
+                            ScreensOnBoarding.MainScreenObject.route
+                        } else {
+                            ScreensOnBoarding.OnBoardingScreenObject.route
+                        }
+                    } else ScreensOnBoarding.MainScreenObject.route
                 }
                 LauncherData.allApplicationData.observe(this) {
                     scope.launch(Dispatchers.IO) {
