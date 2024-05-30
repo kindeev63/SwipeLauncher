@@ -176,53 +176,38 @@ fun CircleMenu.check(
 ): CircleMenu? {
     val newItems = mutableListOf<CircleMenuItem>()
 
-    // Check OpenApp
-    this.items.forEach { item ->
-        var image = item.image
-        var action = item.action
-
-        // Check Image
-        val defaultImage = CircleMenuImage(
-            type = CircleMenuImageTypes.DefaultImage,
-            data = DefaultImage.Error
-        )
+    for (item in this.items) {
         when (item.image.type) {
             CircleMenuImageTypes.AppImage -> {
                 if (item.image.data.getAs(AppImage::class.java).packageName !in allPackageNames) {
-                    image = defaultImage
+                    continue
                 }
             }
 
             CircleMenuImageTypes.UserImage -> {
                 if (item.image.data.getAs(UserImage::class.java).id !in userImageIds) {
-                    image = defaultImage
+                    continue
                 }
             }
 
             else -> {}
         }
-
-        // Check Action
-        val defaultAction = CircleMenuAction(
-            type = CircleMenuActionTypes.OpenCircleMenu,
-            data = OpenCircleMenu(id = 0)
-        )
         when (item.action.type) {
             CircleMenuActionTypes.OpenApp -> {
                 if (item.action.data.getAs(OpenApp::class.java).packageName !in allPackageNames) {
-                    action = defaultAction
+                    continue
                 }
             }
 
             CircleMenuActionTypes.OpenCircleMenu -> {
                 if (item.action.data.getAs(OpenCircleMenu::class.java).id !in allCircleMenuIds) {
-                    action = defaultAction
+                    continue
                 }
             }
 
             else -> {}
         }
-        newItems.add(item.copy(image = image, action = action))
+        newItems.add(item)
     }
 
     return if (this.items == newItems) {
@@ -993,17 +978,8 @@ private fun getDefaultSettingsApp(context: Context): String? {
     return resolveInfo.firstOrNull()?.activityInfo?.packageName
 }
 
-private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleMenuItem {
-    if (packageName == null) {
-        return CircleMenuItem(
-            offset = this,
-            image = CircleMenuImage(
-                type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage.Settings
-            ),
-            action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
-        )
-    }
+private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleMenuItem? {
+    if (packageName == null) return null
     return CircleMenuItem(
         offset = this,
         image = CircleMenuImage(
@@ -1018,24 +994,27 @@ private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleM
 }
 
 fun Context.getRootCircleMenu(title: String): CircleMenu {
-    val cameraPackageName = getDefaultCameraApp(this)
-    val galleryPackageName = getDefaultGalleryApp(this)
-    val browserPackageName = getDefaultBrowserApp(this)
-    val phonePackageName = getDefaultPhoneApp(this)
-    val emailPackageName = getDefaultEmailApp(this)
-    val smsPackageName = getDefaultSmsApp(this)
-    val settingsPackageName = getDefaultSettingsApp(this)
+    val items = mutableListOf<CircleMenuItem>()
+    Constants.menuCords[0].getCircleMenuItemByPackageName(getDefaultCameraApp(this))?.let { items.add(it) }
+    Constants.menuCords[1].getCircleMenuItemByPackageName(getDefaultGalleryApp(this))?.let { items.add(it) }
+    Constants.menuCords[2].getCircleMenuItemByPackageName(getDefaultBrowserApp(this))?.let { items.add(it) }
+    Constants.menuCords[3].getCircleMenuItemByPackageName(getDefaultPhoneApp(this))?.let { items.add(it) }
+    items.add(
+        CircleMenuItem(
+            offset = Constants.menuCords[4],
+            image = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage.Settings
+            ),
+            action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
+        )
+    )
+    Constants.menuCords[5].getCircleMenuItemByPackageName(getDefaultEmailApp(this))?.let { items.add(it) }
+    Constants.menuCords[6].getCircleMenuItemByPackageName(getDefaultSmsApp(this))?.let { items.add(it) }
+    Constants.menuCords[7].getCircleMenuItemByPackageName(getDefaultSettingsApp(this))?.let { items.add(it) }
+
     return CircleMenu(
         title = title,
-        items = listOf(
-            Constants.menuCords[0].getCircleMenuItemByPackageName(cameraPackageName),
-            Constants.menuCords[1].getCircleMenuItemByPackageName(galleryPackageName),
-            Constants.menuCords[2].getCircleMenuItemByPackageName(browserPackageName),
-            Constants.menuCords[3].getCircleMenuItemByPackageName(phonePackageName),
-            Constants.menuCords[4].getCircleMenuItemByPackageName(null),
-            Constants.menuCords[5].getCircleMenuItemByPackageName(emailPackageName),
-            Constants.menuCords[6].getCircleMenuItemByPackageName(smsPackageName),
-            Constants.menuCords[7].getCircleMenuItemByPackageName(settingsPackageName),
-        )
+        items = items
     )
 }

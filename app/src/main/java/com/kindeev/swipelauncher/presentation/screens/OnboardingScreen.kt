@@ -237,7 +237,7 @@ private fun PageContent(page: Int) {
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Button(onClick = { context.showLauncherSelection() }) {
-                    Text(text = "В настройки")
+                    Text(text = stringResource(id = R.string.go_to_settings))
                 }
             }
         }
