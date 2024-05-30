@@ -126,9 +126,8 @@ fun SettingsScreenContent(
                         onClick = navigateToHiddenApps
                     )
                 }
+                spacer()
             }
-
-            spacer()
 
             // Change default launcher
             item {
