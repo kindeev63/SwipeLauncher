@@ -56,5 +56,5 @@ fun SearchBoxUI(
 }
 
 fun String.getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
-    return allApplicationInfo.getNotHidden().filter { it.title.contains(this) }.map { AppSBR(it) }
+    return allApplicationInfo.getNotHidden().filter { it.title.lowercase().contains(this.lowercase()) }.map { AppSBR(it) }
 }

@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.domain
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.role.RoleManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -15,6 +16,8 @@ import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
+import android.provider.Telephony
+import android.telecom.TelecomManager
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -164,61 +167,6 @@ fun CircleMenuImage.getItemImageForApplicationInfoDialog(
             LauncherData.userImages[userImage.id]
         }
     }
-}
-
-fun getRootCircleMenu(title: String): CircleMenu {
-    val image = CircleMenuImage(
-        type = CircleMenuImageTypes.DefaultImage,
-        data = DefaultImage.Settings
-    )
-    val action = CircleMenuAction(
-        type = CircleMenuActionTypes.OpenSettings
-    )
-    return CircleMenu(
-        title = title,
-        items = listOf(
-            CircleMenuItem( // 1
-                offset = Offset(0f, -4f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 2
-                offset = Offset(3f, -3f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 3
-                offset = Offset(4f, 0f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 4
-                offset = Offset(3f, 3f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 5
-                offset = Offset(0f, 4f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 6
-                offset = Offset(-3f, 3f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 7
-                offset = Offset(-4f, 0f),
-                image = image,
-                action = action
-            ),
-            CircleMenuItem( // 8
-                offset = Offset(-3f, -3f),
-                image = image,
-                action = action
-            )
-        )
-    )
 }
 
 fun CircleMenu.check(
@@ -981,4 +929,113 @@ fun List<ApplicationInfo>.getHidden(allApplicationData: List<ApplicationData>): 
         }
     }
     return result
+}
+
+private fun getDefaultCameraApp(context: Context): String? {
+    val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    val resolveInfo =
+        context.packageManager.resolveActivity(cameraIntent, PackageManager.MATCH_DEFAULT_ONLY)
+    if (resolveInfo != null) {
+        return resolveInfo.activityInfo?.packageName
+    }
+    return null
+}
+
+@SuppressLint("IntentReset")
+fun getDefaultGalleryApp(context: Context): String? {
+    val mainIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+    mainIntent.type = "image/*"
+    val pkgAppsList =
+        context.packageManager.queryIntentActivities(mainIntent, PackageManager.GET_RESOLVED_FILTER)
+    if (pkgAppsList.isNotEmpty()) {
+        for (resolveInfo in pkgAppsList) {
+            return resolveInfo.activityInfo.packageName
+        }
+    }
+    return null
+}
+
+private fun getDefaultBrowserApp(context: Context): String? {
+    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
+    val resolveInfo =
+        context.packageManager.resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+    return resolveInfo?.activityInfo?.packageName
+}
+
+private fun getDefaultPhoneApp(context: Context): String? {
+    val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+    return telecomManager.defaultDialerPackage
+}
+
+private fun getDefaultEmailApp(context: Context): String? {
+    val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+    val resolveInfoList =
+        context.packageManager.queryIntentActivities(emailIntent, PackageManager.MATCH_DEFAULT_ONLY)
+    if (resolveInfoList.isNotEmpty()) {
+        for (resolveInfo in resolveInfoList) {
+            return resolveInfo.activityInfo.packageName
+        }
+    }
+    return null
+}
+
+private fun getDefaultSmsApp(context: Context): String? {
+    return Telephony.Sms.getDefaultSmsPackage(context)
+}
+
+private fun getDefaultSettingsApp(context: Context): String? {
+    val intent = Intent(Settings.ACTION_SETTINGS)
+    val resolveInfo = context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+    if (resolveInfo.isEmpty()) {
+        return null
+    }
+
+    return resolveInfo.firstOrNull()?.activityInfo?.packageName
+}
+
+private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleMenuItem {
+    if (packageName == null) {
+        return CircleMenuItem(
+            offset = this,
+            image = CircleMenuImage(
+                type = CircleMenuImageTypes.DefaultImage,
+                data = DefaultImage.Settings
+            ),
+            action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
+        )
+    }
+    return CircleMenuItem(
+        offset = this,
+        image = CircleMenuImage(
+            type = CircleMenuImageTypes.AppImage,
+            data = AppImage(packageName = packageName)
+        ),
+        action = CircleMenuAction(
+            type = CircleMenuActionTypes.OpenApp,
+            data = OpenApp(packageName = packageName)
+        )
+    )
+}
+
+fun Context.getRootCircleMenu(title: String): CircleMenu {
+    val cameraPackageName = getDefaultCameraApp(this)
+    val galleryPackageName = getDefaultGalleryApp(this)
+    val browserPackageName = getDefaultBrowserApp(this)
+    val phonePackageName = getDefaultPhoneApp(this)
+    val emailPackageName = getDefaultEmailApp(this)
+    val smsPackageName = getDefaultSmsApp(this)
+    val settingsPackageName = getDefaultSettingsApp(this)
+    return CircleMenu(
+        title = title,
+        items = listOf(
+            Constants.menuCords[0].getCircleMenuItemByPackageName(cameraPackageName),
+            Constants.menuCords[1].getCircleMenuItemByPackageName(galleryPackageName),
+            Constants.menuCords[2].getCircleMenuItemByPackageName(browserPackageName),
+            Constants.menuCords[3].getCircleMenuItemByPackageName(phonePackageName),
+            Constants.menuCords[4].getCircleMenuItemByPackageName(null),
+            Constants.menuCords[5].getCircleMenuItemByPackageName(emailPackageName),
+            Constants.menuCords[6].getCircleMenuItemByPackageName(smsPackageName),
+            Constants.menuCords[7].getCircleMenuItemByPackageName(settingsPackageName),
+        )
+    )
 }
