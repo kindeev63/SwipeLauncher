@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -10,10 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
 
@@ -38,33 +34,18 @@ fun SwipeBox(viewModel: LauncherScreenVM) {
 private fun DrawCircleMenu(
     viewModel: LauncherScreenVM,
 ) {
-    val density = LocalDensity.current.density
     val circleMenuOffset by viewModel.circleMenuOffset.observeAsState()
     val circleMenu by viewModel.circleMenu.observeAsState()
     circleMenuOffset?.let { menuOffset ->
         Box(
             modifier = Modifier
                 .offset(
-                    x = menuOffset.start.x.dp - (viewModel.menuSize / 2).dp,
-                    y = menuOffset.start.y.dp - (viewModel.menuSize / 2).dp
+                    x = menuOffset.x.dp - (viewModel.menuSize / 2).dp,
+                    y = menuOffset.y.dp - (viewModel.menuSize / 2).dp
                 )
                 .size(viewModel.menuSize.dp)
         ) {
-            // Drawing items
             CircleMenuItems(items = circleMenu?.items ?: emptyList(), menuSize = viewModel.menuSize)
-            // Drawing a center circle
-            Canvas(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                drawCircle(
-                    center = viewModel.centerCircleCenterOffset(),
-                    color = Color.Blue,
-                    style = Stroke(
-                        width = 5f
-                    ),
-                    radius = viewModel.menuSize / 7.5f * density
-                )
-            }
         }
     }
 }

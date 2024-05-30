@@ -6,7 +6,6 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,9 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -149,21 +145,6 @@ private fun PageContent(page: Int) {
                                 .size(screenWidth.dp / 50 * 6),
                             painter = painterResource(id = imageResId),
                             contentDescription = null
-                        )
-                    }
-                    Canvas(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        drawCircle(
-                            center = Offset(
-                                x = screenWidth / 10 * 3f * density,
-                                y = screenWidth / 10 * 3f * density
-                            ),
-                            color = Color.Blue,
-                            style = Stroke(
-                                width = 5f
-                            ),
-                            radius = screenWidth / 12.5f * density
                         )
                     }
                 }
