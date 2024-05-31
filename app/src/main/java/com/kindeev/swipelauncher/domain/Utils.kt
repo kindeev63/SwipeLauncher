@@ -690,92 +690,159 @@ fun Offset.getItemOffset(menuSize: Float): Offset {
     return Offset(x, y)
 }
 
-private data class ItemCords(val xStart: Float, val xEnd: Float, val yStart: Float, val yEnd: Float)
+private data class ItemCords(
+    val xStart: Float?,
+    val xEnd: Float?,
+    val yStart: Float?,
+    val yEnd: Float?
+)
 
 fun CircleMenu.getCircleMenuItem(offset: Offset, menuSize: Float): CircleMenuItem? {
-    for (item in items) {
+    items.forEach {  item ->
         val itemCords = item.offset.getItemCords(menuSize)
-        if (offset.x < itemCords.xStart || offset.x > itemCords.xEnd) continue
-        if (offset.y > itemCords.yStart || offset.y < itemCords.yEnd) continue
-        return item
+        for (cords in itemCords) {
+            if (
+                (cords.xStart == null || offset.x >= cords.xStart) && (cords.xEnd == null || offset.x <= cords.xEnd) // x
+                &&
+                (cords.yStart == null || offset.y >= cords.yStart) && (cords.yEnd == null || offset.y <= cords.yEnd) // y
+            ) {
+                return item
+            }
+        }
     }
     return null
 }
 
-private fun Offset.getItemCords(menuSize: Float): ItemCords {
+private fun Offset.getItemCords(menuSize: Float): List<ItemCords> {
     if (x == 0f && y == -4f) { // 1
-        return ItemCords(
-            xStart = -menuSize / 10,
-            xEnd = menuSize / 10,
-            yStart = -menuSize / 2 + menuSize / 5,
-            yEnd = -menuSize / 2
+        return listOf(
+            ItemCords(
+                xStart = -menuSize / 6,
+                xEnd = menuSize / 6,
+                yStart = null,
+                yEnd = -menuSize / 2 + menuSize / 5
+            )
         )
     }
     if (x == 3f && y == -3f) { // 2
-        return ItemCords(
-            xStart = menuSize / 10 * 3 - menuSize / 12,
-            xEnd = menuSize / 2,
-            yStart = -menuSize / 10 * 3 + menuSize / 12,
-            yEnd = -menuSize / 2
+        return listOf(
+            ItemCords(
+                xStart = menuSize / 2 - menuSize / 3,
+                xEnd = menuSize / 2 - menuSize / 5,
+                yStart = null,
+                yEnd = -menuSize / 2 + menuSize / 5
+            ),
+            ItemCords(
+                xStart = menuSize / 2 - menuSize / 5,
+                xEnd = null,
+                yStart = null,
+                yEnd = -menuSize / 2 + menuSize / 3
+            ),
+            ItemCords(
+                xStart = menuSize / 10 * 3 - menuSize / 10,
+                xEnd = menuSize / 10 * 3 + menuSize / 10,
+                yStart = -menuSize / 10 * 3 - menuSize / 10,
+                yEnd = -menuSize / 10 * 3 + menuSize / 10,
+            )
         )
     }
     if (x == 4f && y == 0f) { // 3
-        return ItemCords(
-            xStart = menuSize / 2 - menuSize / 5,
-            xEnd = menuSize / 2,
-            yStart = menuSize / 10,
-            yEnd = -menuSize / 10
+        return listOf(
+            ItemCords(
+                xStart = menuSize / 2 - menuSize / 5,
+                xEnd = null,
+                yStart = -menuSize / 6,
+                yEnd = menuSize / 6
+            )
         )
     }
     if (x == 3f && y == 3f) { // 4
-        return ItemCords(
-            xStart = menuSize / 10 * 3 - menuSize / 12,
-            xEnd = menuSize / 2,
-            yStart = menuSize / 2,
-            yEnd = menuSize / 10 * 3 - menuSize / 12
+        return listOf(
+            ItemCords(
+                xStart = menuSize / 2 - menuSize / 3,
+                xEnd = menuSize / 2 - menuSize / 5,
+                yStart = menuSize / 2 - menuSize / 5,
+                yEnd = null
+            ),
+            ItemCords(
+                xStart = menuSize / 2 - menuSize / 5,
+                xEnd = null,
+                yStart = menuSize / 2 - menuSize / 3,
+                yEnd = null
+            ),
+            ItemCords(
+                xStart = menuSize / 10 * 3 - menuSize / 10,
+                xEnd = menuSize / 10 * 3 + menuSize / 10,
+                yStart = menuSize / 10 * 3 - menuSize / 10,
+                yEnd = menuSize / 10 * 3 + menuSize / 10,
+            )
         )
     }
     if (x == 0f && y == 4f) { // 5
-        return ItemCords(
-            xStart = -menuSize / 10,
-            xEnd = menuSize / 10,
-            yStart = menuSize / 2,
-            yEnd = menuSize / 2 - menuSize / 5
+        return listOf(
+            ItemCords(
+                xStart = -menuSize / 6,
+                xEnd = menuSize / 6,
+                yStart = menuSize / 2 - menuSize / 5,
+                yEnd = null
+            )
         )
     }
     if (x == -3f && y == 3f) { // 6
-        return ItemCords(
-            xStart = -menuSize / 2,
-            xEnd = -menuSize / 10 * 3 + menuSize / 12,
-            yStart = menuSize / 2,
-            yEnd = menuSize / 10 * 3 - menuSize / 12
+        return listOf(
+            ItemCords(
+                xStart = -menuSize / 2 + menuSize / 5,
+                xEnd = -menuSize / 2 + menuSize / 3,
+                yStart = menuSize / 2 - menuSize / 5,
+                yEnd = null
+            ),
+            ItemCords(
+                xStart = null,
+                xEnd = -menuSize / 2 + menuSize / 5,
+                yStart = menuSize / 2 - menuSize / 3,
+                yEnd = null
+            ),
+            ItemCords(
+                xStart = -menuSize / 10 * 3 - menuSize / 10,
+                xEnd = -menuSize / 10 * 3 + menuSize / 10,
+                yStart = menuSize / 10 * 3 - menuSize / 10,
+                yEnd = menuSize / 10 * 3 + menuSize / 10,
+            )
         )
     }
     if (x == -4f && y == 0f) { // 7
-        return ItemCords(
-            xStart = -menuSize / 2,
-            xEnd = -menuSize / 2 + menuSize / 5,
-            yStart = menuSize / 10,
-            yEnd = -menuSize / 10
+        return listOf(
+            ItemCords(
+                xStart = null,
+                xEnd = -menuSize / 2 + menuSize / 5,
+                yStart = -menuSize / 6,
+                yEnd = menuSize / 6
+            )
         )
     }
     if (x == -3f && y == -3f) { // 8
-        return ItemCords(
-            xStart = -menuSize / 2,
-            xEnd = -menuSize / 10 * 3 + menuSize / 12,
-            yStart = -menuSize / 10 * 3 + menuSize / 12,
-            yEnd = -menuSize / 2
+        return listOf(
+            ItemCords(
+                xStart = -menuSize / 2 + menuSize / 5,
+                xEnd = -menuSize / 2 + menuSize / 3,
+                yStart = null,
+                yEnd = -menuSize / 2 + menuSize / 5
+            ),
+            ItemCords(
+                xStart = null,
+                xEnd = -menuSize / 2 + menuSize / 5,
+                yStart = null,
+                yEnd = -menuSize / 2 + menuSize / 3
+            ),
+            ItemCords(
+                xStart = -menuSize / 10 * 3 - menuSize / 10,
+                xEnd = -menuSize / 10 * 3 + menuSize / 10,
+                yStart = -menuSize / 10 * 3 - menuSize / 10,
+                yEnd = -menuSize / 10 * 3 + menuSize / 10,
+            )
         )
     }
-    val itemSize = menuSize / 6
-    val x = this.x * menuSize / 10
-    val y = this.y * menuSize / 10
-    return ItemCords(
-        xStart = x - itemSize / 2,
-        xEnd = x + itemSize / 2,
-        yStart = y - itemSize / 2,
-        yEnd = y + itemSize / 2
-    )
+    return emptyList()
 }
 
 fun Offset.getSelectedBoxOffset(menuSize: Float): Offset {
@@ -970,7 +1037,8 @@ private fun getDefaultSmsApp(context: Context): String? {
 
 private fun getDefaultSettingsApp(context: Context): String? {
     val intent = Intent(Settings.ACTION_SETTINGS)
-    val resolveInfo = context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+    val resolveInfo =
+        context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
     if (resolveInfo.isEmpty()) {
         return null
     }
@@ -995,10 +1063,14 @@ private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleM
 
 fun Context.getRootCircleMenu(title: String): CircleMenu {
     val items = mutableListOf<CircleMenuItem>()
-    Constants.menuCords[0].getCircleMenuItemByPackageName(getDefaultCameraApp(this))?.let { items.add(it) }
-    Constants.menuCords[1].getCircleMenuItemByPackageName(getDefaultGalleryApp(this))?.let { items.add(it) }
-    Constants.menuCords[2].getCircleMenuItemByPackageName(getDefaultBrowserApp(this))?.let { items.add(it) }
-    Constants.menuCords[3].getCircleMenuItemByPackageName(getDefaultPhoneApp(this))?.let { items.add(it) }
+    Constants.menuCords[0].getCircleMenuItemByPackageName(getDefaultCameraApp(this))
+        ?.let { items.add(it) }
+    Constants.menuCords[1].getCircleMenuItemByPackageName(getDefaultGalleryApp(this))
+        ?.let { items.add(it) }
+    Constants.menuCords[2].getCircleMenuItemByPackageName(getDefaultBrowserApp(this))
+        ?.let { items.add(it) }
+    Constants.menuCords[3].getCircleMenuItemByPackageName(getDefaultPhoneApp(this))
+        ?.let { items.add(it) }
     items.add(
         CircleMenuItem(
             offset = Constants.menuCords[4],
@@ -1009,9 +1081,12 @@ fun Context.getRootCircleMenu(title: String): CircleMenu {
             action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
         )
     )
-    Constants.menuCords[5].getCircleMenuItemByPackageName(getDefaultEmailApp(this))?.let { items.add(it) }
-    Constants.menuCords[6].getCircleMenuItemByPackageName(getDefaultSmsApp(this))?.let { items.add(it) }
-    Constants.menuCords[7].getCircleMenuItemByPackageName(getDefaultSettingsApp(this))?.let { items.add(it) }
+    Constants.menuCords[5].getCircleMenuItemByPackageName(getDefaultEmailApp(this))
+        ?.let { items.add(it) }
+    Constants.menuCords[6].getCircleMenuItemByPackageName(getDefaultSmsApp(this))
+        ?.let { items.add(it) }
+    Constants.menuCords[7].getCircleMenuItemByPackageName(getDefaultSettingsApp(this))
+        ?.let { items.add(it) }
 
     return CircleMenu(
         title = title,
