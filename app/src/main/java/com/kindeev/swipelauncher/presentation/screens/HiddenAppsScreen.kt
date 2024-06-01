@@ -24,7 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,8 +39,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.getHidden
-import com.kindeev.swipelauncher.presentation.ui.elements.HiddenAppItem
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
+import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +63,18 @@ fun HiddenAppsScreen(
     }
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
+
+    var appInfoDialog by rememberSaveable {
+        mutableStateOf<ApplicationInfo?>(null)
+    }
+
+    appInfoDialog?.let { applicationInfo ->
+        ApplicationInfoDialog(
+            applicationInfo = applicationInfo,
+            onDismissRequest = { appInfoDialog = null }
+        )
+    }
+
     Scaffold(
         topBar = {
             HiddenAppsToolbar(
@@ -77,10 +94,12 @@ fun HiddenAppsScreen(
             items(
                 items = allApplicationInfo.getHidden(allApplicationData)
             ) {
-                HiddenAppItem(applicationInfo = it)
+                AppItem(
+                    applicationInfo = it,
+                    onClick = { appInfoDialog = it }
+                )
             }
         }
-
     }
 }
 

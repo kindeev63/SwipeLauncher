@@ -50,6 +50,7 @@ import com.kindeev.swipelauncher.domain.getApplicationData
 import com.kindeev.swipelauncher.domain.getItemImageForApplicationInfoDialog
 import com.kindeev.swipelauncher.domain.getNotMaskApplicationData
 import com.kindeev.swipelauncher.domain.hideApp
+import com.kindeev.swipelauncher.domain.showApp
 import kotlinx.coroutines.launch
 
 @Composable
@@ -183,15 +184,20 @@ fun ApplicationInfoDialog(
                             .background(Color.Green)
                             .clickable {
                                 scope.launch {
-                                    context.hideApp(appData.packageName)
-                                    onDismissRequest()
+                                    appData = if (appData.hidden) {
+                                        context.showApp(appData.packageName)
+                                        appData.copy(hidden = false)
+                                    } else {
+                                        context.hideApp(appData.packageName)
+                                        appData.copy(hidden = true)
+                                    }
                                 }
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
                             modifier = Modifier.size(Constants.minScreenLength.dp / 12),
-                            painter = painterResource(id = R.drawable.hide_image),
+                            painter = painterResource(id = if (appData.hidden) R.drawable.hidden_image else R.drawable.showed_image),
                             contentDescription = "Hide app"
                         )
                     }
@@ -200,7 +206,7 @@ fun ApplicationInfoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (firstAppData == appData) {
+                    if (firstAppData.title == appData.title && firstAppData.image == appData.image) {
                         Box(
                             modifier = Modifier
                                 .height(Constants.minScreenLength.dp / 10)
