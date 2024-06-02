@@ -28,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -69,7 +68,7 @@ fun OnboardingScreen(
         HorizontalPager(
             modifier = Modifier.weight(10f),
             state = pagerState,
-            count = 4
+            count = 9
         ) { page ->
             PageContent(page = page)
         }
@@ -83,14 +82,14 @@ fun OnboardingScreen(
                 scope.launch { controller.isAppearanceLightStatusBars = false }
                 onFinish()
             },
-            visible = pagerState.currentPage == 3
+            visible = pagerState.currentPage == 8
         )
     }
 }
 
 @Composable
 private fun PageContent(page: Int) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val screenWidth = Constants.minScreenLength
     when (page) {
         0 -> {
             Column(
@@ -133,7 +132,7 @@ private fun PageContent(page: Int) {
                     modifier = Modifier
                         .size(screenWidth.dp / 10 * 6)
                 ) {
-                    (0..7).forEach { index ->
+                    repeat(8) { index ->
                         val imageResId = Constants.onBoarding2MenuImageResIds[index]
                         val offset = Constants.menuCords[index].getItemOffset(screenWidth / 10 * 6f)
                         Image(
@@ -189,9 +188,7 @@ private fun PageContent(page: Int) {
                 )
             }
         }
-
         3 -> {
-            val context = LocalContext.current
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -214,6 +211,155 @@ private fun PageContent(page: Int) {
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_fourth_desc),
+                    fontSize = screenWidth.sp / 25
+                )
+            }
+        }
+        4 -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = screenWidth.dp / 7),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Image(
+                    modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                    painter = painterResource(id = R.drawable.on_boarding_5_image),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_fifth_title),
+                    fontSize = screenWidth.sp / 15,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_fifth_desc),
+                    fontSize = screenWidth.sp / 25
+                )
+            }
+        }
+        5 -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = screenWidth.dp / 7),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Image(
+                    modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                    painter = painterResource(id = R.drawable.on_boarding_6_image),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_sixth_title),
+                    fontSize = screenWidth.sp / 15,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_sixth_desc),
+                    fontSize = screenWidth.sp / 25
+                )
+            }
+        }
+        6 -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = screenWidth.dp / 7),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Box(
+                    modifier = Modifier
+                        .size(screenWidth.dp / 10 * 6)
+                ) {
+                    repeat(8) { index ->
+                        val offset = Constants.menuCords[index].getItemOffset(screenWidth / 10 * 6f)
+                        Image(
+                            modifier = Modifier
+                                .offset(
+                                    x = offset.x.dp,
+                                    y = offset.y.dp
+                                )
+                                .size(screenWidth.dp / 50 * 6),
+                            painter = painterResource(id = R.drawable.on_boarding_7_images),
+                            contentDescription = null
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_second_title),
+                    fontSize = screenWidth.sp / 15,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_second_desc),
+                    fontSize = screenWidth.sp / 25
+                )
+            }
+        }
+        7 -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = screenWidth.dp / 7),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Image(
+                    modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                    painter = painterResource(id = R.drawable.on_boarding_8_image),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_eighth_title),
+                    fontSize = screenWidth.sp / 15,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_eighth_desc),
+                    fontSize = screenWidth.sp / 25
+                )
+            }
+        }
+        8 -> {
+            val context = LocalContext.current
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = screenWidth.dp / 7),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Image(
+                    modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                    painter = painterResource(id = R.drawable.on_boarding_9_image),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_ninth_title),
+                    fontSize = screenWidth.sp / 15,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(screenWidth.dp / 20))
+                Text(
+                    text = stringResource(id = R.string.on_boarding_ninth_desc),
                     fontSize = screenWidth.sp / 25
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
@@ -242,7 +388,7 @@ fun FinishButton(
             exit = fadeOut()
         ) {
             Button(onClick = onClick) {
-                Text(text = "Завершить")
+                Text(text = stringResource(id = R.string.finish))
             }
         }
     }
