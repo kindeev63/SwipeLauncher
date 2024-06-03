@@ -56,6 +56,9 @@ fun SettingsScreen() {
                 },
                 navigateToHiddenApps = {
                     navigationState.navigateTo(ScreensSettings.HiddenAppsScreenObject.route)
+                },
+                navigateToTutorial = {
+                    navigationState.navigateTo(ScreensSettings.TutorialScreenObject.route)
                 }
             )
         },
@@ -83,6 +86,11 @@ fun SettingsScreen() {
                     navigationState.navHostController.popBackStack()
                 }
             )
+        },
+        tutorialScreen = {
+            OnboardingScreen(
+                onFinish = { navigationState.navHostController.popBackStack() }
+            )
         }
     )
 }
@@ -90,7 +98,8 @@ fun SettingsScreen() {
 @Composable
 fun SettingsScreenContent(
     navigateToAllCircleMenus: () -> Unit,
-    navigateToHiddenApps: () -> Unit
+    navigateToHiddenApps: () -> Unit,
+    navigateToTutorial: () -> Unit
 ) {
     val settings by LauncherData.settings.observeAsState(emptyList())
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
@@ -232,7 +241,10 @@ fun SettingsScreenContent(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_black_text_color_on_wallpaper),
-                    value = settings.getValueOf(Setting.BlackTextColorOnWallpaper, Boolean::class.java)
+                    value = settings.getValueOf(
+                        Setting.BlackTextColorOnWallpaper,
+                        Boolean::class.java
+                    )
                         ?: throw IllegalArgumentException("Illegal black text color on wallpaper setting value"),
                     onChangeValue = {
                         scope.launch {
@@ -265,6 +277,16 @@ fun SettingsScreenContent(
                             )
                         }
                     }
+                )
+            }
+
+            spacer()
+
+            // Tutorial
+            item {
+                ClickableSettingItem(
+                    text = stringResource(id = R.string.setting_tutorial),
+                    onClick = { navigateToTutorial() }
                 )
             }
         }
