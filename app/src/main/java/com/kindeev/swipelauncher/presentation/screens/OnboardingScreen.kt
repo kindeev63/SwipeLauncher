@@ -298,13 +298,13 @@ private fun PageContent(page: Int) {
                 }
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
-                    text = stringResource(id = R.string.on_boarding_second_title),
+                    text = stringResource(id = R.string.on_boarding_seventh_title),
                     fontSize = screenWidth.sp / 15,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
-                    text = stringResource(id = R.string.on_boarding_second_desc),
+                    text = stringResource(id = R.string.on_boarding_seventh_desc),
                     fontSize = screenWidth.sp / 25
                 )
             }
