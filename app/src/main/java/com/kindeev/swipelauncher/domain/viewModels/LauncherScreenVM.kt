@@ -44,6 +44,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
     val menuSize = Constants.minScreenLength / 3 * 2
 
+    private var actionInProgress = false
+
     fun setCircleMenu(circleMenu: CircleMenu) {
         _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
     }
@@ -70,14 +72,20 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     _currentMenu.postValue(_currentMenu.value?.copy(offset = offset))
                 }
                 clickTime = event.eventTime
+                actionInProgress = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val item = currentMenu.value?.circleMenu?.getCircleMenuItem(
-                    menuSize = menuSize,
-                    offset = getSwipeOffset(offset)
-                )
-                item?.let { executeAction(it, offset) }
+                if (!actionInProgress) {
+                    val item = currentMenu.value?.circleMenu?.getCircleMenuItem(
+                        menuSize = menuSize,
+                        offset = getSwipeOffset(offset)
+                    )
+                    item?.let {
+                        actionInProgress = true
+                        executeAction(it, offset)
+                    }
+                }
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
@@ -126,6 +134,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     )
                 }
                 vibrator.vibrate(20)
+                actionInProgress = false
             }
 
             CircleMenuActionTypes.OpenSettings -> {
