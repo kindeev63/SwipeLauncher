@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -51,12 +52,18 @@ import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.entities.settings.Setting
+import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getSelectedBoxOffset
+import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuForEditUI
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ImageAndAction
@@ -284,6 +291,11 @@ private fun EditCircleMenuToolbar(
     }
 }
 
+private data class CircleMenuItemToAdd(
+    val offset: Offset? = null,
+    val image: CircleMenuImage? = null
+)
+
 @Composable
 private fun CircleMenuBox(
     viewModel: EditCircleMenuScreenVM,
@@ -291,6 +303,57 @@ private fun CircleMenuBox(
 ) {
     val circleMenu by viewModel.circleMenu.observeAsState()
     val item by viewModel.item.observeAsState()
+    var circleMenuItemToAdd by remember {
+        mutableStateOf(CircleMenuItemToAdd())
+    }
+    if (circleMenuItemToAdd.offset != null) {
+        if (circleMenuItemToAdd.image == null) {
+            ImageDialog(
+                onDismissRequest = {
+                    if (circleMenuItemToAdd.image == null) {
+                        circleMenuItemToAdd = CircleMenuItemToAdd()
+                    }
+                },
+                onPick = { circleMenuItemToAdd = circleMenuItemToAdd.copy(image = it) }
+            )
+        } else {
+            if (circleMenuItemToAdd.image?.type == CircleMenuImageTypes.AppImage && LauncherData.settings.value?.getValueOf(
+                    Setting.PickAppActionWithImage,
+                    Boolean::class.java
+                ) == true
+            ) {
+                val appImage = circleMenuItemToAdd.image?.data.getAs(AppImage::class.java)
+                viewModel.insertItem(
+                    CircleMenuItem(
+                        offset = circleMenuItemToAdd.offset
+                            ?: throw IllegalArgumentException("Illegal offset"),
+                        image = circleMenuItemToAdd.image
+                            ?: throw IllegalArgumentException("Illegal image"),
+                        action = CircleMenuAction(
+                            type = CircleMenuActionTypes.OpenApp,
+                            data = OpenApp(appImage.packageName)
+                        )
+                    )
+                )
+                circleMenuItemToAdd = CircleMenuItemToAdd()
+            } else {
+                ActionDialog(
+                    onDismissRequest = { circleMenuItemToAdd = CircleMenuItemToAdd() },
+                    onPick = {
+                        viewModel.insertItem(
+                            CircleMenuItem(
+                                offset = circleMenuItemToAdd.offset
+                                    ?: throw IllegalArgumentException("Illegal offset"),
+                                image = circleMenuItemToAdd.image
+                                    ?: throw IllegalArgumentException("Illegal image"),
+                                action = it
+                            )
+                        )
+                    }
+                )
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -302,18 +365,7 @@ private fun CircleMenuBox(
             selectedBoxOffset = item?.offset?.getSelectedBoxOffset(menuSize),
             menuSize = menuSize,
             onSelectItem = { viewModel.setItem(it) },
-            onAdd = {
-                viewModel.insertItem(
-                    CircleMenuItem(
-                        offset = it,
-                        image = CircleMenuImage(
-                            type = CircleMenuImageTypes.DefaultImage,
-                            data = DefaultImage.Settings
-                        ),
-                        action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
-                    )
-                )
-            }
+            onAdd = { circleMenuItemToAdd = CircleMenuItemToAdd(offset = it) }
         )
     }
 }
