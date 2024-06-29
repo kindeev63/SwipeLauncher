@@ -23,8 +23,10 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Ca
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
 import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getCircleMenuItem
+import com.kindeev.swipelauncher.domain.useCases.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.TelephoneUseCase
 
 class LauncherScreenVM(context: Context) : ViewModel() {
@@ -39,6 +41,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val openAppUseCase = OpenAppUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
+    private val openUrlUseCase = OpenUrlUseCase(context)
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
@@ -173,6 +176,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             CircleMenuActionTypes.Dial -> {
                 val dial = item.action.data.getAs(Dial::class.java)
                 telephoneUseCase.dial(dial.phoneNumber)
+            }
+
+            CircleMenuActionTypes.OpenUrl -> {
+                val openUrl = item.action.data.getAs(OpenUrl::class.java)
+                openUrlUseCase.open(openUrl.url)
             }
         }
     }

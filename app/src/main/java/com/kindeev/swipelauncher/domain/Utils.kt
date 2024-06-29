@@ -449,6 +449,11 @@ fun Context.setActionAndImageTypes() {
             imageResId = R.drawable.open_settings_image,
             type = ActionTypes.OpenSettings
         ),
+        ActionType(
+            name = this.resources.getString(R.string.open_url_action),
+            imageResId = R.drawable.open_url_image,
+            type = ActionTypes.OpenUrl
+        ),
     )
     Constants.flashlightActionTypes = listOf(
         FlashlightActionType(
@@ -508,6 +513,7 @@ fun CircleMenuActionTypes.getActionType(): ActionType? {
         CircleMenuActionTypes.ChangeFlashLightCondition -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
         CircleMenuActionTypes.Call -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
         CircleMenuActionTypes.Dial -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
+        CircleMenuActionTypes.OpenUrl -> Constants.actionTypes.find { it.type == ActionTypes.OpenUrl }
     }
 }
 

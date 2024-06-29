@@ -109,5 +109,6 @@
     <string name="on_boarding_ninth_desc">You can set SwipeLauncher as your default launcher in system settings. Your choice can always be changed in the launcher settings and in the system settings.</string>
     <string name="finish">Finish</string>
     <string name="setting_tutorial">Tutorial</string>
+    <string name="open_url_action">Open url</string>
 
 </resources>

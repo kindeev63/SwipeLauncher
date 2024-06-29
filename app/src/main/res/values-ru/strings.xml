@@ -82,5 +82,6 @@
     <string name="on_boarding_ninth_desc">Вы можете выбрать SwipeLauncher лаунчером по умолчанию в настройках системы. Ваш выбор всегда можно изменить в настройках лаунчера и в настройках системы.</string>
     <string name="finish">Завершить</string>
     <string name="setting_tutorial">Обучение</string>
+    <string name="open_url_action">Открыть ссылку</string>
 
 </resources>

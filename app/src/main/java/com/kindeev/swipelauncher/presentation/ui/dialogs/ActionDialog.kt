@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,9 +24,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -45,6 +48,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -60,6 +64,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Ca
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
 import com.kindeev.swipelauncher.presentation.entities.ActionTypes
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
@@ -122,6 +127,16 @@ fun ActionDialog(
         ActionTypes.OpenSettings -> {
             onPick(CircleMenuAction(type = CircleMenuActionTypes.OpenSettings))
             onDismissRequest()
+        }
+
+        ActionTypes.OpenUrl -> {
+            OpenUrlActionData(
+                onPick = {
+                    onPick(it)
+                    onDismissRequest()
+                },
+                onDismissRequest = { actionType = null }
+            )
         }
 
         null -> {}
@@ -600,6 +615,114 @@ fun EnterNumberDialog(
                         .clickable {
                             if (phoneNumber.isNotEmpty()) {
                                 onEnter(phoneNumber)
+                                onDismissRequest()
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.save),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OpenUrlActionData(
+    defUrl: String = "",
+    onPick: (CircleMenuAction) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val screenConfiguration = LocalConfiguration.current
+    var url by rememberSaveable {
+        mutableStateOf(defUrl)
+    }
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
+                .heightIn(max = screenConfiguration.screenWidthDp.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 25.dp, vertical = 10.dp),
+                    value = url,
+                    onValueChange = { url = it },
+                    textStyle = TextStyle.Default.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = screenConfiguration.screenWidthDp.sp / 20,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceAround
+            )
+            {
+                Box(
+                    modifier = Modifier
+                        .width((screenConfiguration.screenWidthDp / 3).dp)
+                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable { onDismissRequest() }
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.onPrimary)
+                            .clickable { onDismissRequest() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.cancel),
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .width((screenConfiguration.screenWidthDp / 3).dp)
+                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable {
+                            if (url.isNotEmpty()) {
+                                onPick(
+                                    CircleMenuAction(
+                                        type = CircleMenuActionTypes.OpenUrl,
+                                        data = OpenUrl(url)
+                                    )
+                                )
                                 onDismissRequest()
                             }
                         },

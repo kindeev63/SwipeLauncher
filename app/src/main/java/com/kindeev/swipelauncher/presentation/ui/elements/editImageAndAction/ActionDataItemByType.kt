@@ -40,6 +40,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Ca
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
 import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
 import com.kindeev.swipelauncher.domain.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.getApplicationInfo
 import com.kindeev.swipelauncher.domain.getAs
@@ -48,6 +49,7 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenAppActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenCircleMenuActionData
+import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.TelephoneActionData
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 
@@ -93,6 +95,10 @@ fun ActionDataByType(
 
         CircleMenuActionTypes.Dial -> {
             DialDataItem(action = action, onChangeAction = onChangeAction)
+        }
+
+        CircleMenuActionTypes.OpenUrl -> {
+            OpenUrlDataItem(action = action, onChangeAction = onChangeAction)
         }
     }
 }
@@ -479,4 +485,34 @@ private fun DialDataItem(
             }
         }
     }
+}
+
+@Composable
+private fun OpenUrlDataItem(
+    action: CircleMenuAction,
+    onChangeAction: (CircleMenuAction) -> Unit
+) {
+    var showOpenUrlDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showOpenUrlDialog) {
+        OpenUrlActionData(
+            defUrl = action.data.getAs(OpenUrl::class.java).url,
+            onPick = onChangeAction,
+            onDismissRequest = { showOpenUrlDialog = false }
+        )
+    }
+    Text(
+        modifier = Modifier
+            .padding(10.dp)
+            .clip(RoundedCornerShape(7.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable {
+                showOpenUrlDialog = true
+            }
+            .padding(20.dp),
+        text = action.data.getAs(OpenUrl::class.java).url,
+        fontSize = Constants.minScreenLength.sp / 20,
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }
