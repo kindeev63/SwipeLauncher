@@ -25,13 +25,12 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import com.kindeev.swipelauncher.domain.getApplicationInfo
-import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.getResourceId
 import com.kindeev.swipelauncher.domain.pickUserImageLauncher
 import com.kindeev.swipelauncher.presentation.ui.dialogs.AppImageData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.DefaultImageData
@@ -41,22 +40,22 @@ fun ImageDataByType(
     image: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
-    when (image.type) {
-        CircleMenuImageTypes.AppImage -> {
-            AppImageDataItem(image = image, onChangeImage = onChangeImage)
+    when (image) {
+        is AppImage -> {
+            AppImageDataItem(appImage = image, onChangeImage = onChangeImage)
         }
-        CircleMenuImageTypes.DefaultImage -> {
-            DefaultImageDataItem(image = image, onChangeImage = onChangeImage)
+        is DefaultImage -> {
+            DefaultImageDataItem(defaultImage = image, onChangeImage = onChangeImage)
         }
-        CircleMenuImageTypes.UserImage -> {
-            UserImageDataItem(image = image, onChangeImage = onChangeImage)
+        is UserImage -> {
+            UserImageDataItem(userImage = image, onChangeImage = onChangeImage)
         }
     }
 }
 
 @Composable
 private fun AppImageDataItem(
-    image: CircleMenuImage,
+    appImage: AppImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     var showAppImageDialog by rememberSaveable {
@@ -68,7 +67,6 @@ private fun AppImageDataItem(
             onDismissRequest = { showAppImageDialog = false }
         )
     }
-    val appImage = image.data.getAs(AppImage::class.java)
     val applicationData = LocalContext.current.getApplicationInfo(appImage.packageName)
     Column(
         modifier = Modifier
@@ -93,7 +91,7 @@ private fun AppImageDataItem(
 
 @Composable
 private fun DefaultImageDataItem(
-    image: CircleMenuImage,
+    defaultImage: DefaultImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     var showDefaultImageDialog by rememberSaveable {
@@ -105,25 +103,23 @@ private fun DefaultImageDataItem(
             onDismissRequest = { showDefaultImageDialog = false }
         )
     }
-    val defaultImage = image.data.getAs(DefaultImage::class.java)
     Image(
         modifier = Modifier
             .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { showDefaultImageDialog = true }
             .size(Constants.minScreenLength.dp / 3),
-        painter = painterResource(id = Constants.defaultImages[defaultImage] ?: R.drawable.ic_error),
+        painter = painterResource(id = defaultImage.data.getResourceId() ?: R.drawable.ic_error),
         contentDescription = "Default image"
     )
 }
 
 @Composable
 private fun UserImageDataItem(
-    image: CircleMenuImage,
+    userImage: UserImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
     val launcher = pickUserImageLauncher(onChangeImage)
-    val userImage = image.data.getAs(UserImage::class.java)
     Image(
         modifier = Modifier
             .padding(10.dp)

@@ -1,0 +1,3 @@
+package com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage
+
+interface CircleMenuImage

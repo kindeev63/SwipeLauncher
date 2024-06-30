@@ -49,15 +49,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
-import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.getSelectedBoxOffset
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
@@ -317,22 +314,18 @@ private fun CircleMenuBox(
                 onPick = { circleMenuItemToAdd = circleMenuItemToAdd.copy(image = it) }
             )
         } else {
-            if (circleMenuItemToAdd.image?.type == CircleMenuImageTypes.AppImage && LauncherData.settings.value?.getValueOf(
-                    Setting.PickAppActionWithImage,
-                    Boolean::class.java
-                ) == true
+            if (circleMenuItemToAdd.image is AppImage && LauncherData.settings.value?.getValueOf(
+                    SettingNames.PickAppActionWithImage,
+                    PickAppActionWithImage::class.java
+                )?.enabled == true
             ) {
-                val appImage = circleMenuItemToAdd.image?.data.getAs(AppImage::class.java)
                 viewModel.insertItem(
                     CircleMenuItem(
                         offset = circleMenuItemToAdd.offset
                             ?: throw IllegalArgumentException("Illegal offset"),
                         image = circleMenuItemToAdd.image
                             ?: throw IllegalArgumentException("Illegal image"),
-                        action = CircleMenuAction(
-                            type = CircleMenuActionTypes.OpenApp,
-                            data = OpenApp(appImage.packageName)
-                        )
+                        action = OpenAppAction(packageName = (circleMenuItemToAdd.image as AppImage).packageName)
                     )
                 )
                 circleMenuItemToAdd = CircleMenuItemToAdd()

@@ -58,14 +58,16 @@ import com.kindeev.swipelauncher.domain.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.ReadContactsPermission
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
-import com.kindeev.swipelauncher.presentation.entities.ActionTypes
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
+import com.kindeev.swipelauncher.domain.getFlashlightAction
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
@@ -76,66 +78,66 @@ fun ActionDialog(
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
-    var actionType by rememberSaveable {
-        mutableStateOf<ActionTypes?>(null)
+    var actionCategory by rememberSaveable {
+        mutableStateOf<ActionCategories?>(null)
     }
     AllActionTypes(
-        onPick = { actionType = it },
+        onPick = { actionCategory = it },
         onDismissRequest = onDismissRequest
     )
-    when (actionType) {
-        ActionTypes.OpenCircleMenu -> {
+    when (actionCategory) {
+        ActionCategories.OpenCircleMenu -> {
             OpenCircleMenuActionData(
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { actionType = null }
+                onDismissRequest = { actionCategory = null }
             )
         }
 
-        ActionTypes.OpenApp -> {
+        ActionCategories.OpenApp -> {
             OpenAppActionData(
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { actionType = null }
+                onDismissRequest = { actionCategory = null }
             )
         }
 
-        ActionTypes.Flashlight -> {
+        ActionCategories.Flashlight -> {
             FlashlightActionData(
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { actionType = null }
+                onDismissRequest = { actionCategory = null }
             )
         }
 
-        ActionTypes.Telephone -> {
+        ActionCategories.Telephone -> {
             TelephoneActionData(
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { actionType = null }
+                onDismissRequest = { actionCategory = null }
             )
         }
 
-        ActionTypes.OpenSettings -> {
-            onPick(CircleMenuAction(type = CircleMenuActionTypes.OpenSettings))
+        ActionCategories.OpenSettings -> {
+            onPick(OpenSettingsAction)
             onDismissRequest()
         }
 
-        ActionTypes.OpenUrl -> {
+        ActionCategories.OpenUrl -> {
             OpenUrlActionData(
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { actionType = null }
+                onDismissRequest = { actionCategory = null }
             )
         }
 
@@ -145,7 +147,7 @@ fun ActionDialog(
 
 @Composable
 private fun AllActionTypes(
-    onPick: (ActionTypes) -> Unit,
+    onPick: (ActionCategories) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
@@ -168,7 +170,7 @@ private fun AllActionTypes(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.actionTypes.filter {
+                items(items = Constants.actionCategories.filter {
                     it.name.lowercase().contains(searchText.lowercase())
                 }) { actionType ->
                     ActionTypeElement(
@@ -257,12 +259,7 @@ fun OpenCircleMenuActionData(
                         ) - 20f) / 3,
                         circleMenu = circleMenu
                     ) {
-                        onPick(
-                            CircleMenuAction(
-                                type = CircleMenuActionTypes.OpenCircleMenu,
-                                data = OpenCircleMenu(id = circleMenu.id)
-                            )
-                        )
+                        onPick(OpenCircleMenuAction(id = circleMenu.id))
                         onDismissRequest()
                     }
                 }
@@ -305,12 +302,7 @@ fun OpenAppActionData(
                     AppItem(
                         applicationInfo = applicationInfo
                     ) {
-                        onPick(
-                            CircleMenuAction(
-                                type = CircleMenuActionTypes.OpenApp,
-                                data = OpenApp(packageName = applicationInfo.packageName)
-                            )
-                        )
+                        onPick(OpenAppAction(packageName = applicationInfo.packageName))
                         onDismissRequest()
                     }
                 }
@@ -345,18 +337,14 @@ fun FlashlightActionData(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.flashlightActionTypes.filter {
+                items(items = Constants.flashlightActionCategoryItems.filter {
                     it.name.lowercase().contains(searchText.lowercase())
                 }) { flashlightActionType ->
                     ActionTypeElement(
                         name = flashlightActionType.name,
                         imageResId = flashlightActionType.imageResId,
                         onClick = {
-                            onPick(
-                                CircleMenuAction(
-                                    type = flashlightActionType.type
-                                )
-                            )
+                            onPick(flashlightActionType.type.getFlashlightAction())
                             onDismissRequest()
                         }
                     )
@@ -386,10 +374,10 @@ fun TelephoneActionData(
                 .padding(20.dp)
         ) {
             var actionType by rememberSaveable {
-                mutableStateOf<CircleMenuActionTypes?>(null)
+                mutableStateOf<AllActionTypes?>(null)
             }
-            if (actionType != null) {
-                if (actionType == CircleMenuActionTypes.Call) {
+            when (actionType) {
+                AllActionTypes.Call -> {
                     var hasCallPermission by rememberSaveable {
                         mutableStateOf<Boolean?>(null)
                     }
@@ -399,16 +387,7 @@ fun TelephoneActionData(
                         if (hasCallPermission == true) {
                             EnterNumberDialog(
                                 onEnter = {
-                                    onPick(
-                                        CircleMenuAction(
-                                            type = actionType!!,
-                                            data = when (actionType) {
-                                                CircleMenuActionTypes.Call -> Call(it)
-                                                CircleMenuActionTypes.Dial -> Dial(it)
-                                                else -> null
-                                            }
-                                        )
-                                    )
+                                    onPick(CallAction(it))
                                     onDismissRequest()
                                 },
                                 onDismissRequest = {
@@ -419,19 +398,12 @@ fun TelephoneActionData(
                             actionType = null
                         }
                     }
-                } else {
+                }
+
+                AllActionTypes.Dial -> {
                     EnterNumberDialog(
                         onEnter = {
-                            onPick(
-                                CircleMenuAction(
-                                    type = actionType!!,
-                                    data = when (actionType) {
-                                        CircleMenuActionTypes.Call -> Call(it)
-                                        CircleMenuActionTypes.Dial -> Dial(it)
-                                        else -> null
-                                    }
-                                )
-                            )
+                            onPick(DialAction(it))
                             onDismissRequest()
                         },
                         onDismissRequest = {
@@ -439,6 +411,8 @@ fun TelephoneActionData(
                         }
                     )
                 }
+
+                else -> {}
             }
 
             var searchText by rememberSaveable {
@@ -448,7 +422,7 @@ fun TelephoneActionData(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.telephoneActionTypes.filter {
+                items(items = Constants.telephoneActionCategoryItems.filter {
                     it.name.lowercase().contains(searchText.lowercase())
                 }) { telephoneActionType ->
                     ActionTypeElement(
@@ -717,12 +691,7 @@ fun OpenUrlActionData(
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable {
                             if (url.isNotEmpty()) {
-                                onPick(
-                                    CircleMenuAction(
-                                        type = CircleMenuActionTypes.OpenUrl,
-                                        data = OpenUrl(url)
-                                    )
-                                )
+                                onPick(OpenUrlAction(url))
                                 onDismissRequest()
                             }
                         },

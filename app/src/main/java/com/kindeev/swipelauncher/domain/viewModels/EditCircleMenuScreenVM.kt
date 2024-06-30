@@ -6,15 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.emptyCircleMenu
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
-import com.kindeev.swipelauncher.domain.getAs
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.getValueOf
 import kotlinx.coroutines.launch
 
@@ -60,14 +57,12 @@ class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
 
     fun updateImage(item: CircleMenuItem) = viewModelScope.launch {
         var action = item.action
-        if (item.image.type == CircleMenuImageTypes.AppImage) {
-            if (LauncherData.settings.value?.getValueOf(Setting.PickAppActionWithImage, Boolean::class.java) == true) {
-                val appImage = item.image.data.getAs(AppImage::class.java)
-                action = CircleMenuAction(
-                    type = CircleMenuActionTypes.OpenApp,
-                    data = OpenApp(appImage.packageName)
-                )
-            }
+        if (item.image is AppImage && LauncherData.settings.value?.getValueOf(
+                SettingNames.PickAppActionWithImage,
+                PickAppActionWithImage::class.java
+            )?.enabled == true
+        ) {
+            action = OpenAppAction(item.image.packageName)
         }
         circleMenu.value?.let { circleMenu ->
             LauncherData.insertCircleMenu(

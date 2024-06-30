@@ -3,7 +3,7 @@ package com.kindeev.swipelauncher.domain.useCases
 import android.content.Context
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.check
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.getApplications
 import com.kindeev.swipelauncher.domain.getUserImageIds
 

@@ -10,21 +10,22 @@ import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.useCases.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.domain.useCases.OpenSettingsUseCase
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
-import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getCircleMenuItem
 import com.kindeev.swipelauncher.domain.useCases.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.TelephoneUseCase
@@ -86,7 +87,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     )
                     item?.let {
                         actionInProgress = true
-                        executeAction(it, offset)
+                        executeAction(it.action, offset)
                     }
                 }
             }
@@ -109,57 +110,57 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         _screenState.value = LauncherScreenState.SwipeBox
     }
 
-    private fun executeAction(
-        item: CircleMenuItem,
-        offset: Offset
+    fun executeAction(
+        action: CircleMenuAction,
+        offset: Offset? = null
     ) {
-        when (item.action.type) {
+        when (action) {
 
-            CircleMenuActionTypes.OpenCircleMenu -> {
-                val openCircleMenu = item.action.data.getAs(OpenCircleMenu::class.java)
-                var circleMenuForCheck =
-                    LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
-                        ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
-                circleMenuForCheck?.let { menu ->
-                    circleMenuForCheck =
-                        if (checkCircleMenuUseCase.invoke(menu)) {
-                            menu
-                        } else {
-                            LauncherData.allCircleMenus.value?.find { it.id == 0 }
-                        }
-                }
-                circleMenuForCheck?.let {
-                    _currentMenu.postValue(
-                        CircleMenuWithOffset(
-                            circleMenu = it,
-                            offset = offset
+            is OpenCircleMenuAction -> {
+                offset?.let { newOffset ->
+                    var circleMenuForCheck =
+                        LauncherData.allCircleMenus.value?.find { it.id == action.id }
+                            ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
+                    circleMenuForCheck?.let { menu ->
+                        circleMenuForCheck =
+                            if (checkCircleMenuUseCase.invoke(menu)) {
+                                menu
+                            } else {
+                                LauncherData.allCircleMenus.value?.find { it.id == 0 }
+                            }
+                    }
+                    circleMenuForCheck?.let {
+                        _currentMenu.postValue(
+                            CircleMenuWithOffset(
+                                circleMenu = it,
+                                offset = newOffset
+                            )
                         )
-                    )
+                    }
+                    vibrator.vibrate(20)
+                    actionInProgress = false
                 }
-                vibrator.vibrate(20)
-                actionInProgress = false
             }
 
-            CircleMenuActionTypes.OpenSettings -> {
+            is OpenSettingsAction -> {
                 openSettingsUseCase.invoke()
             }
 
-            CircleMenuActionTypes.OpenApp -> {
-                val currentApp = item.action.data.getAs(OpenApp::class.java)
-                openAppUseCase.invoke(currentApp.packageName)
+            is OpenAppAction -> {
+                openAppUseCase.invoke(action.packageName)
             }
 
-            CircleMenuActionTypes.FlashLightOn -> {
+            is FlashLightOnAction -> {
                 flashLightUseCase.on()
                 LauncherData.flashLightCondition = true
             }
 
-            CircleMenuActionTypes.FlashLightOff -> {
+            is FlashLightOffAction -> {
                 flashLightUseCase.off()
                 LauncherData.flashLightCondition = false
             }
 
-            CircleMenuActionTypes.ChangeFlashLightCondition -> {
+            is ChangeFlashLightConditionAction -> {
                 if (LauncherData.flashLightCondition) {
                     flashLightUseCase.off()
                 } else {
@@ -168,56 +169,17 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 LauncherData.flashLightCondition = !LauncherData.flashLightCondition
             }
 
-            CircleMenuActionTypes.Call -> {
-                val call = item.action.data.getAs(Call::class.java)
-                telephoneUseCase.call(call.phoneNumber)
+            is CallAction -> {
+                telephoneUseCase.call(action.phoneNumber)
             }
 
-            CircleMenuActionTypes.Dial -> {
-                val dial = item.action.data.getAs(Dial::class.java)
-                telephoneUseCase.dial(dial.phoneNumber)
+            is DialAction -> {
+                telephoneUseCase.dial(action.phoneNumber)
             }
 
-            CircleMenuActionTypes.OpenUrl -> {
-                val openUrl = item.action.data.getAs(OpenUrl::class.java)
-                openUrlUseCase.open(openUrl.url)
+            is OpenUrlAction -> {
+                openUrlUseCase.open(action.url)
             }
-        }
-    }
-
-    fun executeClickOnClockAction(
-        action: CircleMenuAction
-    ) {
-        when (action.type) {
-
-            CircleMenuActionTypes.OpenSettings -> {
-                openSettingsUseCase.invoke()
-            }
-
-            CircleMenuActionTypes.OpenApp -> {
-                val currentApp = action.data.getAs(OpenApp::class.java)
-                openAppUseCase.invoke(currentApp.packageName)
-            }
-
-            CircleMenuActionTypes.FlashLightOn -> {
-                flashLightUseCase.on()
-                LauncherData.flashLightCondition = true
-            }
-
-            CircleMenuActionTypes.FlashLightOff -> {
-                flashLightUseCase.off()
-                LauncherData.flashLightCondition = false
-            }
-
-            CircleMenuActionTypes.ChangeFlashLightCondition -> {
-                if (LauncherData.flashLightCondition) {
-                    flashLightUseCase.off()
-                } else {
-                    flashLightUseCase.on()
-                }
-                LauncherData.flashLightCondition = !LauncherData.flashLightCondition
-            }
-            else -> {}
         }
     }
 }

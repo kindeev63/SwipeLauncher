@@ -34,16 +34,18 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.ReadContactsPermission
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Call
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.Dial
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenUrl
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
 import com.kindeev.swipelauncher.domain.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.getApplicationInfo
-import com.kindeev.swipelauncher.domain.getAs
 import com.kindeev.swipelauncher.domain.getContactName
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionData
@@ -59,8 +61,8 @@ fun ActionDataByType(
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
-    when (action.type) {
-        CircleMenuActionTypes.OpenCircleMenu -> {
+    when (action) {
+        is OpenCircleMenuAction -> {
             OpenCircleMenuDataItem(
                 action = action,
                 textColor = textColor,
@@ -68,8 +70,8 @@ fun ActionDataByType(
             )
         }
 
-        CircleMenuActionTypes.OpenSettings -> {}
-        CircleMenuActionTypes.OpenApp -> {
+        is OpenSettingsAction -> {}
+        is OpenAppAction -> {
             OpenAppDataItem(
                 action = action,
                 textColor = textColor,
@@ -77,27 +79,27 @@ fun ActionDataByType(
             )
         }
 
-        CircleMenuActionTypes.FlashLightOn -> {
+        is FlashLightOnAction -> {
             FlashlightOnDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
-        CircleMenuActionTypes.FlashLightOff -> {
+        is FlashLightOffAction -> {
             FlashlightOffDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
-        CircleMenuActionTypes.ChangeFlashLightCondition -> {
+        is ChangeFlashLightConditionAction -> {
             ChangeFlashlightConditionDataItem(onChangeAction = onChangeAction, textColor = textColor)
         }
 
-        CircleMenuActionTypes.Call -> {
+        is CallAction -> {
             CallDataItem(action = action, onChangeAction = onChangeAction)
         }
 
-        CircleMenuActionTypes.Dial -> {
+        is DialAction -> {
             DialDataItem(action = action, onChangeAction = onChangeAction)
         }
 
-        CircleMenuActionTypes.OpenUrl -> {
+        is OpenUrlAction -> {
             OpenUrlDataItem(action = action, onChangeAction = onChangeAction)
         }
     }
@@ -105,7 +107,7 @@ fun ActionDataByType(
 
 @Composable
 private fun OpenCircleMenuDataItem(
-    action: CircleMenuAction,
+    action: OpenCircleMenuAction,
     textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -119,9 +121,8 @@ private fun OpenCircleMenuDataItem(
         )
     }
 
-    val openCircleMenu = action.data.getAs(OpenCircleMenu::class.java)
     val circleMenu =
-        LauncherData.allCircleMenus.value?.find { it.id == openCircleMenu.id }
+        LauncherData.allCircleMenus.value?.find { it.id == action.id }
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -146,7 +147,7 @@ private fun OpenCircleMenuDataItem(
 
 @Composable
 private fun OpenAppDataItem(
-    action: CircleMenuAction,
+    action: OpenAppAction,
     textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -159,8 +160,7 @@ private fun OpenAppDataItem(
             onDismissRequest = { showOpenAppDialog = false }
         )
     }
-    val openApp = action.data.getAs(OpenApp::class.java)
-    val applicationData = LocalContext.current.getApplicationInfo(openApp.packageName)
+    val applicationData = LocalContext.current.getApplicationInfo(action.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -292,12 +292,12 @@ private fun ChangeFlashlightConditionDataItem(
 
 @Composable
 private fun CallDataItem(
-    action: CircleMenuAction,
+    action: CallAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     val context = LocalContext.current
     var data by rememberSaveable {
-        mutableStateOf(action.data.getAs(Call::class.java))
+        mutableStateOf(action)
     }
     var contactName by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -305,8 +305,8 @@ private fun CallDataItem(
     var hasReadContactsPermission by rememberSaveable {
         mutableStateOf<Boolean?>(null)
     }
-    if (action.data.getAs(Call::class.java) != data) {
-        data = action.data.getAs(Call::class.java)
+    if (action != data) {
+        data = action
         if (hasReadContactsPermission == true) {
             contactName = context.getContactName(data.phoneNumber)
         }
@@ -334,7 +334,7 @@ private fun CallDataItem(
     if (showEnterNumberDialog) {
         EnterNumberDialog(
             defNumber = data.phoneNumber,
-            onEnter = { onChangeAction(action.copy(data = Call(it))) },
+            onEnter = { onChangeAction(CallAction(it)) },
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
@@ -390,12 +390,12 @@ private fun CallDataItem(
 
 @Composable
 private fun DialDataItem(
-    action: CircleMenuAction,
+    action: DialAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     val context = LocalContext.current
     var data by rememberSaveable {
-        mutableStateOf(action.data.getAs(Dial::class.java))
+        mutableStateOf(action)
     }
     var contactName by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -403,8 +403,8 @@ private fun DialDataItem(
     var hasReadContactsPermission by rememberSaveable {
         mutableStateOf<Boolean?>(null)
     }
-    if (action.data.getAs(Dial::class.java) != data) {
-        data = action.data.getAs(Dial::class.java)
+    if (action != data) {
+        data = action
         if (hasReadContactsPermission == true) {
             contactName = context.getContactName(data.phoneNumber)
         }
@@ -432,7 +432,7 @@ private fun DialDataItem(
     if (showEnterNumberDialog) {
         EnterNumberDialog(
             defNumber = data.phoneNumber,
-            onEnter = { onChangeAction(action.copy(data = Call(it))) },
+            onEnter = { onChangeAction(DialAction(it)) },
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
@@ -489,7 +489,7 @@ private fun DialDataItem(
 
 @Composable
 private fun OpenUrlDataItem(
-    action: CircleMenuAction,
+    action: OpenUrlAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showOpenUrlDialog by rememberSaveable {
@@ -497,7 +497,7 @@ private fun OpenUrlDataItem(
     }
     if (showOpenUrlDialog) {
         OpenUrlActionData(
-            defUrl = action.data.getAs(OpenUrl::class.java).url,
+            defUrl = action.url,
             onPick = onChangeAction,
             onDismissRequest = { showOpenUrlDialog = false }
         )
@@ -511,7 +511,7 @@ private fun OpenUrlDataItem(
                 showOpenUrlDialog = true
             }
             .padding(20.dp),
-        text = action.data.getAs(OpenUrl::class.java).url,
+        text = action.url,
         fontSize = Constants.minScreenLength.sp / 20,
         color = MaterialTheme.colorScheme.onBackground
     )

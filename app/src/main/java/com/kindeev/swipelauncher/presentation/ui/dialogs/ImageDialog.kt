@@ -37,9 +37,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.pickUserImageLauncher
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
@@ -56,11 +57,11 @@ fun ImageDialog(
         }
     )
     var imageType by rememberSaveable {
-        mutableStateOf<CircleMenuImageTypes?>(null)
+        mutableStateOf<AllImageTypes?>(null)
     }
     AllImageTypes(
         onPick = {
-            if (it == CircleMenuImageTypes.UserImage) {
+            if (it == AllImageTypes.UserImage) {
                 launcher.launch("image/*")
             } else {
                 imageType = it
@@ -69,7 +70,7 @@ fun ImageDialog(
         onDismissRequest = onDismissRequest
     )
     when (imageType) {
-        CircleMenuImageTypes.AppImage -> {
+        AllImageTypes.AppImage -> {
             AppImageData(
                 onPick = {
                     onPick(it)
@@ -79,7 +80,7 @@ fun ImageDialog(
             )
         }
 
-        CircleMenuImageTypes.DefaultImage -> {
+        AllImageTypes.DefaultImage -> {
             DefaultImageData(
                 onPick = {
                     onPick(it)
@@ -95,7 +96,7 @@ fun ImageDialog(
 
 @Composable
 private fun AllImageTypes(
-    onPick: (CircleMenuImageTypes) -> Unit,
+    onPick: (AllImageTypes) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
@@ -201,12 +202,7 @@ fun AppImageData(
                     AppItem(
                         applicationInfo = applicationInfo
                     ) {
-                        onPick(
-                            CircleMenuImage(
-                                type = CircleMenuImageTypes.AppImage,
-                                data = AppImage(packageName = applicationInfo.packageName)
-                            )
-                        )
+                        onPick(AppImage(applicationInfo.packageName))
                         onDismissRequest()
                     }
                 }
@@ -251,12 +247,7 @@ fun DefaultImageData(
                         modifier = Modifier
                             .size(50.dp)
                             .clickable {
-                                onPick(
-                                    CircleMenuImage(
-                                        type = CircleMenuImageTypes.DefaultImage,
-                                        data = defaultImage
-                                    )
-                                )
+                                onPick(DefaultImage(defaultImage))
                             },
                         painter = painterResource(
                             id = Constants.defaultImages[defaultImage] ?: R.drawable.ic_error

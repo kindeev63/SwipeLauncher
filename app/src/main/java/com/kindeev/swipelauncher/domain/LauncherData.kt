@@ -5,12 +5,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.kindeev.swipelauncher.domain.dataBase.AppDao
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 object LauncherData {
 
     private lateinit var appDao: AppDao
@@ -24,15 +22,15 @@ object LauncherData {
 
     var flashLightCondition = false
 
-    val textColorOnWallpaper: Color
-        get() = if (settings.value?.getValueOf(
-                Setting.BlackTextColorOnWallpaper,
-                Boolean::class.java
-            ) == true
-        ) Color.Black else Color.White
+    private val _textColorOnWallpaper = MutableLiveData(Color.White)
+    val textColorOnWallpaper: LiveData<Color> = _textColorOnWallpaper
 
     fun setAppDao(appDao: AppDao) {
         this.appDao = appDao
+    }
+
+    fun setTextColorOnWallpaper(color: Color) {
+        _textColorOnWallpaper.postValue(color)
     }
 
     fun setAllApplications(applications: List<ApplicationInfo>) {

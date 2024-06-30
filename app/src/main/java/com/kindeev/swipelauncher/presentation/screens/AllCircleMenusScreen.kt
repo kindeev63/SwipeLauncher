@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog

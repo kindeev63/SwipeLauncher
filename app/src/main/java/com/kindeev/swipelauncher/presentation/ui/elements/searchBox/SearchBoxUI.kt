@@ -17,8 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
 import com.kindeev.swipelauncher.domain.executeSearchResult
 import com.kindeev.swipelauncher.domain.getNotHidden
 import com.kindeev.swipelauncher.domain.getValueOf
@@ -37,7 +38,7 @@ fun SearchBoxUI(
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
     val settings by LauncherData.settings.observeAsState(emptyList())
     val searchResults = searchText.getSearchResults(allApplicationInfo)
-    if (searchResults.size == 1 && settings.getValueOf(Setting.OpenLastApp, Boolean::class.java) == true) {
+    if (searchResults.size == 1 && settings.getValueOf(SettingNames.OpenLastApp, OpenLastApp::class.java)?.enabled == true) {
         searchResults.firstOrNull()?.let { LocalContext.current.executeSearchResult(it) }
         onClose()
     }

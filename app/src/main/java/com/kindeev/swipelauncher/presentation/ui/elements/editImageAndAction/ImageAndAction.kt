@@ -39,15 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.getActionType
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.getImageType
 import com.kindeev.swipelauncher.domain.getMinScreenLengthDp
 import com.kindeev.swipelauncher.domain.getMinScreenLengthSp
-import com.kindeev.swipelauncher.presentation.entities.ActionType
-import com.kindeev.swipelauncher.presentation.entities.ImageType
+import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
+import com.kindeev.swipelauncher.domain.getCategory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 
@@ -113,7 +113,7 @@ private fun ImageBox(
     ) {
         Column {
             ImageTypeItem(
-                imageType = image.type.getImageType()
+                imageType = image.getImageType()
                     ?: throw IllegalAccessException(
                         "Illegal image type"
                     ),
@@ -166,7 +166,7 @@ private fun ActionBox(
     ) {
         Column {
             ActionTypeItem(
-                actionType = action.type.getActionType() ?: throw IllegalAccessException(
+                actionCategory = action.getCategory() ?: throw IllegalAccessException(
                     "Illegal action type"
                 ),
                 onChangeAction = onChangeAction
@@ -178,7 +178,7 @@ private fun ActionBox(
 
 @Composable
 fun ActionTypeItem(
-    actionType: ActionType,
+    actionCategory: ActionCategory,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     var showActionDialog by rememberSaveable {
@@ -203,12 +203,12 @@ fun ActionTypeItem(
     ) {
         Image(
             modifier = Modifier.size(minScreenLength / 8),
-            painter = painterResource(id = actionType.imageResId),
+            painter = painterResource(id = actionCategory.imageResId),
             contentDescription = "Action type image"
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = actionType.name,
+            text = actionCategory.name,
             color = MaterialTheme.colorScheme.onSecondary,
             fontSize = getMinScreenLengthSp() / 25
         )

@@ -15,8 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
@@ -37,7 +37,9 @@ fun LauncherScreen() {
     BackHandler {}
     LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) { allMenus ->
         (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
-            ?: allMenus.find { it.id == 0 })?.let { viewModel.setCircleMenu(it) }
+            ?: allMenus.find { it.id == 0 })?.let {
+                viewModel.setCircleMenu(it)
+            }
 
     }
 
@@ -63,7 +65,7 @@ fun LauncherScreen() {
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by LauncherData.settings.observeAsState(emptyList())
-    val clickOnClock = settings.getValueOf(Setting.ClickOnClock, ClickOnClock::class.java)
+    val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
     SwipeBox(viewModel = viewModel)
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -72,7 +74,7 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (clickOnClock?.enabled == true) {
             ClickableClockWidget {
-                viewModel.executeClickOnClockAction(clickOnClock.action)
+                viewModel.executeAction(clickOnClock.action)
             }
         } else {
             ClockWidget()

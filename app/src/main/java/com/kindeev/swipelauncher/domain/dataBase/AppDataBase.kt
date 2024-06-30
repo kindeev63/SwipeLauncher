@@ -5,12 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
 
 @Database(entities = [CircleMenu::class, SettingData::class, ApplicationData::class], version = 1)
-@TypeConverters(DataBaseTypesConverter::class)
+@TypeConverters(DataBaseTypeConverter::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun getDao(): AppDao
     companion object {

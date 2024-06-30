@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,11 +22,14 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.getAllApplicationInfo
 import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.getRootCircleMenu
 import com.kindeev.swipelauncher.domain.getUserImages
+import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
 import com.kindeev.swipelauncher.domain.removeUnusedUserImages
@@ -142,6 +146,15 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                }
+                LauncherData.settings.observe(this) { allSettingsData ->
+                    LauncherData.setTextColorOnWallpaper(
+                        if (allSettingsData.getValueOf(
+                                SettingNames.BlackTextColorOnWallpaper,
+                                BlackTextColorOnWallpaper::class.java
+                            )?.enabled == true
+                        ) Color.Black else Color.White
+                    )
                 }
             }
         }

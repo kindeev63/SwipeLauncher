@@ -38,41 +38,41 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.google.gson.Gson
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.entities.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.CircleMenuActionTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenApp
-import com.kindeev.swipelauncher.domain.entities.circleMenuActions.actionData.OpenCircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.CircleMenuImageTypes
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.circleMenuImages.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.entities.settings.Setting
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.settingTypes.ClickOnClock
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
+import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
-import com.kindeev.swipelauncher.presentation.entities.ActionType
-import com.kindeev.swipelauncher.presentation.entities.ActionTypes
-import com.kindeev.swipelauncher.presentation.entities.FlashlightActionType
-import com.kindeev.swipelauncher.presentation.entities.ImageType
-import com.kindeev.swipelauncher.presentation.entities.TelephoneActionType
+import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-
-
-fun <T> Any?.getAs(classOfT: Class<T>): T {
-    val gson = Gson()
-    return gson.fromJson(gson.toJson(this), classOfT)
-}
 
 fun emptyCircleMenu(id: Int): CircleMenu {
     return CircleMenu(
@@ -104,27 +104,29 @@ fun Context.showLauncherSelection() {
     }
 }
 
-fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
-    return when (type) {
+fun DefaultImages.getResourceId(): Int? {
+    return Constants.defaultImages[this]
+}
 
-        CircleMenuImageTypes.DefaultImage -> {
-            val resourceId = Constants.defaultImages[data.getAs(
-                DefaultImage::class.java
-            )] ?: return null
-            context.resources.getDrawable(resourceId, context.theme).toBitmap().asImageBitmap()
+fun CircleMenuImage.getItemImage(context: Context): ImageBitmap? {
+    return when (this) {
+
+        is DefaultImage -> {
+            context.resources.getDrawable(this.data.getResourceId() ?: return null, context.theme)
+                .toBitmap().asImageBitmap()
         }
 
-        CircleMenuImageTypes.AppImage -> {
-            val appImage = data.getAs(AppImage::class.java)
-            LauncherData.allApplicationInfo.value?.find { it.packageName == appImage.packageName }?.icon
-                ?: context.packageManager.getApplicationInfo(appImage.packageName, 0)
+        is AppImage -> {
+            LauncherData.allApplicationInfo.value?.find { it.packageName == this.packageName }?.icon
+                ?: context.packageManager.getApplicationInfo(this.packageName, 0)
                     .loadIcon(context.packageManager).toBitmap().asImageBitmap()
         }
 
-        CircleMenuImageTypes.UserImage -> {
-            val userImage = data.getAs(UserImage::class.java)
-            LauncherData.userImages[userImage.id]
+        is UserImage -> {
+            LauncherData.userImages[this.id]
         }
+
+        else -> null
     }
 }
 
@@ -132,29 +134,24 @@ fun CircleMenuImage.getItemImageForApplicationInfoDialog(
     context: Context,
     packageName: String
 ): ImageBitmap? {
-    return when (type) {
+    return when (this) {
 
-        CircleMenuImageTypes.DefaultImage -> {
-            val resourceId = Constants.defaultImages[data.getAs(
-                DefaultImage::class.java
-            )] ?: return null
-            context.resources.getDrawable(resourceId, context.theme).toBitmap().asImageBitmap()
+        is DefaultImage -> {
+            context.resources.getDrawable(this.data.getResourceId() ?: return null, context.theme)
+                .toBitmap().asImageBitmap()
         }
 
-        CircleMenuImageTypes.AppImage -> {
-            val appImage = data.getAs(AppImage::class.java)
-            if (appImage.packageName == packageName) {
+        is AppImage -> {
+            if (this.packageName == packageName) {
                 val applicationInfo =
-                    context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                    context.packageManager.getApplicationInfo(this.packageName, 0)
                 applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
             } else {
-                val applicationData = context.getApplicationData(appImage.packageName)
-                if (applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
-                        AppImage::class.java
-                    ).packageName == applicationData.packageName
+                val applicationData = context.getApplicationData(this.packageName)
+                if (applicationData.image is AppImage && applicationData.image.packageName == applicationData.packageName
                 ) {
                     val applicationInfo =
-                        context.packageManager.getApplicationInfo(appImage.packageName, 0)
+                        context.packageManager.getApplicationInfo(this.packageName, 0)
                     applicationInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap()
                 } else {
                     applicationData.image.getItemImage(context)
@@ -162,10 +159,11 @@ fun CircleMenuImage.getItemImageForApplicationInfoDialog(
             }
         }
 
-        CircleMenuImageTypes.UserImage -> {
-            val userImage = data.getAs(UserImage::class.java)
-            LauncherData.userImages[userImage.id]
+        is UserImage -> {
+            LauncherData.userImages[this.id]
         }
+
+        else -> null
     }
 }
 
@@ -177,30 +175,30 @@ fun CircleMenu.check(
     val newItems = mutableListOf<CircleMenuItem>()
 
     for (item in this.items) {
-        when (item.image.type) {
-            CircleMenuImageTypes.AppImage -> {
-                if (item.image.data.getAs(AppImage::class.java).packageName !in allPackageNames) {
+        when (item.image) {
+            is AppImage -> {
+                if (item.image.packageName !in allPackageNames) {
                     continue
                 }
             }
 
-            CircleMenuImageTypes.UserImage -> {
-                if (item.image.data.getAs(UserImage::class.java).id !in userImageIds) {
+            is UserImage -> {
+                if (item.image.id !in userImageIds) {
                     continue
                 }
             }
 
             else -> {}
         }
-        when (item.action.type) {
-            CircleMenuActionTypes.OpenApp -> {
-                if (item.action.data.getAs(OpenApp::class.java).packageName !in allPackageNames) {
+        when (item.action) {
+            is OpenAppAction -> {
+                if (item.action.packageName !in allPackageNames) {
                     continue
                 }
             }
 
-            CircleMenuActionTypes.OpenCircleMenu -> {
-                if (item.action.data.getAs(OpenCircleMenu::class.java).id !in allCircleMenuIds) {
+            is OpenCircleMenuAction -> {
+                if (item.action.id !in allCircleMenuIds) {
                     continue
                 }
             }
@@ -334,8 +332,8 @@ private fun List<CircleMenu>.getUserImageNamesFromCircleMenus(): List<String> {
         .map { it.items } // get lists of items
         .flatten() // get one list with all items
         .map { it.image } // list with CircleMenuImage
-        .filter { it.type == CircleMenuImageTypes.UserImage } // list with CircleMenuImage when type = UserImage
-        .map { "${it.data.getAs(UserImage::class.java).id}.png" }
+        .filter { it is UserImage } // list with UserImages
+        .map { "${(it as UserImage).id}.png" }
         .toList() // list of filenames
 }
 
@@ -343,8 +341,8 @@ private fun List<ApplicationData>.getUserImageNamesFromApplicationsData(): List<
     return this
         .asSequence()
         .map { it.image } // get lists of items
-        .filter { it.type == CircleMenuImageTypes.UserImage } // list with CircleMenuImage when type = UserImage
-        .map { "${it.data.getAs(UserImage::class.java).id}.png" }
+        .filter { it is UserImage } // list with UserImages
+        .map { "${(it as UserImage).id}.png" }
         .toList() // list of filenames
 }
 
@@ -372,24 +370,6 @@ fun Context.isAppInstalled(packageName: String): Boolean {
     } catch (e: PackageManager.NameNotFoundException) {
         false
     }
-}
-
-private fun Setting.getClassOfSettingData(): Class<*> {
-    return when (this) {
-        Setting.OpenLastApp -> Boolean::class.java
-        Setting.BlackTextColorOnWallpaper -> Boolean::class.java
-        Setting.ClickOnClock -> ClickOnClock::class.java
-        Setting.PickAppActionWithImage -> Boolean::class.java
-    }
-}
-
-fun String.deserializableSettingValue(setting: Setting): Any? {
-    val classOfData = setting.getClassOfSettingData()
-    return Gson().fromJson(this, classOfData)
-}
-
-fun Any?.serializableSettingValue(): String {
-    return Gson().toJson(this)
 }
 
 fun Context.getAppDetails(packageName: String) {
@@ -423,102 +403,108 @@ fun Context.createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
 }
 
 fun Context.setActionAndImageTypes() {
-    Constants.actionTypes = listOf(
-        ActionType(
+    Constants.actionCategories = listOf(
+        ActionCategory(
             name = this.resources.getString(R.string.open_app_action),
             imageResId = R.drawable.open_app_image,
-            type = ActionTypes.OpenApp
+            type = ActionCategories.OpenApp
         ),
-        ActionType(
+        ActionCategory(
             name = this.resources.getString(R.string.open_circle_menu_action),
             imageResId = R.drawable.open_circle_menu_image,
-            type = ActionTypes.OpenCircleMenu
+            type = ActionCategories.OpenCircleMenu
         ),
-        ActionType(
+        ActionCategory(
             name = this.resources.getString(R.string.telephone_action),
             imageResId = R.drawable.telephone_image,
-            type = ActionTypes.Telephone
+            type = ActionCategories.Telephone
         ),
-        ActionType(
+        ActionCategory(
             name = this.resources.getString(R.string.flashlight_action),
             imageResId = R.drawable.flashlight_action,
-            type = ActionTypes.Flashlight
+            type = ActionCategories.Flashlight
         ),
-        ActionType(
+        ActionCategory(
             name = this.resources.getString(R.string.open_settings_action),
             imageResId = R.drawable.open_settings_image,
-            type = ActionTypes.OpenSettings
+            type = ActionCategories.OpenSettings
         ),
-        ActionType(
+        ActionCategory(
             name = this.resources.getString(R.string.open_url_action),
             imageResId = R.drawable.open_url_image,
-            type = ActionTypes.OpenUrl
+            type = ActionCategories.OpenUrl
         ),
     )
-    Constants.flashlightActionTypes = listOf(
-        FlashlightActionType(
+    Constants.flashlightActionCategoryItems = listOf(
+        ActionCategoryItem(
             name = this.resources.getString(R.string.on_flashlight_action),
             imageResId = R.drawable.on_flashlight_image,
-            type = CircleMenuActionTypes.FlashLightOn
+            type = AllActionTypes.FlashLightOn
         ),
-        FlashlightActionType(
+        ActionCategoryItem(
             name = this.resources.getString(R.string.off_flashlight_action),
             imageResId = R.drawable.off_flashlight_image,
-            type = CircleMenuActionTypes.FlashLightOff
+            type = AllActionTypes.FlashLightOff
         ),
-        FlashlightActionType(
+        ActionCategoryItem(
             name = this.resources.getString(R.string.change_condition_flashlight_action),
             imageResId = R.drawable.change_condition_flashlight_image,
-            type = CircleMenuActionTypes.ChangeFlashLightCondition
+            type = AllActionTypes.ChangeFlashLightCondition
         ),
     )
-    Constants.telephoneActionTypes = listOf(
-        TelephoneActionType(
+    Constants.telephoneActionCategoryItems = listOf(
+        ActionCategoryItem(
             name = this.resources.getString(R.string.call_telephone_action),
             imageResId = R.drawable.call_telephone_image,
-            type = CircleMenuActionTypes.Call
+            type = AllActionTypes.Call
         ),
-        TelephoneActionType(
+        ActionCategoryItem(
             name = this.resources.getString(R.string.dial_telephone_action),
             imageResId = R.drawable.dial_telephone_image,
-            type = CircleMenuActionTypes.Dial
+            type = AllActionTypes.Dial
         ),
     )
     Constants.imageTypes = listOf(
         ImageType(
             name = this.resources.getString(R.string.app_image),
             imageResId = R.drawable.app_image,
-            type = CircleMenuImageTypes.AppImage
+            type = AllImageTypes.AppImage
         ),
         ImageType(
             name = this.resources.getString(R.string.default_image),
             imageResId = R.drawable.default_image,
-            type = CircleMenuImageTypes.DefaultImage
+            type = AllImageTypes.DefaultImage
         ),
         ImageType(
             name = this.resources.getString(R.string.user_image),
             imageResId = R.drawable.user_image,
-            type = CircleMenuImageTypes.UserImage
+            type = AllImageTypes.UserImage
         ),
     )
 }
 
-fun CircleMenuActionTypes.getActionType(): ActionType? {
+fun CircleMenuAction.getCategory(): ActionCategory? {
     return when (this) {
-        CircleMenuActionTypes.OpenCircleMenu -> Constants.actionTypes.find { it.type == ActionTypes.OpenCircleMenu }
-        CircleMenuActionTypes.OpenSettings -> Constants.actionTypes.find { it.type == ActionTypes.OpenSettings }
-        CircleMenuActionTypes.OpenApp -> Constants.actionTypes.find { it.type == ActionTypes.OpenApp }
-        CircleMenuActionTypes.FlashLightOn -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
-        CircleMenuActionTypes.FlashLightOff -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
-        CircleMenuActionTypes.ChangeFlashLightCondition -> Constants.actionTypes.find { it.type == ActionTypes.Flashlight }
-        CircleMenuActionTypes.Call -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
-        CircleMenuActionTypes.Dial -> Constants.actionTypes.find { it.type == ActionTypes.Telephone }
-        CircleMenuActionTypes.OpenUrl -> Constants.actionTypes.find { it.type == ActionTypes.OpenUrl }
+        is OpenCircleMenuAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenCircleMenu }
+        is OpenSettingsAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenSettings }
+        is OpenAppAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenApp }
+        is FlashLightOnAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
+        is FlashLightOffAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
+        is ChangeFlashLightConditionAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
+        is CallAction -> Constants.actionCategories.find { it.type == ActionCategories.Telephone }
+        is DialAction -> Constants.actionCategories.find { it.type == ActionCategories.Telephone }
+        is OpenUrlAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenUrl }
+        else -> null
     }
 }
 
-fun CircleMenuImageTypes.getImageType(): ImageType? {
-    return Constants.imageTypes.find { it.type == this }
+fun CircleMenuImage.getImageType(): ImageType? {
+    return when (this) {
+        is AppImage -> Constants.imageTypes.find { it.type == AllImageTypes.AppImage }
+        is DefaultImage -> Constants.imageTypes.find { it.type == AllImageTypes.DefaultImage }
+        is UserImage -> Constants.imageTypes.find { it.type == AllImageTypes.UserImage }
+        else -> null
+    }
 }
 
 fun Context.getApplicationInfo(packageName: String): ApplicationInfo {
@@ -549,10 +535,7 @@ fun Context.getApplicationData(packageName: String): ApplicationData {
             packageManager.getApplicationInfo(packageName, 0)
         ApplicationData(
             title = applicationInfo.loadLabel(packageManager).toString(),
-            image = CircleMenuImage(
-                type = CircleMenuImageTypes.AppImage,
-                data = AppImage(packageName)
-            ),
+            image = AppImage(packageName),
             packageName = applicationInfo.packageName
         )
     } else {
@@ -660,29 +643,21 @@ fun pickUserImageLauncher(
                 this[newId] = bitmap.asImageBitmap()
             }.toMap()
             context.addUserImage(newId, bitmap)
-            onPick(
-                CircleMenuImage(
-                    type = CircleMenuImageTypes.UserImage,
-                    data = UserImage(id = newId)
-                )
-            )
+            onPick(UserImage(newId))
         }
     }
 }
 
-fun <T> List<SettingData>.getValueOf(setting: Setting, classOfT: Class<T>): T? {
-    val gson = Gson()
-    return gson.fromJson(
-        gson.toJson(this.find { it.setting == setting }?.value ?: return null),
-        classOfT
-    )
+fun <T> List<SettingData>.getValueOf(name: SettingNames, classOfT: Class<T>): T? {
+    @Suppress("UNCHECKED_CAST")
+    return this.find { it.name == name }?.value as T?
 }
 
 fun getLauncherStatusBarStyle(): SystemBarStyle {
     return if (LauncherData.settings.value?.getValueOf(
-            Setting.BlackTextColorOnWallpaper,
-            Boolean::class.java
-        ) == true
+            SettingNames.BlackTextColorOnWallpaper,
+            BlackTextColorOnWallpaper::class.java
+        )?.enabled == true
     ) SystemBarStyle.light(
         android.graphics.Color.TRANSPARENT,
         android.graphics.Color.TRANSPARENT
@@ -704,7 +679,7 @@ private data class ItemCords(
 )
 
 fun CircleMenu.getCircleMenuItem(offset: Offset, menuSize: Float): CircleMenuItem? {
-    items.forEach {  item ->
+    items.forEach { item ->
         val itemCords = item.offset.getItemCords(menuSize)
         for (cords in itemCords) {
             if (
@@ -882,7 +857,7 @@ fun Context.getNotMaskApplicationData(packageName: String): ApplicationData {
         packageManager.getApplicationInfo(packageName, 0)
     return ApplicationData(
         title = applicationInfo.loadLabel(packageManager).toString(),
-        image = CircleMenuImage(type = CircleMenuImageTypes.AppImage, data = AppImage(packageName)),
+        image = AppImage(packageName),
         packageName = applicationInfo.packageName
     )
 }
@@ -904,18 +879,15 @@ suspend fun List<ApplicationData>.check(
         if (applicationData.packageName !in allApplicationInfo.map { it.packageName }) {
             toDelete.add(applicationData)
         } else {
-            if (applicationData.image.type == CircleMenuImageTypes.AppImage) {
-                if (applicationData.image.data.getAs(AppImage::class.java).packageName !in allPackageNames) {
+            if (applicationData.image is AppImage) {
+                if (applicationData.image.packageName !in allPackageNames) {
                     val appInfo = context.getNotMaskApplicationData(applicationData.packageName)
                     if (appInfo.title == applicationData.title && !applicationData.hidden) {
                         toDelete.add(applicationData)
                     } else {
                         toChange.add(
                             applicationData.copy(
-                                image = CircleMenuImage(
-                                    type = CircleMenuImageTypes.AppImage,
-                                    data = AppImage(applicationData.packageName)
-                                )
+                                image = AppImage(applicationData.packageName)
                             )
                         )
                     }
@@ -939,9 +911,7 @@ suspend fun Context.showApp(packageName: String) {
     LauncherData.allApplicationData.value?.find { it.packageName == packageName }
         ?.let { applicationData ->
             val appInfo = getNotMaskApplicationData(applicationData.packageName)
-            if (applicationData.title == appInfo.title && applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
-                    AppImage::class.java
-                ).packageName == appInfo.packageName
+            if (applicationData.title == appInfo.title && applicationData.image is AppImage && applicationData.image.packageName == appInfo.packageName
             ) {
                 LauncherData.deleteApplicationData(applicationData)
             } else {
@@ -952,9 +922,7 @@ suspend fun Context.showApp(packageName: String) {
 
 suspend fun Context.changeApp(applicationData: ApplicationData) {
     val appInfo = getNotMaskApplicationData(applicationData.packageName)
-    if (applicationData.title == appInfo.title && applicationData.image.type == CircleMenuImageTypes.AppImage && applicationData.image.data.getAs(
-            AppImage::class.java
-        ).packageName == appInfo.packageName
+    if (applicationData.title == appInfo.title && applicationData.image is AppImage && applicationData.image.packageName == appInfo.packageName
     ) {
         LauncherData.deleteApplicationDataByPackageName(applicationData.packageName)
     } else {
@@ -1056,14 +1024,8 @@ private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleM
     if (packageName == null) return null
     return CircleMenuItem(
         offset = this,
-        image = CircleMenuImage(
-            type = CircleMenuImageTypes.AppImage,
-            data = AppImage(packageName = packageName)
-        ),
-        action = CircleMenuAction(
-            type = CircleMenuActionTypes.OpenApp,
-            data = OpenApp(packageName = packageName)
-        )
+        image = AppImage(packageName = packageName),
+        action = OpenAppAction(packageName = packageName)
     )
 }
 
@@ -1080,11 +1042,8 @@ fun Context.getRootCircleMenu(title: String): CircleMenu {
     items.add(
         CircleMenuItem(
             offset = Constants.menuCords[4],
-            image = CircleMenuImage(
-                type = CircleMenuImageTypes.DefaultImage,
-                data = DefaultImage.Settings
-            ),
-            action = CircleMenuAction(type = CircleMenuActionTypes.OpenSettings)
+            image = DefaultImage(data = DefaultImages.Settings),
+            action = OpenSettingsAction
         )
     )
     Constants.menuCords[5].getCircleMenuItemByPackageName(getDefaultEmailApp(this))
@@ -1098,4 +1057,13 @@ fun Context.getRootCircleMenu(title: String): CircleMenu {
         title = title,
         items = items
     )
+}
+
+fun AllActionTypes.getFlashlightAction(): CircleMenuAction {
+    return when (this) {
+        AllActionTypes.FlashLightOn -> FlashLightOnAction
+        AllActionTypes.FlashLightOff -> FlashLightOffAction
+        AllActionTypes.ChangeFlashLightCondition -> ChangeFlashLightConditionAction
+        else -> throw IllegalArgumentException("Illegal flashlight action")
+    }
 }
