@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.dataBase
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -30,6 +29,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
 import org.json.JSONObject
 
 object Migrations {
@@ -47,27 +47,26 @@ object Migrations {
             val newSettings = mutableListOf<SettingData>()
             val oldSettings = database.query("SELECT * FROM table_settings")
             oldSettings.moveToFirst()
-            while (oldSettings.moveToNext()) {
+            do {
                 val name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting")))
                 val settingData = SettingData(
                     name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting"))),
                     value = oldSettings.getString(oldSettings.getColumnIndexOrThrow("value")).getSettingValue(name)
                 )
                 newSettings.add(settingData)
-            }
-            Log.e("test", newSettings.toString())
+            } while (oldSettings.moveToNext())
             database.execSQL("DROP TABLE IF EXISTS table_settings")
             database.execSQL("CREATE TABLE table_settings (name TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
             newSettings.forEach { settingData ->
-                database.execSQL("INSERT INTO table_settings (name, value) VALUES (${settingData.name}, ${settingData.value})")
+                database.execSQL("INSERT INTO table_settings (name, value) VALUES (?, ?)", arrayOf(settingData.name, DataBaseTypeConverter().fromSettingValue(settingData.value)))
             }
         }
 
         private fun String.getSettingValue(name: SettingNames): SettingValue {
             return when (name) {
-                SettingNames.OpenLastApp -> gson.fromJson(this, OpenLastApp::class.java)
+                SettingNames.OpenLastApp -> OpenLastApp(gson.fromJson(this, Boolean::class.java))
                 SettingNames.ClickOnClock -> {
-                    val oldClickOnClock = JSONObject(this).getJSONObject("value")
+                    val oldClickOnClock = JSONObject(this)
                     ClickOnClock(
                         enabled = oldClickOnClock.getBoolean("enabled"),
                         action = oldClickOnClock.getString("action").toCircleMenuAction()
@@ -95,18 +94,17 @@ object Migrations {
             val newMenus = mutableListOf<CircleMenu>()
             val oldMenus = database.query("SELECT * FROM table_menu")
             oldMenus.moveToFirst()
-            while (oldMenus.moveToNext()) {
+            do {
                 val circleMenu =  CircleMenu(
                     id = oldMenus.getInt(oldMenus.getColumnIndexOrThrow("id")),
                     title = oldMenus.getString(oldMenus.getColumnIndexOrThrow("title")),
                     items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items")).toCircleMenuItems()
                 )
                 newMenus.add(circleMenu)
-            }
-            Log.e("test", newMenus.toString())
+            } while (oldMenus.moveToNext())
             database.execSQL("DELETE FROM table_menu")
             newMenus.forEach { circleMenu ->
-                database.execSQL("INSERT INTO table_menu (id, title, items) VALUES (${circleMenu.id}, ${circleMenu.title}, ${circleMenu.items})")
+                database.execSQL("INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)", arrayOf(circleMenu.id, circleMenu.title, DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)))
             }
         }
 
