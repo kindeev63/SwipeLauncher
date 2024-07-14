@@ -30,7 +30,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
-import org.json.JSONObject
 
 object Migrations {
     private val gson = Gson()
@@ -66,10 +65,10 @@ object Migrations {
             return when (name) {
                 SettingNames.OpenLastApp -> OpenLastApp(gson.fromJson(this, Boolean::class.java))
                 SettingNames.ClickOnClock -> {
-                    val oldClickOnClock = JSONObject(this)
+                    val oldClickOnClock = gson.fromJson(this, OldClickOnClock::class.java)
                     ClickOnClock(
-                        enabled = oldClickOnClock.getBoolean("enabled"),
-                        action = oldClickOnClock.getString("action").toCircleMenuAction()
+                        enabled = oldClickOnClock.enabled,
+                        action = oldClickOnClock.action.toString().toCircleMenuAction()
                     )
                 }
 
@@ -88,6 +87,8 @@ object Migrations {
                 )
             }
         }
+
+        private class OldClickOnClock(val action: Any, val enabled: Boolean)
 
 
         private fun migrateCircleMenus(database: SupportSQLiteDatabase) {
@@ -155,7 +156,7 @@ object Migrations {
                     else -> OpenSettingsAction
                 }
             } else {
-                gson.fromJson(circleMenuActionToSave.data, classOfData) as CircleMenuAction
+                gson.fromJson(circleMenuActionToSave.data.toString(), classOfData) as CircleMenuAction
             }
         }
 
@@ -193,7 +194,7 @@ object Migrations {
 
         private class CircleMenuActionToSave {
             var type: CircleMenuActionTypes = CircleMenuActionTypes.OpenSettings
-            var data: String = ""
+            var data: Any = ""
         }
 
         private class CircleMenuImageToSave {
