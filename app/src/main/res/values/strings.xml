@@ -93,7 +93,7 @@
     <string name="on_boarding_second_title">Menu</string>
     <string name="on_boarding_second_desc">A menu can have up to 8 items. They are located as shown above. All menus can be changed in settings.</string>
     <string name="on_boarding_third_title">Types of actions</string>
-    <string name="on_boarding_third_desc">1. Open app\n2. Open circle menu (opens a new menu at this location)\n3. Open settings (opens launcher settings)\n4. Call (makes a call to the specified phone number)\n5. Dial(opens the calling application with the entered phone number, all you have to do is press the button to make a call)\n6. Turn on the flashlight\n7. Turn off the flashlight\n8. Change flashlight condition (if it’s on, then turn it off and if it’s off, then turn it on)</string>
+    <string name="on_boarding_third_desc">1. Open app\n2. Open circle menu (opens a new menu at this location)\n3. Open settings (opens launcher settings)\n4. Call (makes a call to the specified phone number)\n5. Dial(opens the calling application with the entered phone number, all you have to do is press the button to make a call)\n6. Turn on the flashlight\n7. Turn off the flashlight\n8. Change flashlight condition (if it’s on, then turn it off and if it’s off, then turn it on)\n9. Open url</string>
     <string name="on_boarding_fourth_title">Types of images</string>
     <string name="on_boarding_fourth_desc">1. App image\n2. Default image (select from the list provided)\n3. User image (after selecting the picture is automatically saved in the application, you can delete the original)</string>
     <string name="go_to_settings">Go to settings</string>
