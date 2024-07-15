@@ -48,18 +48,20 @@ object Migrations {
             val newApplicationData = mutableListOf<ApplicationData>()
             val oldApplicationData = database.query("SELECT * FROM table_application_data")
             oldApplicationData.moveToFirst()
-            do {
-                val applicationData = ApplicationData(
-                    packageName = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("packageName")),
-                    title = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("title")),
-                    image = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("image")).toCircleMenuImage(),
-                    hidden = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("hidden")).toBoolean()
-                )
-                newApplicationData.add(applicationData)
-            } while (oldApplicationData.moveToNext())
-            database.execSQL("DELETE FROM table_application_data")
-            newApplicationData.forEach { applicationData ->
-                database.execSQL("INSERT INTO table_application_data (packageName, title, image, hidden) VALUES (?, ?, ?, ?)", arrayOf(applicationData.packageName, applicationData.title, DataBaseTypeConverter().fromCircleMenuImage(applicationData.image), applicationData.hidden))
+            if (oldApplicationData.count > 0) {
+                do {
+                    val applicationData = ApplicationData(
+                        packageName = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("packageName")),
+                        title = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("title")),
+                        image = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("image")).toCircleMenuImage(),
+                        hidden = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("hidden")).toBoolean()
+                    )
+                    newApplicationData.add(applicationData)
+                } while (oldApplicationData.moveToNext())
+                database.execSQL("DELETE FROM table_application_data")
+                newApplicationData.forEach { applicationData ->
+                    database.execSQL("INSERT INTO table_application_data (packageName, title, image, hidden) VALUES (?, ?, ?, ?)", arrayOf(applicationData.packageName, applicationData.title, DataBaseTypeConverter().fromCircleMenuImage(applicationData.image), applicationData.hidden))
+                }
             }
         }
 
@@ -67,18 +69,20 @@ object Migrations {
             val newSettings = mutableListOf<SettingData>()
             val oldSettings = database.query("SELECT * FROM table_settings")
             oldSettings.moveToFirst()
-            do {
-                val name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting")))
-                val settingData = SettingData(
-                    name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting"))),
-                    value = oldSettings.getString(oldSettings.getColumnIndexOrThrow("value")).getSettingValue(name)
-                )
-                newSettings.add(settingData)
-            } while (oldSettings.moveToNext())
-            database.execSQL("DROP TABLE IF EXISTS table_settings")
-            database.execSQL("CREATE TABLE table_settings (name TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
-            newSettings.forEach { settingData ->
-                database.execSQL("INSERT INTO table_settings (name, value) VALUES (?, ?)", arrayOf(settingData.name, DataBaseTypeConverter().fromSettingValue(settingData.value)))
+            if (oldSettings.count > 0) {
+                do {
+                    val name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting")))
+                    val settingData = SettingData(
+                        name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting"))),
+                        value = oldSettings.getString(oldSettings.getColumnIndexOrThrow("value")).getSettingValue(name)
+                    )
+                    newSettings.add(settingData)
+                } while (oldSettings.moveToNext())
+                database.execSQL("DROP TABLE IF EXISTS table_settings")
+                database.execSQL("CREATE TABLE table_settings (name TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
+                newSettings.forEach { settingData ->
+                    database.execSQL("INSERT INTO table_settings (name, value) VALUES (?, ?)", arrayOf(settingData.name, DataBaseTypeConverter().fromSettingValue(settingData.value)))
+                }
             }
         }
 
@@ -116,17 +120,19 @@ object Migrations {
             val newMenus = mutableListOf<CircleMenu>()
             val oldMenus = database.query("SELECT * FROM table_menu")
             oldMenus.moveToFirst()
-            do {
-                val circleMenu =  CircleMenu(
-                    id = oldMenus.getInt(oldMenus.getColumnIndexOrThrow("id")),
-                    title = oldMenus.getString(oldMenus.getColumnIndexOrThrow("title")),
-                    items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items")).toCircleMenuItems()
-                )
-                newMenus.add(circleMenu)
-            } while (oldMenus.moveToNext())
-            database.execSQL("DELETE FROM table_menu")
-            newMenus.forEach { circleMenu ->
-                database.execSQL("INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)", arrayOf(circleMenu.id, circleMenu.title, DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)))
+            if (oldMenus.count > 0) {
+                do {
+                    val circleMenu =  CircleMenu(
+                        id = oldMenus.getInt(oldMenus.getColumnIndexOrThrow("id")),
+                        title = oldMenus.getString(oldMenus.getColumnIndexOrThrow("title")),
+                        items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items")).toCircleMenuItems()
+                    )
+                    newMenus.add(circleMenu)
+                } while (oldMenus.moveToNext())
+                database.execSQL("DELETE FROM table_menu")
+                newMenus.forEach { circleMenu ->
+                    database.execSQL("INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)", arrayOf(circleMenu.id, circleMenu.title, DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)))
+                }
             }
         }
 

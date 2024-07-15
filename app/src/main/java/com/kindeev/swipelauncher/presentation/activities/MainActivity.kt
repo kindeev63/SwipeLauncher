@@ -19,9 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.getAllApplicationInfo
@@ -42,6 +46,7 @@ import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -104,41 +109,23 @@ class MainActivity : ComponentActivity() {
                         }
                     } else ScreensOnBoarding.MainScreenObject.route
                 }
-                LauncherData.allApplicationData.observe(this) {
-                    scope.launch(Dispatchers.IO) {
-                        LauncherData.setAllApplications(getAllApplicationInfo())
-                        LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                            removeUnusedUserImages(
-                                allCircleMenus,
-                                LauncherData.allApplicationData.value ?: emptyList()
-                            )
-                            LauncherData.userImages = getUserImages()
-                            val changedCircleMenus =
-                                allCircleMenus.getOnlyChanged(this@MainActivity)
-                            Handler(Looper.getMainLooper()).post {
-                                if (changedCircleMenus.isNotEmpty()) {
-                                    scope.launch {
-                                        LauncherData.insertCircleMenus(
-                                            changedCircleMenus
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                LauncherData.allCircleMenus.observe(this) { allCircleMenus ->
-                    scope.launch(Dispatchers.IO) {
-                        LauncherData.setAllApplications(getAllApplicationInfo())
+            }
+        }
+        LauncherData.allApplicationData.observe(this, object : Observer<List<ApplicationData>> {
+            override fun onChanged(value: List<ApplicationData>) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    LauncherData.setAllApplications(getAllApplicationInfo())
+                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
                         removeUnusedUserImages(
                             allCircleMenus,
                             LauncherData.allApplicationData.value ?: emptyList()
                         )
                         LauncherData.userImages = getUserImages()
-                        val changedCircleMenus = allCircleMenus.getOnlyChanged(this@MainActivity)
+                        val changedCircleMenus =
+                            allCircleMenus.getOnlyChanged(this@MainActivity)
                         Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) {
-                                scope.launch {
+                                CoroutineScope(Dispatchers.IO).launch {
                                     LauncherData.insertCircleMenus(
                                         changedCircleMenus
                                     )
@@ -147,17 +134,44 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                LauncherData.settings.observe(this) { allSettingsData ->
-                    LauncherData.setTextColorOnWallpaper(
-                        if (allSettingsData.getValueOf(
-                                SettingNames.BlackTextColorOnWallpaper,
-                                BlackTextColorOnWallpaper::class.java
-                            )?.enabled == true
-                        ) Color.Black else Color.White
-                    )
+            }
+        })
+        LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
+            override fun onChanged(value: List<CircleMenu>) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    LauncherData.setAllApplications(getAllApplicationInfo())
+                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
+                        removeUnusedUserImages(
+                            allCircleMenus,
+                            LauncherData.allApplicationData.value ?: emptyList()
+                        )
+                        LauncherData.userImages = getUserImages()
+                        val changedCircleMenus =
+                            allCircleMenus.getOnlyChanged(this@MainActivity)
+                        Handler(Looper.getMainLooper()).post {
+                            if (changedCircleMenus.isNotEmpty()) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    LauncherData.insertCircleMenus(
+                                        changedCircleMenus
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        }
+        })
+        LauncherData.settings.observe(this, object : Observer<List<SettingData>> {
+            override fun onChanged(value: List<SettingData>) {
+                LauncherData.setTextColorOnWallpaper(
+                    if (value.getValueOf(
+                            SettingNames.BlackTextColorOnWallpaper,
+                            BlackTextColorOnWallpaper::class.java
+                        )?.enabled == true
+                    ) Color.Black else Color.White
+                )
+            }
+        })
     }
 
     private fun isFirstRun(): Boolean {
