@@ -5,6 +5,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
@@ -37,8 +38,28 @@ object Migrations {
     object Migration_1_2 {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                migrateApplicationData(database)
                 migrateCircleMenus(database)
                 migrateSettings(database)
+            }
+        }
+
+        private fun migrateApplicationData(database: SupportSQLiteDatabase) {
+            val newApplicationData = mutableListOf<ApplicationData>()
+            val oldApplicationData = database.query("SELECT * FROM table_application_data")
+            oldApplicationData.moveToFirst()
+            do {
+                val applicationData = ApplicationData(
+                    packageName = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("packageName")),
+                    title = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("title")),
+                    image = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("image")).toCircleMenuImage(),
+                    hidden = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("hidden")).toBoolean()
+                )
+                newApplicationData.add(applicationData)
+            } while (oldApplicationData.moveToNext())
+            database.execSQL("DELETE FROM table_application_data")
+            newApplicationData.forEach { applicationData ->
+                database.execSQL("INSERT INTO table_application_data (packageName, title, image, hidden) VALUES (?, ?, ?, ?)", arrayOf(applicationData.packageName, applicationData.title, DataBaseTypeConverter().fromCircleMenuImage(applicationData.image), applicationData.hidden))
             }
         }
 
@@ -116,9 +137,9 @@ object Migrations {
 
         private fun String.toCircleMenuItem(): CircleMenuItem {
             val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
-            val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
-            val image = circleMenuItemToSave.image.toCircleMenuImage()
-            val action = circleMenuItemToSave.action.toCircleMenuAction()
+            val offset = gson.fromJson(circleMenuItemToSave.offset.toString(), Offset::class.java)
+            val image = circleMenuItemToSave.image.toString().toCircleMenuImage()
+            val action = circleMenuItemToSave.action.toString().toCircleMenuAction()
             return CircleMenuItem(
                 offset = offset,
                 image = image,
@@ -130,10 +151,10 @@ object Migrations {
             val circleMenuImageToSave = gson.fromJson(this, CircleMenuImageToSave::class.java)
             val classOfData = getClassOfImageData(circleMenuImageToSave.type)
             if (classOfData == DefaultImage::class.java) {
-                val defaultImage = gson.fromJson(circleMenuImageToSave.data, DefaultImages::class.java)
+                val defaultImage = gson.fromJson(circleMenuImageToSave.data.toString(), DefaultImages::class.java)
                 return DefaultImage(defaultImage)
             }
-            return gson.fromJson(circleMenuImageToSave.data, classOfData) as CircleMenuImage
+            return gson.fromJson(circleMenuImageToSave.data.toString(), classOfData) as CircleMenuImage
         }
 
         private fun getClassOfImageData(type: CircleMenuImageTypes): Class<*> {
@@ -187,9 +208,9 @@ object Migrations {
             AppImage, DefaultImage, UserImage
         }
         private class CircleMenuItemToSave {
-            var offset: String = ""
-            var image: String = ""
-            var action: String = ""
+            var offset: Any = ""
+            var image: Any = ""
+            var action: Any = ""
         }
 
         private class CircleMenuActionToSave {
@@ -199,7 +220,7 @@ object Migrations {
 
         private class CircleMenuImageToSave {
             var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
-            var data: String = ""
+            var data: Any = ""
         }
     }
 }
