@@ -110,5 +110,8 @@
     <string name="finish">Finish</string>
     <string name="setting_tutorial">Tutorial</string>
     <string name="open_url_action">Open url</string>
+    <string name="successfully">Successfully</string>
+    <string name="write_storage_denied">Permission to write files has denied</string>
+    <string name="backup_successfuly">Successfully saved in downloads (backup.zip)</string>
 
 </resources>

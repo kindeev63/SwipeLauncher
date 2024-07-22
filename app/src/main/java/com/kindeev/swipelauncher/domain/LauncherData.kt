@@ -45,8 +45,8 @@ object LauncherData {
         appDao.insertCircleMenus(circleMenus)
     }
 
-    suspend fun deleteCircleMenu(circleMenu: CircleMenu) {
-        appDao.deleteCircleMenu(circleMenu)
+    suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) {
+        appDao.deleteCircleMenus(circleMenus)
     }
 
     suspend fun insertSetting(settingData: SettingData) {

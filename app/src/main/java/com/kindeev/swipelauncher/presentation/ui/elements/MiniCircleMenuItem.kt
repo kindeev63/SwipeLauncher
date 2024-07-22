@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
@@ -70,6 +72,7 @@ fun MiniCircleMenuItem(
 fun MiniCircleMenuItem(
     size: Float,
     root: Boolean = false,
+    selected: Boolean,
     circleMenu: CircleMenu,
     onClick: () -> Unit,
     onLongClick: () -> Unit
@@ -89,6 +92,7 @@ fun MiniCircleMenuItem(
                 containerColor = if (root) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onSurface
             ),
+            border = if (selected) BorderStroke(2.dp, Color.Black) else null
         ) {
             Box(
                 modifier = Modifier

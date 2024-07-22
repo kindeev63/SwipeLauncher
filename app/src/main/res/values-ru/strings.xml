@@ -83,5 +83,8 @@
     <string name="finish">Завершить</string>
     <string name="setting_tutorial">Обучение</string>
     <string name="open_url_action">Открыть ссылку</string>
+    <string name="successfully">Успешно</string>
+    <string name="write_storage_denied">Отказано в разрешении на запись файлов</string>
+    <string name="backup_successfuly">Успешно сохранено в загрузках (backup.zip)</string>
 
 </resources>

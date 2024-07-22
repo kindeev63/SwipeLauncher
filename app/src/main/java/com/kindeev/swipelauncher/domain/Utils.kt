@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -38,6 +39,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
@@ -61,6 +64,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
@@ -72,7 +76,11 @@ import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 fun emptyCircleMenu(id: Int): CircleMenu {
     return CircleMenu(
@@ -1065,5 +1073,200 @@ fun AllActionTypes.getFlashlightAction(): CircleMenuAction {
         AllActionTypes.FlashLightOff -> FlashLightOffAction
         AllActionTypes.ChangeFlashLightCondition -> ChangeFlashLightConditionAction
         else -> throw IllegalArgumentException("Illegal flashlight action")
+    }
+}
+
+private data class CircleMenuToSave(val id: Int, val title: String, val items: String)
+
+fun Context.exportCircleMenus(circleMenus: List<CircleMenu>): Boolean {
+    try {
+        val jsonFile = saveCircleMenusToJsonFile(circleMenus)
+        val images = circleMenus.getUserImageNamesFromCircleMenus().map { File(filesDir, it) }
+        val files = images.toMutableList().apply { add(jsonFile) }.toList()
+        FileOutputStream(File(getDownloadsDir(), "backup.zip")).use { out ->
+            ZipOutputStream(out).use { zos ->
+                files.forEach { file ->
+                    val entryName = file.name
+                    FileInputStream(file).use { fis ->
+                        zos.putNextEntry(ZipEntry(entryName))
+                        fis.copyTo(zos)
+                    }
+                }
+            }
+        }
+        jsonFile.delete()
+        return true
+    } catch (_: Exception) {
+        return false
+    }
+}
+
+private fun getDownloadsDir(): File {
+    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+}
+
+private fun Context.saveCircleMenusToJsonFile(circleMenus: List<CircleMenu>): File {
+    val typeConverter = DataBaseTypeConverter()
+    val gson = Gson()
+    val content = gson.toJson(circleMenus.map {
+        gson.toJson(
+            CircleMenuToSave(
+                id = it.id,
+                title = it.title,
+                items = typeConverter.fromCircleMenuItems(it.items)
+            )
+        )
+    })
+    val tempFile = File(cacheDir, "data.json")
+    tempFile.writeText(content)
+    return tempFile
+}
+
+suspend fun Context.importCircleMenus(uri: Uri): Boolean {
+    val files = getFilesFromZip(uri)
+    val circleMenus = files?.find { it.name == "data.json" }?.getCircleMenusFromJson() ?: return false
+    val circleMenuIds = getNewCircleMenuIds(circleMenus) ?: return false
+    val userImageIds = getNewUserImages(circleMenus)
+    val newCircleMenus = circleMenus.getNewCircleMenus(
+        circleMenuIds = circleMenuIds,
+        userImageIds = userImageIds
+    )
+    addUserImages(files.filter { it.name != "data.json" }, userImageIds)
+    LauncherData.insertCircleMenus(newCircleMenus)
+    files.forEach { it.delete() }
+    return true
+}
+
+private fun Context.addUserImages(files: List<File>, userImageIds: Map<Int, Int>) {
+    files.forEach { file ->
+        userImageIds[file.name.split(".")[0].toIntOrNull()]?.let { id ->
+            file.copyTo(
+                File(filesDir, "$id.png")
+            )
+        }
+    }
+}
+
+private fun Context.getNewUserImages(circleMenus: List<CircleMenu>): Map<Int, Int> {
+    val userImageIds = mutableMapOf<Int, Int>()
+    val existingUserImagesIds = getUserImageIds()
+    circleMenus.getUserImageIdsFromCircleMenus().forEach { id ->
+        var newId = id
+        while (newId in existingUserImagesIds || newId in userImageIds.values) {
+            newId++
+        }
+        userImageIds[id] = newId
+    }
+    return userImageIds
+}
+
+private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int>? {
+    val circleMenuIds = mutableMapOf<Int, Int>()
+    val existingCircleMenuIds = LauncherData.allCircleMenus.value?.map { it.id }?.filter { it != 0 } ?: return null
+    circleMenus.map { it.id }.forEach { id ->
+        var newId = id
+        while (newId in existingCircleMenuIds || newId in circleMenuIds.values) {
+            newId++
+        }
+        circleMenuIds[id] = newId
+    }
+    return circleMenuIds
+}
+
+private fun List<CircleMenu>.getNewCircleMenus(circleMenuIds: Map<Int, Int>, userImageIds: Map<Int, Int>): List<CircleMenu> {
+    val newCircleMenus = mutableListOf<CircleMenu>()
+    forEach { circleMenu ->
+        newCircleMenus.add(
+            CircleMenu(
+                id = circleMenuIds[circleMenu.id] ?: 0,
+                title = circleMenu.title,
+                items = circleMenu.items.getNewItems(
+                    circleMenuIds = circleMenuIds,
+                    userImageIds = userImageIds
+                )
+            )
+        )
+    }
+    return newCircleMenus
+}
+
+private fun List<CircleMenuItem>.getNewItems(circleMenuIds: Map<Int, Int>, userImageIds: Map<Int, Int>): List<CircleMenuItem> {
+    val newItems = mutableListOf<CircleMenuItem>()
+    forEach { item ->
+        newItems.add(
+            CircleMenuItem(
+                offset = item.offset,
+                action = when (item.action) {
+                    is OpenCircleMenuAction -> {
+                        OpenCircleMenuAction(id = circleMenuIds[item.action.id] ?: 0)
+                    }
+                    else -> item.action
+                },
+                image = when (item.image) {
+                    is UserImage -> {
+                        UserImage(id = userImageIds[item.image.id] ?: 0)
+                    }
+                    else -> item.image
+                }
+            )
+        )
+    }
+    return newItems
+}
+
+private fun List<CircleMenu>.getUserImageIdsFromCircleMenus(): List<Int> {
+    return this
+        .asSequence()
+        .map { it.items } // get lists of items
+        .flatten() // get one list with all items
+        .map { it.image } // list with CircleMenuImage
+        .filter { it is UserImage } // list with UserImages
+        .map { (it as UserImage).id }
+        .toList() // list of ids
+}
+
+private fun Context.getFilesFromZip(uri: Uri): List<File>? {
+    try {
+        val files = mutableListOf<File>()
+        contentResolver.openInputStream(uri).use { input ->
+            ZipInputStream(input).use { zis ->
+                var zipEntry = zis.nextEntry
+                while (zipEntry != null) {
+                    val file = File(cacheDir, zipEntry.name)
+                    FileOutputStream(file).use { fos ->
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        while (zis.read(buffer).also { length = it } > 0) {
+                            fos.write(buffer, 0, length)
+                        }
+                    }
+                    files.add(file)
+                    zipEntry = zis.nextEntry
+                }
+            }
+        }
+        return files
+    } catch (_: Exception) {
+        return null
+    }
+}
+
+private fun File.getCircleMenusFromJson(): List<CircleMenu>? {
+    try {
+        val gson = Gson()
+        val typeConverter = DataBaseTypeConverter()
+        val json = readText()
+        val type = object : TypeToken<List<String>>() {}.type
+        return gson.fromJson<List<String>>(json, type)
+            .map { gson.fromJson(it, CircleMenuToSave::class.java) }
+            .map {
+                CircleMenu(
+                    id = it.id,
+                    title = it.title,
+                    items = typeConverter.toCircleMenuItems(it.items)
+                )
+            }
+    } catch (_: Exception) {
+        return null
     }
 }

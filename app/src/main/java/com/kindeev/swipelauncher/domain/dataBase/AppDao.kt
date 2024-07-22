@@ -23,7 +23,7 @@ interface AppDao {
     suspend fun insertCircleMenus(circleMenus: List<CircleMenu>)
 
     @Delete(CircleMenu::class)
-    suspend fun deleteCircleMenu(circleMenu: CircleMenu)
+    suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>)
 
     @Query("SELECT * FROM table_settings")
     fun getAllSettings(): LiveData<List<SettingData>>
