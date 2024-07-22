@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -112,6 +113,7 @@ private fun HiddenAppsToolbar(
             .fillMaxWidth()
             .height(90.dp)
             .background(MaterialTheme.colorScheme.primary)
+            .shadow(elevation = 1.dp)
             .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {

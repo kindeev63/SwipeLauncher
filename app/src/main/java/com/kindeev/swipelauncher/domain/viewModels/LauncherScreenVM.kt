@@ -31,7 +31,11 @@ import com.kindeev.swipelauncher.domain.useCases.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.TelephoneUseCase
 
 class LauncherScreenVM(context: Context) : ViewModel() {
-    private val _currentMenu = MutableLiveData<CircleMenuWithOffset?>(null)
+    private val _currentMenu = MutableLiveData(
+        LauncherData.allCircleMenus.value?.find { it.id == 0 }?.let {
+            CircleMenuWithOffset(it, null)
+        }
+    )
     val currentMenu: LiveData<CircleMenuWithOffset?> = _currentMenu
     private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
     val screenState: LiveData<LauncherScreenState> = _screenState

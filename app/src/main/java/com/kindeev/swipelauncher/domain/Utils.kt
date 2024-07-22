@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.role.RoleManager
 import android.content.BroadcastReceiver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -23,6 +24,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.geometry.Offset
@@ -1079,10 +1081,54 @@ fun AllActionTypes.getFlashlightAction(): CircleMenuAction {
 private data class CircleMenuToSave(val id: Int, val title: String, val items: String)
 
 fun Context.exportCircleMenus(circleMenus: List<CircleMenu>): Boolean {
-    try {
+    return try {
         val jsonFile = saveCircleMenusToJsonFile(circleMenus)
         val images = circleMenus.getUserImageNamesFromCircleMenus().map { File(filesDir, it) }
         val files = images.toMutableList().apply { add(jsonFile) }.toList()
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            saveFileWithMediaStore(files)
+        } else {
+            saveBackup(files)
+        }
+        jsonFile.delete()
+        return result
+    } catch (_: Exception) {
+        false
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun Context.saveFileWithMediaStore(files: List<File>): Boolean {
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, "backup.zip")
+        put(MediaStore.MediaColumns.MIME_TYPE, "application/zip")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+    }
+
+    val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+    uri?.let { fileUri ->
+        try {
+            contentResolver.openOutputStream(fileUri)?.use { outputStream ->
+                ZipOutputStream(outputStream).use { zos ->
+                    files.forEach { file ->
+                        val entryName = file.name
+                        FileInputStream(file).use { fis ->
+                            zos.putNextEntry(ZipEntry(entryName))
+                            fis.copyTo(zos)
+                        }
+                    }
+                }
+                return true
+            }
+        } catch (_: Exception) {
+                return false
+            }
+        } ?: return false
+}
+
+private fun saveBackup(files: List<File>): Boolean {
+    try {
         FileOutputStream(File(getDownloadsDir(), "backup.zip")).use { out ->
             ZipOutputStream(out).use { zos ->
                 files.forEach { file ->
@@ -1094,7 +1140,6 @@ fun Context.exportCircleMenus(circleMenus: List<CircleMenu>): Boolean {
                 }
             }
         }
-        jsonFile.delete()
         return true
     } catch (_: Exception) {
         return false

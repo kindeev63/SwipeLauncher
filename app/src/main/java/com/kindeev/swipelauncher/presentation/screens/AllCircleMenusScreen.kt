@@ -3,6 +3,7 @@ package com.kindeev.swipelauncher.presentation.screens
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -94,12 +96,18 @@ fun AllCircleMenusScreen(
             AllCircleMenusToolbar(
                 selectedMenusText = if (selectedMenuIds.isEmpty()) null else "${selectedMenuIds.count()} / ${allCircleMenus.count()}",
                 onClickSelectAll = { viewModel.selectAllMenus(allCircleMenus) },
-                onClickDelete = { viewModel.deleteSelectedMenus(allCircleMenus, context) },
+                onClickDelete = { viewModel.deleteSelectedMenus(allCircleMenus) },
                 onClickImport = { pickJsonFile.launch("application/zip") },
                 onClickExport = {
-                    if (permissionState.status.isGranted) {
+                    if (permissionState.status.isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         viewModel.exportSelectedMenus(allCircleMenus, context) { result ->
-                            scope.launch { snackbarHostState.showSnackbar(context.resources.getString(if (result) R.string.backup_successfuly else R.string.error)) }
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.resources.getString(
+                                        if (result) R.string.backup_successfuly else R.string.error
+                                    )
+                                )
+                            }
                         }
                     } else {
                         if (permissionState.status.shouldShowRationale) {
@@ -112,6 +120,7 @@ fun AllCircleMenusScreen(
                             }
                         }
                     }
+
                 },
                 onClickClose = { viewModel.finishSelect() },
                 onBackPressed = {
@@ -182,6 +191,7 @@ private fun AllCircleMenusToolbar(
             .fillMaxWidth()
             .height(90.dp)
             .background(MaterialTheme.colorScheme.primary)
+            .shadow(elevation = 1.dp)
             .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.exportCircleMenus
-import com.kindeev.swipelauncher.domain.getOnlyChanged
 import com.kindeev.swipelauncher.domain.importCircleMenus
 import kotlinx.coroutines.launch
 
@@ -21,11 +20,9 @@ class AllCircleMenusVM : ViewModel() {
         _selectedMenuIds.postValue(allMenus.map { it.id })
     }
 
-    fun deleteSelectedMenus(allMenus: List<CircleMenu>, context: Context) = viewModelScope.launch {
+    fun deleteSelectedMenus(allMenus: List<CircleMenu>) = viewModelScope.launch {
         LauncherData.deleteCircleMenus(allMenus.filter { selectedMenuIds.value?.contains(it.id) == true }
             .filter { it.id != 0 })
-        LauncherData.allCircleMenus.value?.getOnlyChanged(context)
-            ?.let { LauncherData.insertCircleMenus(it) }
         _selectedMenuIds.postValue(emptyList())
     }
 
