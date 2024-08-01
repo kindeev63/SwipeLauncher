@@ -30,6 +30,9 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.LockScreenWallpaperChange
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.WallpaperChangeType
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
 
 object Migrations {
@@ -110,6 +113,9 @@ object Migrations {
                         Boolean::class.java
                     )
                 )
+
+                SettingNames.HomeScreenWallpaperChange -> HomeScreenWallpaperChange(enabled = false, changeType = WallpaperChangeType.ScreenOn)
+                SettingNames.LockScreenWallpaperChange -> LockScreenWallpaperChange(enabled = false, changeType = WallpaperChangeType.ScreenOn)
             }
         }
 

@@ -4,5 +4,7 @@ enum class SettingNames {
     OpenLastApp,
     ClickOnClock,
     BlackTextColorOnWallpaper,
-    PickAppActionWithImage
+    PickAppActionWithImage,
+    HomeScreenWallpaperChange,
+    LockScreenWallpaperChange,
 }

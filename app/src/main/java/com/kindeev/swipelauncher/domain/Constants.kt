@@ -10,6 +10,9 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.LockScreenWallpaperChange
+import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.WallpaperChangeType
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
@@ -26,7 +29,23 @@ object Constants {
         SettingData(SettingNames.OpenLastApp, OpenLastApp(true)),
         SettingData(SettingNames.ClickOnClock, ClickOnClock(false)),
         SettingData(SettingNames.BlackTextColorOnWallpaper, BlackTextColorOnWallpaper(false)),
-        SettingData(SettingNames.PickAppActionWithImage, PickAppActionWithImage(true))
+        SettingData(SettingNames.PickAppActionWithImage, PickAppActionWithImage(true)),
+        SettingData(
+            SettingNames.HomeScreenWallpaperChange, HomeScreenWallpaperChange(
+                enabled = false,
+                changeType = WallpaperChangeType.Unlock
+            )
+        ),
+        SettingData(
+            SettingNames.LockScreenWallpaperChange, LockScreenWallpaperChange(
+                enabled = false,
+                changeType = WallpaperChangeType.Unlock
+            )
+        )
+    )
+    val wallpaperChangeTypeText = mapOf(
+        Pair(WallpaperChangeType.ScreenOn, R.string.wallpaper_change_type_screen_on),
+        Pair(WallpaperChangeType.Unlock, R.string.wallpaper_change_type_unlock),
     )
 
     val onBoarding2MenuImageResIds = listOf(

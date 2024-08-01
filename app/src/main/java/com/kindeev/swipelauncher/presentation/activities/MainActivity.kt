@@ -23,6 +23,8 @@ import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.checkDirs
+import com.kindeev.swipelauncher.domain.checkSettings
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
@@ -36,14 +38,16 @@ import com.kindeev.swipelauncher.domain.getUserImages
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
+import com.kindeev.swipelauncher.domain.registerWallpaperChangeReceivers
 import com.kindeev.swipelauncher.domain.removeUnusedUserImages
 import com.kindeev.swipelauncher.domain.setActionAndImageTypes
-import com.kindeev.swipelauncher.domain.unregisterAppsReceiver
+import com.kindeev.swipelauncher.domain.unregisterReceivers
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
 import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
+import com.kindeev.swipelauncher.presentation.receivers.WallpaperChangeReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
 import kotlinx.coroutines.CoroutineScope
@@ -52,10 +56,13 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
+    private val wallpaperChangeReceiver = WallpaperChangeReceiver()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideNavigationBar()
+        checkDirs()
         registerAppsReceiver(appsReceiver)
+        registerWallpaperChangeReceivers(wallpaperChangeReceiver)
         setActionAndImageTypes()
         setContent {
             val scope = rememberCoroutineScope()
@@ -170,6 +177,9 @@ class MainActivity : ComponentActivity() {
                         )?.enabled == true
                     ) Color.Black else Color.White
                 )
+                CoroutineScope(Dispatchers.IO).launch {
+                    value.checkSettings()
+                }
             }
         })
     }
@@ -188,7 +198,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterAppsReceiver(appsReceiver)
+        unregisterReceivers(appsReceiver, wallpaperChangeReceiver)
     }
 
     override fun onResume() {

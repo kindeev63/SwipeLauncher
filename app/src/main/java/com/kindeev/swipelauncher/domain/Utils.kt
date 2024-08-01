@@ -3,7 +3,6 @@ package com.kindeev.swipelauncher.domain
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.role.RoleManager
-import android.content.BroadcastReceiver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -67,6 +66,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
+import com.kindeev.swipelauncher.domain.entities.WallpaperData
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
@@ -76,6 +76,8 @@ import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
+import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
+import com.kindeev.swipelauncher.presentation.receivers.WallpaperChangeReceiver
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -304,7 +306,7 @@ fun List<CircleMenu>.getOnlyChanged(
 
 fun Context.getUserImageIds(): List<Int> {
     val ids = mutableListOf<Int>()
-    this.filesDir.listFiles()?.forEach { file ->
+    userImagesDir().listFiles()?.forEach { file ->
         file.name.split(".")[0].toIntOrNull()?.let {
             ids.add(it)
         }
@@ -314,7 +316,7 @@ fun Context.getUserImageIds(): List<Int> {
 
 fun Context.getUserImages(): Map<Int, ImageBitmap> {
     val newUserImages = mutableMapOf<Int, ImageBitmap>()
-    this.filesDir.listFiles()?.map { file ->
+    userImagesDir().listFiles()?.map { file ->
         file.name.split(".")[0].toIntOrNull()?.let { key ->
             newUserImages[key] = BitmapFactory.decodeFile(file.path).asImageBitmap()
         }
@@ -329,7 +331,7 @@ fun Context.removeUnusedUserImages(
     val allUserImageNamesInCircleMenus = allCircleMenus.getUserImageNamesFromCircleMenus()
     val allUserImageNamesInApplicationData =
         allApplicationData.getUserImageNamesFromApplicationsData()
-    this.filesDir.listFiles()?.forEach { file ->
+    userImagesDir().listFiles()?.forEach { file ->
         if (file.name.contains(".png") && file.name !in allUserImageNamesInCircleMenus && file.name !in allUserImageNamesInApplicationData) {
             file.delete()
         }
@@ -356,19 +358,31 @@ private fun List<ApplicationData>.getUserImageNamesFromApplicationsData(): List<
         .toList() // list of filenames
 }
 
-fun Context.registerAppsReceiver(receiver: BroadcastReceiver) {
+fun Context.registerAppsReceiver(appsReceiver: AppsReceiver) {
     val filter = IntentFilter().apply {
         addAction(Intent.ACTION_PACKAGE_ADDED)
         addAction(Intent.ACTION_PACKAGE_REMOVED)
         addAction(Intent.ACTION_PACKAGE_REPLACED)
         addDataScheme("package")
     }
-    this.registerReceiver(receiver, filter)
+    this.registerReceiver(appsReceiver, filter)
 }
 
-fun Context.unregisterAppsReceiver(receiver: BroadcastReceiver) {
+fun Context.registerWallpaperChangeReceivers(wallpaperChangeReceiver: WallpaperChangeReceiver) {
+    val filter = IntentFilter().apply {
+        addAction(Intent.ACTION_SCREEN_ON)
+        addAction(Intent.ACTION_USER_PRESENT)
+    }
+    this.registerReceiver(wallpaperChangeReceiver, filter)
+}
+
+fun Context.unregisterReceivers(
+    appsReceiver: AppsReceiver,
+    wallpaperChangeReceiver: WallpaperChangeReceiver
+) {
     try {
-        this.unregisterReceiver(receiver)
+        this.unregisterReceiver(appsReceiver)
+        this.unregisterReceiver(wallpaperChangeReceiver)
     } catch (_: Exception) {
     }
 }
@@ -390,7 +404,7 @@ fun Context.getAppDetails(packageName: String) {
 }
 
 fun Context.addUserImage(id: Int, bitmap: Bitmap) {
-    val file = File(filesDir, "$id.png")
+    val file = File(userImagesDir(), "$id.png")
     file.createNewFile()
     val fos = FileOutputStream(file)
     val bos = ByteArrayOutputStream()
@@ -1083,7 +1097,8 @@ private data class CircleMenuToSave(val id: Int, val title: String, val items: S
 fun Context.exportCircleMenus(circleMenus: List<CircleMenu>): Boolean {
     return try {
         val jsonFile = saveCircleMenusToJsonFile(circleMenus)
-        val images = circleMenus.getUserImageNamesFromCircleMenus().map { File(filesDir, it) }
+        val images =
+            circleMenus.getUserImageNamesFromCircleMenus().map { File(userImagesDir(), it) }
         val files = images.toMutableList().apply { add(jsonFile) }.toList()
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             saveFileWithMediaStore(files)
@@ -1122,9 +1137,9 @@ private fun Context.saveFileWithMediaStore(files: List<File>): Boolean {
                 return true
             }
         } catch (_: Exception) {
-                return false
-            }
-        } ?: return false
+            return false
+        }
+    } ?: return false
 }
 
 private fun saveBackup(files: List<File>): Boolean {
@@ -1169,7 +1184,8 @@ private fun Context.saveCircleMenusToJsonFile(circleMenus: List<CircleMenu>): Fi
 
 suspend fun Context.importCircleMenus(uri: Uri): Boolean {
     val files = getFilesFromZip(uri)
-    val circleMenus = files?.find { it.name == "data.json" }?.getCircleMenusFromJson() ?: return false
+    val circleMenus =
+        files?.find { it.name == "data.json" }?.getCircleMenusFromJson() ?: return false
     val circleMenuIds = getNewCircleMenuIds(circleMenus) ?: return false
     val userImageIds = getNewUserImages(circleMenus)
     val newCircleMenus = circleMenus.getNewCircleMenus(
@@ -1177,6 +1193,7 @@ suspend fun Context.importCircleMenus(uri: Uri): Boolean {
         userImageIds = userImageIds
     )
     addUserImages(files.filter { it.name != "data.json" }, userImageIds)
+    LauncherData.userImages = getUserImages()
     LauncherData.insertCircleMenus(newCircleMenus)
     files.forEach { it.delete() }
     return true
@@ -1186,7 +1203,7 @@ private fun Context.addUserImages(files: List<File>, userImageIds: Map<Int, Int>
     files.forEach { file ->
         userImageIds[file.name.split(".")[0].toIntOrNull()]?.let { id ->
             file.copyTo(
-                File(filesDir, "$id.png")
+                File(userImagesDir(), "$id.png")
             )
         }
     }
@@ -1207,7 +1224,8 @@ private fun Context.getNewUserImages(circleMenus: List<CircleMenu>): Map<Int, In
 
 private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int>? {
     val circleMenuIds = mutableMapOf<Int, Int>()
-    val existingCircleMenuIds = LauncherData.allCircleMenus.value?.map { it.id }?.filter { it != 0 } ?: return null
+    val existingCircleMenuIds =
+        LauncherData.allCircleMenus.value?.map { it.id }?.filter { it != 0 } ?: return null
     circleMenus.map { it.id }.forEach { id ->
         var newId = id
         while (newId in existingCircleMenuIds || newId in circleMenuIds.values) {
@@ -1218,7 +1236,10 @@ private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int>? {
     return circleMenuIds
 }
 
-private fun List<CircleMenu>.getNewCircleMenus(circleMenuIds: Map<Int, Int>, userImageIds: Map<Int, Int>): List<CircleMenu> {
+private fun List<CircleMenu>.getNewCircleMenus(
+    circleMenuIds: Map<Int, Int>,
+    userImageIds: Map<Int, Int>
+): List<CircleMenu> {
     val newCircleMenus = mutableListOf<CircleMenu>()
     forEach { circleMenu ->
         newCircleMenus.add(
@@ -1235,7 +1256,10 @@ private fun List<CircleMenu>.getNewCircleMenus(circleMenuIds: Map<Int, Int>, use
     return newCircleMenus
 }
 
-private fun List<CircleMenuItem>.getNewItems(circleMenuIds: Map<Int, Int>, userImageIds: Map<Int, Int>): List<CircleMenuItem> {
+private fun List<CircleMenuItem>.getNewItems(
+    circleMenuIds: Map<Int, Int>,
+    userImageIds: Map<Int, Int>
+): List<CircleMenuItem> {
     val newItems = mutableListOf<CircleMenuItem>()
     forEach { item ->
         newItems.add(
@@ -1245,12 +1269,14 @@ private fun List<CircleMenuItem>.getNewItems(circleMenuIds: Map<Int, Int>, userI
                     is OpenCircleMenuAction -> {
                         OpenCircleMenuAction(id = circleMenuIds[item.action.id] ?: 0)
                     }
+
                     else -> item.action
                 },
                 image = when (item.image) {
                     is UserImage -> {
                         UserImage(id = userImageIds[item.image.id] ?: 0)
                     }
+
                     else -> item.image
                 }
             )
@@ -1313,5 +1339,130 @@ private fun File.getCircleMenusFromJson(): List<CircleMenu>? {
             }
     } catch (_: Exception) {
         return null
+    }
+}
+
+fun Context.userImagesDir(): File {
+    val file = File(filesDir, "UserImages")
+    if (!file.exists()) {
+        file.mkdirs()
+    }
+    return file
+}
+
+fun Context.wallpapersHomeScreenDir(): File {
+    val file = File(filesDir, "Wallpapers/HomeScreen")
+    if (!file.exists()) {
+        file.mkdirs()
+    }
+    return file
+}
+
+fun Context.wallpapersLockScreenDir(): File {
+    val file = File(filesDir, "Wallpapers/LockScreen")
+    if (!file.exists()) {
+        file.mkdirs()
+    }
+    return file
+}
+
+fun getWallpapersFrom(dir: File): List<WallpaperData> {
+    val wallpapers = mutableListOf<WallpaperData>()
+    dir.listFiles()?.forEach { file ->
+        file.name.split(".")[0].toIntOrNull()?.let { id ->
+            wallpapers.add(WallpaperData(id, BitmapFactory.decodeFile(file.path).asImageBitmap()))
+        }
+    }
+    return wallpapers
+}
+
+fun getWallpaper(
+    dir: File,
+    id: Int
+): Bitmap? {
+    return BitmapFactory.decodeFile(
+        dir.listFiles()?.find { it.name.split(".")[0].toIntOrNull() == id }?.path ?: return null
+    )
+}
+
+fun Context.getHomeScreenWallpapersCount(): Int {
+    return wallpapersHomeScreenDir().listFiles()?.count() ?: 0
+}
+
+fun Context.getLockScreenWallpapersCount(): Int {
+    return wallpapersLockScreenDir().listFiles()?.count() ?: 0
+}
+
+fun Context.checkDirs() {
+    filesDir.listFiles()?.forEach { file ->
+        if (file.isFile) {
+            if (file.name.contains(".png")) {
+                file.renameTo(File(userImagesDir(), file.name))
+            } else {
+                file.delete()
+            }
+        }
+    }
+}
+
+suspend fun List<SettingData>.checkSettings() {
+    val settingNames = this.map { it.name }
+    val newSettings = mutableListOf<SettingData>()
+    Constants.defaultSettings.forEach { defaultSetting ->
+        if (defaultSetting.name !in settingNames) {
+            newSettings.add(defaultSetting)
+        }
+    }
+    if (newSettings.isNotEmpty()) {
+        LauncherData.insertSettings(newSettings)
+    }
+}
+
+fun addWallpaper(id: Int, dir: File, bitmap: Bitmap) {
+    val file = File(dir, "$id.png")
+    file.createNewFile()
+    val fos = FileOutputStream(file)
+    val bos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+    fos.write(bos.toByteArray())
+    fos.flush()
+    fos.close()
+}
+
+@Composable
+fun addWallpaperLauncher(
+    dir: File,
+    result: (Boolean) -> Unit
+): ManagedActivityResultLauncher<String, Uri?> {
+    val context = LocalContext.current
+    return rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        try {
+            uri?.let {
+                val ids = getWallpapersFrom(dir).map { it.id }
+                var newId = 0
+                while (newId in ids) {
+                    newId++
+                }
+                val bitmap = context.createBitmap(uri)
+                addWallpaper(newId, dir, bitmap)
+                result(true)
+            }
+        } catch (_: Exception) {
+            result(false)
+        }
+    }
+}
+
+fun deleteWallpapers(
+    dir: File,
+    ids: List<Int>
+) {
+    dir.listFiles()?.forEach { file ->
+        if (file.name.contains(".png") && file.name.split(".")[0].toIntOrNull() in ids) {
+            file.delete()
+        }
     }
 }

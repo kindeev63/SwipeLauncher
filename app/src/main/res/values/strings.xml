@@ -113,5 +113,12 @@
     <string name="successfully">Successfully</string>
     <string name="write_storage_denied">Permission to write files has denied</string>
     <string name="backup_successfuly">Successfully saved in downloads (backup.zip)</string>
+    <string name="setting_wallpaper">Wallpaper changer</string>
+    <string name="setting_wallpaper_home_screen">Home screen</string>
+    <string name="setting_wallpaper_lock_screen">Lock screen</string>
+    <string name="wallpaper_change_type">Change type:</string>
+    <string name="wallpaper_change_type_screen_on">When screen on</string>
+    <string name="wallpaper_change_type_unlock">When phone unlocked</string>
+    <string name="wallpapers_conut">Wallpapers:</string>
 
 </resources>

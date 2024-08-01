@@ -62,6 +62,9 @@ fun SettingsScreen() {
                 },
                 navigateToTutorial = {
                     navigationState.navigateTo(ScreensSettings.TutorialScreenObject.route)
+                },
+                navigateToWallpaper = {
+                    navigationState.navigateTo(ScreensSettings.WallpaperScreenObject.route)
                 }
             )
         },
@@ -94,6 +97,13 @@ fun SettingsScreen() {
             OnboardingScreen(
                 onFinish = { navigationState.navHostController.popBackStack() }
             )
+        },
+        wallpaperScreen = {
+            WallpaperScreen(
+                onBackPressed = {
+                    navigationState.navHostController.popBackStack()
+                }
+            )
         }
     )
 }
@@ -102,7 +112,8 @@ fun SettingsScreen() {
 fun SettingsScreenContent(
     navigateToAllCircleMenus: () -> Unit,
     navigateToHiddenApps: () -> Unit,
-    navigateToTutorial: () -> Unit
+    navigateToTutorial: () -> Unit,
+    navigateToWallpaper: () -> Unit,
 ) {
     val settings by LauncherData.settings.observeAsState(emptyList())
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
@@ -280,6 +291,16 @@ fun SettingsScreenContent(
                             )
                         }
                     }
+                )
+            }
+
+            spacer()
+
+            // Wallpaper
+            item {
+                ClickableSettingItem(
+                    text = stringResource(id = R.string.setting_wallpaper),
+                    onClick = { navigateToWallpaper() }
                 )
             }
 
