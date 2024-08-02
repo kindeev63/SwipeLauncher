@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.presentation.screens
 
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -9,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +39,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +68,7 @@ import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.spacer
 import com.kindeev.swipelauncher.domain.wallpapersHomeScreenDir
 import com.kindeev.swipelauncher.domain.wallpapersLockScreenDir
+import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangerInfoDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpapersDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSettingItem
 import kotlinx.coroutines.launch
@@ -80,8 +84,12 @@ fun WallpaperScreen(
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
     val scope = rememberCoroutineScope()
+    var showWallpaperInfoDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
     LaunchedEffect(Unit) {
         controller.isAppearanceLightStatusBars = false
+        if (context.isFirstRun()) showWallpaperInfoDialog = true
     }
     BackHandler {
         scope.launch { controller.isAppearanceLightStatusBars = true }
@@ -97,12 +105,20 @@ fun WallpaperScreen(
             onDismissRequest = { wallpapersDirForDialog = null }
         )
     }
+    if (showWallpaperInfoDialog) {
+        WallpaperChangerInfoDialog(
+            onDismissRequest = { showWallpaperInfoDialog = false }
+        )
+    }
     Scaffold(
         topBar = {
             WallpaperToolbar(
                 onBackPressed = {
                     scope.launch { controller.isAppearanceLightStatusBars = true }
                     onBackPressed()
+                },
+                onClickInfo = {
+                    showWallpaperInfoDialog = true
                 }
             )
         },
@@ -344,7 +360,8 @@ fun WallpaperScreen(
 
 @Composable
 private fun WallpaperToolbar(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onClickInfo: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -373,6 +390,25 @@ private fun WallpaperToolbar(
             color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 20.sp
         )
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    onClickInfo()
+                }
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(id = R.drawable.ic_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 
@@ -394,4 +430,15 @@ private fun WallpaperChangeTypeElement(
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onBackground
     )
+}
+
+private fun Context.isFirstRun(): Boolean {
+    val prefs = getSharedPreferences("wallpaper", Context.MODE_PRIVATE)
+    return if (prefs.contains("first_run")) false
+    else {
+        val editor = prefs.edit()
+        editor.putString("first_run", "false")
+        editor.apply()
+        true
+    }
 }

@@ -94,5 +94,6 @@
     <string name="wallpaper_change_type_unlock">При разбокировке</string>
     <string name="wallpapers_conut">Обоев:</string>
     <string name="delete_wallpapers_question">Удалить обои?</string>
+    <string name="wallpaper_changer_info">Для корректной работы проверьте, убраны ли все ограничения на работу приложение (обычно находится в разделе \"Использование батареи\", выдайте в нём разрешение на автоматический запуск).</string>
 
 </resources>
