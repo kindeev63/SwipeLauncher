@@ -34,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -55,6 +57,7 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusVM
+import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import kotlinx.coroutines.launch
 
@@ -90,13 +93,26 @@ fun AllCircleMenusScreen(
             }
         }
     )
+    var showDeleteMenusDialog by remember {
+        mutableStateOf(false)
+    }
+    if (showDeleteMenusDialog) {
+        QuestionDialog(
+            text = stringResource(id = R.string.delete_circle_menus_question),
+            onDismissRequest = { showDeleteMenusDialog = false },
+            onClickYes = {
+                viewModel.deleteSelectedMenus(allCircleMenus)
+                showDeleteMenusDialog = false
+            }
+        )
+    }
     val permissionState = rememberPermissionState(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     Scaffold(
         topBar = {
             AllCircleMenusToolbar(
                 selectedMenusText = if (selectedMenuIds.isEmpty()) null else "${selectedMenuIds.count()} / ${allCircleMenus.count()}",
                 onClickSelectAll = { viewModel.selectAllMenus(allCircleMenus) },
-                onClickDelete = { viewModel.deleteSelectedMenus(allCircleMenus) },
+                onClickDelete = { showDeleteMenusDialog = true },
                 onClickImport = { pickJsonFile.launch("application/zip") },
                 onClickExport = {
                     if (permissionState.status.isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -401,7 +401,9 @@ fun Context.isAppInstalled(packageName: String): Boolean {
 }
 
 fun Context.getAppDetails(packageName: String) {
-    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
     val uri = Uri.fromParts("package", packageName, null)
     intent.data = uri
     startActivity(intent)

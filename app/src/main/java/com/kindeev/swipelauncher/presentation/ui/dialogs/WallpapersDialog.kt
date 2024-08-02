@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -69,6 +70,21 @@ fun WallpapersDialog(
         if (result) {
             wallpapers = getWallpapersFrom(dir)
         }
+    }
+    var showDeleteWallpapersDialog by remember {
+        mutableStateOf(false)
+    }
+    if (showDeleteWallpapersDialog) {
+        QuestionDialog(
+            text = stringResource(id = R.string.delete_wallpapers_question),
+            onDismissRequest = { showDeleteWallpapersDialog = false },
+            onClickYes = {
+                deleteWallpapers(dir, selectedWallpaperIds)
+                wallpapers = getWallpapersFrom(dir)
+                selectedWallpaperIds.clear()
+                showDeleteWallpapersDialog = false
+            }
+        )
     }
 
     Dialog(
@@ -117,9 +133,7 @@ fun WallpapersDialog(
                 hasSelectedItems = selectedWallpaperIds.isNotEmpty(),
                 onClickAdd = { launcher.launch("image/*") },
                 onClickDelete = {
-                    deleteWallpapers(dir, selectedWallpaperIds)
-                    wallpapers = getWallpapersFrom(dir)
-                    selectedWallpaperIds.clear()
+                    showDeleteWallpapersDialog = true
                 },
                 onClickClose = {
                     selectedWallpaperIds.clear()

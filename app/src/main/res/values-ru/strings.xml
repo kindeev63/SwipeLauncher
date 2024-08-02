@@ -8,7 +8,7 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="cancel">Отмена</string>
-    <string name="delete_circle_menu_question">Удалить это меню?</string>
+    <string name="delete_circle_menus_question">Удалить эти меню?</string>
     <string name="monday">пн</string>
     <string name="tuesday">вт</string>
     <string name="wednesday">ср</string>
@@ -93,5 +93,6 @@
     <string name="wallpaper_change_type_screen_on">При включении экрана</string>
     <string name="wallpaper_change_type_unlock">При разбокировке</string>
     <string name="wallpapers_conut">Обоев:</string>
+    <string name="delete_wallpapers_question">Удалить обои?</string>
 
 </resources>
