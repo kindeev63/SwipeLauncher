@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,10 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
@@ -61,6 +62,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.getHomeScreenWallpapersCount
 import com.kindeev.swipelauncher.domain.getLockScreenWallpapersCount
 import com.kindeev.swipelauncher.domain.getValueOf
+import com.kindeev.swipelauncher.domain.spacer
 import com.kindeev.swipelauncher.domain.wallpapersHomeScreenDir
 import com.kindeev.swipelauncher.domain.wallpapersLockScreenDir
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpapersDialog
@@ -68,7 +70,7 @@ import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSetting
 import kotlinx.coroutines.launch
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperScreen(
     onBackPressed: () -> Unit
@@ -104,11 +106,12 @@ fun WallpaperScreen(
                 }
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
+                .padding(10.dp)
                 .fillMaxSize()
         ) {
 
@@ -184,15 +187,20 @@ fun WallpaperScreen(
                                                         text = stringResource(
                                                             id = Constants.wallpaperChangeTypeText[changeType]
                                                                 ?: throw IllegalArgumentException("Illegal wallpaper change type")
-                                                        )
+                                                        ),
+                                                        color = MaterialTheme.colorScheme.onBackground
                                                     )
                                                 }
                                             }
                                         }
                                     }
-                                    DropdownMenuItem(onClick = { expanded = true }) {
-                                        Text(text = stringResource(id = Constants.wallpaperChangeTypeText[value.changeType] ?: throw IllegalArgumentException("Illegal wallpaper change type")))
-                                    }
+                                    WallpaperChangeTypeElement(
+                                        onClick = { expanded = true },
+                                        text = stringResource(
+                                            id = Constants.wallpaperChangeTypeText[value.changeType]
+                                                ?: throw IllegalArgumentException("Illegal wallpaper change type")
+                                        )
+                                    )
                                 }
                             }
                             Spacer(modifier = Modifier.height(10.dp))
@@ -217,6 +225,8 @@ fun WallpaperScreen(
                     }
                 }
             }
+
+            spacer()
 
             // Lock screen
             item {
@@ -290,15 +300,20 @@ fun WallpaperScreen(
                                                         text = stringResource(
                                                             id = Constants.wallpaperChangeTypeText[changeType]
                                                                 ?: throw IllegalArgumentException("Illegal wallpaper change type")
-                                                        )
+                                                        ),
+                                                        color = MaterialTheme.colorScheme.onBackground
                                                     )
                                                 }
                                             }
                                         }
                                     }
-                                    DropdownMenuItem(onClick = { expanded = true }) {
-                                        Text(text = stringResource(id = Constants.wallpaperChangeTypeText[value.changeType] ?: throw IllegalArgumentException("Illegal wallpaper change type")))
-                                    }
+                                    WallpaperChangeTypeElement(
+                                        onClick = { expanded = true },
+                                        text = stringResource(
+                                            id = Constants.wallpaperChangeTypeText[value.changeType]
+                                                ?: throw IllegalArgumentException("Illegal wallpaper change type")
+                                        )
+                                    )
                                 }
                             }
                             Spacer(modifier = Modifier.height(10.dp))
@@ -359,4 +374,24 @@ private fun WallpaperToolbar(
             fontSize = 20.sp
         )
     }
+}
+
+@Composable
+private fun WallpaperChangeTypeElement(
+    text: String,
+    onClick: () -> Unit
+) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
+        text = text,
+        fontSize = LocalConfiguration.current.screenWidthDp.sp / 25,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }

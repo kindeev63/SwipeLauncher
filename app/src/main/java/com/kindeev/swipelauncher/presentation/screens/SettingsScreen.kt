@@ -8,14 +8,11 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -41,6 +38,7 @@ import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.domain.getCategory
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.showLauncherSelection
+import com.kindeev.swipelauncher.domain.spacer
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionDataByType
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionTypeItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.ClickableSettingItem
@@ -315,8 +313,4 @@ fun SettingsScreenContent(
             }
         }
     }
-}
-
-private fun LazyListScope.spacer() {
-    item { Spacer(modifier = Modifier.height(5.dp)) }
 }
