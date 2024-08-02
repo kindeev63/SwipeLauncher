@@ -2,12 +2,15 @@ package com.kindeev.swipelauncher.presentation.activities
 
 import android.R.id.content
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +41,6 @@ import com.kindeev.swipelauncher.domain.getUserImages
 import com.kindeev.swipelauncher.domain.getValueOf
 import com.kindeev.swipelauncher.domain.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.registerAppsReceiver
-import com.kindeev.swipelauncher.domain.registerWallpaperChangeReceivers
 import com.kindeev.swipelauncher.domain.removeUnusedUserImages
 import com.kindeev.swipelauncher.domain.setActionAndImageTypes
 import com.kindeev.swipelauncher.domain.unregisterReceivers
@@ -62,7 +64,6 @@ class MainActivity : ComponentActivity() {
         hideNavigationBar()
         checkDirs()
         registerAppsReceiver(appsReceiver)
-        registerWallpaperChangeReceivers(wallpaperChangeReceiver)
         setActionAndImageTypes()
         setContent {
             val scope = rememberCoroutineScope()
@@ -115,6 +116,17 @@ class MainActivity : ComponentActivity() {
                             ScreensOnBoarding.OnBoardingScreenObject.route
                         }
                     } else ScreensOnBoarding.MainScreenObject.route
+                }
+                DisposableEffect(context) {
+                    val filter = IntentFilter().apply {
+                        addAction(Intent.ACTION_SCREEN_ON)
+                        addAction(Intent.ACTION_USER_PRESENT)
+                    }
+                    context.registerReceiver(wallpaperChangeReceiver, filter)
+
+                    onDispose {
+                        context.unregisterReceiver(wallpaperChangeReceiver)
+                    }
                 }
             }
         }

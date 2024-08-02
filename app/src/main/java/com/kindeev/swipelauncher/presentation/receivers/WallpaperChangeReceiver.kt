@@ -14,64 +14,67 @@ import com.kindeev.swipelauncher.domain.getWallpaper
 import com.kindeev.swipelauncher.domain.getWallpapersFrom
 import com.kindeev.swipelauncher.domain.wallpapersHomeScreenDir
 import com.kindeev.swipelauncher.domain.wallpapersLockScreenDir
+import kotlin.concurrent.thread
 
 class WallpaperChangeReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val prefs = context.getSharedPreferences("wallpaper", Context.MODE_PRIVATE)
-        val homeWallpaperSetting = LauncherData.settings.value?.getValueOf(
-            SettingNames.HomeScreenWallpaperChange,
-            HomeScreenWallpaperChange::class.java
-        )
-        val lockWallpaperSetting = LauncherData.settings.value?.getValueOf(
-            SettingNames.LockScreenWallpaperChange,
-            LockScreenWallpaperChange::class.java
-        )
-        intent.action?.let {  action ->
-            val wallpaperManager = WallpaperManager.getInstance(context)
-            if (homeWallpaperSetting?.enabled == true && checkEquals(homeWallpaperSetting.changeType, action)) {
-                val homeScreenWallpapers =
-                    getWallpapersFrom(context.wallpapersHomeScreenDir()).map { it.id }.sorted()
-                val nextHomeScreenWallpaperId =
-                    if (homeScreenWallpapers.lastOrNull() == prefs.getInt("home", 0)) {
-                        homeScreenWallpapers.firstOrNull()
-                    } else {
-                        homeScreenWallpapers.firstOrNull { it > prefs.getInt("home", 0) }
-                    }
-                nextHomeScreenWallpaperId?.let { id ->
-                    getWallpaper(context.wallpapersHomeScreenDir(), id)?.let { bitmap ->
-                        wallpaperManager.setBitmap(
-                            bitmap,
-                            null,
-                            true,
-                            WallpaperManager.FLAG_SYSTEM
-                        )
-                        val editor = prefs.edit()
-                        editor.putInt("home", id)
-                        editor.apply()
+        thread {
+            val prefs = context.getSharedPreferences("wallpaper", Context.MODE_PRIVATE)
+            val homeWallpaperSetting = LauncherData.settings.value?.getValueOf(
+                SettingNames.HomeScreenWallpaperChange,
+                HomeScreenWallpaperChange::class.java
+            )
+            val lockWallpaperSetting = LauncherData.settings.value?.getValueOf(
+                SettingNames.LockScreenWallpaperChange,
+                LockScreenWallpaperChange::class.java
+            )
+            intent.action?.let {  action ->
+                val wallpaperManager = WallpaperManager.getInstance(context)
+                if (homeWallpaperSetting?.enabled == true && checkEquals(homeWallpaperSetting.changeType, action)) {
+                    val homeScreenWallpapers =
+                        getWallpapersFrom(context.wallpapersHomeScreenDir()).map { it.id }.sorted()
+                    val nextHomeScreenWallpaperId =
+                        if (homeScreenWallpapers.lastOrNull() == prefs.getInt("home", 0)) {
+                            homeScreenWallpapers.firstOrNull()
+                        } else {
+                            homeScreenWallpapers.firstOrNull { it > prefs.getInt("home", 0) }
+                        }
+                    nextHomeScreenWallpaperId?.let { id ->
+                        getWallpaper(context.wallpapersHomeScreenDir(), id)?.let { bitmap ->
+                            wallpaperManager.setBitmap(
+                                bitmap,
+                                null,
+                                true,
+                                WallpaperManager.FLAG_SYSTEM
+                            )
+                            val editor = prefs.edit()
+                            editor.putInt("home", id)
+                            editor.apply()
+                        }
                     }
                 }
-            }
-            if (lockWallpaperSetting?.enabled == true && checkEquals(lockWallpaperSetting.changeType, action)) {
-                val lockScreenWallpapers =
-                    getWallpapersFrom(context.wallpapersLockScreenDir()).map { it.id }.sorted()
-                val nextLockScreenWallpaperId =
-                    if (lockScreenWallpapers.lastOrNull() == prefs.getInt("lock", 0)) {
-                        lockScreenWallpapers.firstOrNull()
-                    } else {
-                        lockScreenWallpapers.firstOrNull { it > prefs.getInt("lock", 0) }
-                    }
-                nextLockScreenWallpaperId?.let { id ->
-                    getWallpaper(context.wallpapersLockScreenDir(), id)?.let { bitmap ->
-                        wallpaperManager.setBitmap(
-                            bitmap,
-                            null,
-                            true,
-                            WallpaperManager.FLAG_LOCK
-                        )
-                        val editor = prefs.edit()
-                        editor.putInt("lock", id)
-                        editor.apply()
+                if (lockWallpaperSetting?.enabled == true && checkEquals(lockWallpaperSetting.changeType, action)) {
+                    val lockScreenWallpapers =
+                        getWallpapersFrom(context.wallpapersLockScreenDir()).map { it.id }.sorted()
+                    val nextLockScreenWallpaperId =
+                        if (lockScreenWallpapers.lastOrNull() == prefs.getInt("lock", 0)) {
+                            lockScreenWallpapers.firstOrNull()
+                        } else {
+                            lockScreenWallpapers.firstOrNull { it > prefs.getInt("lock", 0) }
+                        }
+                    nextLockScreenWallpaperId?.let { id ->
+                        getWallpaper(context.wallpapersLockScreenDir(), id)?.let { bitmap ->
+                            wallpaperManager.setBitmap(
+                                bitmap,
+                                null,
+                                true,
+                                WallpaperManager.FLAG_LOCK
+                            )
+                            val editor = prefs.edit()
+                            editor.putInt("lock", id)
+                            editor.apply()
+                        }
                     }
                 }
             }
