@@ -122,5 +122,10 @@
     <string name="wallpapers_conut">Wallpapers:</string>
     <string name="delete_wallpapers_question">Delete wallpapers?</string>
     <string name="wallpaper_changer_info">To work correctly, check whether all restrictions on the operation of the application have been removed (usually located in the \"Battery Use\" section, give it permission to start automatically).</string>
+    <string name="wallpaper_change_type_screen_off">When screen off</string>
+    <string name="wallpaper_change_type_time">By time</string>
+    <string name="every">Every:</string>
+    <string name="hours">h.</string>
+    <string name="minutes">minutes</string>
 
 </resources>

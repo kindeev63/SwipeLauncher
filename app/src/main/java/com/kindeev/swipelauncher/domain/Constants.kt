@@ -18,7 +18,10 @@ import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.acti
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 
 object Constants {
-
+    const val WALLPAPER_CHANGE_SCREEN_INTENT_KEY = "screen"
+    const val WALLPAPER_CHANGE_HOME_SCREEN_VALUE = 1
+    const val WALLPAPER_CHANGE_LOCK_SCREEN_VALUE = 2
+    const val WALLPAPER_CHANGE_INTENT_ACTION = "com.kindeev.swipelauncher.ACTION_CHANGE_WALLPAPER"
     var actionCategories = listOf<ActionCategory>()
     var imageTypes = listOf<ImageType>()
     var flashlightActionCategoryItems = listOf<ActionCategoryItem>()
@@ -45,7 +48,9 @@ object Constants {
     )
     val wallpaperChangeTypeText = mapOf(
         Pair(WallpaperChangeType.ScreenOn, R.string.wallpaper_change_type_screen_on),
+        Pair(WallpaperChangeType.ScreenOff, R.string.wallpaper_change_type_screen_off),
         Pair(WallpaperChangeType.Unlock, R.string.wallpaper_change_type_unlock),
+        Pair(WallpaperChangeType.Time, R.string.wallpaper_change_type_time),
     )
 
     val onBoarding2MenuImageResIds = listOf(

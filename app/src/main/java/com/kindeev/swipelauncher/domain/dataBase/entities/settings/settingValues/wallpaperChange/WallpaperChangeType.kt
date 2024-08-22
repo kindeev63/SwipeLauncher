@@ -2,5 +2,7 @@ package com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValue
 
 enum class WallpaperChangeType {
     Unlock,
-    ScreenOn
+    ScreenOn,
+    ScreenOff,
+    Time
 }

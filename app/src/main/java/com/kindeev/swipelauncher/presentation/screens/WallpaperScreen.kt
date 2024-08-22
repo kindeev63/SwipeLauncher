@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +56,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.cancelChangeHomeScreenWallpaperAlarm
+import com.kindeev.swipelauncher.domain.cancelChangeLockScreenWallpaperAlarm
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
@@ -64,17 +65,20 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.WallpaperChangeType
 import com.kindeev.swipelauncher.domain.getHomeScreenWallpapersCount
 import com.kindeev.swipelauncher.domain.getLockScreenWallpapersCount
+import com.kindeev.swipelauncher.domain.getTimeText
 import com.kindeev.swipelauncher.domain.getValueOf
+import com.kindeev.swipelauncher.domain.setChangeHomeScreenWallpaperAlarm
+import com.kindeev.swipelauncher.domain.setChangeLockScreenWallpaperAlarm
 import com.kindeev.swipelauncher.domain.spacer
 import com.kindeev.swipelauncher.domain.wallpapersHomeScreenDir
 import com.kindeev.swipelauncher.domain.wallpapersLockScreenDir
+import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangeTimeDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangerInfoDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpapersDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSettingItem
 import kotlinx.coroutines.launch
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperScreen(
     onBackPressed: () -> Unit
@@ -142,6 +146,13 @@ fun WallpaperScreen(
                         value = value.enabled,
                         onChangeValue = {
                             scope.launch {
+                                if (value.changeType == WallpaperChangeType.Time) {
+                                    if (it) {
+                                        context.setChangeHomeScreenWallpaperAlarm(value.minutes)
+                                    } else {
+                                        context.cancelChangeHomeScreenWallpaperAlarm()
+                                    }
+                                }
                                 LauncherData.insertSetting(
                                     SettingData(
                                         name = SettingNames.HomeScreenWallpaperChange,
@@ -189,6 +200,12 @@ fun WallpaperScreen(
                                                 DropdownMenuItem(
                                                     onClick = {
                                                         scope.launch {
+                                                            if (value.changeType == WallpaperChangeType.Time) {
+                                                                context.cancelChangeHomeScreenWallpaperAlarm()
+                                                            }
+                                                            if (changeType == WallpaperChangeType.Time) {
+                                                                context.setChangeHomeScreenWallpaperAlarm(value.minutes)
+                                                            }
                                                             LauncherData.insertSetting(
                                                                 SettingData(
                                                                     name = SettingNames.HomeScreenWallpaperChange,
@@ -216,6 +233,29 @@ fun WallpaperScreen(
                                             id = Constants.wallpaperChangeTypeText[value.changeType]
                                                 ?: throw IllegalArgumentException("Illegal wallpaper change type")
                                         )
+                                    )
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = value.changeType == WallpaperChangeType.Time,
+                                enter = fadeIn() + expandVertically(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
+                                Column {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    ChangeTime(
+                                        minutes = value.minutes,
+                                        onChange = {
+                                            scope.launch {
+                                                LauncherData.insertSetting(
+                                                    SettingData(
+                                                        name = SettingNames.HomeScreenWallpaperChange,
+                                                        value = value.copy(minutes = it)
+                                                    )
+                                                )
+                                                context.setChangeHomeScreenWallpaperAlarm(it)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -255,6 +295,13 @@ fun WallpaperScreen(
                         value = value.enabled,
                         onChangeValue = {
                             scope.launch {
+                                if (value.changeType == WallpaperChangeType.Time) {
+                                    if (it) {
+                                        context.setChangeLockScreenWallpaperAlarm(value.minutes)
+                                    } else {
+                                        context.cancelChangeLockScreenWallpaperAlarm()
+                                    }
+                                }
                                 LauncherData.insertSetting(
                                     SettingData(
                                         name = SettingNames.LockScreenWallpaperChange,
@@ -302,6 +349,12 @@ fun WallpaperScreen(
                                                 DropdownMenuItem(
                                                     onClick = {
                                                         scope.launch {
+                                                            if (value.changeType == WallpaperChangeType.Time) {
+                                                                context.cancelChangeLockScreenWallpaperAlarm()
+                                                            }
+                                                            if (changeType == WallpaperChangeType.Time) {
+                                                                context.setChangeLockScreenWallpaperAlarm(value.minutes)
+                                                            }
                                                             LauncherData.insertSetting(
                                                                 SettingData(
                                                                     name = SettingNames.LockScreenWallpaperChange,
@@ -329,6 +382,29 @@ fun WallpaperScreen(
                                             id = Constants.wallpaperChangeTypeText[value.changeType]
                                                 ?: throw IllegalArgumentException("Illegal wallpaper change type")
                                         )
+                                    )
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = value.changeType == WallpaperChangeType.Time,
+                                enter = fadeIn() + expandVertically(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
+                                Column {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    ChangeTime(
+                                        minutes = value.minutes,
+                                        onChange = {
+                                            scope.launch {
+                                                LauncherData.insertSetting(
+                                                    SettingData(
+                                                        name = SettingNames.LockScreenWallpaperChange,
+                                                        value = value.copy(minutes = it)
+                                                    )
+                                                )
+                                                context.setChangeLockScreenWallpaperAlarm(it)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -440,5 +516,50 @@ private fun Context.isFirstRun(): Boolean {
         editor.putString("first_run", "false")
         editor.apply()
         true
+    }
+}
+
+@Composable
+private fun ChangeTime(
+    minutes: Int,
+    onChange: (Int) -> Unit
+) {
+    var showDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    if (showDialog) {
+        WallpaperChangeTimeDialog(
+            minutes = minutes,
+            onSave = onChange,
+            onDismissRequest = {
+                showDialog = false
+            }
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = R.string.every),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = Constants.minScreenLength.sp / 25
+        )
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .clickable {
+                    showDialog = true
+                }
+                .padding(vertical = 10.dp),
+            text = LocalContext.current.getTimeText(minutes),
+            fontSize = LocalConfiguration.current.screenWidthDp.sp / 25,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }

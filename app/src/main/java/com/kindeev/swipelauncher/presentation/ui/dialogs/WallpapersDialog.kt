@@ -167,7 +167,7 @@ fun WallpaperItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 ),
-            border = if (picked) BorderStroke(2.dp, Color.Black) else null,
+            border = if (picked) BorderStroke(7.dp, Color.Black) else null,
         ) {
             Image(
                 bitmap = bitmap,

@@ -4,6 +4,7 @@ import android.app.WallpaperManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
@@ -21,59 +22,120 @@ class WallpaperChangeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         thread {
             val prefs = context.getSharedPreferences("wallpaper", Context.MODE_PRIVATE)
-            val homeWallpaperSetting = LauncherData.settings.value?.getValueOf(
-                SettingNames.HomeScreenWallpaperChange,
-                HomeScreenWallpaperChange::class.java
-            )
-            val lockWallpaperSetting = LauncherData.settings.value?.getValueOf(
-                SettingNames.LockScreenWallpaperChange,
-                LockScreenWallpaperChange::class.java
-            )
-            intent.action?.let {  action ->
-                val wallpaperManager = WallpaperManager.getInstance(context)
-                if (homeWallpaperSetting?.enabled == true && checkEquals(homeWallpaperSetting.changeType, action)) {
-                    val homeScreenWallpapers =
-                        getWallpapersFrom(context.wallpapersHomeScreenDir()).map { it.id }.sorted()
-                    val nextHomeScreenWallpaperId =
-                        if (homeScreenWallpapers.lastOrNull() == prefs.getInt("home", 0)) {
-                            homeScreenWallpapers.firstOrNull()
-                        } else {
-                            homeScreenWallpapers.firstOrNull { it > prefs.getInt("home", 0) }
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            if (intent.action == Constants.WALLPAPER_CHANGE_INTENT_ACTION) {
+                when (intent.getIntExtra(Constants.WALLPAPER_CHANGE_SCREEN_INTENT_KEY, 0)) {
+                    Constants.WALLPAPER_CHANGE_HOME_SCREEN_VALUE -> {
+                        val homeScreenWallpapers =
+                            getWallpapersFrom(context.wallpapersHomeScreenDir()).map { it.id }.sorted()
+                        val nextHomeScreenWallpaperId =
+                            if (homeScreenWallpapers.lastOrNull() == prefs.getInt("home", 0)) {
+                                homeScreenWallpapers.firstOrNull()
+                            } else {
+                                homeScreenWallpapers.firstOrNull { it > prefs.getInt("home", 0) }
+                            }
+                        nextHomeScreenWallpaperId?.let { id ->
+                            getWallpaper(context.wallpapersHomeScreenDir(), id)?.let { bitmap ->
+                                wallpaperManager.setBitmap(
+                                    bitmap,
+                                    null,
+                                    true,
+                                    WallpaperManager.FLAG_SYSTEM
+                                )
+                                val editor = prefs.edit()
+                                editor.putInt("home", id)
+                                editor.apply()
+                            }
                         }
-                    nextHomeScreenWallpaperId?.let { id ->
-                        getWallpaper(context.wallpapersHomeScreenDir(), id)?.let { bitmap ->
-                            wallpaperManager.setBitmap(
-                                bitmap,
-                                null,
-                                true,
-                                WallpaperManager.FLAG_SYSTEM
-                            )
-                            val editor = prefs.edit()
-                            editor.putInt("home", id)
-                            editor.apply()
+                    }
+                    Constants.WALLPAPER_CHANGE_LOCK_SCREEN_VALUE -> {
+                        val lockScreenWallpapers =
+                            getWallpapersFrom(context.wallpapersLockScreenDir()).map { it.id }.sorted()
+                        val nextLockScreenWallpaperId =
+                            if (lockScreenWallpapers.lastOrNull() == prefs.getInt("lock", 0)) {
+                                lockScreenWallpapers.firstOrNull()
+                            } else {
+                                lockScreenWallpapers.firstOrNull { it > prefs.getInt("lock", 0) }
+                            }
+                        nextLockScreenWallpaperId?.let { id ->
+                            getWallpaper(context.wallpapersLockScreenDir(), id)?.let { bitmap ->
+                                wallpaperManager.setBitmap(
+                                    bitmap,
+                                    null,
+                                    true,
+                                    WallpaperManager.FLAG_LOCK
+                                )
+                                val editor = prefs.edit()
+                                editor.putInt("lock", id)
+                                editor.apply()
+                            }
                         }
                     }
                 }
-                if (lockWallpaperSetting?.enabled == true && checkEquals(lockWallpaperSetting.changeType, action)) {
-                    val lockScreenWallpapers =
-                        getWallpapersFrom(context.wallpapersLockScreenDir()).map { it.id }.sorted()
-                    val nextLockScreenWallpaperId =
-                        if (lockScreenWallpapers.lastOrNull() == prefs.getInt("lock", 0)) {
-                            lockScreenWallpapers.firstOrNull()
-                        } else {
-                            lockScreenWallpapers.firstOrNull { it > prefs.getInt("lock", 0) }
+            } else {
+                val homeWallpaperSetting = LauncherData.settings.value?.getValueOf(
+                    SettingNames.HomeScreenWallpaperChange,
+                    HomeScreenWallpaperChange::class.java
+                )
+                val lockWallpaperSetting = LauncherData.settings.value?.getValueOf(
+                    SettingNames.LockScreenWallpaperChange,
+                    LockScreenWallpaperChange::class.java
+                )
+                intent.action?.let { action ->
+                    if (homeWallpaperSetting?.enabled == true && checkEquals(
+                            homeWallpaperSetting.changeType,
+                            action
+                        )
+                    ) {
+                        val homeScreenWallpapers =
+                            getWallpapersFrom(context.wallpapersHomeScreenDir()).map { it.id }
+                                .sorted()
+                        val nextHomeScreenWallpaperId =
+                            if (homeScreenWallpapers.lastOrNull() == prefs.getInt("home", 0)) {
+                                homeScreenWallpapers.firstOrNull()
+                            } else {
+                                homeScreenWallpapers.firstOrNull { it > prefs.getInt("home", 0) }
+                            }
+                        nextHomeScreenWallpaperId?.let { id ->
+                            getWallpaper(context.wallpapersHomeScreenDir(), id)?.let { bitmap ->
+                                wallpaperManager.setBitmap(
+                                    bitmap,
+                                    null,
+                                    true,
+                                    WallpaperManager.FLAG_SYSTEM
+                                )
+                                val editor = prefs.edit()
+                                editor.putInt("home", id)
+                                editor.apply()
+                            }
                         }
-                    nextLockScreenWallpaperId?.let { id ->
-                        getWallpaper(context.wallpapersLockScreenDir(), id)?.let { bitmap ->
-                            wallpaperManager.setBitmap(
-                                bitmap,
-                                null,
-                                true,
-                                WallpaperManager.FLAG_LOCK
-                            )
-                            val editor = prefs.edit()
-                            editor.putInt("lock", id)
-                            editor.apply()
+                    }
+                    if (lockWallpaperSetting?.enabled == true && checkEquals(
+                            lockWallpaperSetting.changeType,
+                            action
+                        )
+                    ) {
+                        val lockScreenWallpapers =
+                            getWallpapersFrom(context.wallpapersLockScreenDir()).map { it.id }
+                                .sorted()
+                        val nextLockScreenWallpaperId =
+                            if (lockScreenWallpapers.lastOrNull() == prefs.getInt("lock", 0)) {
+                                lockScreenWallpapers.firstOrNull()
+                            } else {
+                                lockScreenWallpapers.firstOrNull { it > prefs.getInt("lock", 0) }
+                            }
+                        nextLockScreenWallpaperId?.let { id ->
+                            getWallpaper(context.wallpapersLockScreenDir(), id)?.let { bitmap ->
+                                wallpaperManager.setBitmap(
+                                    bitmap,
+                                    null,
+                                    true,
+                                    WallpaperManager.FLAG_LOCK
+                                )
+                                val editor = prefs.edit()
+                                editor.putInt("lock", id)
+                                editor.apply()
+                            }
                         }
                     }
                 }
@@ -84,7 +146,10 @@ class WallpaperChangeReceiver : BroadcastReceiver() {
     private fun checkEquals(changeType: WallpaperChangeType, action: String): Boolean {
         return if (
             (changeType == WallpaperChangeType.Unlock && action == Intent.ACTION_USER_PRESENT)
-            || (changeType == WallpaperChangeType.ScreenOn && action == Intent.ACTION_SCREEN_ON)
+            ||
+            (changeType == WallpaperChangeType.ScreenOn && action == Intent.ACTION_SCREEN_ON)
+            ||
+            (changeType == WallpaperChangeType.ScreenOff && action == Intent.ACTION_SCREEN_OFF)
         ) {
             return true
         } else false

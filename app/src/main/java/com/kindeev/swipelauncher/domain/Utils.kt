@@ -2,6 +2,8 @@ package com.kindeev.swipelauncher.domain
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.role.RoleManager
 import android.content.ContentValues
 import android.content.Context
@@ -14,6 +16,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.SystemClock
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -370,14 +373,6 @@ fun Context.registerAppsReceiver(appsReceiver: AppsReceiver) {
         addDataScheme("package")
     }
     this.registerReceiver(appsReceiver, filter)
-}
-
-fun Context.registerWallpaperChangeReceivers(wallpaperChangeReceiver: WallpaperChangeReceiver) {
-    val filter = IntentFilter().apply {
-        addAction(Intent.ACTION_SCREEN_ON)
-        addAction(Intent.ACTION_USER_PRESENT)
-    }
-    this.registerReceiver(wallpaperChangeReceiver, filter)
 }
 
 fun Context.unregisterReceivers(
@@ -1475,4 +1470,61 @@ fun deleteWallpapers(
 
 fun LazyListScope.spacer() {
     item { Spacer(modifier = Modifier.height(5.dp)) }
+}
+
+fun Context.getTimeText(minutes: Int): String {
+    if (minutes >= 60) {
+        return "${minutes / 60} ${resources.getString(R.string.hours)} ${minutes % 60} ${resources.getString(R.string.minutes)}"
+    }
+    return "$minutes ${resources.getString(R.string.minutes)}"
+}
+
+fun Context.setChangeHomeScreenWallpaperAlarm(minutes: Int) {
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(this, WallpaperChangeReceiver::class.java).apply {
+        putExtra(Constants.WALLPAPER_CHANGE_SCREEN_INTENT_KEY, Constants.WALLPAPER_CHANGE_HOME_SCREEN_VALUE)
+        action = Constants.WALLPAPER_CHANGE_INTENT_ACTION
+    }
+    val pendingIntent = PendingIntent.getBroadcast(this, Constants.WALLPAPER_CHANGE_HOME_SCREEN_VALUE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    val interval = minutes * 60 * 1000L
+    alarmManager.setRepeating(
+        AlarmManager.RTC_WAKEUP,
+        SystemClock.currentThreadTimeMillis(),
+        interval,
+        pendingIntent
+    )
+}
+
+fun Context.setChangeLockScreenWallpaperAlarm(minutes: Int) {
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(this, WallpaperChangeReceiver::class.java).apply {
+        putExtra(Constants.WALLPAPER_CHANGE_SCREEN_INTENT_KEY, Constants.WALLPAPER_CHANGE_LOCK_SCREEN_VALUE)
+        action = Constants.WALLPAPER_CHANGE_INTENT_ACTION
+    }
+    val pendingIntent = PendingIntent.getBroadcast(this, Constants.WALLPAPER_CHANGE_LOCK_SCREEN_VALUE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    val interval = minutes * 60 * 1000L
+    alarmManager.setRepeating(
+        AlarmManager.RTC_WAKEUP,
+        SystemClock.currentThreadTimeMillis(),
+        interval,
+        pendingIntent
+    )
+}
+
+fun Context.cancelChangeHomeScreenWallpaperAlarm() {
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(this, WallpaperChangeReceiver::class.java).apply {
+        action = Constants.WALLPAPER_CHANGE_INTENT_ACTION
+    }
+    val pendingIntent = PendingIntent.getBroadcast(this, Constants.WALLPAPER_CHANGE_HOME_SCREEN_VALUE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
+    alarmManager.cancel(pendingIntent)
+}
+
+fun Context.cancelChangeLockScreenWallpaperAlarm() {
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(this, WallpaperChangeReceiver::class.java).apply {
+        action = Constants.WALLPAPER_CHANGE_INTENT_ACTION
+    }
+    val pendingIntent = PendingIntent.getBroadcast(this, Constants.WALLPAPER_CHANGE_LOCK_SCREEN_VALUE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
+    alarmManager.cancel(pendingIntent)
 }

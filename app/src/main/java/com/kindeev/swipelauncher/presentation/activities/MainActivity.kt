@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
                 DisposableEffect(context) {
                     val filter = IntentFilter().apply {
                         addAction(Intent.ACTION_SCREEN_ON)
+                        addAction(Intent.ACTION_SCREEN_OFF)
                         addAction(Intent.ACTION_USER_PRESENT)
                     }
                     context.registerReceiver(wallpaperChangeReceiver, filter)
