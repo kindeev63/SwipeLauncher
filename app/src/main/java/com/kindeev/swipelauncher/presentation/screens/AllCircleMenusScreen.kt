@@ -56,7 +56,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.viewModels.AllCircleMenusVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import kotlinx.coroutines.launch
@@ -81,14 +82,16 @@ fun AllCircleMenusScreen(
         onBackPressed()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: AllCircleMenusVM = viewModel()
+    val viewModel: AllCircleMenusVM = viewModel(
+        factory = AllCircleMenusVMFactory(context)
+    )
     val allCircleMenus by LauncherData.allCircleMenus.observeAsState(emptyList())
     val selectedMenuIds by viewModel.selectedMenuIds.observeAsState(emptyList())
 
     val pickJsonFile = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
-            viewModel.importCircleMenus(uri, context) { result ->
+            viewModel.importCircleMenus(uri) { result ->
                 scope.launch { snackbarHostState.showSnackbar(context.resources.getString(if (result) R.string.successfully else R.string.error)) }
             }
         }
@@ -116,7 +119,7 @@ fun AllCircleMenusScreen(
                 onClickImport = { pickJsonFile.launch("application/zip") },
                 onClickExport = {
                     if (permissionState.status.isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        viewModel.exportSelectedMenus(allCircleMenus, context) { result ->
+                        viewModel.exportSelectedMenus(allCircleMenus) { result ->
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     context.resources.getString(

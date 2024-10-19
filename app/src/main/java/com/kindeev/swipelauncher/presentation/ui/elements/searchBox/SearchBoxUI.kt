@@ -10,34 +10,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.executeSearchResult
-import com.kindeev.swipelauncher.domain.getNotHidden
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
-import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
+import com.kindeev.swipelauncher.domain.utils.executeSearchResult
+import com.kindeev.swipelauncher.domain.utils.getValueOf
+import com.kindeev.swipelauncher.domain.viewModels.elements.searchBox.SearchBoxVM
+import com.kindeev.swipelauncher.domain.viewModels.elements.searchBox.SearchBoxVMFactory
 
 @Composable
 fun SearchBoxUI(
     onClose: () -> Unit
 ) {
     BackHandler(onBack = onClose)
-    var searchText by rememberSaveable {
-        mutableStateOf("")
-    }
-
+    val context = LocalContext.current
+    val viewModel: SearchBoxVM = viewModel(
+        factory = SearchBoxVMFactory(context)
+    )
+    val searchText by viewModel.searchText.observeAsState("")
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
     val settings by LauncherData.settings.observeAsState(emptyList())
-    val searchResults = searchText.getSearchResults(allApplicationInfo)
+    val searchResults = viewModel.getSearchResults(allApplicationInfo)
     if (searchResults.size == 1 && settings.getValueOf(SettingNames.OpenLastApp, OpenLastApp::class.java)?.enabled == true) {
         searchResults.firstOrNull()?.let { LocalContext.current.executeSearchResult(it) }
         onClose()
@@ -50,12 +47,8 @@ fun SearchBoxUI(
                 .fillMaxWidth()
                 .fillMaxHeight(0.1f)
         )
-        SearchBoxSearchElement(searchText = searchText, onChangeText = { searchText = it })
+        SearchBoxSearchElement(searchText = searchText, onChangeText = { viewModel.search(it) })
         Spacer(modifier = Modifier.height(10.dp))
         SearchBoxResults(results = searchResults, onClose = onClose)
     }
-}
-
-fun String.getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
-    return allApplicationInfo.getNotHidden().filter { it.title.lowercase().contains(this.lowercase()) }.map { AppSBR(it) }
 }

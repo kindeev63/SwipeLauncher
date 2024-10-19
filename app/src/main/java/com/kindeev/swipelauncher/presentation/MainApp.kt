@@ -5,7 +5,7 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.AppDataBase
-import com.kindeev.swipelauncher.domain.getMinScreenLength
+import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
 import com.kindeev.swipelauncher.presentation.activities.ErrorActivity
 
 class MainApp: Application() {

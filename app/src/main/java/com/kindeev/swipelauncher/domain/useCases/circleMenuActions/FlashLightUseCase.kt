@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.useCases
+package com.kindeev.swipelauncher.domain.useCases.circleMenuActions
 
 import android.content.Context
 import android.hardware.camera2.CameraManager

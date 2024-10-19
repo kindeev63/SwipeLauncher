@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.getItemOffset
+import com.kindeev.swipelauncher.domain.utils.getItemOffset
 
 @Composable
 fun CircleMenuForEditUI(

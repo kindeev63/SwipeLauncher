@@ -38,10 +38,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.getHidden
+import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import kotlinx.coroutines.launch
@@ -51,6 +53,10 @@ import kotlinx.coroutines.launch
 fun HiddenAppsScreen(
     onBackPressed: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: HiddenAppsScreenVM = viewModel(
+        factory = HiddenAppsScreenVMFactory(context)
+    )
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
@@ -93,7 +99,7 @@ fun HiddenAppsScreen(
                 .padding(paddingValues)
         ) {
             items(
-                items = allApplicationInfo.getHidden(allApplicationData)
+                items = viewModel.getHiddenApps(allApplicationInfo)
             ) {
                 AppItem(
                     applicationInfo = it,

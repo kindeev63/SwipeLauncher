@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.executeSearchResult
+import com.kindeev.swipelauncher.domain.utils.executeSearchResult
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
 

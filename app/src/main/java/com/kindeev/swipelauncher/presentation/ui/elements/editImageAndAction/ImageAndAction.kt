@@ -43,11 +43,11 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
-import com.kindeev.swipelauncher.domain.getImageType
-import com.kindeev.swipelauncher.domain.getMinScreenLengthDp
-import com.kindeev.swipelauncher.domain.getMinScreenLengthSp
+import com.kindeev.swipelauncher.domain.utils.getImageType
+import com.kindeev.swipelauncher.domain.utils.getMinScreenLengthDp
+import com.kindeev.swipelauncher.domain.utils.getMinScreenLengthSp
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
-import com.kindeev.swipelauncher.domain.getCategory
+import com.kindeev.swipelauncher.domain.utils.getCategory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 

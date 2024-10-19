@@ -44,20 +44,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.getItemOffset
-import com.kindeev.swipelauncher.domain.getThisAppIcon
-import com.kindeev.swipelauncher.domain.showLauncherSelection
+import com.kindeev.swipelauncher.domain.utils.getItemOffset
+import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
+import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVMFactory
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: OnBoardingScreenVM = viewModel(
+        factory = OnBoardingScreenVMFactory(context)
+    )
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
@@ -83,9 +89,15 @@ fun OnboardingScreen(
             count = 9
         ) { page ->
             if (orientationPhone) {
-                PageContentPhone(page = page)
+                PageContentPhone(
+                    page = page,
+                    viewModel = viewModel
+                )
             } else {
-                PageContentTablet(page = page)
+                PageContentTablet(
+                    page = page,
+                    viewModel = viewModel
+                )
             }
         }
         HorizontalPagerIndicator(
@@ -104,7 +116,10 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun PageContentTablet(page: Int) {
+private fun PageContentTablet(
+    page: Int,
+    viewModel: OnBoardingScreenVM
+) {
     val screenWidth = Constants.minScreenLength
     when (page) {
         0 -> {
@@ -123,7 +138,7 @@ private fun PageContentTablet(page: Int) {
                     ) {
                         Image(
                             modifier = Modifier.size(screenWidth.dp / 10 * 6),
-                            bitmap = LocalContext.current.getThisAppIcon(),
+                            bitmap = viewModel.getThisAppIcon(),
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
@@ -542,7 +557,10 @@ private fun PageContentTablet(page: Int) {
 }
 
 @Composable
-private fun PageContentPhone(page: Int) {
+private fun PageContentPhone(
+    page: Int,
+    viewModel: OnBoardingScreenVM
+) {
     val screenWidth = Constants.minScreenLength
     when (page) {
         0 -> {
@@ -556,7 +574,7 @@ private fun PageContentPhone(page: Int) {
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Image(
                     modifier = Modifier.size(screenWidth.dp / 10 * 6),
-                    bitmap = LocalContext.current.getThisAppIcon(),
+                    bitmap = viewModel.getThisAppIcon(),
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))

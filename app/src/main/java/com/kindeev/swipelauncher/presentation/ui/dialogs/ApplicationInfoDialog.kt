@@ -22,11 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,18 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.changeApp
-import com.kindeev.swipelauncher.domain.deleteApp
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.getAppDetails
-import com.kindeev.swipelauncher.domain.getApplicationData
-import com.kindeev.swipelauncher.domain.getItemImageForApplicationInfoDialog
-import com.kindeev.swipelauncher.domain.getNotMaskApplicationData
-import com.kindeev.swipelauncher.domain.hideApp
-import com.kindeev.swipelauncher.domain.showApp
-import kotlinx.coroutines.launch
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.applicationInfoDialog.ApplicationInfoDialogVM
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.applicationInfoDialog.ApplicationInfoDialogVMFactory
 
 @Composable
 fun ApplicationInfoDialog(
@@ -59,19 +49,15 @@ fun ApplicationInfoDialog(
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
-    val firstAppData = remember { context.getApplicationData(applicationInfo.packageName) }
-    val scope = rememberCoroutineScope()
-    var appData by remember {
-        mutableStateOf(firstAppData)
-    }
-
-    var showImageDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-    if (showImageDialog) {
+    val viewModel: ApplicationInfoDialogVM = viewModel(
+        factory = ApplicationInfoDialogVMFactory(context, applicationInfo.packageName)
+    )
+    val appData by viewModel.appData.observeAsState(viewModel.firstAppData)
+    val imageDialogVisibility by viewModel.imageDialogVisibility.observeAsState(false)
+    if (imageDialogVisibility) {
         ImageDialog(
-            onDismissRequest = { showImageDialog = false },
-            onPick = { appData = appData.copy(image = it) }
+            onDismissRequest = { viewModel.hideImageDialog() },
+            onPick = { viewModel.setAppDataImage(it) }
         )
     }
     Dialog(
@@ -98,9 +84,9 @@ fun ApplicationInfoDialog(
                     modifier = Modifier
                         .size(Constants.minScreenLength.dp / 7 + 10.dp)
                         .clip(RoundedCornerShape(7.dp))
-                        .clickable { showImageDialog = true }
+                        .clickable { viewModel.showImageDialog() }
                         .padding(5.dp),
-                    bitmap = appData.image.getItemImageForApplicationInfoDialog(context, appData.packageName)
+                    bitmap = viewModel.getItemImage()
                         ?: throw IllegalArgumentException("Illegal image"),
                     contentDescription = "Application Image"
                 )
@@ -121,7 +107,7 @@ fun ApplicationInfoDialog(
                             fontSize = 20.sp
                         ),
                         value = appData.title,
-                        onValueChange = { appData = appData.copy(title = it) }
+                        onValueChange = { viewModel.setAppDataTitle(it) }
                     )
                 }
                 Spacer(modifier = Modifier.width(15.dp))
@@ -129,9 +115,7 @@ fun ApplicationInfoDialog(
                     modifier = Modifier
                         .size(Constants.minScreenLength.dp / 10)
                         .clip(CircleShape)
-                        .clickable {
-                            appData = context.getNotMaskApplicationData(appData.packageName)
-                        }
+                        .clickable { viewModel.resetAppData() }
                         .padding(5.dp),
                     painter = painterResource(id = R.drawable.reset_image),
                     contentDescription = "Reset"
@@ -151,7 +135,7 @@ fun ApplicationInfoDialog(
                             .size(Constants.minScreenLength.dp / 10)
                             .clip(RoundedCornerShape(7.dp))
                             .background(MaterialTheme.colorScheme.primary)
-                            .clickable { context.getAppDetails(appData.packageName) },
+                            .clickable { viewModel.getAppDetails() },
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -166,7 +150,7 @@ fun ApplicationInfoDialog(
                             .clip(RoundedCornerShape(7.dp))
                             .background(Color.Red)
                             .clickable {
-                                context.deleteApp(appData.packageName)
+                                viewModel.deleteApp()
                                 onDismissRequest()
                             },
                         contentAlignment = Alignment.Center
@@ -182,17 +166,7 @@ fun ApplicationInfoDialog(
                             .size(Constants.minScreenLength.dp / 10)
                             .clip(RoundedCornerShape(7.dp))
                             .background(Color.Green)
-                            .clickable {
-                                scope.launch {
-                                    appData = if (appData.hidden) {
-                                        context.showApp(appData.packageName)
-                                        appData.copy(hidden = false)
-                                    } else {
-                                        context.hideApp(appData.packageName)
-                                        appData.copy(hidden = true)
-                                    }
-                                }
-                            },
+                            .clickable { viewModel.changeAppHiddenStatus() },
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -206,7 +180,7 @@ fun ApplicationInfoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (firstAppData.title == appData.title && firstAppData.image == appData.image) {
+                    if (viewModel.hasChanges()) {
                         Box(
                             modifier = Modifier
                                 .height(Constants.minScreenLength.dp / 10)
@@ -227,12 +201,7 @@ fun ApplicationInfoDialog(
                                 .height(Constants.minScreenLength.dp / 10)
                                 .clip(RoundedCornerShape(7.dp))
                                 .background(MaterialTheme.colorScheme.primary)
-                                .clickable {
-                                    scope.launch {
-                                        context.changeApp(appData)
-                                        onDismissRequest()
-                                    }
-                                }
+                                .clickable { viewModel.saveChanges() }
                                 .padding(horizontal = 20.dp),
                             contentAlignment = Alignment.Center
                         ) {

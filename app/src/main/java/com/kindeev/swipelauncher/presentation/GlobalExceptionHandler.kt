@@ -23,7 +23,7 @@ class GlobalExceptionHandler private constructor(
             applicationContext.startActivity(crashedIntent)
 
             exitProcess(0)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             defaultHandler.uncaughtException(p0, p1)
         }
     }

@@ -22,6 +22,9 @@ object Constants {
     const val WALLPAPER_CHANGE_HOME_SCREEN_VALUE = 1
     const val WALLPAPER_CHANGE_LOCK_SCREEN_VALUE = 2
     const val WALLPAPER_CHANGE_INTENT_ACTION = "com.kindeev.swipelauncher.ACTION_CHANGE_WALLPAPER"
+    const val WALLPAPER_HOME_SCREEN_DIR = "Wallpapers/HomeScreen"
+    const val WALLPAPER_LOCK_SCREEN_DIR = "Wallpapers/LockScreen"
+    const val USER_IMAGES_DIR = "UserImages"
     var actionCategories = listOf<ActionCategory>()
     var imageTypes = listOf<ImageType>()
     var flashlightActionCategoryItems = listOf<ActionCategoryItem>()

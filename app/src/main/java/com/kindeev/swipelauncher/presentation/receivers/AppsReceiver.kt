@@ -7,14 +7,14 @@ import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.check
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.getAllApplicationInfo
-import com.kindeev.swipelauncher.domain.getOnlyChanged
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.domain.isAppInstalled
+import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
+import com.kindeev.swipelauncher.domain.utils.getValueOf
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,21 +22,30 @@ import kotlin.concurrent.thread
 
 
 class AppsReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
+
+        val getItemImageUseCase = GetItemImageUseCase(context)
+        val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+        val userImagesUseCase = UserImagesUseCase(context)
+        val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+
         thread {
-            val newApplicationsInfo = context.getAllApplicationInfo()
+            val newApplicationsInfo = applicationsUseCase.getAllApplicationInfo()
             Handler(Looper.getMainLooper()).post {
                 this.goAsync()
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
                     LauncherData.setAllApplications(newApplicationsInfo)
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        LauncherData.insertCircleMenus(allCircleMenus.getOnlyChanged(context))
+                        LauncherData.insertCircleMenus(
+                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
+                        )
                     }
                     LauncherData.settings.value?.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)?.action?.let { circleMenuAction ->
                         when (circleMenuAction) {
                             is OpenAppAction -> {
-                                if (!context.isAppInstalled(circleMenuAction.packageName)) {
+                                if (!applicationsUseCase.isAppInstalled(circleMenuAction.packageName)) {
                                     Constants.defaultSettings.find { it.name == SettingNames.ClickOnClock }
                                         ?.let {
                                             LauncherData.insertSetting(it)
@@ -47,7 +56,12 @@ class AppsReceiver : BroadcastReceiver() {
                             else -> {}
                         }
                     }
-                    LauncherData.allApplicationData.value?.check(newApplicationsInfo, context)
+                    LauncherData.allApplicationData.value?.let { applicationsData ->
+                        applicationsUseCase.check(
+                            applicationsData,
+                            newApplicationsInfo
+                        )
+                    }
                 }
             }
         }

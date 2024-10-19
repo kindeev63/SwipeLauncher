@@ -35,10 +35,10 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
-import com.kindeev.swipelauncher.domain.getCategory
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.domain.showLauncherSelection
-import com.kindeev.swipelauncher.domain.spacer
+import com.kindeev.swipelauncher.domain.utils.getCategory
+import com.kindeev.swipelauncher.domain.utils.getValueOf
+import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
+import com.kindeev.swipelauncher.domain.utils.spacer
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionDataByType
 import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionTypeItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.ClickableSettingItem

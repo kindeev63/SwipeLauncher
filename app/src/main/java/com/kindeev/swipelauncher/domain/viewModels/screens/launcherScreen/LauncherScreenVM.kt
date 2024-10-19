@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels
+package com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen
 
 import android.content.Context
 import android.os.Vibrator
@@ -22,13 +22,15 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
-import com.kindeev.swipelauncher.domain.useCases.FlashLightUseCase
+import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.useCases.OpenAppUseCase
-import com.kindeev.swipelauncher.domain.useCases.OpenSettingsUseCase
-import com.kindeev.swipelauncher.domain.getCircleMenuItem
-import com.kindeev.swipelauncher.domain.useCases.OpenUrlUseCase
-import com.kindeev.swipelauncher.domain.useCases.TelephoneUseCase
+import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
+import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
+import com.kindeev.swipelauncher.domain.utils.getCircleMenuItem
+import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
+import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
 
 class LauncherScreenVM(context: Context) : ViewModel() {
     private val _currentMenu = MutableLiveData(
@@ -41,10 +43,15 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     val screenState: LiveData<LauncherScreenState> = _screenState
     private val density = context.resources.displayMetrics.density
     private var clickTime = 0L
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(context)
+
+    private val userImagesUseCase = UserImagesUseCase(context)
+    private val getItemImageUseCase = GetItemImageUseCase(context)
+    private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
-    private val openAppUseCase = OpenAppUseCase(context)
+
+
     private val flashLightUseCase = FlashLightUseCase(context)
     private val openUrlUseCase = OpenUrlUseCase(context)
     private val vibrator =
@@ -127,7 +134,10 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
                     circleMenuForCheck?.let { menu ->
                         circleMenuForCheck =
-                            if (checkCircleMenuUseCase.invoke(menu)) {
+                            if (checkCircleMenuUseCase.check(
+                                    menu
+                                )
+                            ) {
                                 menu
                             } else {
                                 LauncherData.allCircleMenus.value?.find { it.id == 0 }
@@ -151,7 +161,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             is OpenAppAction -> {
-                openAppUseCase.invoke(action.packageName)
+                applicationsUseCase.openApp(action.packageName)
             }
 
             is FlashLightOnAction -> {

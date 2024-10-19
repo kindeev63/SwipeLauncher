@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels
+package com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

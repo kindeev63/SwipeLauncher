@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.viewModels
+package com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus
 
 import android.content.Context
 import android.net.Uri
@@ -8,13 +8,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.exportCircleMenus
-import com.kindeev.swipelauncher.domain.importCircleMenus
+import com.kindeev.swipelauncher.domain.useCases.ExportCircleMenusUseCase
+import com.kindeev.swipelauncher.domain.useCases.ImportCircleMenusUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import kotlinx.coroutines.launch
 
-class AllCircleMenusVM : ViewModel() {
+class AllCircleMenusVM(context: Context) : ViewModel() {
     private val _selectedMenuIds = MutableLiveData<List<Int>>(emptyList())
     val selectedMenuIds: LiveData<List<Int>> = _selectedMenuIds
+    private val userImagesUseCase = UserImagesUseCase(context)
+    private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, userImagesUseCase)
+    private val exportCircleMenusUseCase = ExportCircleMenusUseCase(context)
 
     fun selectAllMenus(allMenus: List<CircleMenu>) {
         _selectedMenuIds.postValue(allMenus.map { it.id })
@@ -26,14 +30,14 @@ class AllCircleMenusVM : ViewModel() {
         _selectedMenuIds.postValue(emptyList())
     }
 
-    fun exportSelectedMenus(allMenus: List<CircleMenu>, context: Context, onFinish: (Boolean) -> Unit) {
-        val result = context.exportCircleMenus(allMenus.filter { selectedMenuIds.value?.contains(it.id) == true })
+    fun exportSelectedMenus(allMenus: List<CircleMenu>, onFinish: (Boolean) -> Unit) {
+        val result = exportCircleMenusUseCase.export(allMenus.filter { selectedMenuIds.value?.contains(it.id) == true })
         _selectedMenuIds.postValue(emptyList())
         onFinish(result)
     }
 
-    fun importCircleMenus(uri: Uri?, context: Context, onFinish: (Boolean) -> Unit) = viewModelScope.launch {
-        val result = context.importCircleMenus(uri ?: return@launch)
+    fun importCircleMenus(uri: Uri?, onFinish: (Boolean) -> Unit) = viewModelScope.launch {
+        val result = importCircleMenusUseCase.import(uri ?: return@launch)
         onFinish(result)
     }
 

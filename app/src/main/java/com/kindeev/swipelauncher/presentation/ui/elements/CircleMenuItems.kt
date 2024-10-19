@@ -8,9 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.getItemImage
-import com.kindeev.swipelauncher.domain.getItemOffset
+import com.kindeev.swipelauncher.domain.utils.getItemOffset
+import com.kindeev.swipelauncher.domain.viewModels.elements.cirlceMenuItems.CircleMenuItemsVM
+import com.kindeev.swipelauncher.domain.viewModels.elements.cirlceMenuItems.CircleMenuItemsVMFactory
 
 @Composable
 fun CircleMenuItems(
@@ -22,8 +24,11 @@ fun CircleMenuItems(
             .size(menuSize.dp)
     ) {
         val context = LocalContext.current
+        val viewModel: CircleMenuItemsVM = viewModel(
+            factory = CircleMenuItemsVMFactory(context)
+        )
         items.forEach { item ->
-            item.image.getItemImage(context)?.let { imageBitmap ->
+            viewModel.getItemImage(item.image)?.let { imageBitmap ->
                 val offset = item.offset.getItemOffset(menuSize)
                 Image(
                     modifier = Modifier

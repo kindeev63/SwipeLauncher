@@ -1,18 +1,18 @@
-package com.kindeev.swipelauncher.domain.viewModels
+package com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.emptyCircleMenu
+import com.kindeev.swipelauncher.domain.utils.emptyCircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.getValueOf
+import com.kindeev.swipelauncher.domain.utils.getValueOf
 import kotlinx.coroutines.launch
 
 class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {

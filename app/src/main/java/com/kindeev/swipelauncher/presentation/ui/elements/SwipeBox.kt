@@ -11,7 +11,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

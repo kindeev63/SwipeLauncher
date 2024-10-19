@@ -30,10 +30,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.ReadContactsPermission
+import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
@@ -44,9 +45,10 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.formatPhoneNumber
-import com.kindeev.swipelauncher.domain.getApplicationInfo
-import com.kindeev.swipelauncher.domain.getContactName
+import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
+import com.kindeev.swipelauncher.domain.utils.getContactName
+import com.kindeev.swipelauncher.domain.viewModels.elements.openAppDataItem.OpenAppDataItemVM
+import com.kindeev.swipelauncher.domain.viewModels.elements.openAppDataItem.OpenAppDataItemVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenAppActionData
@@ -88,7 +90,10 @@ fun ActionDataByType(
         }
 
         is ChangeFlashLightConditionAction -> {
-            ChangeFlashlightConditionDataItem(onChangeAction = onChangeAction, textColor = textColor)
+            ChangeFlashlightConditionDataItem(
+                onChangeAction = onChangeAction,
+                textColor = textColor
+            )
         }
 
         is CallAction -> {
@@ -151,6 +156,10 @@ private fun OpenAppDataItem(
     textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: OpenAppDataItemVM = viewModel(
+        factory = OpenAppDataItemVMFactory(context)
+    )
     var showOpenAppDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -160,7 +169,7 @@ private fun OpenAppDataItem(
             onDismissRequest = { showOpenAppDialog = false }
         )
     }
-    val applicationData = LocalContext.current.getApplicationInfo(action.packageName)
+    val applicationData = viewModel.getApplicationInfo(action.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)

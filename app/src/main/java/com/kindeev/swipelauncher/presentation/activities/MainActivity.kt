@@ -26,24 +26,24 @@ import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.checkDirs
-import com.kindeev.swipelauncher.domain.checkSettings
+import com.kindeev.swipelauncher.domain.utils.checkDirs
+import com.kindeev.swipelauncher.domain.utils.checkSettings
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.getAllApplicationInfo
-import com.kindeev.swipelauncher.domain.getLauncherStatusBarStyle
-import com.kindeev.swipelauncher.domain.getOnlyChanged
-import com.kindeev.swipelauncher.domain.getRootCircleMenu
-import com.kindeev.swipelauncher.domain.getUserImages
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.domain.isMyLauncherDefault
-import com.kindeev.swipelauncher.domain.registerAppsReceiver
-import com.kindeev.swipelauncher.domain.removeUnusedUserImages
-import com.kindeev.swipelauncher.domain.setActionAndImageTypes
-import com.kindeev.swipelauncher.domain.unregisterReceivers
+import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
+import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
+import com.kindeev.swipelauncher.domain.utils.getValueOf
+import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
+import com.kindeev.swipelauncher.domain.utils.registerAppsReceiver
+import com.kindeev.swipelauncher.domain.utils.setActionAndImageTypes
+import com.kindeev.swipelauncher.domain.utils.unregisterReceivers
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
 import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
@@ -57,8 +57,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     private val appsReceiver = AppsReceiver()
     private val wallpaperChangeReceiver = WallpaperChangeReceiver()
+
+    private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
+    private val userImagesUseCase = UserImagesUseCase(this)
+    private val getItemImageUseCase = GetItemImageUseCase(this)
+    private val applicationsUseCase = ApplicationsUseCase(this, getItemImageUseCase)
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideNavigationBar()
@@ -83,7 +91,7 @@ class MainActivity : ComponentActivity() {
                             onFinish = {
                                 scope.launch {
                                     LauncherData.insertCircleMenu(
-                                        getRootCircleMenu(
+                                        getRootCircleMenuUseCase.get(
                                             context.resources.getString(
                                                 R.string.root
                                             )
@@ -103,7 +111,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = if (isFirstRun()) {
                         if (context.isMyLauncherDefault()) {
                             LauncherData.insertCircleMenu(
-                                getRootCircleMenu(
+                                getRootCircleMenuUseCase.get(
                                     context.resources.getString(
                                         R.string.root
                                     )
@@ -134,15 +142,17 @@ class MainActivity : ComponentActivity() {
         LauncherData.allApplicationData.observe(this, object : Observer<List<ApplicationData>> {
             override fun onChanged(value: List<ApplicationData>) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    LauncherData.setAllApplications(getAllApplicationInfo())
+                    LauncherData.setAllApplications(
+                        applicationsUseCase.getAllApplicationInfo()
+                    )
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        removeUnusedUserImages(
+                        userImagesUseCase.removeUnusedUserImages(
                             allCircleMenus,
                             LauncherData.allApplicationData.value ?: emptyList()
                         )
-                        LauncherData.userImages = getUserImages()
+                        LauncherData.userImages = userImagesUseCase.getUserImages()
                         val changedCircleMenus =
-                            allCircleMenus.getOnlyChanged(this@MainActivity)
+                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
                         Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) {
                                 CoroutineScope(Dispatchers.IO).launch {
@@ -159,15 +169,15 @@ class MainActivity : ComponentActivity() {
         LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
             override fun onChanged(value: List<CircleMenu>) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    LauncherData.setAllApplications(getAllApplicationInfo())
+                    LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        removeUnusedUserImages(
+                        userImagesUseCase.removeUnusedUserImages(
                             allCircleMenus,
                             LauncherData.allApplicationData.value ?: emptyList()
                         )
-                        LauncherData.userImages = getUserImages()
+                        LauncherData.userImages = userImagesUseCase.getUserImages()
                         val changedCircleMenus =
-                            allCircleMenus.getOnlyChanged(this@MainActivity)
+                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
                         Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) {
                                 CoroutineScope(Dispatchers.IO).launch {

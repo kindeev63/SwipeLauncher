@@ -20,14 +20,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.getAppDetails
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpaperChangerInfoDialog.WallpaperChangerInfoDialogVM
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpaperChangerInfoDialog.WallpaperChangerInfoDialogVMFactory
 
 @Composable
 fun WallpaperChangerInfoDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
+    val viewModel: WallpaperChangerInfoDialogVM = viewModel(
+        factory = WallpaperChangerInfoDialogVMFactory(context)
+    )
     val screenConfiguration = LocalConfiguration.current
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -49,7 +54,7 @@ fun WallpaperChangerInfoDialog(
             )
             TextButton(
                 onClick = {
-                    context.getAppDetails(context.packageName)
+                    viewModel.getAppDetails()
                     onDismissRequest()
                 }
             ) {

@@ -56,10 +56,10 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.getSelectedBoxOffset
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.domain.utils.getSelectedBoxOffset
+import com.kindeev.swipelauncher.domain.utils.getValueOf
+import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.EditCircleMenuScreenVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog

@@ -1,5 +1,8 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
@@ -29,10 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,15 +42,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.addWallpaperLauncher
-import com.kindeev.swipelauncher.domain.deleteWallpapers
-import com.kindeev.swipelauncher.domain.getWallpapersFrom
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpapersDialog.WallpapersDialogVM
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpapersDialog.WallpapersDialogVMFactory
 import java.io.File
 
 @Composable
@@ -58,32 +59,26 @@ fun WallpapersDialog(
     dir: File,
     onDismissRequest: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: WallpapersDialogVM = viewModel(
+        factory = WallpapersDialogVMFactory(context, dir)
+    )
     val screenConfiguration = LocalConfiguration.current
-    var wallpapers by remember {
-        mutableStateOf(getWallpapersFrom(dir))
-    }
-    val selectedWallpaperIds = remember {
-        mutableStateListOf<Int>()
-    }
+    val wallpapers by viewModel.wallpapers.observeAsState(emptyList())
+    val selectedWallpaperIds by viewModel.selectedWallpapersId.observeAsState(emptyList())
+    val deleteWallpapersDialog by viewModel.deleteWallpapersDialog.observeAsState(false)
 
-    val launcher = addWallpaperLauncher(dir) { result ->
-        if (result) {
-            wallpapers = getWallpapersFrom(dir)
-        }
+    val launcher = rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.addWallpaper(uri) }
     }
-    var showDeleteWallpapersDialog by remember {
-        mutableStateOf(false)
-    }
-    if (showDeleteWallpapersDialog) {
+    if (deleteWallpapersDialog) {
         QuestionDialog(
             text = stringResource(id = R.string.delete_wallpapers_question),
-            onDismissRequest = { showDeleteWallpapersDialog = false },
-            onClickYes = {
-                deleteWallpapers(dir, selectedWallpaperIds)
-                wallpapers = getWallpapersFrom(dir)
-                selectedWallpaperIds.clear()
-                showDeleteWallpapersDialog = false
-            }
+            onDismissRequest = { viewModel.hideDeleteWallpapersDialog() },
+            onClickYes = { viewModel.deleteSelectedWallpapers() }
         )
     }
 
@@ -110,38 +105,17 @@ fun WallpapersDialog(
                     WallpaperItem(
                         bitmap = wallpaper.bitmap,
                         picked = selectedWallpaperIds.contains(wallpaper.id),
-                        onClick = {
-                            if (selectedWallpaperIds.isNotEmpty()) {
-                                if (selectedWallpaperIds.contains(wallpaper.id)) {
-                                    selectedWallpaperIds.remove(wallpaper.id)
-                                } else {
-                                    selectedWallpaperIds.add(wallpaper.id)
-                                }
-                            }
-                        },
-                        onLongClick = {
-                            if (selectedWallpaperIds.contains(wallpaper.id)) {
-                                selectedWallpaperIds.remove(wallpaper.id)
-                            } else {
-                                selectedWallpaperIds.add(wallpaper.id)
-                            }
-                        }
+                        onClick = { viewModel.clickOnWallpaper(wallpaper.id) },
+                        onLongClick = { viewModel.longClickOnWallpaper(wallpaper.id) }
                     )
                 }
             }
             WallpaperFAB(
                 hasSelectedItems = selectedWallpaperIds.isNotEmpty(),
                 onClickAdd = { launcher.launch("image/*") },
-                onClickDelete = {
-                    showDeleteWallpapersDialog = true
-                },
-                onClickClose = {
-                    selectedWallpaperIds.clear()
-                },
-                onClickSelectAll = {
-                    selectedWallpaperIds.clear()
-                    selectedWallpaperIds.addAll(wallpapers.map { it.id })
-                }
+                onClickDelete = { viewModel.showDeleteWallpapersDialog() },
+                onClickClose = { viewModel.clearSelectedWallpapers() },
+                onClickSelectAll = { viewModel.selectAllWallpapers() }
             )
         }
     }

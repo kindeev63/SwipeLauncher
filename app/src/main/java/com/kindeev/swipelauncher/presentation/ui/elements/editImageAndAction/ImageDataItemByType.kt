@@ -1,5 +1,8 @@
 package com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -29,9 +33,9 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
-import com.kindeev.swipelauncher.domain.getApplicationInfo
-import com.kindeev.swipelauncher.domain.getResourceId
-import com.kindeev.swipelauncher.domain.pickUserImageLauncher
+import com.kindeev.swipelauncher.domain.utils.getResourceId
+import com.kindeev.swipelauncher.domain.viewModels.elements.imageDataByType.ImageDataItemByTypeVM
+import com.kindeev.swipelauncher.domain.viewModels.elements.imageDataByType.ImageDataItemByTypeVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.AppImageData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.DefaultImageData
 
@@ -40,21 +44,39 @@ fun ImageDataByType(
     image: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: ImageDataItemByTypeVM = viewModel(
+        factory = ImageDataItemByTypeVMFactory(context)
+    )
     when (image) {
         is AppImage -> {
-            AppImageDataItem(appImage = image, onChangeImage = onChangeImage)
+            AppImageDataItem(
+                viewModel = viewModel,
+                appImage = image,
+                onChangeImage = onChangeImage
+            )
         }
+
         is DefaultImage -> {
-            DefaultImageDataItem(defaultImage = image, onChangeImage = onChangeImage)
+            DefaultImageDataItem(
+                defaultImage = image,
+                onChangeImage = onChangeImage
+            )
         }
+
         is UserImage -> {
-            UserImageDataItem(userImage = image, onChangeImage = onChangeImage)
+            UserImageDataItem(
+                viewModel = viewModel,
+                userImage = image,
+                onChangeImage = onChangeImage
+            )
         }
     }
 }
 
 @Composable
 private fun AppImageDataItem(
+    viewModel: ImageDataItemByTypeVM,
     appImage: AppImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
@@ -67,7 +89,7 @@ private fun AppImageDataItem(
             onDismissRequest = { showAppImageDialog = false }
         )
     }
-    val applicationData = LocalContext.current.getApplicationInfo(appImage.packageName)
+    val applicationData = viewModel.getApplicationInfo(appImage.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -116,17 +138,26 @@ private fun DefaultImageDataItem(
 
 @Composable
 private fun UserImageDataItem(
+    viewModel: ImageDataItemByTypeVM,
     userImage: UserImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
-    val launcher = pickUserImageLauncher(onChangeImage)
+    val launcher = rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            onChangeImage(viewModel.addUserImage(uri))
+        }
+    }
     Image(
         modifier = Modifier
             .padding(10.dp)
             .clip(RoundedCornerShape(7.dp))
             .clickable { launcher.launch("image/*") }
             .size(Constants.minScreenLength.dp / 3),
-        bitmap = LauncherData.userImages[userImage.id] ?: throw IllegalArgumentException("Illegal UserImage"),
+        bitmap = LauncherData.userImages[userImage.id]
+            ?: throw IllegalArgumentException("Illegal UserImage"),
         contentDescription = "Default image"
     )
 }

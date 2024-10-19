@@ -53,25 +53,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.cancelChangeHomeScreenWallpaperAlarm
-import com.kindeev.swipelauncher.domain.cancelChangeLockScreenWallpaperAlarm
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.LockScreenWallpaperChange
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.WallpaperChangeType
-import com.kindeev.swipelauncher.domain.getHomeScreenWallpapersCount
-import com.kindeev.swipelauncher.domain.getLockScreenWallpapersCount
-import com.kindeev.swipelauncher.domain.getTimeText
-import com.kindeev.swipelauncher.domain.getValueOf
-import com.kindeev.swipelauncher.domain.setChangeHomeScreenWallpaperAlarm
-import com.kindeev.swipelauncher.domain.setChangeLockScreenWallpaperAlarm
-import com.kindeev.swipelauncher.domain.spacer
-import com.kindeev.swipelauncher.domain.wallpapersHomeScreenDir
-import com.kindeev.swipelauncher.domain.wallpapersLockScreenDir
+import com.kindeev.swipelauncher.domain.utils.getTimeText
+import com.kindeev.swipelauncher.domain.utils.getValueOf
+import com.kindeev.swipelauncher.domain.utils.spacer
+import com.kindeev.swipelauncher.domain.utils.wallpapersHomeScreenDir
+import com.kindeev.swipelauncher.domain.utils.wallpapersLockScreenDir
+import com.kindeev.swipelauncher.domain.viewModels.screens.wallpaperScreen.WallpaperScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.wallpaperScreen.WallpaperScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangeTimeDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangerInfoDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpapersDialog
@@ -84,6 +81,9 @@ fun WallpaperScreen(
     onBackPressed: () -> Unit
 ) {
     val context = LocalContext.current
+    val viewModel: WallpaperScreenVM = viewModel(
+        factory = WallpaperScreenVMFactory(context)
+    )
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
@@ -148,9 +148,9 @@ fun WallpaperScreen(
                             scope.launch {
                                 if (value.changeType == WallpaperChangeType.Time) {
                                     if (it) {
-                                        context.setChangeHomeScreenWallpaperAlarm(value.minutes)
+                                        viewModel.setChangeHomeScreenWallpaperAlarm(value.minutes)
                                     } else {
-                                        context.cancelChangeHomeScreenWallpaperAlarm()
+                                        viewModel.cancelChangeHomeScreenWallpaperAlarm()
                                     }
                                 }
                                 LauncherData.insertSetting(
@@ -201,10 +201,10 @@ fun WallpaperScreen(
                                                     onClick = {
                                                         scope.launch {
                                                             if (value.changeType == WallpaperChangeType.Time) {
-                                                                context.cancelChangeHomeScreenWallpaperAlarm()
+                                                                viewModel.cancelChangeHomeScreenWallpaperAlarm()
                                                             }
                                                             if (changeType == WallpaperChangeType.Time) {
-                                                                context.setChangeHomeScreenWallpaperAlarm(value.minutes)
+                                                                viewModel.setChangeHomeScreenWallpaperAlarm(value.minutes)
                                                             }
                                                             LauncherData.insertSetting(
                                                                 SettingData(
@@ -253,7 +253,7 @@ fun WallpaperScreen(
                                                         value = value.copy(minutes = it)
                                                     )
                                                 )
-                                                context.setChangeHomeScreenWallpaperAlarm(it)
+                                                viewModel.setChangeHomeScreenWallpaperAlarm(it)
                                             }
                                         }
                                     )
@@ -273,7 +273,7 @@ fun WallpaperScreen(
                                                 context.wallpapersHomeScreenDir()
                                         }
                                         .padding(horizontal = 25.dp, vertical = 10.dp),
-                                    text = stringResource(id = R.string.wallpapers_conut) + " ${context.getHomeScreenWallpapersCount()}",
+                                    text = stringResource(id = R.string.wallpapers_conut) + " ${viewModel.getHomeScreenWallpapersCount()}",
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
@@ -297,9 +297,9 @@ fun WallpaperScreen(
                             scope.launch {
                                 if (value.changeType == WallpaperChangeType.Time) {
                                     if (it) {
-                                        context.setChangeLockScreenWallpaperAlarm(value.minutes)
+                                        viewModel.setChangeLockScreenWallpaperAlarm(value.minutes)
                                     } else {
-                                        context.cancelChangeLockScreenWallpaperAlarm()
+                                        viewModel.cancelChangeLockScreenWallpaperAlarm()
                                     }
                                 }
                                 LauncherData.insertSetting(
@@ -350,10 +350,10 @@ fun WallpaperScreen(
                                                     onClick = {
                                                         scope.launch {
                                                             if (value.changeType == WallpaperChangeType.Time) {
-                                                                context.cancelChangeLockScreenWallpaperAlarm()
+                                                                viewModel.cancelChangeLockScreenWallpaperAlarm()
                                                             }
                                                             if (changeType == WallpaperChangeType.Time) {
-                                                                context.setChangeLockScreenWallpaperAlarm(value.minutes)
+                                                                viewModel.setChangeLockScreenWallpaperAlarm(value.minutes)
                                                             }
                                                             LauncherData.insertSetting(
                                                                 SettingData(
@@ -402,7 +402,7 @@ fun WallpaperScreen(
                                                         value = value.copy(minutes = it)
                                                     )
                                                 )
-                                                context.setChangeLockScreenWallpaperAlarm(it)
+                                                viewModel.setChangeLockScreenWallpaperAlarm(it)
                                             }
                                         }
                                     )
@@ -422,7 +422,7 @@ fun WallpaperScreen(
                                                 context.wallpapersLockScreenDir()
                                         }
                                         .padding(horizontal = 25.dp, vertical = 10.dp),
-                                    text = stringResource(id = R.string.wallpapers_conut) + " ${context.getLockScreenWallpapersCount()}",
+                                    text = stringResource(id = R.string.wallpapers_conut) + " ${viewModel.getLockScreenWallpapersCount()}",
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }

@@ -20,10 +20,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.getValueOf
+import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.LauncherScreenVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBox

@@ -15,10 +15,10 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.getAllApplicationInfo
-import com.kindeev.swipelauncher.domain.getOnlyChanged
-import com.kindeev.swipelauncher.domain.getUserImages
-import com.kindeev.swipelauncher.domain.removeUnusedUserImages
+import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
 import com.kindeev.swipelauncher.presentation.screens.SettingsScreen
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +26,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
+
+    private val userImagesUseCase = UserImagesUseCase(this)
+    private val getItemImageUseCase = GetItemImageUseCase(this)
+    private val applicationsUseCase = ApplicationsUseCase(this, getItemImageUseCase)
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideNavigationBar()
@@ -38,15 +44,15 @@ class SettingsActivity : ComponentActivity() {
         LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
             override fun onChanged(value: List<CircleMenu>) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    LauncherData.setAllApplications(getAllApplicationInfo())
+                    LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
                     LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        removeUnusedUserImages(
+                        userImagesUseCase.removeUnusedUserImages(
                             allCircleMenus,
                             LauncherData.allApplicationData.value ?: emptyList()
                         )
-                        LauncherData.userImages = getUserImages()
+                        LauncherData.userImages = userImagesUseCase.getUserImages()
                         val changedCircleMenus =
-                            allCircleMenus.getOnlyChanged(this@SettingsActivity)
+                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
                         Handler(Looper.getMainLooper()).post {
                             if (changedCircleMenus.isNotEmpty()) {
                                 CoroutineScope(Dispatchers.IO).launch {

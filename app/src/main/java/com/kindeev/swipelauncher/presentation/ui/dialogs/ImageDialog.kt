@@ -1,5 +1,8 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,19 +24,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -41,7 +46,8 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
-import com.kindeev.swipelauncher.domain.pickUserImageLauncher
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.imageDialog.ImageDialogVM
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.imageDialog.ImageDialogVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 
@@ -50,21 +56,26 @@ fun ImageDialog(
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuImage) -> Unit
 ) {
-    val launcher = pickUserImageLauncher(
-        onPick = {
-            onPick(it)
+    val context = LocalContext.current
+    val viewModel: ImageDialogVM = viewModel(
+        factory = ImageDialogVMFactory(context)
+    )
+    val launcher = rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            onPick(viewModel.addUserImage(uri))
             onDismissRequest()
         }
-    )
-    var imageType by rememberSaveable {
-        mutableStateOf<AllImageTypes?>(null)
     }
+    val imageType by viewModel.imageType.observeAsState()
     AllImageTypes(
         onPick = {
             if (it == AllImageTypes.UserImage) {
                 launcher.launch("image/*")
             } else {
-                imageType = it
+                viewModel.setImageType(it)
             }
         },
         onDismissRequest = onDismissRequest
@@ -76,7 +87,7 @@ fun ImageDialog(
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { imageType = null }
+                onDismissRequest = { viewModel.clearImageType() }
             )
         }
 
@@ -86,10 +97,9 @@ fun ImageDialog(
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { imageType = null }
+                onDismissRequest = { viewModel.clearImageType() }
             )
         }
-
         else -> {}
     }
 }
