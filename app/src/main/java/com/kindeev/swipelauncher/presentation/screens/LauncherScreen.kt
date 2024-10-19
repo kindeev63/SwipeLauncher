@@ -56,7 +56,10 @@ fun LauncherScreen() {
             }
 
             LauncherScreenState.SearchBox -> {
-                SearchBoxUI(onClose = { viewModel.closeSearchBox() })
+                SearchBoxUI(
+                    viewModel = viewModel,
+                    onClose = { viewModel.closeSearchBox() }
+                )
             }
         }
     }

@@ -21,6 +21,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
@@ -31,47 +32,67 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsU
 import com.kindeev.swipelauncher.domain.utils.getCircleMenuItem
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
+import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
+import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
 
 class LauncherScreenVM(context: Context) : ViewModel() {
-    private val _currentMenu = MutableLiveData(
-        LauncherData.allCircleMenus.value?.find { it.id == 0 }?.let {
-            CircleMenuWithOffset(it, null)
-        }
-    )
-    val currentMenu: LiveData<CircleMenuWithOffset?> = _currentMenu
-    private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
-    val screenState: LiveData<LauncherScreenState> = _screenState
-    private val density = context.resources.displayMetrics.density
-    private var clickTime = 0L
 
+    // UseCases
     private val userImagesUseCase = UserImagesUseCase(context)
     private val getItemImageUseCase = GetItemImageUseCase(context)
     private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
-
-
     private val flashLightUseCase = FlashLightUseCase(context)
     private val openUrlUseCase = OpenUrlUseCase(context)
+
+    private val _currentMenu = MutableLiveData(
+        LauncherData.allCircleMenus.value?.find { it.id == 0 }?.let {
+            CircleMenuWithOffset(it, null)
+        }
+    )
+    val currentMenu: LiveData<CircleMenuWithOffset?> = _currentMenu
+
+    private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
+    val screenState: LiveData<LauncherScreenState> = _screenState
+
+    private val density = context.resources.displayMetrics.density
+    private var clickTime = 0L
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private var actionInProgress = false
+
+    private val _searchText = MutableLiveData("")
+    val searchText: LiveData<String> = _searchText
 
     val menuSize = Constants.minScreenLength / 3 * 2
 
-    private var actionInProgress = false
+    // SearchBox
 
-    fun setCircleMenu(circleMenu: CircleMenu) {
-        _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
+    fun search(text: String) {
+        _searchText.postValue(text)
     }
 
-    private fun getSwipeOffset(offset: Offset): Offset {
-        val startOffset = currentMenu.value?.offset ?: Offset.Zero
-        return Offset(
-            x = offset.x - startOffset.x,
-            y = offset.y - startOffset.y,
-        )
+    fun clearSearch() {
+        _searchText.postValue("")
     }
+
+    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
+        searchText.value?.let { searchText ->
+            return applicationsUseCase
+                .getNotHidden(allApplicationInfo)
+                .filter {
+                    it.title
+                        .lowercase()
+                        .contains(searchText.lowercase())
+                }
+                .map { AppSBR(it) }
+        }
+        return emptyList()
+    }
+
+    // SwipeBox
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -117,8 +138,23 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         true
     }
 
+    private fun getSwipeOffset(offset: Offset): Offset {
+        val startOffset = currentMenu.value?.offset ?: Offset.Zero
+        return Offset(
+            x = offset.x - startOffset.x,
+            y = offset.y - startOffset.y,
+        )
+    }
+
+    // LauncherScreen
+
+    fun setCircleMenu(circleMenu: CircleMenu) {
+        _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
+    }
+
     fun closeSearchBox() {
         _screenState.value = LauncherScreenState.SwipeBox
+        clearSearch()
     }
 
     fun executeAction(

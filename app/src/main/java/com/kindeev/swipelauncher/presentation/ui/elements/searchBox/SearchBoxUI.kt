@@ -13,24 +13,19 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.utils.executeSearchResult
 import com.kindeev.swipelauncher.domain.utils.getValueOf
-import com.kindeev.swipelauncher.domain.viewModels.elements.searchBox.SearchBoxVM
-import com.kindeev.swipelauncher.domain.viewModels.elements.searchBox.SearchBoxVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 
 @Composable
 fun SearchBoxUI(
+    viewModel: LauncherScreenVM,
     onClose: () -> Unit
 ) {
     BackHandler(onBack = onClose)
-    val context = LocalContext.current
-    val viewModel: SearchBoxVM = viewModel(
-        factory = SearchBoxVMFactory(context)
-    )
     val searchText by viewModel.searchText.observeAsState("")
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
     val settings by LauncherData.settings.observeAsState(emptyList())
