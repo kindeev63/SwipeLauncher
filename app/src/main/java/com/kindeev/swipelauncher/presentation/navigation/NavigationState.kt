@@ -9,8 +9,8 @@ import androidx.navigation.compose.rememberNavController
 class NavigationState(
     val navHostController: NavHostController
 ) {
-    fun navigateTo(route: String) {
-        navHostController.navigate(route) {
+    fun navigateTo(screen: Any) {
+        navHostController.navigate(screen) {
             launchSingleTop = true
             popUpTo(navHostController.graph.findStartDestination().id) {
                 saveState = true
@@ -20,7 +20,7 @@ class NavigationState(
     }
 
     fun navigateToEditCircleMenu(circleMenuId: Int?) {
-        navHostController.navigate(ScreensSettings.EditCircleMenuScreenObject.getRouteWithArgs(circleMenuId)) {
+        navHostController.navigate(ScreensSettings.EditCircleMenuScreenObject(circleMenuId)) {
             launchSingleTop = true
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 
 @Composable
 fun SettingsMainGraph(
@@ -17,25 +18,25 @@ fun SettingsMainGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = ScreensSettings.MainSettingsScreenObject.route
+        startDestination = ScreensSettings.MainSettingsScreenObject
     ) {
-        composable(ScreensSettings.MainSettingsScreenObject.route) {
+        composable<ScreensSettings.MainSettingsScreenObject> {
             mainSettingsScreen()
         }
-        composable(ScreensSettings.AllCircleMenusScreenObject.route) {
+        composable<ScreensSettings.AllCircleMenusScreenObject> {
             allCircleMenusScreen()
         }
-        composable(ScreensSettings.EditCircleMenuScreenObject.route) {
-            val circleMenuId = it.arguments?.getString("circleMenuId").toString().toIntOrNull()
-            editCircleMenuScreen(circleMenuId)
+        composable<ScreensSettings.EditCircleMenuScreenObject> { navBackStackEntry ->
+            val data = navBackStackEntry.toRoute<ScreensSettings.EditCircleMenuScreenObject>()
+            editCircleMenuScreen(data.circleMenuId)
         }
-        composable(ScreensSettings.HiddenAppsScreenObject.route) {
+        composable<ScreensSettings.HiddenAppsScreenObject> {
             hiddenAppsScreen()
         }
-        composable(ScreensSettings.TutorialScreenObject.route) {
+        composable<ScreensSettings.TutorialScreenObject> {
             tutorialScreen()
         }
-        composable(ScreensSettings.WallpaperScreenObject.route) {
+        composable<ScreensSettings.WallpaperScreenObject> {
             wallpaperScreen()
         }
     }

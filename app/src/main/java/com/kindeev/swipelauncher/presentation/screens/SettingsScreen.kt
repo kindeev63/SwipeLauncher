@@ -53,16 +53,16 @@ fun SettingsScreen() {
         mainSettingsScreen = {
             SettingsScreenContent(
                 navigateToAllCircleMenus = {
-                    navigationState.navigateTo(ScreensSettings.AllCircleMenusScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.AllCircleMenusScreenObject)
                 },
                 navigateToHiddenApps = {
-                    navigationState.navigateTo(ScreensSettings.HiddenAppsScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.HiddenAppsScreenObject)
                 },
                 navigateToTutorial = {
-                    navigationState.navigateTo(ScreensSettings.TutorialScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.TutorialScreenObject)
                 },
                 navigateToWallpaper = {
-                    navigationState.navigateTo(ScreensSettings.WallpaperScreenObject.route)
+                    navigationState.navigateTo(ScreensSettings.WallpaperScreenObject)
                 }
             )
         },

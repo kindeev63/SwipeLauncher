@@ -1,7 +1,6 @@
 package com.kindeev.swipelauncher.presentation.activities
 
 import android.R.id.content
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
@@ -14,8 +13,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -77,8 +76,8 @@ class MainActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             val context = LocalContext.current
             LauncherScreenTheme {
-                var startDestination by rememberSaveable {
-                    mutableStateOf(ScreensOnBoarding.MainScreenObject.route)
+                var startDestination by remember {
+                    mutableStateOf<ScreensOnBoarding>(ScreensOnBoarding.MainScreenObject)
                 }
                 val navigationState = rememberNavigationState()
                 OnBoardingNavGraph(
@@ -101,7 +100,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 onBoardingComplete()
                                 navigationState.navHostController.popBackStack()
-                                navigationState.navigateTo(ScreensOnBoarding.MainScreenObject.route)
+                                navigationState.navigateTo(ScreensOnBoarding.MainScreenObject)
                             }
                         )
                     },
@@ -119,11 +118,11 @@ class MainActivity : ComponentActivity() {
                             )
                             LauncherData.insertSettings(Constants.defaultSettings)
                             onBoardingComplete()
-                            ScreensOnBoarding.MainScreenObject.route
+                            ScreensOnBoarding.MainScreenObject
                         } else {
-                            ScreensOnBoarding.OnBoardingScreenObject.route
+                            ScreensOnBoarding.OnBoardingScreenObject
                         }
-                    } else ScreensOnBoarding.MainScreenObject.route
+                    } else ScreensOnBoarding.MainScreenObject
                 }
                 DisposableEffect(context) {
                     val filter = IntentFilter().apply {
@@ -208,12 +207,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun isFirstRun(): Boolean {
-        val prefs = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("data", MODE_PRIVATE)
         return !prefs.contains("first_run")
     }
 
     private fun onBoardingComplete() {
-        val prefs = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("data", MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString("first_run", "false")
         editor.apply()

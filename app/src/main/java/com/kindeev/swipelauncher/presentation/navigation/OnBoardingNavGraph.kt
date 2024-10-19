@@ -10,16 +10,16 @@ fun OnBoardingNavGraph(
     navHostController: NavHostController,
     mainScreen: @Composable () -> Unit,
     onboardingScreen: @Composable () -> Unit,
-    startDestination: String
+    startDestination: ScreensOnBoarding
 ) {
     NavHost(
         navController = navHostController,
         startDestination = startDestination
     ) {
-        composable(ScreensOnBoarding.MainScreenObject.route) {
+        composable<ScreensOnBoarding.MainScreenObject> {
             mainScreen()
         }
-        composable(ScreensOnBoarding.OnBoardingScreenObject.route) {
+        composable<ScreensOnBoarding.OnBoardingScreenObject> {
             onboardingScreen()
         }
     }

@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     id("com.google.devtools.ksp") version "2.0.21-1.0.25"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -46,28 +48,30 @@ android {
 dependencies {
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation(libs.androidx.navigation.compose)
 
     // Permissions
-    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation(libs.accompanist.permissions)
 
     // Pager
-    implementation("com.google.accompanist:accompanist-pager:0.34.0")
-    implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
 
     // LiveData
-    implementation("androidx.compose.runtime:runtime-livedata:1.7.4")
+    implementation(libs.androidx.runtime.livedata)
 
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.gson)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

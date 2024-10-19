@@ -1,14 +1,12 @@
 package com.kindeev.swipelauncher.presentation.navigation
 
-sealed class ScreensOnBoarding(
-    val route: String
-) {
-    object OnBoardingScreenObject: ScreensOnBoarding(ROUTE_ONBOARDING_SCREEN)
+import kotlinx.serialization.Serializable
 
-    object MainScreenObject: ScreensOnBoarding(ROUTE_MAIN_SCREEN)
+@Serializable
+sealed class ScreensOnBoarding {
+    @Serializable
+    object OnBoardingScreenObject: ScreensOnBoarding()
 
-    private companion object {
-        const val ROUTE_ONBOARDING_SCREEN = "onboarding_screen"
-        const val ROUTE_MAIN_SCREEN = "main_screen"
-    }
+    @Serializable
+    object MainScreenObject: ScreensOnBoarding()
 }
