@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,6 +22,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
@@ -144,6 +146,10 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             x = offset.x - startOffset.x,
             y = offset.y - startOffset.y,
         )
+    }
+
+    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
+        return getItemImageUseCase.getItemImage(circleMenuImage)
     }
 
     // LauncherScreen

@@ -16,15 +16,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.utils.getItemOffset
 
 @Composable
 fun CircleMenuForEditUI(
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     menuSize: Float,
     items: List<CircleMenuItem>,
     selectedBoxOffset: Offset?,
@@ -36,7 +39,7 @@ fun CircleMenuForEditUI(
             .size(menuSize.dp)
     ) {
         selectedBoxOffset?.let { SelectedBox(cords = it, size = menuSize / 4) }
-        CircleMenuItems(items = items, menuSize = menuSize)
+        CircleMenuItems(getItemImage = getItemImage, items = items, menuSize = menuSize)
         items.forEach { item ->
             val offset = item.offset.getItemOffset(menuSize)
             Box(

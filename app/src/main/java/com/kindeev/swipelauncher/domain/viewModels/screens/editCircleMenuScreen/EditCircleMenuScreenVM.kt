@@ -1,5 +1,8 @@
 package com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen
 
+import android.content.Context
+import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,18 +12,27 @@ import com.kindeev.swipelauncher.domain.utils.emptyCircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
+import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import kotlinx.coroutines.launch
 
-class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
+class EditCircleMenuScreenVM(circleMenuId: Int?, context: Context) : ViewModel() {
     private val _circleMenu = MutableLiveData<CircleMenu?>(null)
     val circleMenu: LiveData<CircleMenu?> = _circleMenu
     private val _item = MutableLiveData(circleMenu.value?.items?.firstOrNull())
     val item: LiveData<CircleMenuItem?> = _item
 
+    private val getItemImageUseCase = GetItemImageUseCase(context)
+    private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+    private val userImagesUseCase = UserImagesUseCase(context)
 
     init {
         if (circleMenuId == null) {
@@ -96,5 +108,17 @@ class EditCircleMenuScreenVM(circleMenuId: Int?) : ViewModel() {
             insertCircleMenu(it.copy(items = it.items.toMutableList().apply { add(item) }))
             _item.postValue(item)
         }
+    }
+
+    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
+        return getItemImageUseCase.getItemImage(circleMenuImage)
+    }
+
+    fun getApplicationInfo(packageName: String): ApplicationInfo {
+        return applicationsUseCase.getApplicationInfo(packageName)
+    }
+
+    fun addUserImage(uri: Uri): UserImage {
+        return userImagesUseCase.addUserImage(uri)
     }
 }

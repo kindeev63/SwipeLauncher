@@ -29,7 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
@@ -65,9 +67,12 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.actionDialog.ActionDialogVM
+import com.kindeev.swipelauncher.domain.viewModels.dialogs.actionDialog.ActionDialogVMFactory
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
@@ -78,6 +83,10 @@ fun ActionDialog(
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: ActionDialogVM = viewModel(
+        factory = ActionDialogVMFactory(context)
+    )
     var actionCategory by rememberSaveable {
         mutableStateOf<ActionCategories?>(null)
     }
@@ -88,6 +97,7 @@ fun ActionDialog(
     when (actionCategory) {
         ActionCategories.OpenCircleMenu -> {
             OpenCircleMenuActionData(
+                getItemImage = viewModel::getItemImage,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -223,6 +233,7 @@ private fun ActionTypeElement(
 
 @Composable
 fun OpenCircleMenuActionData(
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -253,6 +264,7 @@ fun OpenCircleMenuActionData(
                     } ?: emptyList()
                 ) { circleMenu ->
                     MiniCircleMenuItem(
+                        getItemImage = getItemImage,
                         size = (Integer.min(
                             LocalConfiguration.current.screenWidthDp,
                             LocalConfiguration.current.screenHeightDp

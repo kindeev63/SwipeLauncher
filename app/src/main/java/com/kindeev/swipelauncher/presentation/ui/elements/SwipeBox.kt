@@ -44,7 +44,11 @@ private fun DrawCircleMenu(
                 )
                 .size(viewModel.menuSize.dp)
         ) {
-            CircleMenuItems(items = currentMenu?.circleMenu?.items ?: emptyList(), menuSize = viewModel.menuSize)
+            CircleMenuItems(
+                getItemImage = viewModel::getItemImage,
+                items = currentMenu?.circleMenu?.items ?: emptyList(),
+                menuSize = viewModel.menuSize
+            )
         }
     }
 }

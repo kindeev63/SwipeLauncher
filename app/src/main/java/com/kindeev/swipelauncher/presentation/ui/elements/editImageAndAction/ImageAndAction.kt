@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -42,6 +44,8 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.utils.getImageType
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLengthDp
@@ -53,6 +57,9 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 
 @Composable
 fun ImageAndAction(
+    addUserImage: (Uri) -> UserImage,
+    getApplicationInfo: (String) -> ApplicationInfo,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     circleMenuItem: CircleMenuItem,
     width: Dp = Constants.minScreenLength.dp / 9 * 8,
     onChangeAction: (CircleMenuAction) -> Unit,
@@ -65,14 +72,26 @@ fun ImageAndAction(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary)
     ) {
-        ImageBox(image = circleMenuItem.image, onChangeImage = onChangeImage)
-        Divider(modifier = Modifier.padding(horizontal = 10.dp))
-        ActionBox(action = circleMenuItem.action, onChangeAction = onChangeAction)
+        ImageBox(
+            addUserImage = addUserImage,
+            getApplicationInfo = getApplicationInfo,
+            image = circleMenuItem.image,
+            onChangeImage = onChangeImage
+        )
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 10.dp))
+        ActionBox(
+            getApplicationInfo = getApplicationInfo,
+            getItemImage = getItemImage,
+            action = circleMenuItem.action,
+            onChangeAction = onChangeAction
+        )
     }
 }
 
 @Composable
 private fun ImageBox(
+    addUserImage: (Uri) -> UserImage,
+    getApplicationInfo: (String) -> ApplicationInfo,
     image: CircleMenuImage,
     onChangeImage: (CircleMenuImage) -> Unit
 ) {
@@ -119,13 +138,20 @@ private fun ImageBox(
                     ),
                 onChangeImage = onChangeImage
             )
-            ImageDataByType(image = image, onChangeImage = onChangeImage)
+            ImageDataByType(
+                addUserImage = addUserImage,
+                getApplicationInfo = getApplicationInfo,
+                image = image,
+                onChangeImage = onChangeImage
+            )
         }
     }
 }
 
 @Composable
 private fun ActionBox(
+    getApplicationInfo: (String) -> ApplicationInfo,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     action: CircleMenuAction,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -171,7 +197,12 @@ private fun ActionBox(
                 ),
                 onChangeAction = onChangeAction
             )
-            ActionDataByType(action = action, onChangeAction = onChangeAction)
+            ActionDataByType(
+                getApplicationInfo = getApplicationInfo,
+                getItemImage = getItemImage,
+                action = action,
+                onChangeAction = onChangeAction
+            )
         }
     }
 }

@@ -39,13 +39,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
@@ -73,9 +74,10 @@ fun EditCircleMenuScreen(
     circleMenuId: Int?,
     onBackPressed: () -> Unit
 ) {
+    val context = LocalContext.current
     // ViewModel
     val viewModel: EditCircleMenuScreenVM = viewModel(
-        factory = EditCircleMenuScreenVMFactory(circleMenuId)
+        factory = EditCircleMenuScreenVMFactory(circleMenuId, context)
     )
 
     // Checking for update circle menus
@@ -144,6 +146,9 @@ fun EditCircleMenuScreen(
                     ) {
                         Spacer(modifier = Modifier.height(30.dp))
                         ImageAndAction(
+                            addUserImage = viewModel::addUserImage,
+                            getApplicationInfo = viewModel::getApplicationInfo,
+                            getItemImage = viewModel::getItemImage,
                             width = LocalConfiguration.current.screenWidthDp.dp / 2 - 10.dp,
                             circleMenuItem = circleMenuItem,
                             onChangeAction = {
@@ -199,6 +204,9 @@ fun EditCircleMenuScreen(
                 // CircleMenu image and action panel
                 item?.let { circleMenuItem ->
                     ImageAndAction(
+                        addUserImage = viewModel::addUserImage,
+                        getApplicationInfo = viewModel::getApplicationInfo,
+                        getItemImage = viewModel::getItemImage,
                         circleMenuItem = circleMenuItem,
                         onChangeAction = {
                             viewModel.updateCircleMenuItem((circleMenuItem.copy(action = it)))
@@ -356,6 +364,7 @@ private fun CircleMenuBox(
             .padding(20.dp)
     ) {
         CircleMenuForEditUI(
+            getItemImage = viewModel::getItemImage,
             items = circleMenu?.items ?: emptyList(),
             selectedBoxOffset = item?.offset?.getSelectedBoxOffset(menuSize),
             menuSize = menuSize,

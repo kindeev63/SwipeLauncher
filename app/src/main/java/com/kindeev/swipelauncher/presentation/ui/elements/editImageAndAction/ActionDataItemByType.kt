@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,13 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -45,10 +45,10 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
-import com.kindeev.swipelauncher.domain.viewModels.elements.openAppDataItem.OpenAppDataItemVM
-import com.kindeev.swipelauncher.domain.viewModels.elements.openAppDataItem.OpenAppDataItemVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.FlashlightActionData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenAppActionData
@@ -59,6 +59,8 @@ import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 
 @Composable
 fun ActionDataByType(
+    getApplicationInfo: (String) -> ApplicationInfo,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     action: CircleMenuAction,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     onChangeAction: (CircleMenuAction) -> Unit
@@ -66,6 +68,7 @@ fun ActionDataByType(
     when (action) {
         is OpenCircleMenuAction -> {
             OpenCircleMenuDataItem(
+                getItemImage = getItemImage,
                 action = action,
                 textColor = textColor,
                 onChangeAction = onChangeAction
@@ -75,6 +78,7 @@ fun ActionDataByType(
         is OpenSettingsAction -> {}
         is OpenAppAction -> {
             OpenAppDataItem(
+                getApplicationInfo = getApplicationInfo,
                 action = action,
                 textColor = textColor,
                 onChangeAction = onChangeAction
@@ -112,6 +116,7 @@ fun ActionDataByType(
 
 @Composable
 private fun OpenCircleMenuDataItem(
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     action: OpenCircleMenuAction,
     textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
@@ -121,6 +126,7 @@ private fun OpenCircleMenuDataItem(
     }
     if (showOpenCircleMenuDialog) {
         OpenCircleMenuActionData(
+            getItemImage = getItemImage,
             onPick = onChangeAction,
             onDismissRequest = { showOpenCircleMenuDialog = false }
         )
@@ -137,6 +143,7 @@ private fun OpenCircleMenuDataItem(
     ) {
         circleMenu?.let {
             CircleMenuItems(
+                getItemImage = getItemImage,
                 menuSize = Constants.minScreenLength / 3f,
                 items = circleMenu.items
             )
@@ -152,14 +159,11 @@ private fun OpenCircleMenuDataItem(
 
 @Composable
 private fun OpenAppDataItem(
+    getApplicationInfo: (String) -> ApplicationInfo,
     action: OpenAppAction,
     textColor: Color,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel: OpenAppDataItemVM = viewModel(
-        factory = OpenAppDataItemVMFactory(context)
-    )
     var showOpenAppDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -169,7 +173,7 @@ private fun OpenAppDataItem(
             onDismissRequest = { showOpenAppDialog = false }
         )
     }
-    val applicationData = viewModel.getApplicationInfo(action.packageName)
+    val applicationData = getApplicationInfo(action.packageName)
     Column(
         modifier = Modifier
             .padding(10.dp)

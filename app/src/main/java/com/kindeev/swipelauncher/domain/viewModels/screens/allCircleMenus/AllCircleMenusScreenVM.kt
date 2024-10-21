@@ -2,13 +2,16 @@ package com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.useCases.ExportCircleMenusUseCase
+import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.ImportCircleMenusUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import kotlinx.coroutines.launch
@@ -19,6 +22,7 @@ class AllCircleMenusVM(context: Context) : ViewModel() {
     private val userImagesUseCase = UserImagesUseCase(context)
     private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, userImagesUseCase)
     private val exportCircleMenusUseCase = ExportCircleMenusUseCase(context)
+    private val getItemImageUseCase = GetItemImageUseCase(context)
 
     fun selectAllMenus(allMenus: List<CircleMenu>) {
         _selectedMenuIds.postValue(allMenus.map { it.id })
@@ -55,5 +59,9 @@ class AllCircleMenusVM(context: Context) : ViewModel() {
                 }
             }
         )
+    }
+
+    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
+        return getItemImageUseCase.getItemImage(circleMenuImage)
     }
 }
