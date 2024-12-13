@@ -75,7 +75,7 @@ class ApplicationsUseCase(
         return try {
             val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
             packageInfo.packageName == packageName
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
     }

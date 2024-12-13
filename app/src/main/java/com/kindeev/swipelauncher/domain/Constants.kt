@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
@@ -54,28 +53,6 @@ object Constants {
         Pair(WallpaperChangeType.ScreenOff, R.string.wallpaper_change_type_screen_off),
         Pair(WallpaperChangeType.Unlock, R.string.wallpaper_change_type_unlock),
         Pair(WallpaperChangeType.Time, R.string.wallpaper_change_type_time),
-    )
-
-    val onBoarding2MenuImageResIds = listOf(
-        R.drawable.on_boarding_2_1_image,
-        R.drawable.on_boarding_2_2_image,
-        R.drawable.on_boarding_2_3_image,
-        R.drawable.on_boarding_2_4_image,
-        R.drawable.on_boarding_2_5_image,
-        R.drawable.on_boarding_2_6_image,
-        R.drawable.on_boarding_2_7_image,
-        R.drawable.on_boarding_2_8_image,
-    )
-
-    val menuCords = listOf(
-        Offset(0f, -4f), // 1
-        Offset(3f, -3f), // 2
-        Offset(4f, 0f), // 3
-        Offset(3f, 3f), // 4
-        Offset(0f, 4f), // 5
-        Offset(-3f, 3f), // 6
-        Offset(-4f, 0f), // 7
-        Offset(-3f, -3f), // 8
     )
 
     val defaultImages = mapOf(

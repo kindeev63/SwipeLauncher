@@ -13,9 +13,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
@@ -26,7 +26,7 @@ import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.Launch
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
-import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBox
+import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
 
 
@@ -43,6 +43,8 @@ fun LauncherScreen() {
             ?: allMenus.find { it.id == 0 })?.let {
                 viewModel.setCircleMenu(it)
             }
+        viewModel.setOffsets(allMenus)
+        viewModel.setSizes(allMenus)
     }
 
     // UI
@@ -84,7 +86,7 @@ fun LauncherScreen() {
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by LauncherData.settings.observeAsState(emptyList())
     val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
-    SwipeBox(viewModel = viewModel)
+    SwipeBoxUI(viewModel = viewModel)
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally

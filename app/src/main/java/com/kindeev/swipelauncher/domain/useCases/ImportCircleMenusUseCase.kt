@@ -155,7 +155,6 @@ class ImportCircleMenusUseCase(
         forEach { item ->
             newItems.add(
                 CircleMenuItem(
-                    offset = item.offset,
                     action = when (item.action) {
                         is OpenCircleMenuAction -> {
                             OpenCircleMenuAction(id = circleMenuIds[item.action.id] ?: 0)

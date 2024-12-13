@@ -5,12 +5,14 @@ import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
@@ -25,25 +27,32 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
-import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
+import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
-import com.kindeev.swipelauncher.domain.utils.getCircleMenuItem
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
 import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
 import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.atan
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class LauncherScreenVM(context: Context) : ViewModel() {
 
-    // UseCases
     private val userImagesUseCase = UserImagesUseCase(context)
     private val getItemImageUseCase = GetItemImageUseCase(context)
     private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+    private val checkCircleMenuUseCase =
+        CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
@@ -55,46 +64,50 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         }
     )
     val currentMenu: LiveData<CircleMenuWithOffset?> = _currentMenu
+    private val vibrator =
+        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private val density = context.resources.displayMetrics.density
+
+    private val size = Constants.minScreenLength / 3f * 2
+    private val radius = (size / 2 - size / 5)
+    private val radiusSq = radius.pow(2)
+    private var offsets = getOffsets(LauncherData.allCircleMenus.value ?: emptyList(), size)
+    private var sizes = getSizes(LauncherData.allCircleMenus.value ?: emptyList())
+
+    private var clickTime = 0L
 
     private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
     val screenState: LiveData<LauncherScreenState> = _screenState
 
-    private val density = context.resources.displayMetrics.density
-    private var clickTime = 0L
-    private val vibrator =
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private var actionInProgress = false
-
-    private val _searchText = MutableLiveData("")
-    val searchText: LiveData<String> = _searchText
-
-    val menuSize = Constants.minScreenLength / 3 * 2
-
-    // SearchBox
-
-    fun search(text: String) {
-        _searchText.postValue(text)
+    fun setCircleMenu(circleMenu: CircleMenu) {
+        _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
     }
 
-    fun clearSearch() {
-        _searchText.postValue("")
+    fun setOffsets(circleMenus: List<CircleMenu>) {
+        offsets = getOffsets(circleMenus, size)
     }
 
-    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
-        searchText.value?.let { searchText ->
-            return applicationsUseCase
-                .getNotHidden(allApplicationInfo)
-                .filter {
-                    it.title
-                        .lowercase()
-                        .contains(searchText.lowercase())
-                }
-                .map { AppSBR(it) }
+    fun setSizes(circleMenus: List<CircleMenu>) {
+        sizes = getSizes(circleMenus)
+    }
+
+    fun closeSearchBox() {
+        _screenState.value = LauncherScreenState.SwipeBox
+        clearSearch()
+    }
+
+    fun getOffset(): List<DpOffset> {
+        if (offsets.isEmpty()) {
+            return emptyList()
+        }
+        currentMenu.value?.circleMenu?.id?.let {
+            return offsets[it] ?: emptyList()
         }
         return emptyList()
     }
 
-    // SwipeBox
+    val itemSize: Dp
+        get() = sizes[currentMenu.value?.circleMenu?.id ?: 0] ?: 0.dp
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -110,18 +123,20 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     _currentMenu.postValue(_currentMenu.value?.copy(offset = offset))
                 }
                 clickTime = event.eventTime
-                actionInProgress = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (!actionInProgress) {
-                    val item = currentMenu.value?.circleMenu?.getCircleMenuItem(
-                        menuSize = menuSize,
-                        offset = getSwipeOffset(offset)
+                currentMenu.value?.offset?.let {
+                    val index = getElementIndexOnCords(
+                        offset = Offset(
+                            x = offset.x - it.x,
+                            y = offset.y - it.y,
+                        )
                     )
-                    item?.let {
-                        actionInProgress = true
-                        executeAction(it.action, offset)
+                    index?.let {
+                        currentMenu.value?.circleMenu?.items[index]?.let { item ->
+                            executeAction(item.action, offset)
+                        }
                     }
                 }
             }
@@ -138,29 +153,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
         }
         true
-    }
-
-    private fun getSwipeOffset(offset: Offset): Offset {
-        val startOffset = currentMenu.value?.offset ?: Offset.Zero
-        return Offset(
-            x = offset.x - startOffset.x,
-            y = offset.y - startOffset.y,
-        )
-    }
-
-    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
-        return getItemImageUseCase.getItemImage(circleMenuImage)
-    }
-
-    // LauncherScreen
-
-    fun setCircleMenu(circleMenu: CircleMenu) {
-        _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
-    }
-
-    fun closeSearchBox() {
-        _screenState.value = LauncherScreenState.SwipeBox
-        clearSearch()
     }
 
     fun executeAction(
@@ -194,7 +186,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                         )
                     }
                     vibrator.vibrate(20)
-                    actionInProgress = false
                 }
             }
 
@@ -237,5 +228,127 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 openUrlUseCase.open(action.url)
             }
         }
+    }
+
+    private fun getOffsets(
+        circleMenus: List<CircleMenu>,
+        size: Float
+    ): Map<Int, List<DpOffset>> {
+        val offsets = mutableMapOf<Int, List<DpOffset>>()
+        circleMenus.forEach { circleMenu ->
+            val itemSize = getSize(circleMenu.items.size)
+            val alpha = 360f / circleMenu.items.size
+            offsets[circleMenu.id] = (0 until circleMenu.items.size).map { alpha * it }.map {
+                DpOffset(
+                    x = (size / 2 + sin((it + 0.5f * alpha + circleMenu.getStartOffset()) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
+                    y = (size / 2 - cos((it + 0.5f * alpha + circleMenu.getStartOffset()) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
+                )
+            }
+        }
+        return offsets
+    }
+
+    private fun getSizes(
+        circleMenus: List<CircleMenu>
+    ): Map<Int, Dp> {
+        val sizes = mutableMapOf<Int, Dp>()
+        circleMenus.forEach { circleMenu ->
+            sizes[circleMenu.id] = getSize(circleMenu.items.size).dp
+        }
+        return sizes
+    }
+
+    private fun getSize(
+        elementsCount: Int
+    ): Float {
+        if (elementsCount == 0) {
+            return size / 4
+        }
+        val value = sqrt((size / 2).pow(2) * (1 - cos(2 * PI / elementsCount))).toFloat() / 6 * 5
+        return if (value > 0 && value < size / 4) {
+            value
+        } else {
+            size / 4
+        }
+    }
+
+    private fun getElementIndexOnCords(
+        offset: Offset
+    ): Int? {
+        currentMenu.value?.circleMenu?.let { circleMenu ->
+            if (offset.x.pow(2) + offset.y.pow(2) > radiusSq) {
+                val alpha = 360f / circleMenu.items.size
+                val angles = (0 until circleMenu.items.size).map { alpha * it }
+                val currentAngle = if (offset.y == 0f) {
+                    ((if (offset.x > 0) 90 else 270) - circleMenu.getStartOffset()) % 360
+                } else {
+                    offset.getAngle(
+                        abs((atan(offset.x / offset.y) / PI * 180)).toFloat(),
+                        circleMenu.getStartOffset()
+                    )
+                }
+                angles.forEachIndexed { index, it ->
+                    if (it > currentAngle) {
+                        return index - 1
+                    }
+                }
+                return circleMenu.items.size - 1
+            }
+        }
+        return null
+    }
+
+    private fun Offset.getAngle(angle: Float, startOffset: Float): Float {
+        return (if (x > 0) {
+            if (y < 0) {
+                angle - startOffset
+            } else {
+                90 - angle + 90 - startOffset
+            }
+        } else {
+            if (y < 0) {
+                90 - angle + 270 - startOffset
+            } else {
+                angle + 180 - startOffset
+            }
+        }) % 360
+    }
+
+    private fun CircleMenu.getStartOffset(): Float {
+        if (items.isEmpty()) {
+            return 0f
+        }
+        return -360 / items.size / 2f
+    }
+
+    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
+        return getItemImageUseCase.getItemImage(circleMenuImage)
+    }
+
+// Search Box
+
+    private val _searchText = MutableLiveData("")
+    val searchText: LiveData<String> = _searchText
+
+    fun search(text: String) {
+        _searchText.postValue(text)
+    }
+
+    fun clearSearch() {
+        _searchText.postValue("")
+    }
+
+    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
+        searchText.value?.let { searchText ->
+            return applicationsUseCase
+                .getNotHidden(allApplicationInfo)
+                .filter {
+                    it.title
+                        .lowercase()
+                        .contains(searchText.lowercase())
+                }
+                .map { AppSBR(it) }
+        }
+        return emptyList()
     }
 }

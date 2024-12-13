@@ -273,13 +273,6 @@ fun Offset.getItemOffset(menuSize: Float): Offset {
     return Offset(x, y)
 }
 
-fun Offset.getSelectedBoxOffset(menuSize: Float): Offset {
-    val itemSize = menuSize / 4
-    val x = (menuSize / 2 - itemSize / 2) + this.x * menuSize / 10
-    val y = (menuSize / 2 - itemSize / 2) + this.y * menuSize / 10
-    return Offset(x, y)
-}
-
 fun Context.openApp(packageName: String) {
     val intent =
         this.packageManager.getLaunchIntentForPackage(packageName)

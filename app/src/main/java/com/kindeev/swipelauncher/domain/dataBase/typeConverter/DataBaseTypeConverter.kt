@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.dataBase.typeConverter
 
-import androidx.compose.ui.geometry.Offset
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -46,10 +45,8 @@ class DataBaseTypeConverter {
     private fun CircleMenuItem.fromCircleMenuItem(): String {
         val image = fromCircleMenuImage(image)
         val action = fromCircleMenuAction(action)
-        val offset = gson.toJson(this.offset)
         return gson.toJson(
             CircleMenuItemToSave(
-                offset = offset,
                 image = image,
                 action = action
             )
@@ -92,11 +89,9 @@ class DataBaseTypeConverter {
 
     private fun String.toCircleMenuItem(): CircleMenuItem {
         val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
-        val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
         val image = toCircleMenuImage(circleMenuItemToSave.image)
         val action = toCircleMenuAction(circleMenuItemToSave.action)
         return CircleMenuItem(
-            offset = offset,
             image = image,
             action = action
         )
@@ -150,7 +145,7 @@ class DataBaseTypeConverter {
         }
     }
 
-    private class CircleMenuItemToSave(val offset: String, val image: String, val action: String)
+    private class CircleMenuItemToSave(val image: String, val action: String)
 
     private class CircleMenuActionToSave(val type: AllActionTypes, val data: String)
 

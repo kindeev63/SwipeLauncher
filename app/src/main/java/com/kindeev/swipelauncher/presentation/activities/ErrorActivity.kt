@@ -2,7 +2,6 @@ package com.kindeev.swipelauncher.presentation.activities
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -41,7 +40,7 @@ class ErrorActivity : ComponentActivity() {
                             intent.getStringExtra(GlobalExceptionHandler.THROWABLE_KEY),
                             Throwable::class.java
                         )
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         null
                     }
                     Column(
@@ -101,7 +100,7 @@ class ErrorActivity : ComponentActivity() {
     }
 
     private fun copyTextToClipboard(text: String) {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", text)
         clipboard.setPrimaryClip(clip)
     }

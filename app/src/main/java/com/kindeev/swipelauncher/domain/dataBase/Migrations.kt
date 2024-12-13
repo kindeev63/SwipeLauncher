@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.dataBase
 
-import androidx.compose.ui.geometry.Offset
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
@@ -54,16 +53,40 @@ object Migrations {
             if (oldApplicationData.count > 0) {
                 do {
                     val applicationData = ApplicationData(
-                        packageName = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("packageName")),
-                        title = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("title")),
-                        image = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("image")).toCircleMenuImage(),
-                        hidden = oldApplicationData.getString(oldApplicationData.getColumnIndexOrThrow("hidden")).toBoolean()
+                        packageName = oldApplicationData.getString(
+                            oldApplicationData.getColumnIndexOrThrow(
+                                "packageName"
+                            )
+                        ),
+                        title = oldApplicationData.getString(
+                            oldApplicationData.getColumnIndexOrThrow(
+                                "title"
+                            )
+                        ),
+                        image = oldApplicationData.getString(
+                            oldApplicationData.getColumnIndexOrThrow(
+                                "image"
+                            )
+                        ).toCircleMenuImage(),
+                        hidden = oldApplicationData.getString(
+                            oldApplicationData.getColumnIndexOrThrow(
+                                "hidden"
+                            )
+                        ).toBoolean()
                     )
                     newApplicationData.add(applicationData)
                 } while (oldApplicationData.moveToNext())
                 database.execSQL("DELETE FROM table_application_data")
                 newApplicationData.forEach { applicationData ->
-                    database.execSQL("INSERT INTO table_application_data (packageName, title, image, hidden) VALUES (?, ?, ?, ?)", arrayOf(applicationData.packageName, applicationData.title, DataBaseTypeConverter().fromCircleMenuImage(applicationData.image), applicationData.hidden))
+                    database.execSQL(
+                        "INSERT INTO table_application_data (packageName, title, image, hidden) VALUES (?, ?, ?, ?)",
+                        arrayOf(
+                            applicationData.packageName,
+                            applicationData.title,
+                            DataBaseTypeConverter().fromCircleMenuImage(applicationData.image),
+                            applicationData.hidden
+                        )
+                    )
                 }
             }
         }
@@ -74,17 +97,34 @@ object Migrations {
             oldSettings.moveToFirst()
             if (oldSettings.count > 0) {
                 do {
-                    val name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting")))
+                    val name = SettingNames.valueOf(
+                        oldSettings.getString(
+                            oldSettings.getColumnIndexOrThrow("setting")
+                        )
+                    )
                     val settingData = SettingData(
-                        name = SettingNames.valueOf(oldSettings.getString(oldSettings.getColumnIndexOrThrow("setting"))),
-                        value = oldSettings.getString(oldSettings.getColumnIndexOrThrow("value")).getSettingValue(name)
+                        name = SettingNames.valueOf(
+                            oldSettings.getString(
+                                oldSettings.getColumnIndexOrThrow(
+                                    "setting"
+                                )
+                            )
+                        ),
+                        value = oldSettings.getString(oldSettings.getColumnIndexOrThrow("value"))
+                            .getSettingValue(name)
                     )
                     newSettings.add(settingData)
                 } while (oldSettings.moveToNext())
                 database.execSQL("DROP TABLE IF EXISTS table_settings")
                 database.execSQL("CREATE TABLE table_settings (name TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
                 newSettings.forEach { settingData ->
-                    database.execSQL("INSERT INTO table_settings (name, value) VALUES (?, ?)", arrayOf(settingData.name, DataBaseTypeConverter().fromSettingValue(settingData.value)))
+                    database.execSQL(
+                        "INSERT INTO table_settings (name, value) VALUES (?, ?)",
+                        arrayOf(
+                            settingData.name,
+                            DataBaseTypeConverter().fromSettingValue(settingData.value)
+                        )
+                    )
                 }
             }
         }
@@ -114,8 +154,15 @@ object Migrations {
                     )
                 )
 
-                SettingNames.HomeScreenWallpaperChange -> HomeScreenWallpaperChange(enabled = false, changeType = WallpaperChangeType.ScreenOn)
-                SettingNames.LockScreenWallpaperChange -> LockScreenWallpaperChange(enabled = false, changeType = WallpaperChangeType.ScreenOn)
+                SettingNames.HomeScreenWallpaperChange -> HomeScreenWallpaperChange(
+                    enabled = false,
+                    changeType = WallpaperChangeType.ScreenOn
+                )
+
+                SettingNames.LockScreenWallpaperChange -> LockScreenWallpaperChange(
+                    enabled = false,
+                    changeType = WallpaperChangeType.ScreenOn
+                )
             }
         }
 
@@ -128,16 +175,24 @@ object Migrations {
             oldMenus.moveToFirst()
             if (oldMenus.count > 0) {
                 do {
-                    val circleMenu =  CircleMenu(
+                    val circleMenu = CircleMenu(
                         id = oldMenus.getInt(oldMenus.getColumnIndexOrThrow("id")),
                         title = oldMenus.getString(oldMenus.getColumnIndexOrThrow("title")),
-                        items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items")).toCircleMenuItems()
+                        items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items"))
+                            .toCircleMenuItems()
                     )
                     newMenus.add(circleMenu)
                 } while (oldMenus.moveToNext())
                 database.execSQL("DELETE FROM table_menu")
                 newMenus.forEach { circleMenu ->
-                    database.execSQL("INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)", arrayOf(circleMenu.id, circleMenu.title, DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)))
+                    database.execSQL(
+                        "INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)",
+                        arrayOf(
+                            circleMenu.id,
+                            circleMenu.title,
+                            DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)
+                        )
+                    )
                 }
             }
         }
@@ -149,11 +204,9 @@ object Migrations {
 
         private fun String.toCircleMenuItem(): CircleMenuItem {
             val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
-            val offset = gson.fromJson(circleMenuItemToSave.offset.toString(), Offset::class.java)
             val image = circleMenuItemToSave.image.toString().toCircleMenuImage()
             val action = circleMenuItemToSave.action.toString().toCircleMenuAction()
             return CircleMenuItem(
-                offset = offset,
                 image = image,
                 action = action
             )
@@ -163,10 +216,14 @@ object Migrations {
             val circleMenuImageToSave = gson.fromJson(this, CircleMenuImageToSave::class.java)
             val classOfData = getClassOfImageData(circleMenuImageToSave.type)
             if (classOfData == DefaultImage::class.java) {
-                val defaultImage = gson.fromJson(circleMenuImageToSave.data.toString(), DefaultImages::class.java)
+                val defaultImage =
+                    gson.fromJson(circleMenuImageToSave.data.toString(), DefaultImages::class.java)
                 return DefaultImage(defaultImage)
             }
-            return gson.fromJson(circleMenuImageToSave.data.toString(), classOfData) as CircleMenuImage
+            return gson.fromJson(
+                circleMenuImageToSave.data.toString(),
+                classOfData
+            ) as CircleMenuImage
         }
 
         private fun getClassOfImageData(type: CircleMenuImageTypes): Class<*> {
@@ -189,7 +246,10 @@ object Migrations {
                     else -> OpenSettingsAction
                 }
             } else {
-                gson.fromJson(circleMenuActionToSave.data.toString(), classOfData) as CircleMenuAction
+                gson.fromJson(
+                    circleMenuActionToSave.data.toString(),
+                    classOfData
+                ) as CircleMenuAction
             }
         }
 
@@ -219,6 +279,7 @@ object Migrations {
         private enum class CircleMenuImageTypes {
             AppImage, DefaultImage, UserImage
         }
+
         private class CircleMenuItemToSave {
             var offset: Any = ""
             var image: Any = ""

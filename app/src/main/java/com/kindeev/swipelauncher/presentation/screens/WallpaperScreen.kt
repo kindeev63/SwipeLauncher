@@ -195,7 +195,7 @@ fun WallpaperScreen(
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false }
                                     ) {
-                                        WallpaperChangeType.values().forEach { changeType ->
+                                        WallpaperChangeType.entries.forEach { changeType ->
                                             if (value.changeType != changeType) {
                                                 DropdownMenuItem(
                                                     onClick = {
@@ -344,7 +344,7 @@ fun WallpaperScreen(
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false },
                                     ) {
-                                        WallpaperChangeType.values().forEach { changeType ->
+                                        WallpaperChangeType.entries.forEach { changeType ->
                                             if (value.changeType != changeType) {
                                                 DropdownMenuItem(
                                                     onClick = {

@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class EditCircleMenuScreenVMFactory(private val circleMenuId: Int?, private val context: Context) : ViewModelProvider.Factory {
+class EditCircleMenuVMFactory(
+    private val circleMenuId: Int?,
+    private val size: Float,
+    private val context: Context,
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return EditCircleMenuScreenVM(
-            circleMenuId = circleMenuId,
-            context = context
-        ) as T
+        return EditCircleMenuScreenVM(circleMenuId, size, context) as T
     }
 }

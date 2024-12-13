@@ -9,8 +9,6 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.provider.Telephony
 import android.telecom.TelecomManager
-import androidx.compose.ui.geometry.Offset
-import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
@@ -22,26 +20,25 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 class GetRootCircleMenuUseCase(private val context: Context) {
     fun get(title: String): CircleMenu {
         val items = mutableListOf<CircleMenuItem>()
-        Constants.menuCords[0].getCircleMenuItemByPackageName(getDefaultCameraApp(context))
+        getCircleMenuItemByPackageName(getDefaultCameraApp(context))
             ?.let { items.add(it) }
-        Constants.menuCords[1].getCircleMenuItemByPackageName(getDefaultGalleryApp(context))
+        getCircleMenuItemByPackageName(getDefaultGalleryApp(context))
             ?.let { items.add(it) }
-        Constants.menuCords[2].getCircleMenuItemByPackageName(getDefaultBrowserApp(context))
+        getCircleMenuItemByPackageName(getDefaultBrowserApp(context))
             ?.let { items.add(it) }
-        Constants.menuCords[3].getCircleMenuItemByPackageName(getDefaultPhoneApp(context))
+        getCircleMenuItemByPackageName(getDefaultPhoneApp(context))
             ?.let { items.add(it) }
         items.add(
             CircleMenuItem(
-                offset = Constants.menuCords[4],
                 image = DefaultImage(data = DefaultImages.Settings),
                 action = OpenSettingsAction
             )
         )
-        Constants.menuCords[5].getCircleMenuItemByPackageName(getDefaultEmailApp(context))
+        getCircleMenuItemByPackageName(getDefaultEmailApp(context))
             ?.let { items.add(it) }
-        Constants.menuCords[6].getCircleMenuItemByPackageName(getDefaultSmsApp(context))
+        getCircleMenuItemByPackageName(getDefaultSmsApp(context))
             ?.let { items.add(it) }
-        Constants.menuCords[7].getCircleMenuItemByPackageName(getDefaultSettingsApp(context))
+        getCircleMenuItemByPackageName(getDefaultSettingsApp(context))
             ?.let { items.add(it) }
 
         return CircleMenu(
@@ -50,10 +47,9 @@ class GetRootCircleMenuUseCase(private val context: Context) {
         )
     }
 
-    private fun Offset.getCircleMenuItemByPackageName(packageName: String?): CircleMenuItem? {
+    private fun getCircleMenuItemByPackageName(packageName: String?): CircleMenuItem? {
         if (packageName == null) return null
         return CircleMenuItem(
-            offset = this,
             image = AppImage(packageName = packageName),
             action = OpenAppAction(packageName = packageName)
         )

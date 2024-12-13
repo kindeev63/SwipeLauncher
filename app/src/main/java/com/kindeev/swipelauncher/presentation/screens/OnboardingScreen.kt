@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -50,7 +49,6 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.utils.getItemOffset
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVMFactory
@@ -181,25 +179,12 @@ private fun PageContentTablet(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(
+                        Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 15 * 6)
-                        ) {
-                            repeat(8) { index ->
-                                val imageResId = Constants.onBoarding2MenuImageResIds[index]
-                                val offset = Constants.menuCords[index].getItemOffset(screenWidth / 15 * 6f)
-                                Image(
-                                    modifier = Modifier
-                                        .offset(
-                                            x = offset.x.dp,
-                                            y = offset.y.dp
-                                        )
-                                        .size(screenWidth.dp / 75 * 6),
-                                    painter = painterResource(id = imageResId),
-                                    contentDescription = null
-                                )
-                            }
-                        }
+                                .size(screenWidth.dp / 15 * 6),
+                            painter = painterResource(R.drawable.circle_menu_performance),
+                            contentDescription = null
+                        )
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_second_title),
@@ -416,24 +401,12 @@ private fun PageContentTablet(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(
+                        Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 15 * 6)
-                        ) {
-                            repeat(8) { index ->
-                                val offset = Constants.menuCords[index].getItemOffset(screenWidth / 15 * 6f)
-                                Image(
-                                    modifier = Modifier
-                                        .offset(
-                                            x = offset.x.dp,
-                                            y = offset.y.dp
-                                        )
-                                        .size(screenWidth.dp / 75 * 6),
-                                    painter = painterResource(id = R.drawable.on_boarding_7_images),
-                                    contentDescription = null
-                                )
-                            }
-                        }
+                                .size(screenWidth.dp / 15 * 6),
+                            painter = painterResource(R.drawable.open_circle_menu_image),
+                            contentDescription = null
+                        )
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_seventh_title),
@@ -603,25 +576,12 @@ private fun PageContentPhone(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
-                Box(
+                Image(
                     modifier = Modifier
-                        .size(screenWidth.dp / 10 * 6)
-                ) {
-                    repeat(8) { index ->
-                        val imageResId = Constants.onBoarding2MenuImageResIds[index]
-                        val offset = Constants.menuCords[index].getItemOffset(screenWidth / 10 * 6f)
-                        Image(
-                            modifier = Modifier
-                                .offset(
-                                    x = offset.x.dp,
-                                    y = offset.y.dp
-                                )
-                                .size(screenWidth.dp / 50 * 6),
-                            painter = painterResource(id = imageResId),
-                            contentDescription = null
-                        )
-                    }
-                }
+                        .size(screenWidth.dp / 15 * 6),
+                    painter = painterResource(R.drawable.circle_menu_performance),
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_second_title),
@@ -768,24 +728,12 @@ private fun PageContentPhone(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
-                Box(
+                Image(
                     modifier = Modifier
-                        .size(screenWidth.dp / 10 * 6)
-                ) {
-                    repeat(8) { index ->
-                        val offset = Constants.menuCords[index].getItemOffset(screenWidth / 10 * 6f)
-                        Image(
-                            modifier = Modifier
-                                .offset(
-                                    x = offset.x.dp,
-                                    y = offset.y.dp
-                                )
-                                .size(screenWidth.dp / 50 * 6),
-                            painter = painterResource(id = R.drawable.on_boarding_7_images),
-                            contentDescription = null
-                        )
-                    }
-                }
+                        .size(screenWidth.dp / 15 * 6),
+                    painter = painterResource(R.drawable.open_circle_menu_image),
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_seventh_title),

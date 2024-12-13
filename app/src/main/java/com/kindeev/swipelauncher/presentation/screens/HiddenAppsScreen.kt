@@ -68,7 +68,6 @@ fun HiddenAppsScreen(
         scope.launch { controller.isAppearanceLightStatusBars = true }
         onBackPressed()
     }
-    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
 
     var appInfoDialog by rememberSaveable {
