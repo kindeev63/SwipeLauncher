@@ -10,7 +10,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
 
-@Database(entities = [CircleMenu::class, SettingData::class, ApplicationData::class], version = 2)
+@Database(entities = [CircleMenu::class, SettingData::class, ApplicationData::class], version = 3)
 @TypeConverters(DataBaseTypeConverter::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun getDao(): AppDao
@@ -26,7 +26,7 @@ abstract class AppDataBase : RoomDatabase() {
                     klass = AppDataBase::class.java,
                     name = "swipe_launcher.db"
                 )
-                    .addMigrations(Migrations.Migration_1_2.MIGRATION_1_2)
+                    .addMigrations(Migrations.Migration_1_3.MIGRATION_1_3, Migrations.Migration_2_3.MIGRATION_2_3)
                     .build()
             }
         }

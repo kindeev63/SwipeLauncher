@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.domain.useCases
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -23,9 +24,11 @@ class GetItemImageUseCase(
             }
 
             is AppImage -> {
-                LauncherData.allApplicationInfo.value?.find { it.packageName == circleMenuImage.packageName }?.icon
-                    ?: context.packageManager.getApplicationInfo(circleMenuImage.packageName, 0)
-                        .loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                if (isAppInstalled(circleMenuImage.packageName)) {
+                    LauncherData.allApplicationInfo.value?.find { it.packageName == circleMenuImage.packageName }?.icon
+                        ?: context.packageManager.getApplicationInfo(circleMenuImage.packageName, 0)
+                            .loadIcon(context.packageManager).toBitmap().asImageBitmap()
+                } else null
             }
 
             is UserImage -> {
@@ -33,6 +36,15 @@ class GetItemImageUseCase(
             }
 
             else -> null
+        }
+    }
+
+    fun isAppInstalled(packageName: String): Boolean {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            packageInfo.packageName == packageName
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
         }
     }
 }

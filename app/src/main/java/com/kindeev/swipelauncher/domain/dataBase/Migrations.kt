@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.domain.dataBase
 
+import androidx.compose.ui.geometry.Offset
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
@@ -37,8 +38,8 @@ import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConve
 object Migrations {
     private val gson = Gson()
 
-    object Migration_1_2 {
-        val MIGRATION_1_2 = object : Migration(1, 2) {
+    object Migration_1_3 {
+        val MIGRATION_1_3 = object : Migration(1, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 migrateApplicationData(database)
                 migrateCircleMenus(database)
@@ -281,7 +282,6 @@ object Migrations {
         }
 
         private class CircleMenuItemToSave {
-            var offset: Any = ""
             var image: Any = ""
             var action: Any = ""
         }
@@ -295,5 +295,80 @@ object Migrations {
             var type: CircleMenuImageTypes = CircleMenuImageTypes.DefaultImage
             var data: Any = ""
         }
+    }
+
+    object Migration_2_3 {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                migrateCircleMenus(database)
+            }
+        }
+
+
+        private fun migrateCircleMenus(database: SupportSQLiteDatabase) {
+            val newMenus = mutableListOf<CircleMenu>()
+            val oldMenus = database.query("SELECT * FROM table_menu")
+            oldMenus.moveToFirst()
+            if (oldMenus.count > 0) {
+                do {
+                    val circleMenu = CircleMenu(
+                        id = oldMenus.getInt(oldMenus.getColumnIndexOrThrow("id")),
+                        title = oldMenus.getString(oldMenus.getColumnIndexOrThrow("title")),
+                        items = oldMenus.getString(oldMenus.getColumnIndexOrThrow("items"))
+                            .toCircleMenuItems()
+                    )
+                    newMenus.add(circleMenu)
+                } while (oldMenus.moveToNext())
+                database.execSQL("DELETE FROM table_menu")
+                newMenus.forEach { circleMenu ->
+                    database.execSQL(
+                        "INSERT INTO table_menu (id, title, items) VALUES (?, ?, ?)",
+                        arrayOf(
+                            circleMenu.id,
+                            circleMenu.title,
+                            DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)
+                        )
+                    )
+                }
+            }
+        }
+
+        private fun String.toCircleMenuItems(): List<CircleMenuItem> {
+            val type = object : TypeToken<List<String>>() {}.type
+            return gson.fromJson<List<String>>(this, type).map { it.toCircleMenuItem() }.sortedBy { it.index }.map { it.item }
+        }
+
+        private fun String.toCircleMenuItem(): CircleMenuItemWithIndex {
+            val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
+            val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
+            val image = DataBaseTypeConverter().toCircleMenuImage(circleMenuItemToSave.image)
+            val action = DataBaseTypeConverter().toCircleMenuAction(circleMenuItemToSave.action)
+            return CircleMenuItemWithIndex(
+                index = menuCords.indexOf(offset),
+                item = CircleMenuItem(
+                    image = image,
+                    action = action
+                )
+            )
+        }
+
+        private val menuCords = listOf(
+            Offset(0f, -4f), // 1
+            Offset(3f, -3f), // 2
+            Offset(4f, 0f), // 3
+            Offset(3f, 3f), // 4
+            Offset(0f, 4f), // 5
+            Offset(-3f, 3f), // 6
+            Offset(-4f, 0f), // 7
+            Offset(-3f, -3f), // 8
+        )
+
+        private class CircleMenuItemToSave(
+            val offset: String,
+            val image: String,
+            val action: String
+        )
+
+        private class CircleMenuItemWithIndex(val index: Int, val item: CircleMenuItem)
     }
 }

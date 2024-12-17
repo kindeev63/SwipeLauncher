@@ -2,6 +2,7 @@ package com.kindeev.swipelauncher.domain.useCases
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.geometry.Offset
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -21,6 +22,8 @@ class ImportCircleMenusUseCase(
     private val context: Context,
     private val userImagesUseCase: UserImagesUseCase
 ) {
+    private val gson = Gson()
+
     suspend fun import(
         uri: Uri,
 
@@ -70,7 +73,6 @@ class ImportCircleMenusUseCase(
     private fun File.getCircleMenusFromJson(): List<CircleMenu>? {
         try {
             val gson = Gson()
-            val typeConverter = DataBaseTypeConverter()
             val json = readText()
             val type = object : TypeToken<List<String>>() {}.type
             return gson.fromJson<List<String>>(json, type)
@@ -79,13 +81,51 @@ class ImportCircleMenusUseCase(
                     CircleMenu(
                         id = it.id,
                         title = it.title,
-                        items = typeConverter.toCircleMenuItems(it.items)
+                        items = it.items.toCircleMenuItems()
                     )
                 }
         } catch (_: Exception) {
             return null
         }
     }
+
+    private fun String.toCircleMenuItems(): List<CircleMenuItem> {
+        val type = object : TypeToken<List<String>>() {}.type
+        return gson.fromJson<List<String>>(this, type).map { it.toCircleMenuItem() }.sortedBy { it.index }.map { it.item }
+    }
+
+    private fun String.toCircleMenuItem(): CircleMenuItemWithIndex {
+        val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
+        val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
+        val image = DataBaseTypeConverter().toCircleMenuImage(circleMenuItemToSave.image)
+        val action = DataBaseTypeConverter().toCircleMenuAction(circleMenuItemToSave.action)
+        return CircleMenuItemWithIndex(
+            index = menuCords.indexOf(offset),
+            item = CircleMenuItem(
+                image = image,
+                action = action
+            )
+        )
+    }
+
+    private class CircleMenuItemToSave(
+        val offset: String,
+        val image: String,
+        val action: String
+    )
+
+    private val menuCords = listOf(
+        Offset(0f, -4f), // 1
+        Offset(3f, -3f), // 2
+        Offset(4f, 0f), // 3
+        Offset(3f, 3f), // 4
+        Offset(0f, 4f), // 5
+        Offset(-3f, 3f), // 6
+        Offset(-4f, 0f), // 7
+        Offset(-3f, -3f), // 8
+    )
+
+    private class CircleMenuItemWithIndex(val index: Int, val item: CircleMenuItem)
 
     private fun getNewUserImages(
         circleMenus: List<CircleMenu>
