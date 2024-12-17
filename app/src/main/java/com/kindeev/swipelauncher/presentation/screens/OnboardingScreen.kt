@@ -181,7 +181,7 @@ private fun PageContentTablet(
                     ) {
                         Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 15 * 6),
+                                .size(screenWidth.dp / 10 * 6),
                             painter = painterResource(R.drawable.circle_menu_performance),
                             contentDescription = null
                         )
@@ -403,7 +403,7 @@ private fun PageContentTablet(
                     ) {
                         Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 15 * 6),
+                                .size(screenWidth.dp / 10 * 6),
                             painter = painterResource(R.drawable.open_circle_menu_image),
                             contentDescription = null
                         )
@@ -578,7 +578,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Image(
                     modifier = Modifier
-                        .size(screenWidth.dp / 15 * 6),
+                        .size(screenWidth.dp / 10 * 6),
                     painter = painterResource(R.drawable.circle_menu_performance),
                     contentDescription = null
                 )
@@ -730,7 +730,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Image(
                     modifier = Modifier
-                        .size(screenWidth.dp / 15 * 6),
+                        .size(screenWidth.dp / 10 * 6),
                     painter = painterResource(R.drawable.open_circle_menu_image),
                     contentDescription = null
                 )
