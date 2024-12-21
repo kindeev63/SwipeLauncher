@@ -100,5 +100,6 @@
     <string name="every">Каждые:</string>
     <string name="hours">ч.</string>
     <string name="minutes">минут</string>
+    <string name="title">Заголовок</string>
 
 </resources>

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -235,7 +234,7 @@ private fun CircleMenuTitle(
         ) {
             if (menu.title.isEmpty()) {
                 Text(
-                    text = "Заголовок",
+                    text = stringResource(R.string.title),
                     color = Color.Gray,
                     fontSize = fontSize
                 )
@@ -286,7 +285,7 @@ private fun ImageAndActionEdit(
     Row(
         modifier = Modifier
             .width(viewModel.size.dp + 20.dp)
-//            .height((viewModel.size.dp + 20.dp) / 3)
+            .height((viewModel.size.dp + 20.dp) / 3)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFD3D3D3))
             .padding(10.dp)
@@ -295,9 +294,7 @@ private fun ImageAndActionEdit(
         // Image
 
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Image")
@@ -309,17 +306,19 @@ private fun ImageAndActionEdit(
             )
         }
 
+        Spacer(modifier = Modifier.width(10.dp))
         VerticalDivider(
             color = Color(0xFF848484)
         )
+        Spacer(modifier = Modifier.width(10.dp))
 
         // Action
 
         Column(
             modifier = Modifier
-                .weight(1f)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(text = "Action")
             ItemAction(
@@ -433,23 +432,34 @@ private fun OpenCircleMenuDataItem(
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-
     val circleMenu =
         LauncherData.allCircleMenus.value?.find { it.id == action.id }
 
     circleMenu?.let {
-        Box(
+        Row(
             modifier = Modifier
-                .size(size.dp)
+                .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp))
                 .clickable(onClick = changeAction)
-                .padding(5.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircleMenuItems(
-                getItemImage = viewModel::getItemImage,
-                items = it.items,
-                menuSize = size - 10,
+            Box(
+                modifier = Modifier
+                    .size(size.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircleMenuItems(
+                    getItemImage = viewModel::getItemImage,
+                    items = it.items,
+                    menuSize = size - 10,
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = it.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -461,7 +471,6 @@ private fun OpenSettingsDataItem(
     size: Float,
     changeAction: () -> Unit
 ) {
-
     viewModel.getItemImage(DefaultImage(DefaultImages.Settings))?.let { bitmap ->
         Image(
             modifier = Modifier
@@ -483,22 +492,24 @@ private fun OpenAppDataItem(
     changeAction: () -> Unit
 ) {
     val applicationData = viewModel.getApplicationInfo(action.packageName)
-    Column(
+    Row(
         modifier = Modifier
-            .padding(10.dp)
-            .clip(RoundedCornerShape(7.dp))
-            .clickable(onClick = changeAction),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = changeAction)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
             modifier = Modifier.size(size.dp - 20.dp),
             bitmap = applicationData.icon,
             contentDescription = "App image"
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = applicationData.title,
-            fontSize = Constants.minScreenLength.sp / 30
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -592,52 +603,39 @@ private fun CallDataItem(
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
-    if (contactName == null) {
-        Column(
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(size.dp / 3 * 2)
-                    .clip(CircleShape)
-                    .clickable(onClick = changeAction),
-                painter = painterResource(id = R.drawable.call_telephone_image),
-                contentDescription = "Call image"
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Row(
+                .size(size.dp / 3 * 2)
+                .clip(CircleShape)
+                .clickable(onClick = changeAction),
+            painter = painterResource(id = R.drawable.call_telephone_image),
+            contentDescription = "Call image"
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        if (contactName == null) {
+            Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
                     .background(MaterialTheme.colorScheme.secondary)
                     .clickable { showEnterNumberDialog = true }
                     .padding(horizontal = 15.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = data.phoneNumber.formatPhoneNumber(),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = Constants.minScreenLength.sp / 30
+                    fontSize = Constants.minScreenLength.sp / 30,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(size.dp / 3 * 2)
-                    .clip(CircleShape)
-                    .clickable(onClick = changeAction),
-                painter = painterResource(id = R.drawable.call_telephone_image),
-                contentDescription = "Call image"
-            )
-            Spacer(modifier = Modifier.height(2.dp))
+        } else {
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
@@ -660,7 +658,9 @@ private fun CallDataItem(
                         ?: stringResource(id = R.string.error),
                     color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 25,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -708,52 +708,41 @@ private fun DialDataItem(
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
-    if (contactName == null) {
-        Column(
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(size.dp / 3 * 2)
-                    .clip(CircleShape)
-                    .clickable(onClick = changeAction),
-                painter = painterResource(id = R.drawable.dial_telephone_image),
-                contentDescription = "Call image"
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Row(
+                .size(size.dp / 3 * 2)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = changeAction)
+                .padding(2.dp),
+            painter = painterResource(id = R.drawable.dial_telephone_image),
+            contentDescription = "Dial image"
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        if (contactName == null) {
+            Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
                     .background(MaterialTheme.colorScheme.secondary)
                     .clickable { showEnterNumberDialog = true }
                     .padding(horizontal = 15.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = data.phoneNumber.formatPhoneNumber(),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = Constants.minScreenLength.sp / 30
+                    fontSize = Constants.minScreenLength.sp / 30,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(size.dp / 3 * 2)
-                    .clip(CircleShape)
-                    .clickable(onClick = changeAction),
-                painter = painterResource(id = R.drawable.dial_telephone_image),
-                contentDescription = "Call image"
-            )
-            Spacer(modifier = Modifier.height(2.dp))
+        } else {
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))
@@ -776,7 +765,9 @@ private fun DialDataItem(
                         ?: stringResource(id = R.string.error),
                     color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = Constants.minScreenLength.sp / 25,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -800,24 +791,24 @@ private fun OpenUrlDataItem(
             onDismissRequest = { showOpenUrlDialog = false }
         )
     }
-    Column(
+    Row(
         modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize()
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
             modifier = Modifier
                 .size(size.dp / 3 * 2)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(12.dp))
                 .clickable(onClick = changeAction)
-                .padding(5.dp),
+                .padding(4.dp),
             painter = painterResource(id = R.drawable.open_url_image),
-            contentDescription = "Call image"
+            contentDescription = "Open url image"
         )
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             modifier = Modifier
-                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp / 3)
                 .padding(10.dp)
                 .clip(RoundedCornerShape(7.dp))
                 .background(MaterialTheme.colorScheme.surface)

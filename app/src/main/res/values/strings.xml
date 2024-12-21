@@ -127,5 +127,6 @@
     <string name="every">Every:</string>
     <string name="hours">h.</string>
     <string name="minutes">minutes</string>
+    <string name="title">Title</string>
 
 </resources>
