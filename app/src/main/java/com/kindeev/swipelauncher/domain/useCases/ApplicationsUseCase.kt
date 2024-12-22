@@ -13,44 +13,9 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 
 class ApplicationsUseCase(
-    private val context: Context,
-    private val getItemImageUseCase: GetItemImageUseCase
+    private val context: Context
 ) {
     fun getAllApplicationInfo(): List<ApplicationInfo> {
-        val intent = Intent(Intent.ACTION_MAIN, null)
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val allAppInfo = context.packageManager.queryIntentActivities(intent, 0)
-            .map { it.activityInfo.applicationInfo }
-            .map {
-                ApplicationInfo(
-                    title = it.loadLabel(context.packageManager).toString(),
-                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
-                    packageName = it.packageName
-                )
-            }
-        val mutableAllApplicationInfo = allAppInfo.toMutableList()
-        allAppInfo.forEach { applicationData ->
-            if (mutableAllApplicationInfo.count { it.packageName == applicationData.packageName } > 1) {
-                mutableAllApplicationInfo.remove(applicationData)
-            }
-        }
-
-        val allApplicationData = LauncherData.allApplicationData.value ?: emptyList()
-        mutableAllApplicationInfo.replaceAll { applicationInfo ->
-            allApplicationData.find { it.packageName == applicationInfo.packageName }
-                ?.let { applicationData ->
-                    ApplicationInfo(
-                        title = applicationData.title,
-                        icon = getItemImageUseCase.getItemImage(applicationData.image)
-                            ?: throw IllegalArgumentException("Illegal image"),
-                        packageName = applicationData.packageName
-                    )
-                } ?: applicationInfo
-        }
-        return mutableAllApplicationInfo.sortedBy { it.title }
-    }
-
-    fun getApplications(): List<ApplicationInfo> {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         val allAppInfo = context.packageManager.queryIntentActivities(intent, 0)
@@ -106,24 +71,9 @@ class ApplicationsUseCase(
     }
 
     fun getThisAppIcon() =
-        context.packageManager.getApplicationInfo(context.packageName, 0).loadIcon(context.packageManager).toBitmap()
+        context.packageManager.getApplicationInfo(context.packageName, 0)
+            .loadIcon(context.packageManager).toBitmap()
             .asImageBitmap()
-
-    fun getApplicationData(packageName: String): ApplicationData {
-        val applicationData =
-            LauncherData.allApplicationData.value?.find { it.packageName == packageName }
-        return if (applicationData == null) {
-            val applicationInfo =
-                context.packageManager.getApplicationInfo(packageName, 0)
-            ApplicationData(
-                title = applicationInfo.loadLabel(context.packageManager).toString(),
-                image = AppImage(packageName),
-                packageName = applicationInfo.packageName
-            )
-        } else {
-            applicationData
-        }
-    }
 
     fun deleteApp(packageName: String) {
         val packageUri = Uri.parse("package:$packageName")
@@ -143,31 +93,24 @@ class ApplicationsUseCase(
         applicationsData: List<ApplicationData>,
         allApplicationInfo: List<ApplicationInfo>
     ) {
-        val allPackageNames = allApplicationInfo.map { it.packageName }
-        val toDelete = mutableListOf<ApplicationData>()
-        val toChange = mutableListOf<ApplicationData>()
-        applicationsData.forEach { applicationData ->
-            if (applicationData.packageName !in allApplicationInfo.map { it.packageName }) {
-                toDelete.add(applicationData)
-            } else {
-                if (applicationData.image is AppImage) {
-                    if (applicationData.image.packageName !in allPackageNames) {
-                        val appInfo = getNotMaskApplicationData(applicationData.packageName)
-                        if (appInfo.title == applicationData.title && !applicationData.hidden) {
-                            toDelete.add(applicationData)
-                        } else {
-                            toChange.add(
-                                applicationData.copy(
-                                    image = AppImage(applicationData.packageName)
-                                )
+        val applicationInfoPackageNames = allApplicationInfo.map { it.packageName }
+        val allNotMaskApplicationData = getAllNotMaskAppData(allApplicationInfo)
+        val toDelete = applicationsData.filter {
+            it.packageName !in applicationInfoPackageNames ||
+                    (it.image is AppImage
+                            && it.image.packageName !in applicationInfoPackageNames
+                            && it.copy(image = AppImage(it.packageName)) in allNotMaskApplicationData
                             )
-                        }
-                    }
-                }
-            }
         }
-        LauncherData.insertApplicationsData(toChange)
         LauncherData.deleteApplicationsData(toDelete)
+        LauncherData.insertApplicationsData(
+            applicationsData
+                .filter { it !in toDelete }
+                .filter { it.image is AppImage && it.image.packageName !in applicationInfoPackageNames }
+                .map {
+                    it.copy(image = AppImage(it.packageName))
+                }
+        )
     }
 
     suspend fun hideApp(packageName: String) {
@@ -181,9 +124,8 @@ class ApplicationsUseCase(
     suspend fun showApp(packageName: String) {
         LauncherData.allApplicationData.value?.find { it.packageName == packageName }
             ?.let { applicationData ->
-                val appInfo = getNotMaskApplicationData(applicationData.packageName)
-                if (applicationData.title == appInfo.title && applicationData.image is AppImage && applicationData.image.packageName == appInfo.packageName
-                ) {
+                val notMaskAppData = getNotMaskApplicationData(applicationData.packageName)
+                if (notMaskAppData == applicationData.copy(hidden = false)) {
                     LauncherData.deleteApplicationData(applicationData)
                 } else {
                     LauncherData.insertApplicationData(applicationData.copy(hidden = false))
@@ -192,53 +134,68 @@ class ApplicationsUseCase(
     }
 
     suspend fun changeApp(applicationData: ApplicationData) {
-        val appInfo = getNotMaskApplicationData(applicationData.packageName)
-        if (applicationData.title == appInfo.title && applicationData.image is AppImage && applicationData.image.packageName == appInfo.packageName
-        ) {
+        val notMaskAppData = getNotMaskApplicationData(applicationData.packageName)
+        if (applicationData == notMaskAppData) {
             LauncherData.deleteApplicationDataByPackageName(applicationData.packageName)
         } else {
-            LauncherData.insertApplicationData(
-                LauncherData.allApplicationData.value?.find { it.packageName == applicationData.packageName }
-                    ?.copy(title = applicationData.title, image = applicationData.image)
-                    ?: applicationData
-            )
+            LauncherData.insertApplicationData(applicationData)
+            if (applicationData.hidden) {
+                hideApp(applicationData.packageName)
+            } else {
+                showApp(applicationData.packageName)
+            }
         }
     }
 
     fun getNotHidden(applicationsInfo: List<ApplicationInfo>): List<ApplicationInfo> {
-        val result = applicationsInfo.toMutableList()
-        val hidden = LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
-            ?: emptyList()
-        applicationsInfo.forEach {
-            if (it.packageName in hidden) {
-                result.remove(it)
-            }
-        }
-        return result.toList()
+        val hidden =
+            LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
+                ?: emptyList()
+        return applicationsInfo.filter { it.packageName !in hidden }
     }
 
     fun getHidden(
         applicationsInfo: List<ApplicationInfo>
     ): List<ApplicationInfo> {
-        val result = mutableListOf<ApplicationInfo>()
-        val hidden = LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
-            ?: emptyList()
-        applicationsInfo.forEach {
-            if (it.packageName in hidden) {
-                result.add(it)
-            }
-        }
-        return result
+        val hidden =
+            LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
+                ?: emptyList()
+        return applicationsInfo.filter { it.packageName in hidden }
     }
 
 
     fun getNotMaskApplicationData(packageName: String): ApplicationData {
-        val applicationInfo =
-            context.packageManager.getApplicationInfo(packageName, 0)
+        return getNotMaskApplicationData(getApplicationInfo(packageName))
+    }
+
+    fun getNotMaskApplicationData(applicationInfo: ApplicationInfo): ApplicationData {
         return ApplicationData(
-            title = applicationInfo.loadLabel(context.packageManager).toString(),
-            image = AppImage(packageName),
+            title = applicationInfo.title,
+            image = AppImage(applicationInfo.packageName),
             packageName = applicationInfo.packageName
         )
+    }
+
+    fun getAllApplicationData(allApplicationInfo: List<ApplicationInfo>): List<ApplicationData> {
+        return allApplicationInfo.map { getApplicationData(it) }
+    }
+
+    fun getAllNotMaskAppData(allApplicationInfo: List<ApplicationInfo>): List<ApplicationData> {
+        return allApplicationInfo.map { getNotMaskApplicationData(it) }
+    }
+
+    fun getApplicationData(packageName: String): ApplicationData {
+        return LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+            ?: getApplicationData(getApplicationInfo(packageName))
+    }
+
+    fun getApplicationData(applicationInfo: ApplicationInfo): ApplicationData {
+        return LauncherData.allApplicationData.value?.find { it.packageName == applicationInfo.packageName }
+            ?: ApplicationData(
+                packageName = applicationInfo.packageName,
+                title = applicationInfo.title,
+                image = AppImage(packageName = applicationInfo.packageName),
+                hidden = false
+            )
     }
 }

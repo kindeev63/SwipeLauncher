@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
@@ -33,14 +36,12 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.utils.getCategory
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.domain.utils.spacer
 import com.kindeev.swipelauncher.domain.viewModels.screens.mainSettingsScreen.MainSettingsScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.mainSettingsScreen.MainSettingsScreenVMFactory
-import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionDataByType
-import com.kindeev.swipelauncher.presentation.ui.elements.editImageAndAction.ActionTypeItem
+import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.ClickableSettingItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSettingItem
 import kotlinx.coroutines.launch
@@ -106,7 +107,10 @@ fun MainSettingsScreen(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_open_last_app),
-                    value = settings.getValueOf(SettingNames.OpenLastApp, OpenLastApp::class.java)?.enabled
+                    value = settings.getValueOf(
+                        SettingNames.OpenLastApp,
+                        OpenLastApp::class.java
+                    )?.enabled
                         ?: throw IllegalArgumentException("Illegal open app setting value"),
                     onChangeValue = {
                         scope.launch {
@@ -152,29 +156,19 @@ fun MainSettingsScreen(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(bottomStart = 7.dp, bottomEnd = 7.dp))
                                 .background(MaterialTheme.colorScheme.background)
-                                .padding(10.dp)
+                                .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
                         ) {
-                            ActionTypeItem(
-                                actionCategory = value?.action?.getCategory()
-                                    ?: throw IllegalAccessException(
-                                        "Illegal action type"
-                                    ),
-                                onChangeAction = {
-                                    scope.launch {
-                                        LauncherData.insertSetting(
-                                            SettingData(
-                                                name = SettingNames.ClickOnClock,
-                                                value = ClickOnClock(true, it)
-                                            )
-                                        )
-                                    }
-                                }
+                            Text(
+                                text = stringResource(R.string.action),
+                                fontWeight = FontWeight.Black
                             )
-                            ActionDataByType(
+                            EditCircleMenuAction(
+                                action = value?.action ?: throw IllegalAccessException(
+                                    "Illegal action type"
+                                ),
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 getItemImage = viewModel::getItemImage,
-                                action = value.action,
-                                textColor = MaterialTheme.colorScheme.onBackground,
+                                size = Constants.minScreenLength / 6f,
                                 onChangeAction = {
                                     scope.launch {
                                         LauncherData.insertSetting(
@@ -221,7 +215,10 @@ fun MainSettingsScreen(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_pick_app_action_with_image),
-                    value = settings.getValueOf(SettingNames.PickAppActionWithImage, PickAppActionWithImage::class.java)?.enabled
+                    value = settings.getValueOf(
+                        SettingNames.PickAppActionWithImage,
+                        PickAppActionWithImage::class.java
+                    )?.enabled
                         ?: throw IllegalArgumentException("Illegal pick app action with image setting value"),
                     onChangeValue = {
                         scope.launch {

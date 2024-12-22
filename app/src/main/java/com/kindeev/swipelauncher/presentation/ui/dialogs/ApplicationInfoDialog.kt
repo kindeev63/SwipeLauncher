@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,13 +22,13 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -36,28 +37,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.applicationInfoDialog.ApplicationInfoDialogVM
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.applicationInfoDialog.ApplicationInfoDialogVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 
 @Composable
 fun ApplicationInfoDialog(
-    applicationInfo: ApplicationInfo,
+    viewModel: LauncherScreenVM,
+    packageName: String,
     onDismissRequest: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val viewModel: ApplicationInfoDialogVM = viewModel(
-        factory = ApplicationInfoDialogVMFactory(context, applicationInfo.packageName)
-    )
-    val appData by viewModel.appData.observeAsState(viewModel.firstAppData)
-    val imageDialogVisibility by viewModel.imageDialogVisibility.observeAsState(false)
+    val firstApplicationData = rememberSaveable { viewModel.getApplicationData(packageName) }
+    var appData by rememberSaveable { mutableStateOf(firstApplicationData) }
+    var imageDialogVisibility by rememberSaveable { mutableStateOf(false) }
     if (imageDialogVisibility) {
         ImageDialog(
-            onDismissRequest = { viewModel.hideImageDialog() },
-            onPick = { viewModel.setAppDataImage(it) }
+            onDismissRequest = { imageDialogVisibility = false },
+            onPick = { appData = appData.copy(image = it)}
         )
     }
     Dialog(
@@ -84,9 +80,9 @@ fun ApplicationInfoDialog(
                     modifier = Modifier
                         .size(Constants.minScreenLength.dp / 7 + 10.dp)
                         .clip(RoundedCornerShape(7.dp))
-                        .clickable { viewModel.showImageDialog() }
+                        .clickable { imageDialogVisibility = true }
                         .padding(5.dp),
-                    bitmap = viewModel.getItemImage()
+                    bitmap = viewModel.getItemImage(appData.image)
                         ?: throw IllegalArgumentException("Illegal image"),
                     contentDescription = "Application Image"
                 )
@@ -107,7 +103,7 @@ fun ApplicationInfoDialog(
                             fontSize = 20.sp
                         ),
                         value = appData.title,
-                        onValueChange = { viewModel.setAppDataTitle(it) }
+                        onValueChange = { appData = appData.copy(title = it) }
                     )
                 }
                 Spacer(modifier = Modifier.width(15.dp))
@@ -115,7 +111,7 @@ fun ApplicationInfoDialog(
                     modifier = Modifier
                         .size(Constants.minScreenLength.dp / 10)
                         .clip(CircleShape)
-                        .clickable { viewModel.resetAppData() }
+                        .clickable { appData = viewModel.getNotMaskApplicationData(packageName) }
                         .padding(5.dp),
                     painter = painterResource(id = R.drawable.reset_image),
                     contentDescription = "Reset"
@@ -135,7 +131,7 @@ fun ApplicationInfoDialog(
                             .size(Constants.minScreenLength.dp / 10)
                             .clip(RoundedCornerShape(7.dp))
                             .background(MaterialTheme.colorScheme.primary)
-                            .clickable { viewModel.getAppDetails() },
+                            .clickable { viewModel.getAppDetails(packageName) },
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -150,7 +146,7 @@ fun ApplicationInfoDialog(
                             .clip(RoundedCornerShape(7.dp))
                             .background(Color.Red)
                             .clickable {
-                                viewModel.deleteApp()
+                                viewModel.deleteApp(packageName)
                                 onDismissRequest()
                             },
                         contentAlignment = Alignment.Center
@@ -166,7 +162,7 @@ fun ApplicationInfoDialog(
                             .size(Constants.minScreenLength.dp / 10)
                             .clip(RoundedCornerShape(7.dp))
                             .background(Color.Green)
-                            .clickable { viewModel.changeAppHiddenStatus() },
+                            .clickable { appData = appData.copy(hidden = !appData.hidden) },
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -180,7 +176,26 @@ fun ApplicationInfoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (viewModel.hasChanges()) {
+                    if (appData != firstApplicationData) {
+                        Box(
+                            modifier = Modifier
+                                .height(Constants.minScreenLength.dp / 10)
+                                .clip(RoundedCornerShape(7.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable {
+                                    viewModel.changeApp(appData)
+                                    onDismissRequest()
+                                }
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.save),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
                         Box(
                             modifier = Modifier
                                 .height(Constants.minScreenLength.dp / 10)
@@ -192,22 +207,6 @@ fun ApplicationInfoDialog(
                             Text(
                                 text = stringResource(id = R.string.save),
                                 color = Color(0xFF686868),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .height(Constants.minScreenLength.dp / 10)
-                                .clip(RoundedCornerShape(7.dp))
-                                .background(MaterialTheme.colorScheme.primary)
-                                .clickable { viewModel.saveChanges() }
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.save),
-                                color = MaterialTheme.colorScheme.onPrimary,
                                 textAlign = TextAlign.Center
                             )
                         }

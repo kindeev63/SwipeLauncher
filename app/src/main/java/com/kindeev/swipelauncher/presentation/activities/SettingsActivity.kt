@@ -17,7 +17,6 @@ import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
 import com.kindeev.swipelauncher.presentation.screens.SettingsScreen
@@ -28,8 +27,7 @@ import kotlinx.coroutines.launch
 class SettingsActivity : ComponentActivity() {
 
     private val userImagesUseCase = UserImagesUseCase(this)
-    private val getItemImageUseCase = GetItemImageUseCase(this)
-    private val applicationsUseCase = ApplicationsUseCase(this, getItemImageUseCase)
+    private val applicationsUseCase = ApplicationsUseCase(this)
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
 
     override fun onCreate(savedInstanceState: Bundle?) {

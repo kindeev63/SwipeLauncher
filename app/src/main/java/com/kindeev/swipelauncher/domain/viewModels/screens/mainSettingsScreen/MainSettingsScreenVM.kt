@@ -10,7 +10,7 @@ import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 
 class MainSettingsScreenVM(context: Context): ViewModel() {
     private val getItemImageUseCase = GetItemImageUseCase(context)
-    private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+    private val applicationsUseCase = ApplicationsUseCase(context)
 
     fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
         return getItemImageUseCase.getItemImage(circleMenuImage)

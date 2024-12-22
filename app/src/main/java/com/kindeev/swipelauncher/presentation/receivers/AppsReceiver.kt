@@ -12,7 +12,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -24,9 +23,7 @@ import kotlin.concurrent.thread
 class AppsReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-
-        val getItemImageUseCase = GetItemImageUseCase(context)
-        val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+        val applicationsUseCase = ApplicationsUseCase(context)
         val userImagesUseCase = UserImagesUseCase(context)
         val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
 

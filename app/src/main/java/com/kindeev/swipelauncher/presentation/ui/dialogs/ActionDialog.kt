@@ -108,6 +108,7 @@ fun ActionDialog(
 
         ActionCategories.OpenApp -> {
             OpenAppActionData(
+                viewModel = viewModel,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -283,6 +284,7 @@ fun OpenCircleMenuActionData(
 
 @Composable
 fun OpenAppActionData(
+    viewModel: ActionDialogVM,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -299,25 +301,29 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val allApplicationInfo = LauncherData.allApplicationInfo.observeAsState(emptyList())
+            val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = allApplicationInfo.value.filter {
+                    items = viewModel.getAllApplicationsData(allApplicationInfo).filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationInfo ->
-                    AppItem(
-                        applicationInfo = applicationInfo
-                    ) {
-                        onPick(OpenAppAction(packageName = applicationInfo.packageName))
-                        onDismissRequest()
+                ) { applicationData ->
+                    viewModel.getItemImage(applicationData.image)?.let { image ->
+                        AppItem(
+                            title = applicationData.title,
+                            image = image
+                        ) {
+                            onPick(OpenAppAction(packageName = applicationData.packageName))
+                            onDismissRequest()
+                        }
                     }
                 }
+
             }
             DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
         }

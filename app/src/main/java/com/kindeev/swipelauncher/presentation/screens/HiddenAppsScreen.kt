@@ -41,10 +41,9 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVMFactory
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import kotlinx.coroutines.launch
 
@@ -70,14 +69,18 @@ fun HiddenAppsScreen(
     }
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
 
-    var appInfoDialog by rememberSaveable {
-        mutableStateOf<ApplicationInfo?>(null)
+    var questionDialog by rememberSaveable {
+        mutableStateOf<String?>(null)
     }
 
-    appInfoDialog?.let { applicationInfo ->
-        ApplicationInfoDialog(
-            applicationInfo = applicationInfo,
-            onDismissRequest = { appInfoDialog = null }
+    questionDialog?.let { packageName ->
+        QuestionDialog(
+            text = stringResource(R.string.show_app_question),
+            onClickYes = {
+                viewModel.showApp(packageName)
+                questionDialog = null
+            },
+            onDismissRequest = { questionDialog = null }
         )
     }
 
@@ -99,11 +102,14 @@ fun HiddenAppsScreen(
         ) {
             items(
                 items = viewModel.getHiddenApps(allApplicationInfo)
-            ) {
-                AppItem(
-                    applicationInfo = it,
-                    onClick = { appInfoDialog = it }
-                )
+            ) { applicationData ->
+                viewModel.getItemImage(applicationData.image)?.let { image ->
+                    AppItem(
+                        title = applicationData.title,
+                        image = image,
+                        onClick = { questionDialog = applicationData.packageName }
+                    )
+                }
             }
         }
     }

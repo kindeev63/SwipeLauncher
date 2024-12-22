@@ -83,6 +83,7 @@ fun ImageDialog(
     when (imageType) {
         AllImageTypes.AppImage -> {
             AppImageData(
+                viewModel = viewModel,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -181,6 +182,7 @@ private fun ImageTypeElement(
 
 @Composable
 fun AppImageData(
+    viewModel: ImageDialogVM,
     onPick: (CircleMenuImage) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -197,23 +199,26 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val allApplicationInfo = LauncherData.allApplicationInfo.observeAsState(emptyList())
+            val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = allApplicationInfo.value.filter {
+                    items = viewModel.getAllApplicationsData(allApplicationInfo).filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationInfo ->
-                    AppItem(
-                        applicationInfo = applicationInfo
-                    ) {
-                        onPick(AppImage(applicationInfo.packageName))
-                        onDismissRequest()
+                ) { applicationData ->
+                    viewModel.getItemImage(applicationData.image)?.let { image ->
+                        AppItem(
+                            title = applicationData.title,
+                            image = image
+                        ) {
+                            onPick(AppImage(applicationData.packageName))
+                            onDismissRequest()
+                        }
                     }
                 }
             }

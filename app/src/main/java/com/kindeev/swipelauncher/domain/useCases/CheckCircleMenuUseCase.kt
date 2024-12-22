@@ -21,7 +21,7 @@ class CheckCircleMenuUseCase(
             circleMenu = circleMenu,
             allCircleMenuIds = LauncherData.allCircleMenus.value?.map { it.id } ?: emptyList(),
             allPackageNames = (LauncherData.allApplicationInfo.value
-                ?: applicationsUseCase.getApplications()).map { it.packageName },
+                ?: applicationsUseCase.getAllApplicationInfo()).map { it.packageName },
             userImageIds = userImagesUseCase.getUserImageIds()
         ) == null
     }
@@ -96,7 +96,7 @@ class CheckCircleMenuUseCase(
     ) = getOnlyChanged(
         circleMenus = circleMenus,
         allCircleMenuIds = LauncherData.allCircleMenus.value?.map { it.id } ?: emptyList(),
-        allPackageNames = applicationsUseCase.getApplications().map { it.packageName },
+        allPackageNames = applicationsUseCase.getAllApplicationInfo().map { it.packageName },
         userImageIds = userImagesUseCase.getUserImageIds()
     )
 }

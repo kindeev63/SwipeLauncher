@@ -11,8 +11,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
@@ -36,8 +38,7 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
-import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
-import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
+import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -50,7 +51,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
     private val userImagesUseCase = UserImagesUseCase(context)
     private val getItemImageUseCase = GetItemImageUseCase(context)
-    private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+    private val applicationsUseCase = ApplicationsUseCase(context)
     private val checkCircleMenuUseCase =
         CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
@@ -338,17 +339,40 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         _searchText.postValue("")
     }
 
-    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<SearchBoxResult> {
+    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<ApplicationData> {
         searchText.value?.let { searchText ->
-            return applicationsUseCase
-                .getNotHidden(allApplicationInfo)
-                .filter {
-                    it.title
-                        .lowercase()
-                        .contains(searchText.lowercase())
-                }
-                .map { AppSBR(it) }
+            return applicationsUseCase.getAllApplicationData(
+                applicationsUseCase
+                    .getNotHidden(allApplicationInfo)
+                    .filter {
+                        it.title
+                            .lowercase()
+                            .contains(searchText.lowercase())
+                    }
+            )
         }
         return emptyList()
+    }
+
+// ApplicationInfoDialog
+
+    fun getApplicationData(packageName: String): ApplicationData {
+        return applicationsUseCase.getApplicationData(packageName)
+    }
+
+    fun getNotMaskApplicationData(packageName: String): ApplicationData {
+        return applicationsUseCase.getNotMaskApplicationData(packageName)
+    }
+
+    fun getAppDetails(packageName: String) {
+        applicationsUseCase.getAppDetails(packageName)
+    }
+
+    fun deleteApp(packageName: String) {
+        applicationsUseCase.deleteApp(packageName)
+    }
+
+    fun changeApp(applicationData: ApplicationData) {
+        viewModelScope.launch { applicationsUseCase.changeApp(applicationData) }
     }
 }

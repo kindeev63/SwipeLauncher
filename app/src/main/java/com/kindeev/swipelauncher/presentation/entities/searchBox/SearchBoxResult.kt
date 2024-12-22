@@ -1,3 +1,0 @@
-package com.kindeev.swipelauncher.presentation.entities.searchBox
-
-interface SearchBoxResult

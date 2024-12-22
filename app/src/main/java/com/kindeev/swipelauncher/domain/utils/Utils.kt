@@ -14,32 +14,15 @@ import androidx.activity.SystemBarStyle
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
@@ -49,10 +32,7 @@ import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
-import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
-import com.kindeev.swipelauncher.presentation.entities.searchBox.AppSBR
-import com.kindeev.swipelauncher.presentation.entities.searchBox.SearchBoxResult
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 import com.kindeev.swipelauncher.presentation.receivers.WallpaperChangeReceiver
 
@@ -184,30 +164,6 @@ fun Context.setActionAndImageTypes() {
     )
 }
 
-fun CircleMenuAction.getCategory(): ActionCategory? {
-    return when (this) {
-        is OpenCircleMenuAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenCircleMenu }
-        is OpenSettingsAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenSettings }
-        is OpenAppAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenApp }
-        is FlashLightOnAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
-        is FlashLightOffAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
-        is ChangeFlashLightConditionAction -> Constants.actionCategories.find { it.type == ActionCategories.Flashlight }
-        is CallAction -> Constants.actionCategories.find { it.type == ActionCategories.Telephone }
-        is DialAction -> Constants.actionCategories.find { it.type == ActionCategories.Telephone }
-        is OpenUrlAction -> Constants.actionCategories.find { it.type == ActionCategories.OpenUrl }
-        else -> null
-    }
-}
-
-fun CircleMenuImage.getImageType(): ImageType? {
-    return when (this) {
-        is AppImage -> Constants.imageTypes.find { it.type == AllImageTypes.AppImage }
-        is DefaultImage -> Constants.imageTypes.find { it.type == AllImageTypes.DefaultImage }
-        is UserImage -> Constants.imageTypes.find { it.type == AllImageTypes.UserImage }
-        else -> null
-    }
-}
-
 fun String.formatPhoneNumber(): String {
     return if (this.length == 11) {
         "${this[0]} (${this.substring(1, 4)}) ${
@@ -238,18 +194,6 @@ fun Context.getMinScreenLength(): Float {
     ).toFloat()
 }
 
-@Composable
-fun getMinScreenLengthDp(): Dp {
-    val configuration = LocalConfiguration.current
-    return minOf(configuration.screenWidthDp, configuration.screenHeightDp).dp
-}
-
-@Composable
-fun getMinScreenLengthSp(): TextUnit {
-    val configuration = LocalConfiguration.current
-    return minOf(configuration.screenWidthDp, configuration.screenHeightDp).sp
-}
-
 fun <T> List<SettingData>.getValueOf(name: SettingNames, classOfT: Class<T>): T? {
     @Suppress("UNCHECKED_CAST")
     return this.find { it.name == name }?.value as T?
@@ -266,40 +210,10 @@ fun getLauncherStatusBarStyle(): SystemBarStyle {
     ) else SystemBarStyle.dark(Color.TRANSPARENT)
 }
 
-fun Offset.getItemOffset(menuSize: Float): Offset {
-    val itemSize = menuSize / 5
-    val x = (menuSize / 2 - itemSize / 2) + this.x * menuSize / 10
-    val y = (menuSize / 2 - itemSize / 2) + this.y * menuSize / 10
-    return Offset(x, y)
-}
-
 fun Context.openApp(packageName: String) {
     val intent =
         this.packageManager.getLaunchIntentForPackage(packageName)
     intent?.let { this.startActivity(it) }
-}
-
-fun Context.executeSearchResult(result: SearchBoxResult) {
-    when (result) {
-        is AppSBR -> {
-            if (result.applicationInfo.packageName == packageName) {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-            } else {
-                openApp(result.applicationInfo.packageName)
-            }
-        }
-    }
-}
-
-fun Context.getNotMaskApplicationData(packageName: String): ApplicationData {
-    val applicationInfo =
-        packageManager.getApplicationInfo(packageName, 0)
-    return ApplicationData(
-        title = applicationInfo.loadLabel(packageManager).toString(),
-        image = AppImage(packageName),
-        packageName = applicationInfo.packageName
-    )
 }
 
 fun AllActionTypes.getFlashlightAction(): CircleMenuAction {

@@ -34,7 +34,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
@@ -62,8 +61,7 @@ class MainActivity : ComponentActivity() {
 
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
     private val userImagesUseCase = UserImagesUseCase(this)
-    private val getItemImageUseCase = GetItemImageUseCase(this)
-    private val applicationsUseCase = ApplicationsUseCase(this, getItemImageUseCase)
+    private val applicationsUseCase = ApplicationsUseCase(this)
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
 
     override fun onCreate(savedInstanceState: Bundle?) {

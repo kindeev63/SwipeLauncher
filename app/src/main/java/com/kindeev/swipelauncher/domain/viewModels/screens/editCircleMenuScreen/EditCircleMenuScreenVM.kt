@@ -4,7 +4,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import android.content.Context
-import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -20,7 +19,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
@@ -48,7 +46,7 @@ class EditCircleMenuScreenVM(
 ) : ViewModel() {
 
     private val getItemImageUseCase = GetItemImageUseCase(context)
-    private val applicationsUseCase = ApplicationsUseCase(context, getItemImageUseCase)
+    private val applicationsUseCase = ApplicationsUseCase(context)
     private val userImagesUseCase = UserImagesUseCase(context)
 
     // CircleMenu
@@ -439,10 +437,6 @@ class EditCircleMenuScreenVM(
 
     fun getApplicationInfo(packageName: String): ApplicationInfo {
         return applicationsUseCase.getApplicationInfo(packageName)
-    }
-
-    fun addUserImage(uri: Uri): UserImage {
-        return userImagesUseCase.addUserImage(uri)
     }
 
     fun updateCircleMenuItem(item: CircleMenuItem, index: Int) = viewModelScope.launch {

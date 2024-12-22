@@ -3,7 +3,7 @@
     <string name="app_name">SwipeLauncher</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="search">Поиск</string>
-    <string name="image">Изображение</string>
+    <string name="image">Иконка</string>
     <string name="action">Действие</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
@@ -101,5 +101,6 @@
     <string name="hours">ч.</string>
     <string name="minutes">минут</string>
     <string name="title">Заголовок</string>
+    <string name="show_app_question">Вы хотите показать приложение?</string>
 
 </resources>

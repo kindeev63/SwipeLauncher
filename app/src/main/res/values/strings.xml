@@ -128,5 +128,6 @@
     <string name="hours">h.</string>
     <string name="minutes">minutes</string>
     <string name="title">Title</string>
+    <string name="show_app_question">Do you want to show the app?</string>
 
 </resources>

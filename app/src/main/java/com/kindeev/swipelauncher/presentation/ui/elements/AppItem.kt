@@ -15,13 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 
 @Composable
 fun AppItem(
-    applicationInfo: ApplicationInfo,
+    title: String,
+    image: ImageBitmap,
     onClick: () -> Unit
 ) {
     Row(
@@ -36,12 +37,12 @@ fun AppItem(
     ){
         Image(
             modifier = Modifier.size(50.dp),
-            bitmap = applicationInfo.icon,
+            bitmap = image,
             contentDescription = null
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = applicationInfo.title,
+            text = title,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1
