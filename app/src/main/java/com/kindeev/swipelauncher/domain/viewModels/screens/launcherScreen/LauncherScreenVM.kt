@@ -356,6 +356,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
 // ApplicationInfoDialog
 
+    var userImageGetProcess = false
+
     fun getApplicationData(packageName: String): ApplicationData {
         return applicationsUseCase.getApplicationData(packageName)
     }

@@ -52,8 +52,12 @@ fun ApplicationInfoDialog(
     var imageDialogVisibility by rememberSaveable { mutableStateOf(false) }
     if (imageDialogVisibility) {
         ImageDialog(
-            onDismissRequest = { imageDialogVisibility = false },
-            onPick = { appData = appData.copy(image = it)}
+            onDismissRequest = {
+                imageDialogVisibility = false
+                viewModel.userImageGetProcess = false
+            },
+            onLaunchGetUserImage = { viewModel.userImageGetProcess = true },
+            onPick = { appData = appData.copy(image = it) }
         )
     }
     Dialog(

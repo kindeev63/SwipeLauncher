@@ -54,6 +54,7 @@ import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 @Composable
 fun ImageDialog(
     onDismissRequest: () -> Unit,
+    onLaunchGetUserImage: () -> Unit = {},
     onPick: (CircleMenuImage) -> Unit
 ) {
     val context = LocalContext.current
@@ -73,6 +74,7 @@ fun ImageDialog(
     AllImageTypes(
         onPick = {
             if (it == AllImageTypes.UserImage) {
+                onLaunchGetUserImage()
                 launcher.launch("image/*")
             } else {
                 viewModel.setImageType(it)
