@@ -2,6 +2,7 @@ package com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen
 
 import android.content.Context
 import android.os.Vibrator
+import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -375,6 +376,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     }
 
     fun changeApp(applicationData: ApplicationData) {
+        Log.e("test", applicationData.toString())
         viewModelScope.launch { applicationsUseCase.changeApp(applicationData) }
     }
 }

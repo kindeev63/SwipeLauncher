@@ -113,14 +113,6 @@ class ApplicationsUseCase(
         )
     }
 
-    suspend fun hideApp(packageName: String) {
-        LauncherData.insertApplicationData(
-            LauncherData.allApplicationData.value?.find { it.packageName == packageName }
-                ?.copy(hidden = true)
-                ?: getApplicationData(packageName).copy(hidden = true)
-        )
-    }
-
     suspend fun showApp(packageName: String) {
         LauncherData.allApplicationData.value?.find { it.packageName == packageName }
             ?.let { applicationData ->
@@ -139,11 +131,6 @@ class ApplicationsUseCase(
             LauncherData.deleteApplicationDataByPackageName(applicationData.packageName)
         } else {
             LauncherData.insertApplicationData(applicationData)
-            if (applicationData.hidden) {
-                hideApp(applicationData.packageName)
-            } else {
-                showApp(applicationData.packageName)
-            }
         }
     }
 
