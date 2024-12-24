@@ -182,7 +182,7 @@ fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(Color(0xFFD3D3D3))
+            .background(MaterialTheme.colorScheme.primary)
             .shadow(elevation = 1.dp)
             .statusBarsPadding(),
     ) {
@@ -191,6 +191,7 @@ fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = null
             )
         }

@@ -142,12 +142,11 @@ class ApplicationsUseCase(
     }
 
     fun getHidden(
-        applicationsInfo: List<ApplicationInfo>
+        applicationData: List<ApplicationData>,
+        applicationsInfo: List<ApplicationInfo>,
     ): List<ApplicationInfo> {
-        val hidden =
-            LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
-                ?: emptyList()
-        return applicationsInfo.filter { it.packageName in hidden }
+        val hiddenPackageNames = applicationData.filter { it.hidden == true }.map { it.packageName }
+        return  applicationsInfo.filter { it.packageName in hiddenPackageNames }
     }
 
 

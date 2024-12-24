@@ -11,7 +11,7 @@ import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import kotlinx.coroutines.launch
 
-class HiddenAppsScreenVM(context: Context): ViewModel() {
+class HiddenAppsScreenVM(context: Context) : ViewModel() {
     private val applicationsUseCase = ApplicationsUseCase(context)
     private val getItemImageUseCase = GetItemImageUseCase(context)
 
@@ -19,8 +19,16 @@ class HiddenAppsScreenVM(context: Context): ViewModel() {
         return getItemImageUseCase.getItemImage(circleMenuImage)
     }
 
-    fun getHiddenApps(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {
-        return applicationsUseCase.getAllApplicationData(applicationsUseCase.getHidden(applicationsInfo))
+    fun getHiddenApps(
+        applicationsInfo: List<ApplicationInfo>,
+        applicationData: List<ApplicationData>
+    ): List<ApplicationData> {
+        return applicationsUseCase.getAllApplicationData(
+            applicationsUseCase.getHidden(
+                applicationsInfo = applicationsInfo,
+                applicationData = applicationData
+            )
+        )
     }
 
     fun showApp(packageName: String) {

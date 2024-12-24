@@ -68,6 +68,7 @@ fun HiddenAppsScreen(
         onBackPressed()
     }
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
+    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
 
     var questionDialog by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -83,7 +84,7 @@ fun HiddenAppsScreen(
             onDismissRequest = { questionDialog = null }
         )
     }
-
+    val data = viewModel.getHiddenApps(allApplicationInfo, allApplicationData)
     Scaffold(
         topBar = {
             HiddenAppsToolbar(
@@ -101,7 +102,7 @@ fun HiddenAppsScreen(
                 .padding(paddingValues)
         ) {
             items(
-                items = viewModel.getHiddenApps(allApplicationInfo)
+                items = data
             ) { applicationData ->
                 viewModel.getItemImage(applicationData.image)?.let { image ->
                     AppItem(
