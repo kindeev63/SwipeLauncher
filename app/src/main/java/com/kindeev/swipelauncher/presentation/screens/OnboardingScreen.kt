@@ -135,7 +135,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             bitmap = viewModel.getThisAppIcon(),
                             contentDescription = null
                         )
@@ -181,7 +181,7 @@ private fun PageContentTablet(
                     ) {
                         Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 10 * 6),
+                                .size(screenWidth.dp / 10 * 5),
                             painter = painterResource(R.drawable.circle_menu_performance),
                             contentDescription = null
                         )
@@ -226,7 +226,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_3_image),
                             contentDescription = null
                         )
@@ -270,7 +270,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_4_image),
                             contentDescription = null
                         )
@@ -314,7 +314,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_5_image),
                             contentDescription = null
                         )
@@ -358,7 +358,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_6_image),
                             contentDescription = null
                         )
@@ -403,7 +403,7 @@ private fun PageContentTablet(
                     ) {
                         Image(
                             modifier = Modifier
-                                .size(screenWidth.dp / 10 * 6),
+                                .size(screenWidth.dp / 10 * 5),
                             painter = painterResource(R.drawable.open_circle_menu_image),
                             contentDescription = null
                         )
@@ -447,7 +447,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_8_image),
                             contentDescription = null
                         )
@@ -492,7 +492,7 @@ private fun PageContentTablet(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            modifier = Modifier.size(screenWidth.dp / 10 * 6),
+                            modifier = Modifier.size(screenWidth.dp / 10 * 5),
                             painter = painterResource(id = R.drawable.on_boarding_9_image),
                             contentDescription = null
                         )

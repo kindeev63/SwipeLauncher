@@ -91,7 +91,7 @@
     <string name="on_boarding_first_title" translatable="false">SwipeLauncher</string>
     <string name="on_boarding_first_desc">This is a launcher that works on swipes. Tap anywhere on the screen to bring up the menu, then, without releasing your finger, drag it to the item you need. The action specified for this element will be executed.</string>
     <string name="on_boarding_second_title">Menu</string>
-    <string name="on_boarding_second_desc">A menu can have up to 8 items. They are located as shown above. All menus can be changed in settings.</string>
+    <string name="on_boarding_second_desc">You can create any number of menus. You can add any number of items to the menu, which will be arranged in a circle. All menus and their elements can be changed in the settings.</string>
     <string name="on_boarding_third_title">Types of actions</string>
     <string name="on_boarding_third_desc">1. Open app\n2. Open circle menu (opens a new menu at this location)\n3. Open settings (opens launcher settings)\n4. Call (makes a call to the specified phone number)\n5. Dial(opens the calling application with the entered phone number, all you have to do is press the button to make a call)\n6. Turn on the flashlight\n7. Turn off the flashlight\n8. Change flashlight condition (if it’s on, then turn it off and if it’s off, then turn it on)\n9. Open url</string>
     <string name="on_boarding_fourth_title">Types of images</string>
