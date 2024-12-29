@@ -76,6 +76,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private var sizes = getSizes(LauncherData.allCircleMenus.value ?: emptyList())
 
     private var clickTime = 0L
+    private var actionInProgress = false
 
     private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
     val screenState: LiveData<LauncherScreenState> = _screenState
@@ -124,21 +125,26 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     _currentMenu.postValue(_currentMenu.value?.copy(offset = offset))
                 }
                 clickTime = event.eventTime
+                actionInProgress = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                currentMenu.value?.offset?.let {
-                    val index = getElementIndexOnCords(
-                        offset = Offset(
-                            x = offset.x - it.x,
-                            y = offset.y - it.y,
+                if (!actionInProgress) {
+                    actionInProgress = true
+                    currentMenu.value?.offset?.let {
+                        val index = getElementIndexOnCords(
+                            offset = Offset(
+                                x = offset.x - it.x,
+                                y = offset.y - it.y,
+                            )
                         )
-                    )
-                    index?.let {
-                        currentMenu.value?.circleMenu?.items[index]?.let { item ->
-                            executeAction(item.action, offset)
+                        index?.let {
+                            currentMenu.value?.circleMenu?.items[index]?.let { item ->
+                                executeAction(item.action, offset)
+                            }
                         }
                     }
+                    actionInProgress = false
                 }
             }
 
