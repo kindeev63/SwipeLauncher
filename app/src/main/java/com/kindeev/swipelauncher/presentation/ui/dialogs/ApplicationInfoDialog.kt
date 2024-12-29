@@ -52,6 +52,9 @@ fun ApplicationInfoDialog(
     var imageDialogVisibility by rememberSaveable { mutableStateOf(false) }
     if (imageDialogVisibility) {
         ImageDialog(
+            getItemImage = viewModel::getItemImage,
+            addUserImage = viewModel::addUserImage,
+            getAllApplicationsData = viewModel::getAllApplicationsData,
             onDismissRequest = {
                 imageDialogVisibility = false
                 viewModel.userImageGetProcess = false

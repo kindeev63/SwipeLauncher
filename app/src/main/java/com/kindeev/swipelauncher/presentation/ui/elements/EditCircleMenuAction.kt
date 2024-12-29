@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
@@ -59,6 +60,7 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
 @Composable
 fun EditCircleMenuAction(
     action: CircleMenuAction,
+    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     getApplicationInfo: (String) -> ApplicationInfo,
     getItemImage: (CircleMenuImage) -> ImageBitmap?,
     size: Float,
@@ -70,6 +72,8 @@ fun EditCircleMenuAction(
 
     if (showActionDialog) {
         ActionDialog(
+            getItemImage = getItemImage,
+            getAllApplicationsData = getAllApplicationsData,
             onDismissRequest = { showActionDialog = false },
             onPick = onChangeAction
         )

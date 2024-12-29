@@ -166,6 +166,7 @@ fun MainSettingsScreen(
                                 action = value?.action ?: throw IllegalAccessException(
                                     "Illegal action type"
                                 ),
+                                getAllApplicationsData = viewModel::getAllApplicationsData,
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 getItemImage = viewModel::getItemImage,
                                 size = Constants.minScreenLength / 6f,

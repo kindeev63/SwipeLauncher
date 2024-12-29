@@ -1,5 +1,9 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
@@ -20,19 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpaperChangerInfoDialog.WallpaperChangerInfoDialogVM
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpaperChangerInfoDialog.WallpaperChangerInfoDialogVMFactory
 
 @Composable
 fun WallpaperChangerInfoDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel: WallpaperChangerInfoDialogVM = viewModel(
-        factory = WallpaperChangerInfoDialogVMFactory(context)
-    )
     val screenConfiguration = LocalConfiguration.current
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -54,7 +52,7 @@ fun WallpaperChangerInfoDialog(
             )
             TextButton(
                 onClick = {
-                    viewModel.getAppDetails()
+                    context.getAppDetails()
                     onDismissRequest()
                 }
             ) {
@@ -65,4 +63,13 @@ fun WallpaperChangerInfoDialog(
             }
         }
     }
+}
+
+private fun Context.getAppDetails() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    val uri = Uri.fromParts("package", packageName, null)
+    intent.data = uri
+    startActivity(intent)
 }

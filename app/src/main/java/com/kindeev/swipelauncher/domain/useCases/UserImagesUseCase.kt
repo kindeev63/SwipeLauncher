@@ -54,13 +54,13 @@ class UserImagesUseCase(private val context: Context) {
         }
     }
 
-    fun addUserImage(uri: Uri): UserImage {
+    fun addUserImage(uri: Uri): UserImage? {
         val ids = LauncherData.userImages.map { it.key }
         var newId = 0
         while (newId in ids) {
             newId++
         }
-        val bitmap = createBitmap(uri)
+        val bitmap = createBitmap(uri) ?: return null
         LauncherData.userImages = LauncherData.userImages.toMutableMap().apply {
             this[newId] = bitmap.asImageBitmap()
         }.toMap()
@@ -79,16 +79,22 @@ class UserImagesUseCase(private val context: Context) {
         fos.close()
     }
 
-    private fun createBitmap(uri: Uri): Bitmap = if (Build.VERSION.SDK_INT < 28) {
-        @Suppress("DEPRECATION")
-        MediaStore.Images
-            .Media.getBitmap(context.contentResolver, uri)
+    private fun createBitmap(uri: Uri): Bitmap? {
+        return try {
+            if (Build.VERSION.SDK_INT < 28) {
+                @Suppress("DEPRECATION")
+                MediaStore.Images
+                    .Media.getBitmap(context.contentResolver, uri)
 
-    } else {
-        ImageDecoder.decodeBitmap(
-            ImageDecoder
-                .createSource(context.contentResolver, uri)
-        )
+            } else {
+                ImageDecoder.decodeBitmap(
+                    ImageDecoder
+                        .createSource(context.contentResolver, uri)
+                )
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun List<CircleMenu>.getUserImageNamesFromCircleMenus(): List<String> {

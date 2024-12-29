@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen
 
 import android.content.Context
+import android.net.Uri
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
@@ -27,6 +28,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
@@ -382,5 +384,13 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
     fun changeApp(applicationData: ApplicationData) {
         viewModelScope.launch { applicationsUseCase.changeApp(applicationData) }
+    }
+
+    fun addUserImage(uri: Uri): UserImage? {
+        return userImagesUseCase.addUserImage(uri = uri)
+    }
+
+    fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {
+        return applicationsUseCase.getAllApplicationData(applicationsInfo)
     }
 }

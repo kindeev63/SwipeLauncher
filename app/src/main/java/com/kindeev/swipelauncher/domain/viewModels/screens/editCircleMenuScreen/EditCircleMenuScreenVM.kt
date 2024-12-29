@@ -4,6 +4,7 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import android.content.Context
+import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -14,11 +15,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
@@ -465,5 +468,13 @@ class EditCircleMenuScreenVM(
             _circleMenu.value = newCircleMenu
             updateCircleMenu()
         }
+    }
+
+    fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {
+        return applicationsUseCase.getAllApplicationData(applicationsInfo)
+    }
+
+    fun addUserImage(uri: Uri): UserImage? {
+        return userImagesUseCase.addUserImage(uri = uri)
     }
 }

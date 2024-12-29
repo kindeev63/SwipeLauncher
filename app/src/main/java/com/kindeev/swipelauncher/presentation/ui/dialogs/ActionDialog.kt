@@ -59,6 +59,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
@@ -68,11 +69,10 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.actionDialog.ActionDialogVM
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.actionDialog.ActionDialogVMFactory
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
@@ -80,13 +80,11 @@ import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 
 @Composable
 fun ActionDialog(
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
+    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel: ActionDialogVM = viewModel(
-        factory = ActionDialogVMFactory(context)
-    )
     var actionCategory by rememberSaveable {
         mutableStateOf<ActionCategories?>(null)
     }
@@ -97,7 +95,7 @@ fun ActionDialog(
     when (actionCategory) {
         ActionCategories.OpenCircleMenu -> {
             OpenCircleMenuActionData(
-                getItemImage = viewModel::getItemImage,
+                getItemImage = getItemImage,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -108,7 +106,8 @@ fun ActionDialog(
 
         ActionCategories.OpenApp -> {
             OpenAppActionData(
-                viewModel = viewModel,
+                getItemImage = getItemImage,
+                getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -284,7 +283,8 @@ fun OpenCircleMenuActionData(
 
 @Composable
 fun OpenAppActionData(
-    viewModel: ActionDialogVM,
+    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -308,12 +308,12 @@ fun OpenAppActionData(
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = viewModel.getAllApplicationsData(allApplicationInfo).filter {
+                    items = getAllApplicationsData(allApplicationInfo).filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
                 ) { applicationData ->
-                    viewModel.getItemImage(applicationData.image)?.let { image ->
+                    getItemImage(applicationData.image)?.let { image ->
                         AppItem(
                             title = applicationData.title,
                             image = image

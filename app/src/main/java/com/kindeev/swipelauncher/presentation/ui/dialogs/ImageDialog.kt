@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -32,52 +33,60 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.imageDialog.ImageDialogVM
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.imageDialog.ImageDialogVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 
 @Composable
 fun ImageDialog(
     onDismissRequest: () -> Unit,
+    addUserImage: (Uri) -> UserImage?,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
+    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onLaunchGetUserImage: () -> Unit = {},
     onPick: (CircleMenuImage) -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel: ImageDialogVM = viewModel(
-        factory = ImageDialogVMFactory(context)
-    )
     val launcher = rememberLauncherForActivityResult(
         contract =
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            onPick(viewModel.addUserImage(uri))
-            onDismissRequest()
+            val userImage = addUserImage(uri)
+            if (userImage == null) {
+                Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
+            } else {
+                onPick(userImage)
+                onDismissRequest()
+            }
         }
     }
-    val imageType by viewModel.imageType.observeAsState()
+    var imageType by rememberSaveable {
+        mutableStateOf<AllImageTypes?>(null)
+    }
     AllImageTypes(
         onPick = {
             if (it == AllImageTypes.UserImage) {
                 onLaunchGetUserImage()
                 launcher.launch("image/*")
             } else {
-                viewModel.setImageType(it)
+                imageType = it
             }
         },
         onDismissRequest = onDismissRequest
@@ -85,12 +94,13 @@ fun ImageDialog(
     when (imageType) {
         AllImageTypes.AppImage -> {
             AppImageData(
-                viewModel = viewModel,
+                getItemImage = getItemImage,
+                getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { viewModel.clearImageType() }
+                onDismissRequest = { imageType = null }
             )
         }
 
@@ -100,7 +110,7 @@ fun ImageDialog(
                     onPick(it)
                     onDismissRequest()
                 },
-                onDismissRequest = { viewModel.clearImageType() }
+                onDismissRequest = { imageType = null }
             )
         }
         else -> {}
@@ -184,7 +194,8 @@ private fun ImageTypeElement(
 
 @Composable
 fun AppImageData(
-    viewModel: ImageDialogVM,
+    getItemImage: (CircleMenuImage) -> ImageBitmap?,
+    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onPick: (CircleMenuImage) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -208,12 +219,12 @@ fun AppImageData(
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = viewModel.getAllApplicationsData(allApplicationInfo).filter {
+                    items = getAllApplicationsData(allApplicationInfo).filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
                 ) { applicationData ->
-                    viewModel.getItemImage(applicationData.image)?.let { image ->
+                    getItemImage(applicationData.image)?.let { image ->
                         AppItem(
                             title = applicationData.title,
                             image = image

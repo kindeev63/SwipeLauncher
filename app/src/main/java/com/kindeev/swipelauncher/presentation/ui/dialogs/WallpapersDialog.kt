@@ -42,27 +42,20 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpapersDialog.WallpapersDialogVM
-import com.kindeev.swipelauncher.domain.viewModels.dialogs.wallpapersDialog.WallpapersDialogVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.wallpaperScreen.WallpaperScreenVM
 import java.io.File
 
 @Composable
 fun WallpapersDialog(
-    dir: File,
+    viewModel: WallpaperScreenVM,
     onDismissRequest: () -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel: WallpapersDialogVM = viewModel(
-        factory = WallpapersDialogVMFactory(context, dir)
-    )
     val screenConfiguration = LocalConfiguration.current
     val wallpapers by viewModel.wallpapers.observeAsState(emptyList())
     val selectedWallpaperIds by viewModel.selectedWallpapersId.observeAsState(emptyList())

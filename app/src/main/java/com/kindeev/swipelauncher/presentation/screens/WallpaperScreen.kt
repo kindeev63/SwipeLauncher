@@ -65,8 +65,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.utils.getTimeText
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.spacer
-import com.kindeev.swipelauncher.domain.utils.wallpapersHomeScreenDir
-import com.kindeev.swipelauncher.domain.utils.wallpapersLockScreenDir
 import com.kindeev.swipelauncher.domain.viewModels.screens.wallpaperScreen.WallpaperScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.wallpaperScreen.WallpaperScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.WallpaperChangeTimeDialog
@@ -99,14 +97,14 @@ fun WallpaperScreen(
         scope.launch { controller.isAppearanceLightStatusBars = true }
         onBackPressed()
     }
-    var wallpapersDirForDialog by remember {
-        mutableStateOf<File?>(null)
+    var showWallpaperDialog by rememberSaveable {
+        mutableStateOf(false)
     }
     val settings by LauncherData.settings.observeAsState(emptyList())
-    wallpapersDirForDialog?.let { dir ->
+    if (showWallpaperDialog) {
         WallpapersDialog(
-            dir = dir,
-            onDismissRequest = { wallpapersDirForDialog = null }
+            viewModel = viewModel,
+            onDismissRequest = { showWallpaperDialog = false }
         )
     }
     if (showWallpaperInfoDialog) {
@@ -269,8 +267,8 @@ fun WallpaperScreen(
                                         .clip(RoundedCornerShape(20.dp))
                                         .background(MaterialTheme.colorScheme.primary)
                                         .clickable {
-                                            wallpapersDirForDialog =
-                                                context.wallpapersHomeScreenDir()
+                                            viewModel.setWallpapersHomeScreenDir()
+                                            showWallpaperDialog = true
                                         }
                                         .padding(horizontal = 25.dp, vertical = 10.dp),
                                     text = stringResource(id = R.string.wallpapers_conut) + " ${viewModel.getHomeScreenWallpapersCount()}",
@@ -418,8 +416,8 @@ fun WallpaperScreen(
                                         .clip(RoundedCornerShape(20.dp))
                                         .background(MaterialTheme.colorScheme.primary)
                                         .clickable {
-                                            wallpapersDirForDialog =
-                                                context.wallpapersLockScreenDir()
+                                            viewModel.setWallpapersLockScreenDir()
+                                            showWallpaperDialog = true
                                         }
                                         .padding(horizontal = 25.dp, vertical = 10.dp),
                                     text = stringResource(id = R.string.wallpapers_conut) + " ${viewModel.getLockScreenWallpapersCount()}",
