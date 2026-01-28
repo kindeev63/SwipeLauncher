@@ -24,8 +24,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.LockScreenWallpaperChange
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 
@@ -184,8 +182,6 @@ class DataBaseTypeConverter {
             SettingNames.ClickOnClock -> ClickOnClock::class.java
             SettingNames.BlackTextColorOnWallpaper -> BlackTextColorOnWallpaper::class.java
             SettingNames.PickAppActionWithImage -> PickAppActionWithImage::class.java
-            SettingNames.HomeScreenWallpaperChange -> HomeScreenWallpaperChange::class.java
-            SettingNames.LockScreenWallpaperChange -> LockScreenWallpaperChange::class.java
         }
     }
 
@@ -195,8 +191,6 @@ class DataBaseTypeConverter {
             is ClickOnClock -> SettingNames.ClickOnClock
             is OpenLastApp -> SettingNames.OpenLastApp
             is PickAppActionWithImage -> SettingNames.PickAppActionWithImage
-            is HomeScreenWallpaperChange -> SettingNames.HomeScreenWallpaperChange
-            is LockScreenWallpaperChange -> SettingNames.LockScreenWallpaperChange
             else -> throw IllegalArgumentException("Illegal setting")
         }
     }

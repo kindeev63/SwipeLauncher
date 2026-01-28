@@ -17,8 +17,5 @@ sealed class ScreensSettings {
     object TutorialScreenObject: ScreensSettings()
 
     @Serializable
-    object WallpaperScreenObject: ScreensSettings()
-
-    @Serializable
     data class EditCircleMenuScreenObject(val circleMenuId: Int? = null): ScreensSettings()
 }

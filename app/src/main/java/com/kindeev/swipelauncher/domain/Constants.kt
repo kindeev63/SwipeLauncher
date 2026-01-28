@@ -9,20 +9,11 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.HomeScreenWallpaperChange
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.LockScreenWallpaperChange
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.wallpaperChange.WallpaperChangeType
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 
 object Constants {
-    const val WALLPAPER_CHANGE_SCREEN_INTENT_KEY = "screen"
-    const val WALLPAPER_CHANGE_HOME_SCREEN_VALUE = 1
-    const val WALLPAPER_CHANGE_LOCK_SCREEN_VALUE = 2
-    const val WALLPAPER_CHANGE_INTENT_ACTION = "com.kindeev.swipelauncher.ACTION_CHANGE_WALLPAPER"
-    const val WALLPAPER_HOME_SCREEN_DIR = "Wallpapers/HomeScreen"
-    const val WALLPAPER_LOCK_SCREEN_DIR = "Wallpapers/LockScreen"
     const val USER_IMAGES_DIR = "UserImages"
     var actionCategories = listOf<ActionCategory>()
     var imageTypes = listOf<ImageType>()
@@ -35,24 +26,6 @@ object Constants {
         SettingData(SettingNames.ClickOnClock, ClickOnClock(false)),
         SettingData(SettingNames.BlackTextColorOnWallpaper, BlackTextColorOnWallpaper(false)),
         SettingData(SettingNames.PickAppActionWithImage, PickAppActionWithImage(true)),
-        SettingData(
-            SettingNames.HomeScreenWallpaperChange, HomeScreenWallpaperChange(
-                enabled = false,
-                changeType = WallpaperChangeType.Unlock
-            )
-        ),
-        SettingData(
-            SettingNames.LockScreenWallpaperChange, LockScreenWallpaperChange(
-                enabled = false,
-                changeType = WallpaperChangeType.Unlock
-            )
-        )
-    )
-    val wallpaperChangeTypeText = mapOf(
-        Pair(WallpaperChangeType.ScreenOn, R.string.wallpaper_change_type_screen_on),
-        Pair(WallpaperChangeType.ScreenOff, R.string.wallpaper_change_type_screen_off),
-        Pair(WallpaperChangeType.Unlock, R.string.wallpaper_change_type_unlock),
-        Pair(WallpaperChangeType.Time, R.string.wallpaper_change_type_time),
     )
 
     val defaultImages = mapOf(

@@ -50,8 +50,7 @@ import kotlinx.coroutines.launch
 fun MainSettingsScreen(
     navigateToAllCircleMenus: () -> Unit,
     navigateToHiddenApps: () -> Unit,
-    navigateToTutorial: () -> Unit,
-    navigateToWallpaper: () -> Unit,
+    navigateToTutorial: () -> Unit
 ) {
     val settings by LauncherData.settings.observeAsState(emptyList())
     val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
@@ -231,16 +230,6 @@ fun MainSettingsScreen(
                             )
                         }
                     }
-                )
-            }
-
-            spacer()
-
-            // Wallpaper
-            item {
-                ClickableSettingItem(
-                    text = stringResource(id = R.string.setting_wallpaper),
-                    onClick = { navigateToWallpaper() }
                 )
             }
 

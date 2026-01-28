@@ -12,21 +12,6 @@ fun Context.userImagesDir(): File {
     return file
 }
 
-fun Context.wallpapersHomeScreenDir(): File {
-    val file = File(filesDir, Constants.WALLPAPER_HOME_SCREEN_DIR)
-    if (!file.exists()) {
-        file.mkdirs()
-    }
-    return file
-}
-
-fun Context.wallpapersLockScreenDir(): File {
-    val file = File(filesDir, Constants.WALLPAPER_LOCK_SCREEN_DIR)
-    if (!file.exists()) {
-        file.mkdirs()
-    }
-    return file
-}
 
 fun Context.checkDirs() {
     filesDir.listFiles()?.forEach { file ->

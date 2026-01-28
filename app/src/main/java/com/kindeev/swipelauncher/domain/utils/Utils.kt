@@ -34,7 +34,6 @@ import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.Acti
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
-import com.kindeev.swipelauncher.presentation.receivers.WallpaperChangeReceiver
 
 fun Context.isMyLauncherDefault(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -72,13 +71,11 @@ fun Context.registerAppsReceiver(appsReceiver: AppsReceiver) {
     this.registerReceiver(appsReceiver, filter)
 }
 
-fun Context.unregisterReceivers(
+fun Context.unregisterAppsReceiver(
     appsReceiver: AppsReceiver,
-    wallpaperChangeReceiver: WallpaperChangeReceiver
 ) {
     try {
         this.unregisterReceiver(appsReceiver)
-        this.unregisterReceiver(wallpaperChangeReceiver)
     } catch (_: Exception) {
     }
 }
@@ -240,11 +237,4 @@ suspend fun List<SettingData>.checkSettings() {
 
 fun LazyListScope.spacer() {
     item { Spacer(modifier = Modifier.height(5.dp)) }
-}
-
-fun Context.getTimeText(minutes: Int): String {
-    if (minutes >= 60) {
-        return "${minutes / 60} ${resources.getString(R.string.hours)} ${minutes % 60} ${resources.getString(R.string.minutes)}"
-    }
-    return "$minutes ${resources.getString(R.string.minutes)}"
 }

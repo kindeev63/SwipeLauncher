@@ -21,9 +21,6 @@ fun SettingsScreen() {
                 },
                 navigateToTutorial = {
                     navigationState.navigateTo(ScreensSettings.TutorialScreenObject)
-                },
-                navigateToWallpaper = {
-                    navigationState.navigateTo(ScreensSettings.WallpaperScreenObject)
                 }
             )
         },
@@ -55,13 +52,6 @@ fun SettingsScreen() {
         tutorialScreen = {
             OnboardingScreen(
                 onFinish = { navigationState.navHostController.popBackStack() }
-            )
-        },
-        wallpaperScreen = {
-            WallpaperScreen(
-                onBackPressed = {
-                    navigationState.navHostController.popBackStack()
-                }
             )
         }
     )

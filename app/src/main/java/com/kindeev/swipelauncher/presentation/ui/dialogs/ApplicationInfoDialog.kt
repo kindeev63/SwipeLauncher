@@ -47,6 +47,7 @@ fun ApplicationInfoDialog(
     packageName: String,
     onDismissRequest: () -> Unit,
 ) {
+
     val firstApplicationData = rememberSaveable { viewModel.getApplicationData(packageName) }
     var appData by rememberSaveable { mutableStateOf(firstApplicationData) }
     var imageDialogVisibility by rememberSaveable { mutableStateOf(false) }

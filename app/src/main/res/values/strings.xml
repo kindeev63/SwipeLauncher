@@ -113,20 +113,6 @@
     <string name="successfully">Successfully</string>
     <string name="write_storage_denied">Permission to write files has denied</string>
     <string name="backup_successfuly">Successfully saved in downloads (backup.zip)</string>
-    <string name="setting_wallpaper">Wallpaper changer</string>
-    <string name="setting_wallpaper_home_screen">Home screen</string>
-    <string name="setting_wallpaper_lock_screen">Lock screen</string>
-    <string name="wallpaper_change_type">Change type:</string>
-    <string name="wallpaper_change_type_screen_on">When screen on</string>
-    <string name="wallpaper_change_type_unlock">When phone unlocked</string>
-    <string name="wallpapers_conut">Wallpapers:</string>
-    <string name="delete_wallpapers_question">Delete wallpapers?</string>
-    <string name="wallpaper_changer_info">To work correctly, check whether all restrictions on the operation of the application have been removed (usually located in the \"Battery Use\" section, give it permission to start automatically).</string>
-    <string name="wallpaper_change_type_screen_off">When screen off</string>
-    <string name="wallpaper_change_type_time">By time</string>
-    <string name="every">Every:</string>
-    <string name="hours">h.</string>
-    <string name="minutes">minutes</string>
     <string name="title">Title</string>
     <string name="show_app_question">Do you want to show the app?</string>
 

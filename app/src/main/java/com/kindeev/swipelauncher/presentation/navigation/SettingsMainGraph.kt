@@ -13,7 +13,6 @@ fun SettingsMainGraph(
     allCircleMenusScreen: @Composable () -> Unit,
     hiddenAppsScreen: @Composable () -> Unit,
     tutorialScreen: @Composable () -> Unit,
-    wallpaperScreen: @Composable () -> Unit,
     editCircleMenuScreen: @Composable (Int?) -> Unit
 ) {
     NavHost(
@@ -35,9 +34,6 @@ fun SettingsMainGraph(
         }
         composable<ScreensSettings.TutorialScreenObject> {
             tutorialScreen()
-        }
-        composable<ScreensSettings.WallpaperScreenObject> {
-            wallpaperScreen()
         }
     }
 }

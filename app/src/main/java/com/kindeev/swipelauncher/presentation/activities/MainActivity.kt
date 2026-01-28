@@ -1,15 +1,12 @@
 package com.kindeev.swipelauncher.presentation.activities
 
 import android.R.id.content
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,13 +38,12 @@ import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.utils.registerAppsReceiver
 import com.kindeev.swipelauncher.domain.utils.setActionAndImageTypes
-import com.kindeev.swipelauncher.domain.utils.unregisterReceivers
+import com.kindeev.swipelauncher.domain.utils.unregisterAppsReceiver
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
 import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
-import com.kindeev.swipelauncher.presentation.receivers.WallpaperChangeReceiver
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +53,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val appsReceiver = AppsReceiver()
-    private val wallpaperChangeReceiver = WallpaperChangeReceiver()
 
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
     private val userImagesUseCase = UserImagesUseCase(this)
@@ -121,18 +116,6 @@ class MainActivity : ComponentActivity() {
                             ScreensOnBoarding.OnBoardingScreenObject
                         }
                     } else ScreensOnBoarding.MainScreenObject
-                }
-                DisposableEffect(context) {
-                    val filter = IntentFilter().apply {
-                        addAction(Intent.ACTION_SCREEN_ON)
-                        addAction(Intent.ACTION_SCREEN_OFF)
-                        addAction(Intent.ACTION_USER_PRESENT)
-                    }
-                    context.registerReceiver(wallpaperChangeReceiver, filter)
-
-                    onDispose {
-                        context.unregisterReceiver(wallpaperChangeReceiver)
-                    }
                 }
             }
         }
@@ -218,7 +201,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceivers(appsReceiver, wallpaperChangeReceiver)
+        unregisterAppsReceiver(appsReceiver)
     }
 
     override fun onResume() {

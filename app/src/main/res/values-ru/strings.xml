@@ -86,20 +86,6 @@
     <string name="successfully">Успешно</string>
     <string name="write_storage_denied">Отказано в разрешении на запись файлов</string>
     <string name="backup_successfuly">Успешно сохранено в загрузках (backup.zip)</string>
-    <string name="setting_wallpaper">Автосмена обоев</string>
-    <string name="setting_wallpaper_home_screen">Главный экран</string>
-    <string name="setting_wallpaper_lock_screen">Экран блокировки</string>
-    <string name="wallpaper_change_type">Тип смены:</string>
-    <string name="wallpaper_change_type_screen_on">При включении экрана</string>
-    <string name="wallpaper_change_type_unlock">При разбокировке</string>
-    <string name="wallpapers_conut">Обоев:</string>
-    <string name="delete_wallpapers_question">Удалить обои?</string>
-    <string name="wallpaper_changer_info">Для корректной работы проверьте, убраны ли все ограничения на работу приложение (обычно находится в разделе \"Использование батареи\", выдайте в нём разрешение на автоматический запуск).</string>
-    <string name="wallpaper_change_type_screen_off">При выключении экрана</string>
-    <string name="wallpaper_change_type_time">По времени</string>
-    <string name="every">Каждые:</string>
-    <string name="hours">ч.</string>
-    <string name="minutes">минут</string>
     <string name="title">Заголовок</string>
     <string name="show_app_question">Вы хотите показать приложение?</string>
 
