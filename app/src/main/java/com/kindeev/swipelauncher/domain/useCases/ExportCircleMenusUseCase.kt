@@ -9,7 +9,8 @@ import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.SettingsTypeConverter
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileInputStream
@@ -37,7 +38,7 @@ class ExportCircleMenusUseCase(private val context: Context) {
     }
 
     private fun saveCircleMenusToJsonFile(circleMenus: List<CircleMenu>): File {
-        val typeConverter = DataBaseTypeConverter()
+        val typeConverter = CircleMenuTypeConverter()
         val gson = Gson()
         val content = gson.toJson(circleMenus.map {
             gson.toJson(

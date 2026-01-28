@@ -10,7 +10,8 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.SettingsTypeConverter
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileOutputStream
@@ -95,10 +96,11 @@ class ImportCircleMenusUseCase(
     }
 
     private fun String.toCircleMenuItem(): CircleMenuItemWithIndex {
+        val typeConverter = CircleMenuTypeConverter()
         val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
         val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
-        val image = DataBaseTypeConverter().toCircleMenuImage(circleMenuItemToSave.image)
-        val action = DataBaseTypeConverter().toCircleMenuAction(circleMenuItemToSave.action)
+        val image = typeConverter.toCircleMenuImage(circleMenuItemToSave.image)
+        val action = typeConverter.toCircleMenuAction(circleMenuItemToSave.action)
         return CircleMenuItemWithIndex(
             index = menuCords.indexOf(offset),
             item = CircleMenuItem(

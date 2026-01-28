@@ -30,7 +30,8 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.dataBase.typeConverter.DataBaseTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
+import com.kindeev.swipelauncher.domain.dataBase.typeConverter.SettingsTypeConverter
 
 object Migrations {
     private val gson = Gson()
@@ -81,7 +82,7 @@ object Migrations {
                         arrayOf(
                             applicationData.packageName,
                             applicationData.title,
-                            DataBaseTypeConverter().fromCircleMenuImage(applicationData.image),
+                            CircleMenuTypeConverter().fromCircleMenuImage(applicationData.image),
                             applicationData.hidden
                         )
                     )
@@ -120,7 +121,7 @@ object Migrations {
                         "INSERT INTO table_settings (name, value) VALUES (?, ?)",
                         arrayOf(
                             settingData.name,
-                            DataBaseTypeConverter().fromSettingValue(settingData.value)
+                            SettingsTypeConverter().fromSettingValue(settingData.value)
                         )
                     )
                 }
@@ -178,7 +179,7 @@ object Migrations {
                         arrayOf(
                             circleMenu.id,
                             circleMenu.title,
-                            DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)
+                            CircleMenuTypeConverter().fromCircleMenuItems(circleMenu.items)
                         )
                     )
                 }
@@ -313,7 +314,7 @@ object Migrations {
                         arrayOf(
                             circleMenu.id,
                             circleMenu.title,
-                            DataBaseTypeConverter().fromCircleMenuItems(circleMenu.items)
+                            CircleMenuTypeConverter().fromCircleMenuItems(circleMenu.items)
                         )
                     )
                 }
@@ -328,8 +329,8 @@ object Migrations {
         private fun String.toCircleMenuItem(): CircleMenuItemWithIndex {
             val circleMenuItemToSave = gson.fromJson(this, CircleMenuItemToSave::class.java)
             val offset = gson.fromJson(circleMenuItemToSave.offset, Offset::class.java)
-            val image = DataBaseTypeConverter().toCircleMenuImage(circleMenuItemToSave.image)
-            val action = DataBaseTypeConverter().toCircleMenuAction(circleMenuItemToSave.action)
+            val image = CircleMenuTypeConverter().toCircleMenuImage(circleMenuItemToSave.image)
+            val action = CircleMenuTypeConverter().toCircleMenuAction(circleMenuItemToSave.action)
             return CircleMenuItemWithIndex(
                 index = menuCords.indexOf(offset),
                 item = CircleMenuItem(
