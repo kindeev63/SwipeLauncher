@@ -1,33 +1,32 @@
-package com.kindeev.swipelauncher.domain.useCases.database
+package com.kindeev.swipelauncher.data.dataBases.application_data
 
-import com.kindeev.swipelauncher.data.dataBases.application_data.SApplicationData
+import com.kindeev.swipelauncher.domain.database.ApplicationDataRepository
 import com.kindeev.swipelauncher.domain.entities.application_data.ApplicationData
-import com.kindeev.swipelauncher.data.dataBases.application_data.ApplicationDataDao
 import kotlinx.coroutines.flow.map
 
-class ApplicationDataDatabaseUseCase(
+class ApplicationDataDatabaseManager(
     private val dao: ApplicationDataDao
-)  {
+): ApplicationDataRepository  {
 
-    fun getAllFlow() = dao.getAllFlow().map { data ->
+    override fun getAllFlow() = dao.getAllFlow().map { data ->
         data.map { it.toApplicationData() }
     }
 
-    suspend fun getAll() = dao.getAll().map { it.toApplicationData() }
+    override suspend fun getAll() = dao.getAll().map { it.toApplicationData() }
 
-    suspend fun insert(applicationsData: List<ApplicationData>) {
+    override suspend fun insert(applicationsData: List<ApplicationData>) {
         dao.insert(applicationsData.map { it.toSApplicationData() })
     }
 
-    suspend fun insert(applicationData: ApplicationData) {
+    override suspend fun insert(applicationData: ApplicationData) {
         dao.insert(applicationData.toSApplicationData())
     }
 
-    suspend fun delete(packageName: String) {
+    override suspend fun delete(packageName: String) {
         dao.delete(packageName)
     }
 
-    suspend fun delete(packageNames: List<String>) {
+    override suspend fun delete(packageNames: List<String>) {
         dao.delete(packageNames)
     }
     private fun SApplicationData.toApplicationData(): ApplicationData {

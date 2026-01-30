@@ -13,7 +13,7 @@ interface ApplicationDataDao {
     fun getAllFlow(): Flow<List<SApplicationData>>
 
     @Query("SELECT * FROM table_application_data")
-    fun getAll(): List<SApplicationData>
+    suspend fun getAll(): List<SApplicationData>
 
     @Insert(SApplicationData::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(applicationsData: List<SApplicationData>)
