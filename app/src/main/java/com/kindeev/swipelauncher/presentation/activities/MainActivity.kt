@@ -24,11 +24,11 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.utils.checkSettings
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.data.dataBases.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.circle_menu.CircleMenu
+import com.kindeev.swipelauncher.data.dataBases.entities.settings.SettingData
+import com.kindeev.swipelauncher.data.dataBases.entities.settings.SettingNames
+import com.kindeev.swipelauncher.data.dataBases.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase

@@ -4,11 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.kindeev.swipelauncher.domain.dataBase.AppDao
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.circle_menu.CircleMenu
+
 object LauncherData {
 
     private lateinit var appDao: AppDao

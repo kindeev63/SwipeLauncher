@@ -1,17 +1,14 @@
 package com.kindeev.swipelauncher.domain
 
+import android.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.entities.circle_menu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
+import com.kindeev.swipelauncher.domain.entities.settings.LauncherSettings
+import com.kindeev.swipelauncher.domain.entities.settings.OpenAppWhenClickOnClock
 
 object Constants {
     const val USER_IMAGES_DIR = "UserImages"
@@ -21,12 +18,6 @@ object Constants {
     var telephoneActionCategoryItems = listOf<ActionCategoryItem>()
     var minScreenLength = 0f
     var settingsTextSize = 0.sp
-    val defaultSettings = listOf(
-        SettingData(SettingNames.OpenLastApp, OpenLastApp(true)),
-        SettingData(SettingNames.ClickOnClock, ClickOnClock(false)),
-        SettingData(SettingNames.BlackTextColorOnWallpaper, BlackTextColorOnWallpaper(false)),
-        SettingData(SettingNames.PickAppActionWithImage, PickAppActionWithImage(true)),
-    )
 
     val defaultImages = mapOf(
         Pair(DefaultImages.Settings, R.drawable.ic_settings),
@@ -55,4 +46,14 @@ object Constants {
         Pair(DefaultImages.FlashLightOff, R.drawable.ic_flashlight_off),
         Pair(DefaultImages.Error, R.drawable.ic_error),
     )
+
+    val defaultSettings = LauncherSettings(
+            openLastApp = true,
+            textColorOnWallpaper = Color.WHITE,
+            pickAppActionWithImage = true,
+            openAppWhenClickOnClock = OpenAppWhenClickOnClock(
+                false,
+                ""
+            )
+        )
 }

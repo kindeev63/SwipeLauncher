@@ -71,6 +71,9 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Preference DataStore
+    implementation ("androidx.datastore:datastore-preferences:1.1.6")
+
     implementation(libs.gson)
 
     implementation(libs.androidx.core.ktx)
