@@ -8,8 +8,6 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circle_menu.CircleMenu
 
 object LauncherData {
-
-    private lateinit var appDao: AppDao
     lateinit var allCircleMenus: LiveData<List<CircleMenu>>
     lateinit var allApplicationData: LiveData<List<ApplicationData>>
     lateinit var settings: LiveData<List<SettingData>>
@@ -23,55 +21,9 @@ object LauncherData {
     private val _textColorOnWallpaper = MutableLiveData(Color.White)
     val textColorOnWallpaper: LiveData<Color> = _textColorOnWallpaper
 
-    fun setAppDao(appDao: AppDao) {
-        this.appDao = appDao
-    }
 
-    fun setTextColorOnWallpaper(color: Color) {
-        _textColorOnWallpaper.postValue(color)
-    }
 
     fun setAllApplications(applications: List<ApplicationInfo>) {
         _allApplicationInfo.postValue(applications)
-    }
-
-    suspend fun insertCircleMenu(circleMenu: CircleMenu) {
-        appDao.insertCircleMenu(circleMenu)
-    }
-
-    suspend fun insertCircleMenus(circleMenus: List<CircleMenu>) {
-        appDao.insertCircleMenus(circleMenus)
-    }
-
-    suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) {
-        appDao.deleteCircleMenus(circleMenus)
-    }
-
-    suspend fun insertSetting(settingData: SettingData) {
-        appDao.insertSetting(settingData)
-    }
-
-    suspend fun insertSettings(settingsData: List<SettingData>) {
-        appDao.insertSettings(settingsData)
-    }
-
-    suspend fun insertApplicationData(applicationData: ApplicationData) {
-        appDao.insertApplicationData(applicationData)
-    }
-
-    suspend fun insertApplicationsData(applicationsData: List<ApplicationData>) {
-        appDao.insertApplicationsData(applicationsData)
-    }
-
-    suspend fun deleteApplicationData(applicationData: ApplicationData) {
-        appDao.deleteApplicationData(applicationData)
-    }
-
-    suspend fun deleteApplicationDataByPackageName(packageName: String) {
-        appDao.deleteApplicationDataByPackageName(packageName)
-    }
-
-    suspend fun deleteApplicationsData(applicationsData: List<ApplicationData>) {
-        appDao.deleteApplicationsData(applicationsData)
     }
 }
