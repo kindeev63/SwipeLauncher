@@ -141,7 +141,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             )
                         )
                         index?.let {
-                            currentMenu.value?.circleMenu?.items[index]?.let { item ->
+                            currentMenu.value?.circleMenu?.items?.getOrNull(index)?.let { item ->
                                 executeAction(item.action, offset)
                             }
                         }

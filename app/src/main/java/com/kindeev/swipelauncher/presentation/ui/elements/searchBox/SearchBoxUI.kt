@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -37,7 +38,7 @@ fun SearchBoxUI(
     val context = LocalContext.current
     val searchText by viewModel.searchText.observeAsState("")
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
-    val allApplicationData by LauncherData.allApplicationData.observeAsState()
+    val allApplicationData by LauncherData.allApplicationData.collectAsState()
     val settings by LauncherData.settings.observeAsState(emptyList())
     val searchResults = viewModel.getSearchResults(allApplicationInfo)
     var applicationInfoDialog by rememberSaveable {

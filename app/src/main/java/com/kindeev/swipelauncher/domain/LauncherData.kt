@@ -15,7 +15,7 @@ object LauncherData {
 
     private lateinit var appDao: AppDao
     lateinit var allCircleMenus: StateFlow<List<CircleMenu>>
-    lateinit var allApplicationData: LiveData<List<ApplicationData>>
+    lateinit var allApplicationData: StateFlow<List<ApplicationData>>
     lateinit var settings: LiveData<List<SettingData>>
 
     private val _allApplicationInfo = MutableLiveData<List<ApplicationInfo>>(emptyList())

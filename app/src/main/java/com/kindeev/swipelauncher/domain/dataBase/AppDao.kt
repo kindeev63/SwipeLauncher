@@ -36,7 +36,7 @@ interface AppDao {
     suspend fun insertSettings(settingsData: List<SettingData>)
 
     @Query("SELECT * FROM table_application_data")
-    fun getAllApplicationData(): LiveData<List<ApplicationData>>
+    fun getAllApplicationData(): Flow<List<ApplicationData>>
 
     @Insert(ApplicationData::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertApplicationsData(applicationsData: List<ApplicationData>)

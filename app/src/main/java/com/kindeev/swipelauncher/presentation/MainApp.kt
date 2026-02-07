@@ -17,7 +17,7 @@ class MainApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
+//        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
         val appDao = AppDataBase.getDataBase(this).getDao()
         LauncherData.setAppDao(appDao)
         LauncherData.settings = appDao.getAllSettings()
@@ -26,7 +26,11 @@ class MainApp: Application() {
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
-        LauncherData.allApplicationData = appDao.getAllApplicationData()
+        LauncherData.allApplicationData = appDao.getAllApplicationData().stateIn(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
         setConstants()
     }
 

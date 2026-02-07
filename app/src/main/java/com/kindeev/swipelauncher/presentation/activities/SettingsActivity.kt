@@ -43,7 +43,7 @@ class SettingsActivity : ComponentActivity() {
                 LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
                 userImagesUseCase.removeUnusedUserImages(
                     allCircleMenus,
-                    LauncherData.allApplicationData.value ?: emptyList()
+                    LauncherData.allApplicationData.value
                 )
                 LauncherData.userImages = userImagesUseCase.getUserImages()
                 val changedCircleMenus =
