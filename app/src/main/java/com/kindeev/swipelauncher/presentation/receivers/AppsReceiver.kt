@@ -34,11 +34,9 @@ class AppsReceiver : BroadcastReceiver() {
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
                     LauncherData.setAllApplications(newApplicationsInfo)
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        LauncherData.insertCircleMenus(
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        )
-                    }
+                    LauncherData.insertCircleMenus(
+                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                    )
                     LauncherData.settings.value?.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)?.action?.let { circleMenuAction ->
                         when (circleMenuAction) {
                             is OpenAppAction -> {

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +29,7 @@ import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -38,13 +40,16 @@ fun LauncherScreen() {
     )
     val screenState by viewModel.screenState.observeAsState(LauncherScreenState.SwipeBox)
     BackHandler {}
-    LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) { allMenus ->
-        (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
-            ?: allMenus.find { it.id == 0 })?.let {
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        LauncherData.allCircleMenus.collect { allMenus ->
+            (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
+                ?: allMenus.find { it.id == 0 })?.let {
                 viewModel.setCircleMenu(it)
             }
-        viewModel.setOffsets(allMenus)
-        viewModel.setSizes(allMenus)
+            viewModel.setOffsets(allMenus)
+            viewModel.setSizes(allMenus)
+        }
     }
 
     // UI
@@ -79,7 +84,6 @@ fun LauncherScreen() {
         }
     }
 }
-
 
 
 @Composable

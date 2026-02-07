@@ -9,12 +9,13 @@ import androidx.room.Query
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
 
     @Query("SELECT * FROM table_menu")
-    fun getAllCircleMenu(): LiveData<List<CircleMenu>>
+    fun getAllCircleMenu(): Flow<List<CircleMenu>>
 
     @Insert(CircleMenu::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCircleMenu(circleMenu: CircleMenu)

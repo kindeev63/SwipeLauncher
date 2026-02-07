@@ -12,9 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
@@ -39,31 +37,28 @@ class SettingsActivity : ComponentActivity() {
                 SettingsScreen()
             }
         }
-        LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
-            override fun onChanged(value: List<CircleMenu>) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        userImagesUseCase.removeUnusedUserImages(
-                            allCircleMenus,
-                            LauncherData.allApplicationData.value ?: emptyList()
-                        )
-                        LauncherData.userImages = userImagesUseCase.getUserImages()
-                        val changedCircleMenus =
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    LauncherData.insertCircleMenus(
-                                        changedCircleMenus
-                                    )
-                                }
-                            }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            LauncherData.allCircleMenus.collect { allCircleMenus ->
+                LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
+                userImagesUseCase.removeUnusedUserImages(
+                    allCircleMenus,
+                    LauncherData.allApplicationData.value ?: emptyList()
+                )
+                LauncherData.userImages = userImagesUseCase.getUserImages()
+                val changedCircleMenus =
+                    checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
+                Handler(Looper.getMainLooper()).post {
+                    if (changedCircleMenus.isNotEmpty()) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            LauncherData.insertCircleMenus(
+                                changedCircleMenus
+                            )
                         }
                     }
                 }
             }
-        })
+        }
     }
 
     private fun hideNavigationBar() {

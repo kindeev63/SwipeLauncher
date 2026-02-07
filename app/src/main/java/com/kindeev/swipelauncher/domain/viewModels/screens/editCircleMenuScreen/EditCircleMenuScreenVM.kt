@@ -63,7 +63,7 @@ class EditCircleMenuScreenVM(
 
     init {
         if (circleMenuId == null) {
-            val allIds = LauncherData.allCircleMenus.value?.map { it.id } ?: emptyList()
+            val allIds = LauncherData.allCircleMenus.value.map { it.id }
             var currentId = 0
             while (true) {
                 if (currentId !in allIds) break
@@ -77,7 +77,7 @@ class EditCircleMenuScreenVM(
             _circleMenu.value = circleMenu
             itemSize = getItemSize(0)
         } else {
-            val menu = LauncherData.allCircleMenus.value?.find { it.id == circleMenuId }
+            val menu = LauncherData.allCircleMenus.value.find { it.id == circleMenuId }
             _circleMenu.value = menu
             itemSize = getItemSize(menu?.items?.size ?: 0)
         }

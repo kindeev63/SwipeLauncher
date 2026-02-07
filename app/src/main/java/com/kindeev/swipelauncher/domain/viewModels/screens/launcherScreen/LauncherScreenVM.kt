@@ -62,7 +62,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val openUrlUseCase = OpenUrlUseCase(context)
 
     private val _currentMenu = MutableLiveData(
-        LauncherData.allCircleMenus.value?.find { it.id == 0 }?.let {
+        LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
             CircleMenuWithOffset(it, null)
         }
     )
@@ -74,8 +74,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val size = Constants.minScreenLength / 3f * 2
     private val radius = (size / 2 - size / 5)
     private val radiusSq = radius.pow(2)
-    private var offsets = getOffsets(LauncherData.allCircleMenus.value ?: emptyList(), size)
-    private var sizes = getSizes(LauncherData.allCircleMenus.value ?: emptyList())
+    private var offsets = getOffsets(LauncherData.allCircleMenus.value, size)
+    private var sizes = getSizes(LauncherData.allCircleMenus.value)
 
     private var clickTime = 0L
     private var actionInProgress = false
@@ -151,7 +151,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                LauncherData.allCircleMenus.value?.find { it.id == 0 }?.let {
+                LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
                     _currentMenu.postValue(
                         CircleMenuWithOffset(
                             circleMenu = it,
@@ -173,8 +173,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             is OpenCircleMenuAction -> {
                 offset?.let { newOffset ->
                     var circleMenuForCheck =
-                        LauncherData.allCircleMenus.value?.find { it.id == action.id }
-                            ?: LauncherData.allCircleMenus.value?.find { it.id == 0 }
+                        LauncherData.allCircleMenus.value.find { it.id == action.id }
+                            ?: LauncherData.allCircleMenus.value.find { it.id == 0 }
                     circleMenuForCheck?.let { menu ->
                         circleMenuForCheck =
                             if (checkCircleMenuUseCase.check(
@@ -183,7 +183,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             ) {
                                 menu
                             } else {
-                                LauncherData.allCircleMenus.value?.find { it.id == 0 }
+                                LauncherData.allCircleMenus.value.find { it.id == 0 }
                             }
                     }
                     circleMenuForCheck?.let {

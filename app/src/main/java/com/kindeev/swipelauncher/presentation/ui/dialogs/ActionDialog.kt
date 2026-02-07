@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
@@ -259,9 +258,9 @@ fun OpenCircleMenuActionData(
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = LauncherData.allCircleMenus.value?.filter {
+                    items = LauncherData.allCircleMenus.value.filter {
                         it.title.lowercase().contains(searchText.lowercase())
-                    } ?: emptyList()
+                    }
                 ) { circleMenu ->
                     MiniCircleMenuItem(
                         getItemImage = getItemImage,

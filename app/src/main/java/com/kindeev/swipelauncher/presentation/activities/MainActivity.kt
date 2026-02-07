@@ -25,7 +25,6 @@ import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.utils.checkSettings
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
@@ -57,7 +56,8 @@ class MainActivity : ComponentActivity() {
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
     private val userImagesUseCase = UserImagesUseCase(this)
     private val applicationsUseCase = ApplicationsUseCase(this)
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+    private val checkCircleMenuUseCase =
+        CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,52 +125,46 @@ class MainActivity : ComponentActivity() {
                     LauncherData.setAllApplications(
                         applicationsUseCase.getAllApplicationInfo()
                     )
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        userImagesUseCase.removeUnusedUserImages(
-                            allCircleMenus,
-                            LauncherData.allApplicationData.value ?: emptyList()
-                        )
-                        LauncherData.userImages = userImagesUseCase.getUserImages()
-                        val changedCircleMenus =
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    LauncherData.insertCircleMenus(
-                                        changedCircleMenus
-                                    )
-                                }
+                    userImagesUseCase.removeUnusedUserImages(
+                        LauncherData.allCircleMenus.value,
+                        LauncherData.allApplicationData.value ?: emptyList()
+                    )
+                    LauncherData.userImages = userImagesUseCase.getUserImages()
+                    val changedCircleMenus =
+                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                    Handler(Looper.getMainLooper()).post {
+                        if (changedCircleMenus.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                LauncherData.insertCircleMenus(
+                                    changedCircleMenus
+                                )
                             }
                         }
                     }
                 }
             }
         })
-        LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
-            override fun onChanged(value: List<CircleMenu>) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        userImagesUseCase.removeUnusedUserImages(
-                            allCircleMenus,
-                            LauncherData.allApplicationData.value ?: emptyList()
-                        )
-                        LauncherData.userImages = userImagesUseCase.getUserImages()
-                        val changedCircleMenus =
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    LauncherData.insertCircleMenus(
-                                        changedCircleMenus
-                                    )
-                                }
-                            }
+        CoroutineScope(Dispatchers.IO).launch {
+            LauncherData.allCircleMenus.collect { allCircleMenus ->
+                LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
+                userImagesUseCase.removeUnusedUserImages(
+                    allCircleMenus,
+                    LauncherData.allApplicationData.value ?: emptyList()
+                )
+                LauncherData.userImages = userImagesUseCase.getUserImages()
+                val changedCircleMenus =
+                    checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
+                Handler(Looper.getMainLooper()).post {
+                    if (changedCircleMenus.isNotEmpty()) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            LauncherData.insertCircleMenus(
+                                changedCircleMenus
+                            )
                         }
                     }
                 }
             }
-        })
+        }
         LauncherData.settings.observe(this, object : Observer<List<SettingData>> {
             override fun onChanged(value: List<SettingData>) {
                 LauncherData.setTextColorOnWallpaper(
