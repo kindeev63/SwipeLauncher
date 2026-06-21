@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.dataBase
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -27,7 +26,7 @@ interface AppDao {
     suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>)
 
     @Query("SELECT * FROM table_settings")
-    fun getAllSettings(): LiveData<List<SettingData>>
+    fun getAllSettings(): Flow<List<SettingData>>
 
     @Insert(SettingData::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSetting(settingData: SettingData)

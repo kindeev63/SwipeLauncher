@@ -20,7 +20,11 @@ class MainApp: Application() {
 //        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
         val appDao = AppDataBase.getDataBase(this).getDao()
         LauncherData.setAppDao(appDao)
-        LauncherData.settings = appDao.getAllSettings()
+        LauncherData.settings = appDao.getAllSettings().stateIn(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            started = SharingStarted.Eagerly,
+            initialValue = Constants.defaultSettings
+        )
         LauncherData.allCircleMenus = appDao.getAllCircleMenu().stateIn(
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             started = SharingStarted.Eagerly,

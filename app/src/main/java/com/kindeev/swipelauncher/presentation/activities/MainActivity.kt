@@ -18,14 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.utils.checkSettings
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
@@ -48,6 +45,7 @@ import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class MainActivity : ComponentActivity() {
 
@@ -148,7 +146,7 @@ class MainActivity : ComponentActivity() {
                     LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
                     userImagesUseCase.removeUnusedUserImages(
                         allCircleMenus,
-                        LauncherData.allApplicationData.value ?: emptyList()
+                        LauncherData.allApplicationData.value
                     )
                     LauncherData.userImages = userImagesUseCase.getUserImages()
                     val changedCircleMenus =
@@ -164,21 +162,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-        LauncherData.settings.observe(this, object : Observer<List<SettingData>> {
-            override fun onChanged(value: List<SettingData>) {
-                LauncherData.setTextColorOnWallpaper(
-                    if (value.getValueOf(
-                            SettingNames.BlackTextColorOnWallpaper,
-                            BlackTextColorOnWallpaper::class.java
-                        )?.enabled == true
-                    ) Color.Black else Color.White
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    value.checkSettings()
+            launch {
+                LauncherData.settings.collect { settings ->
+                    LauncherData.setTextColorOnWallpaper(
+                        if (settings.getValueOf(
+                                SettingNames.BlackTextColorOnWallpaper,
+                                BlackTextColorOnWallpaper::class.java
+                            )?.enabled == true
+                        ) Color.Black else Color.White
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        settings.checkSettings()
+                    }
                 }
             }
-        })
+        }
     }
 
     private fun isFirstRun(): Boolean {
@@ -188,9 +186,9 @@ class MainActivity : ComponentActivity() {
 
     private fun onBoardingComplete() {
         val prefs = getSharedPreferences("data", MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putString("first_run", "false")
-        editor.apply()
+        prefs.edit {
+            putString("first_run", "false")
+        }
     }
 
     override fun onDestroy() {

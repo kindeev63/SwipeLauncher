@@ -455,7 +455,7 @@ class EditCircleMenuScreenVM(
     fun updateImage(item: CircleMenuItem, index: Int) = viewModelScope.launch {
         circleMenu.value?.let { circleMenu ->
             var action = item.action
-            if (item.image is AppImage && LauncherData.settings.value?.getValueOf(
+            if (item.image is AppImage && LauncherData.settings.value.getValueOf(
                     SettingNames.PickAppActionWithImage,
                     PickAppActionWithImage::class.java
                 )?.enabled == true

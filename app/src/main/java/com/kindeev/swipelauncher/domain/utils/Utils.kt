@@ -197,7 +197,7 @@ fun <T> List<SettingData>.getValueOf(name: SettingNames, classOfT: Class<T>): T?
 }
 
 fun getLauncherStatusBarStyle(): SystemBarStyle {
-    return if (LauncherData.settings.value?.getValueOf(
+    return if (LauncherData.settings.value.getValueOf(
             SettingNames.BlackTextColorOnWallpaper,
             BlackTextColorOnWallpaper::class.java
         )?.enabled == true

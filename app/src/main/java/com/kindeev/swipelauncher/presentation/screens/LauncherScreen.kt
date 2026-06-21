@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +34,7 @@ import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LauncherScreen() {
     val context = LocalContext.current
@@ -88,7 +91,7 @@ fun LauncherScreen() {
 
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val settings by LauncherData.settings.observeAsState(emptyList())
+    val settings by LauncherData.settings.collectAsState()
     val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
     SwipeBoxUI(viewModel = viewModel)
     Column(
