@@ -18,15 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Observer
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.utils.checkSettings
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
@@ -49,6 +45,7 @@ import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class MainActivity : ComponentActivity() {
 
@@ -57,7 +54,8 @@ class MainActivity : ComponentActivity() {
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
     private val userImagesUseCase = UserImagesUseCase(this)
     private val applicationsUseCase = ApplicationsUseCase(this)
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+    private val checkCircleMenuUseCase =
+        CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,72 +117,66 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        LauncherData.allApplicationData.observe(this, object : Observer<List<ApplicationData>> {
-            override fun onChanged(value: List<ApplicationData>) {
-                CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
+            launch {
+                LauncherData.allApplicationData.collect { allApplicationData ->
                     LauncherData.setAllApplications(
                         applicationsUseCase.getAllApplicationInfo()
                     )
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        userImagesUseCase.removeUnusedUserImages(
-                            allCircleMenus,
-                            LauncherData.allApplicationData.value ?: emptyList()
-                        )
-                        LauncherData.userImages = userImagesUseCase.getUserImages()
-                        val changedCircleMenus =
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    LauncherData.insertCircleMenus(
-                                        changedCircleMenus
-                                    )
-                                }
+                    userImagesUseCase.removeUnusedUserImages(
+                        LauncherData.allCircleMenus.value,
+                        allApplicationData
+                    )
+                    LauncherData.userImages = userImagesUseCase.getUserImages()
+                    val changedCircleMenus =
+                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                    Handler(Looper.getMainLooper()).post {
+                        if (changedCircleMenus.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                LauncherData.insertCircleMenus(
+                                    changedCircleMenus
+                                )
                             }
                         }
                     }
                 }
             }
-        })
-        LauncherData.allCircleMenus.observe(this, object : Observer<List<CircleMenu>> {
-            override fun onChanged(value: List<CircleMenu>) {
-                CoroutineScope(Dispatchers.IO).launch {
+            launch {
+                LauncherData.allCircleMenus.collect { allCircleMenus ->
                     LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        userImagesUseCase.removeUnusedUserImages(
-                            allCircleMenus,
-                            LauncherData.allApplicationData.value ?: emptyList()
-                        )
-                        LauncherData.userImages = userImagesUseCase.getUserImages()
-                        val changedCircleMenus =
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        Handler(Looper.getMainLooper()).post {
-                            if (changedCircleMenus.isNotEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    LauncherData.insertCircleMenus(
-                                        changedCircleMenus
-                                    )
-                                }
+                    userImagesUseCase.removeUnusedUserImages(
+                        allCircleMenus,
+                        LauncherData.allApplicationData.value
+                    )
+                    LauncherData.userImages = userImagesUseCase.getUserImages()
+                    val changedCircleMenus =
+                        checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
+                    Handler(Looper.getMainLooper()).post {
+                        if (changedCircleMenus.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                LauncherData.insertCircleMenus(
+                                    changedCircleMenus
+                                )
                             }
                         }
                     }
                 }
             }
-        })
-        LauncherData.settings.observe(this, object : Observer<List<SettingData>> {
-            override fun onChanged(value: List<SettingData>) {
-                LauncherData.setTextColorOnWallpaper(
-                    if (value.getValueOf(
-                            SettingNames.BlackTextColorOnWallpaper,
-                            BlackTextColorOnWallpaper::class.java
-                        )?.enabled == true
-                    ) Color.Black else Color.White
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    value.checkSettings()
+            launch {
+                LauncherData.settings.collect { settings ->
+                    LauncherData.setTextColorOnWallpaper(
+                        if (settings.getValueOf(
+                                SettingNames.BlackTextColorOnWallpaper,
+                                BlackTextColorOnWallpaper::class.java
+                            )?.enabled == true
+                        ) Color.Black else Color.White
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        settings.checkSettings()
+                    }
                 }
             }
-        })
+        }
     }
 
     private fun isFirstRun(): Boolean {
@@ -194,9 +186,9 @@ class MainActivity : ComponentActivity() {
 
     private fun onBoardingComplete() {
         val prefs = getSharedPreferences("data", MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putString("first_run", "false")
-        editor.apply()
+        prefs.edit {
+            putString("first_run", "false")
+        }
     }
 
     override fun onDestroy() {

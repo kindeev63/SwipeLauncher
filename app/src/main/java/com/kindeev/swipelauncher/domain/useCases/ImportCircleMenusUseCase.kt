@@ -11,7 +11,6 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuI
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
-import com.kindeev.swipelauncher.domain.dataBase.typeConverter.SettingsTypeConverter
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileOutputStream
@@ -32,7 +31,7 @@ class ImportCircleMenusUseCase(
         val files = getFilesFromZip(uri)
         val circleMenus =
             files?.find { it.name == "data.json" }?.getCircleMenusFromJson() ?: return false
-        val circleMenuIds = getNewCircleMenuIds(circleMenus) ?: return false
+        val circleMenuIds = getNewCircleMenuIds(circleMenus)
         val userImageIds = getNewUserImages(circleMenus)
         val newCircleMenus = circleMenus.getNewCircleMenus(
             circleMenuIds = circleMenuIds,
@@ -155,10 +154,10 @@ class ImportCircleMenusUseCase(
             .toList() // list of ids
     }
 
-    private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int>? {
+    private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int> {
         val circleMenuIds = mutableMapOf<Int, Int>()
         val existingCircleMenuIds =
-            LauncherData.allCircleMenus.value?.map { it.id }?.filter { it != 0 } ?: return null
+            LauncherData.allCircleMenus.value.map { it.id }.filter { it != 0 }
         circleMenus.map { it.id }.forEach { id ->
             var newId = id
             while (newId in existingCircleMenuIds || newId in circleMenuIds.values) {

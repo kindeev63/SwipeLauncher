@@ -34,12 +34,13 @@ class AppsReceiver : BroadcastReceiver() {
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
                     LauncherData.setAllApplications(newApplicationsInfo)
-                    LauncherData.allCircleMenus.value?.let { allCircleMenus ->
-                        LauncherData.insertCircleMenus(
-                            checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
-                        )
-                    }
-                    LauncherData.settings.value?.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)?.action?.let { circleMenuAction ->
+                    LauncherData.insertCircleMenus(
+                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                    )
+                    LauncherData.settings.value.getValueOf(
+                        SettingNames.ClickOnClock,
+                        ClickOnClock::class.java
+                    )?.action?.let { circleMenuAction ->
                         when (circleMenuAction) {
                             is OpenAppAction -> {
                                 if (!applicationsUseCase.isAppInstalled(circleMenuAction.packageName)) {
@@ -53,12 +54,10 @@ class AppsReceiver : BroadcastReceiver() {
                             else -> {}
                         }
                     }
-                    LauncherData.allApplicationData.value?.let { applicationsData ->
-                        applicationsUseCase.check(
-                            applicationsData,
-                            newApplicationsInfo
-                        )
-                    }
+                    applicationsUseCase.check(
+                        LauncherData.allApplicationData.value,
+                        newApplicationsInfo
+                    )
                 }
             }
         }

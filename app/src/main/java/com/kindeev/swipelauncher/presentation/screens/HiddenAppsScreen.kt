@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +69,7 @@ fun HiddenAppsScreen(
         onBackPressed()
     }
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
-    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
+    val allApplicationData by LauncherData.allApplicationData.collectAsState()
 
     var questionDialog by rememberSaveable {
         mutableStateOf<String?>(null)

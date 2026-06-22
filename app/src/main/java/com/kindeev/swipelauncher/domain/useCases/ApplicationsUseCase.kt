@@ -114,7 +114,7 @@ class ApplicationsUseCase(
     }
 
     suspend fun showApp(packageName: String) {
-        LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+        LauncherData.allApplicationData.value.find { it.packageName == packageName }
             ?.let { applicationData ->
                 val notMaskAppData = getNotMaskApplicationData(applicationData.packageName)
                 if (notMaskAppData == applicationData.copy(hidden = false)) {
@@ -136,8 +136,7 @@ class ApplicationsUseCase(
 
     fun getNotHidden(applicationsInfo: List<ApplicationInfo>): List<ApplicationInfo> {
         val hidden =
-            LauncherData.allApplicationData.value?.filter { it.hidden }?.map { it.packageName }
-                ?: emptyList()
+            LauncherData.allApplicationData.value.filter { it.hidden }.map { it.packageName }
         return applicationsInfo.filter { it.packageName !in hidden }
     }
 
@@ -145,7 +144,7 @@ class ApplicationsUseCase(
         applicationData: List<ApplicationData>,
         applicationsInfo: List<ApplicationInfo>,
     ): List<ApplicationInfo> {
-        val hiddenPackageNames = applicationData.filter { it.hidden == true }.map { it.packageName }
+        val hiddenPackageNames = applicationData.filter { it.hidden }.map { it.packageName }
         return  applicationsInfo.filter { it.packageName in hiddenPackageNames }
     }
 
@@ -171,12 +170,12 @@ class ApplicationsUseCase(
     }
 
     fun getApplicationData(packageName: String): ApplicationData {
-        return LauncherData.allApplicationData.value?.find { it.packageName == packageName }
+        return LauncherData.allApplicationData.value.find { it.packageName == packageName }
             ?: getApplicationData(getApplicationInfo(packageName))
     }
 
     fun getApplicationData(applicationInfo: ApplicationInfo): ApplicationData {
-        return LauncherData.allApplicationData.value?.find { it.packageName == applicationInfo.packageName }
+        return LauncherData.allApplicationData.value.find { it.packageName == applicationInfo.packageName }
             ?: ApplicationData(
                 packageName = applicationInfo.packageName,
                 title = applicationInfo.title,

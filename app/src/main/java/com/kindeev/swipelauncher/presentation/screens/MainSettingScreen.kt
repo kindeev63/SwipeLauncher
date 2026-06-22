@@ -17,8 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,8 +52,8 @@ fun MainSettingsScreen(
     navigateToHiddenApps: () -> Unit,
     navigateToTutorial: () -> Unit
 ) {
-    val settings by LauncherData.settings.observeAsState(emptyList())
-    val allApplicationData by LauncherData.allApplicationData.observeAsState(emptyList())
+    val settings by LauncherData.settings.collectAsState()
+    val allApplicationData by LauncherData.allApplicationData.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val viewModel: MainSettingsScreenVM = viewModel(

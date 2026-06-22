@@ -9,12 +9,14 @@ import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import kotlinx.coroutines.flow.StateFlow
+
 object LauncherData {
 
     private lateinit var appDao: AppDao
-    lateinit var allCircleMenus: LiveData<List<CircleMenu>>
-    lateinit var allApplicationData: LiveData<List<ApplicationData>>
-    lateinit var settings: LiveData<List<SettingData>>
+    lateinit var allCircleMenus: StateFlow<List<CircleMenu>>
+    lateinit var allApplicationData: StateFlow<List<ApplicationData>>
+    lateinit var settings: StateFlow<List<SettingData>>
 
     private val _allApplicationInfo = MutableLiveData<List<ApplicationInfo>>(emptyList())
     val allApplicationInfo: LiveData<List<ApplicationInfo>> = _allApplicationInfo

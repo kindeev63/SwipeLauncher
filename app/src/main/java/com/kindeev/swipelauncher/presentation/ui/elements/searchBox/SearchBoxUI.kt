@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -37,8 +38,7 @@ fun SearchBoxUI(
     val context = LocalContext.current
     val searchText by viewModel.searchText.observeAsState("")
     val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
-    val allApplicationData by LauncherData.allApplicationData.observeAsState()
-    val settings by LauncherData.settings.observeAsState(emptyList())
+    val settings by LauncherData.settings.collectAsState()
     val searchResults = viewModel.getSearchResults(allApplicationInfo)
     var applicationInfoDialog by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -67,41 +67,39 @@ fun SearchBoxUI(
         }
         onClose()
     }
-    allApplicationData?.let {
-        Column(
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.1f)
+        )
+        SearchBoxSearchElement(searchText = searchText, onChangeText = { viewModel.search(it) })
+        Spacer(modifier = Modifier.height(10.dp))
+        LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.1f)
-            )
-            SearchBoxSearchElement(searchText = searchText, onChangeText = { viewModel.search(it) })
-            Spacer(modifier = Modifier.height(10.dp))
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(
-                    items = searchResults
-                ) { applicationData ->
-                    viewModel.getItemImage(applicationData.image)?.let { image ->
-                        SearchAppItem(
-                            title = applicationData.title,
-                            image = image,
-                            onClick = {
-                                if (applicationData.packageName == context.packageName) {
-                                    val intent = Intent(context, SettingsActivity::class.java)
-                                    context.startActivity(intent)
-                                } else {
-                                    context.openApp(applicationData.packageName)
-                                }
-                                onClose()
-                            },
-                            onLongClick = {
-                                applicationInfoDialog = applicationData.packageName
+            items(
+                items = searchResults
+            ) { applicationData ->
+                viewModel.getItemImage(applicationData.image)?.let { image ->
+                    SearchAppItem(
+                        title = applicationData.title,
+                        image = image,
+                        onClick = {
+                            if (applicationData.packageName == context.packageName) {
+                                val intent = Intent(context, SettingsActivity::class.java)
+                                context.startActivity(intent)
+                            } else {
+                                context.openApp(applicationData.packageName)
                             }
-                        )
-                    }
+                            onClose()
+                        },
+                        onLongClick = {
+                            applicationInfoDialog = applicationData.packageName
+                        }
+                    )
                 }
             }
         }

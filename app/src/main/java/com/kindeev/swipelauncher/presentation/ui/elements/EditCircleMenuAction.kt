@@ -163,7 +163,7 @@ private fun OpenCircleMenuDataItem(
     changeAction: () -> Unit
 ) {
     val circleMenu =
-        LauncherData.allCircleMenus.value?.find { it.id == action.id }
+        LauncherData.allCircleMenus.value.find { it.id == action.id }
 
     circleMenu?.let {
         Row(

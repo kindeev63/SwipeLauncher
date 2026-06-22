@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -85,7 +86,7 @@ fun AllCircleMenusScreen(
     val viewModel: AllCircleMenusVM = viewModel(
         factory = AllCircleMenusVMFactory(context)
     )
-    val allCircleMenus by LauncherData.allCircleMenus.observeAsState(emptyList())
+    val allCircleMenus by LauncherData.allCircleMenus.collectAsState()
     val selectedMenuIds by viewModel.selectedMenuIds.observeAsState(emptyList())
 
     val pickJsonFile = rememberLauncherForActivityResult(

@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,8 +31,10 @@ import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
+import kotlinx.coroutines.launch
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LauncherScreen() {
     val context = LocalContext.current
@@ -38,13 +43,16 @@ fun LauncherScreen() {
     )
     val screenState by viewModel.screenState.observeAsState(LauncherScreenState.SwipeBox)
     BackHandler {}
-    LauncherData.allCircleMenus.observe(LocalLifecycleOwner.current) { allMenus ->
-        (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
-            ?: allMenus.find { it.id == 0 })?.let {
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        LauncherData.allCircleMenus.collect { allMenus ->
+            (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
+                ?: allMenus.find { it.id == 0 })?.let {
                 viewModel.setCircleMenu(it)
             }
-        viewModel.setOffsets(allMenus)
-        viewModel.setSizes(allMenus)
+            viewModel.setOffsets(allMenus)
+            viewModel.setSizes(allMenus)
+        }
     }
 
     // UI
@@ -81,10 +89,9 @@ fun LauncherScreen() {
 }
 
 
-
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val settings by LauncherData.settings.observeAsState(emptyList())
+    val settings by LauncherData.settings.collectAsState()
     val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
     SwipeBoxUI(viewModel = viewModel)
     Column(
