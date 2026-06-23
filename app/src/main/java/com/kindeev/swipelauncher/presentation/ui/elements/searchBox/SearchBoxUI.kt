@@ -54,7 +54,7 @@ fun SearchBoxUI(
     if (searchResults.size == 1 && settings.getValueOf(
             SettingNames.OpenLastApp,
             OpenLastApp::class.java
-        )?.enabled == true
+        )?.enabled == true && searchText.firstOrNull() != ' '
     ) {
         searchResults.firstOrNull()?.let {
             if (it.packageName == context.packageName) {

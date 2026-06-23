@@ -387,7 +387,7 @@ private fun SelectedItemBox(
     Box(
         modifier = Modifier
             .offset(
-                x =  data.offset.x.dp,
+                x = data.offset.x.dp,
                 y = data.offset.y.dp
             )
             .size(data.size.dp)

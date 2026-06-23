@@ -352,7 +352,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                 .filter {
                     it.title
                         .lowercase()
-                        .contains(searchText.value.lowercase())
+                        .contains(searchText.value.lowercase().trim())
                 }
         )
     }
