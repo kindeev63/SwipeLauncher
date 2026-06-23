@@ -3,8 +3,6 @@ package com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus
 import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -14,29 +12,31 @@ import com.kindeev.swipelauncher.domain.useCases.ExportCircleMenusUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.ImportCircleMenusUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AllCircleMenusVM(context: Context) : ViewModel() {
-    private val _selectedMenuIds = MutableLiveData<List<Int>>(emptyList())
-    val selectedMenuIds: LiveData<List<Int>> = _selectedMenuIds
+class AllCircleMenusScreenVM(context: Context) : ViewModel() {
+    private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
+    val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
     private val userImagesUseCase = UserImagesUseCase(context)
     private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, userImagesUseCase)
     private val exportCircleMenusUseCase = ExportCircleMenusUseCase(context)
     private val getItemImageUseCase = GetItemImageUseCase(context)
 
     fun selectAllMenus(allMenus: List<CircleMenu>) {
-        _selectedMenuIds.postValue(allMenus.map { it.id })
+        _selectedMenuIds.value = allMenus.map { it.id }
     }
 
     fun deleteSelectedMenus(allMenus: List<CircleMenu>) = viewModelScope.launch {
-        LauncherData.deleteCircleMenus(allMenus.filter { selectedMenuIds.value?.contains(it.id) == true }
+        LauncherData.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
             .filter { it.id != 0 })
-        _selectedMenuIds.postValue(emptyList())
+        _selectedMenuIds.value = emptyList()
     }
 
     fun exportSelectedMenus(allMenus: List<CircleMenu>, onFinish: (Boolean) -> Unit) {
-        val result = exportCircleMenusUseCase.export(allMenus.filter { selectedMenuIds.value?.contains(it.id) == true })
-        _selectedMenuIds.postValue(emptyList())
+        val result = exportCircleMenusUseCase.export(allMenus.filter { selectedMenuIds.value.contains(it.id) })
+        _selectedMenuIds.value = emptyList()
         onFinish(result)
     }
 
@@ -46,19 +46,18 @@ class AllCircleMenusVM(context: Context) : ViewModel() {
     }
 
     fun finishSelect() {
-        _selectedMenuIds.postValue(emptyList())
+        _selectedMenuIds.value = emptyList()
     }
 
     fun changeSelectionStateOf(circleMenu: CircleMenu) {
-        _selectedMenuIds.postValue(
-            selectedMenuIds.value?.toMutableList()?.apply {
+        _selectedMenuIds.value =
+            selectedMenuIds.value.toMutableList().apply {
                 if (contains(circleMenu.id)) {
                     remove(circleMenu.id)
                 } else {
                     add(circleMenu.id)
                 }
             }
-        )
     }
 
     fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {

@@ -20,8 +20,7 @@ class CheckCircleMenuUseCase(
         return check(
             circleMenu = circleMenu,
             allCircleMenuIds = LauncherData.allCircleMenus.value.map { it.id },
-            allPackageNames = (LauncherData.allApplicationInfo.value
-                ?: applicationsUseCase.getAllApplicationInfo()).map { it.packageName },
+            allPackageNames = LauncherData.allApplicationInfo.value.map { it.packageName },
             userImageIds = userImagesUseCase.getUserImageIds()
         ) == null
     }

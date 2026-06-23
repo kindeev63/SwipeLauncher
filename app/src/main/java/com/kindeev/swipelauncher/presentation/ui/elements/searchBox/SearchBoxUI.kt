@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -36,8 +35,8 @@ fun SearchBoxUI(
 ) {
     BackHandler(onBack = onClose)
     val context = LocalContext.current
-    val searchText by viewModel.searchText.observeAsState("")
-    val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
+    val searchText by viewModel.searchText.collectAsState()
+    val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
     val settings by LauncherData.settings.collectAsState()
     val searchResults = viewModel.getSearchResults(allApplicationInfo)
     var applicationInfoDialog by rememberSaveable {

@@ -32,8 +32,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -300,7 +300,7 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
+            val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

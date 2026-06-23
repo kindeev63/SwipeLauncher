@@ -10,8 +10,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -33,6 +31,8 @@ import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.SelectedItemBoxData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
@@ -53,8 +53,8 @@ class EditCircleMenuScreenVM(
     private val userImagesUseCase = UserImagesUseCase(context)
 
     // CircleMenu
-    private val _circleMenu = MutableLiveData<CircleMenu?>(null)
-    val circleMenu: LiveData<CircleMenu?> = _circleMenu
+    private val _circleMenu = MutableStateFlow<CircleMenu?>(null)
+    val circleMenu: StateFlow<CircleMenu?> = _circleMenu
     private val menu: CircleMenu
         get() = _circleMenu.value ?: throw IllegalArgumentException("Illegal CircleMenu")
 
@@ -96,12 +96,12 @@ class EditCircleMenuScreenVM(
         get() = getStartOffset(menu.items.size)
 
     // SelectedBoxItem
-    private val _selectedBoxData = MutableLiveData<SelectedItemBoxData?>(getSelectedBoxData(0))
-    val selectedBoxData: LiveData<SelectedItemBoxData?> = _selectedBoxData
+    private val _selectedBoxData = MutableStateFlow(getSelectedBoxData(0))
+    val selectedBoxData: StateFlow<SelectedItemBoxData?> = _selectedBoxData
 
     // GhostItem
-    private val _ghostItem = MutableLiveData<GhostCircleMenuItem?>(null)
-    val ghostItem: LiveData<GhostCircleMenuItem?> = _ghostItem
+    private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
+    val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
 
     // Radius
     private var actionRadiusSq = getActionRadiusSq()
@@ -111,14 +111,14 @@ class EditCircleMenuScreenVM(
     private val density = context.resources.displayMetrics.density
 
     // ActionItemData
-    private val _actionItemData = MutableLiveData<ActionItemData?>(
+    private val _actionItemData = MutableStateFlow<ActionItemData?>(
         ActionItemData(
             size = getActionItemSize(),
             elementOnTop = false,
             action = ActionItemDataType.Add
         )
     )
-    val actionItemData: LiveData<ActionItemData?> = _actionItemData
+    val actionItemData: StateFlow<ActionItemData?> = _actionItemData
 
     private fun getItemSize(elementsCount: Int): Float {
         if (elementsCount == 0) {

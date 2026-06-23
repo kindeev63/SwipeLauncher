@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,8 +56,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusVM
-import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusVMFactory
+import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import kotlinx.coroutines.launch
@@ -83,11 +82,11 @@ fun AllCircleMenusScreen(
         onBackPressed()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: AllCircleMenusVM = viewModel(
-        factory = AllCircleMenusVMFactory(context)
+    val viewModel: AllCircleMenusScreenVM = viewModel(
+        factory = AllCircleMenusScreenVMFactory(context)
     )
     val allCircleMenus by LauncherData.allCircleMenus.collectAsState()
-    val selectedMenuIds by viewModel.selectedMenuIds.observeAsState(emptyList())
+    val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
 
     val pickJsonFile = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),

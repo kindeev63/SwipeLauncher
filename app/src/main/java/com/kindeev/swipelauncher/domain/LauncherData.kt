@@ -2,13 +2,12 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.kindeev.swipelauncher.domain.dataBase.AppDao
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object LauncherData {
@@ -18,25 +17,25 @@ object LauncherData {
     lateinit var allApplicationData: StateFlow<List<ApplicationData>>
     lateinit var settings: StateFlow<List<SettingData>>
 
-    private val _allApplicationInfo = MutableLiveData<List<ApplicationInfo>>(emptyList())
-    val allApplicationInfo: LiveData<List<ApplicationInfo>> = _allApplicationInfo
+    private val _allApplicationInfo = MutableStateFlow<List<ApplicationInfo>>(emptyList())
+    val allApplicationInfo: StateFlow<List<ApplicationInfo>> = _allApplicationInfo
     var userImages = emptyMap<Int, ImageBitmap>()
 
     var flashLightCondition = false
 
-    private val _textColorOnWallpaper = MutableLiveData(Color.White)
-    val textColorOnWallpaper: LiveData<Color> = _textColorOnWallpaper
+    private val _textColorOnWallpaper = MutableStateFlow(Color.White)
+    val textColorOnWallpaper: StateFlow<Color> = _textColorOnWallpaper
 
     fun setAppDao(appDao: AppDao) {
         this.appDao = appDao
     }
 
     fun setTextColorOnWallpaper(color: Color) {
-        _textColorOnWallpaper.postValue(color)
+        _textColorOnWallpaper.value = color
     }
 
     fun setAllApplications(applications: List<ApplicationInfo>) {
-        _allApplicationInfo.postValue(applications)
+        _allApplicationInfo.value = applications
     }
 
     suspend fun insertCircleMenu(circleMenu: CircleMenu) {

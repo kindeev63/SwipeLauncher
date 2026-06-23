@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -68,7 +67,7 @@ fun HiddenAppsScreen(
         scope.launch { controller.isAppearanceLightStatusBars = true }
         onBackPressed()
     }
-    val allApplicationInfo by LauncherData.allApplicationInfo.observeAsState(emptyList())
+    val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
     val allApplicationData by LauncherData.allApplicationData.collectAsState()
 
     var questionDialog by rememberSaveable {

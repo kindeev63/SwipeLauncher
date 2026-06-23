@@ -25,7 +25,7 @@ class GetItemImageUseCase(
 
             is AppImage -> {
                 if (isAppInstalled(circleMenuImage.packageName)) {
-                    LauncherData.allApplicationInfo.value?.find { it.packageName == circleMenuImage.packageName }?.icon
+                    LauncherData.allApplicationInfo.value.find { it.packageName == circleMenuImage.packageName }?.icon
                         ?: context.packageManager.getApplicationInfo(circleMenuImage.packageName, 0)
                             .loadIcon(context.packageManager).toBitmap().asImageBitmap()
                 } else null

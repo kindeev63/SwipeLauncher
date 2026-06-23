@@ -9,8 +9,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.Constants
@@ -40,6 +38,8 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
@@ -61,12 +61,12 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val flashLightUseCase = FlashLightUseCase(context)
     private val openUrlUseCase = OpenUrlUseCase(context)
 
-    private val _currentMenu = MutableLiveData(
+    private val _currentMenu = MutableStateFlow(
         LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
             CircleMenuWithOffset(it, null)
         }
     )
-    val currentMenu: LiveData<CircleMenuWithOffset?> = _currentMenu
+    val currentMenu: StateFlow<CircleMenuWithOffset?> = _currentMenu
     private val vibrator =
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     private val density = context.resources.displayMetrics.density
@@ -80,11 +80,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private var clickTime = 0L
     private var actionInProgress = false
 
-    private val _screenState = MutableLiveData(LauncherScreenState.SwipeBox)
-    val screenState: LiveData<LauncherScreenState> = _screenState
+    private val _screenState = MutableStateFlow(LauncherScreenState.SwipeBox)
+    val screenState: StateFlow<LauncherScreenState> = _screenState
 
     fun setCircleMenu(circleMenu: CircleMenu) {
-        _currentMenu.postValue(_currentMenu.value?.copy(circleMenu = circleMenu))
+        _currentMenu.value = _currentMenu.value?.copy(circleMenu = circleMenu)
     }
 
     fun setOffsets(circleMenus: List<CircleMenu>) {
@@ -124,7 +124,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     // Double click
                     _screenState.value = LauncherScreenState.SearchBox
                 } else {
-                    _currentMenu.postValue(_currentMenu.value?.copy(offset = offset))
+                    _currentMenu.value = _currentMenu.value?.copy(offset = offset)
                 }
                 clickTime = event.eventTime
                 actionInProgress = false
@@ -152,12 +152,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
-                    _currentMenu.postValue(
+                    _currentMenu.value =
                         CircleMenuWithOffset(
                             circleMenu = it,
                             offset = null
                         )
-                    )
                 }
             }
         }
@@ -187,12 +186,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             }
                     }
                     circleMenuForCheck?.let {
-                        _currentMenu.postValue(
+                        _currentMenu.value =
                             CircleMenuWithOffset(
                                 circleMenu = it,
                                 offset = newOffset
                             )
-                        )
                     }
                     vibrator.vibrate(20)
                 }
@@ -247,7 +245,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         circleMenus.forEach { circleMenu ->
             val itemSize = getSize(circleMenu.items.size)
             val alpha = 360f / circleMenu.items.size
-            offsets[circleMenu.id] = (0 until circleMenu.items.size).map { alpha * it }.map {
+            offsets[circleMenu.id] = circleMenu.items.indices.map { alpha * it }.map {
                 DpOffset(
                     x = (size / 2 + sin((it + 0.5f * alpha + circleMenu.getStartOffset()) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
                     y = (size / 2 - cos((it + 0.5f * alpha + circleMenu.getStartOffset()) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
@@ -287,7 +285,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         currentMenu.value?.circleMenu?.let { circleMenu ->
             if (offset.x.pow(2) + offset.y.pow(2) > radiusSq) {
                 val alpha = 360f / circleMenu.items.size
-                val angles = (0 until circleMenu.items.size).map { alpha * it }
+                val angles = circleMenu.items.indices.map { alpha * it }
                 val currentAngle = if (offset.y == 0f) {
                     ((if (offset.x > 0) 90 else 270) - circleMenu.getStartOffset()) % 360
                 } else {
@@ -336,30 +334,27 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
 // Search Box
 
-    private val _searchText = MutableLiveData("")
-    val searchText: LiveData<String> = _searchText
+    private val _searchText = MutableStateFlow("")
+    val searchText: StateFlow<String> = _searchText
 
     fun search(text: String) {
-        _searchText.postValue(text)
+        _searchText.value = text
     }
 
     fun clearSearch() {
-        _searchText.postValue("")
+        _searchText.value = ""
     }
 
     fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<ApplicationData> {
-        searchText.value?.let { searchText ->
-            return applicationsUseCase.getAllApplicationData(
-                applicationsUseCase
-                    .getNotHidden(allApplicationInfo)
-                    .filter {
-                        it.title
-                            .lowercase()
-                            .contains(searchText.lowercase())
-                    }
-            )
-        }
-        return emptyList()
+        return applicationsUseCase.getAllApplicationData(
+            applicationsUseCase
+                .getNotHidden(allApplicationInfo)
+                .filter {
+                    it.title
+                        .lowercase()
+                        .contains(searchText.value.lowercase())
+                }
+        )
     }
 
 // ApplicationInfoDialog

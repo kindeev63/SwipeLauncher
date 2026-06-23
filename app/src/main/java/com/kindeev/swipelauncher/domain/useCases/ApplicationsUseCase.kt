@@ -56,7 +56,7 @@ class ApplicationsUseCase(
 
     fun getApplicationInfo(packageName: String): ApplicationInfo {
         val applicationInfo =
-            LauncherData.allApplicationInfo.value?.find { it.packageName == packageName }
+            LauncherData.allApplicationInfo.value.find { it.packageName == packageName }
         return if (applicationInfo == null) {
             val appInfo =
                 context.packageManager.getApplicationInfo(packageName, 0)

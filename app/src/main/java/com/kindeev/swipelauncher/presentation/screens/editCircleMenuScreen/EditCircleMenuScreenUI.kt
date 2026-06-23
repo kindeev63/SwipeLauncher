@@ -32,8 +32,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -98,9 +98,9 @@ private fun LandscapeUI(
     viewModel: EditCircleMenuScreenVM,
     onBackPressed: () -> Unit
 ) {
-    val actionItemData by viewModel.actionItemData.observeAsState()
-    val circleMenu by viewModel.circleMenu.observeAsState()
-    val selectedBoxData by viewModel.selectedBoxData.observeAsState()
+    val actionItemData by viewModel.actionItemData.collectAsState()
+    val circleMenu by viewModel.circleMenu.collectAsState()
+    val selectedBoxData by viewModel.selectedBoxData.collectAsState()
 
     // UI
     Scaffold(
@@ -139,7 +139,7 @@ private fun LandscapeUI(
                                 onTouchEvent = viewModel.onSwipe()
                             )
                     ) {
-                        val ghostItem by viewModel.ghostItem.observeAsState()
+                        val ghostItem by viewModel.ghostItem.collectAsState()
                         actionItemData?.let {
                             when (it.action) {
                                 ActionItemDataType.Add -> AddCircleMenuItemUI(
@@ -217,9 +217,9 @@ private fun PortraitUI(
     viewModel: EditCircleMenuScreenVM,
     onBackPressed: () -> Unit
 ) {
-    val actionItemData by viewModel.actionItemData.observeAsState()
-    val circleMenu by viewModel.circleMenu.observeAsState()
-    val selectedBoxData by viewModel.selectedBoxData.observeAsState()
+    val actionItemData by viewModel.actionItemData.collectAsState()
+    val circleMenu by viewModel.circleMenu.collectAsState()
+    val selectedBoxData by viewModel.selectedBoxData.collectAsState()
 
     // UI
     Scaffold(
@@ -252,7 +252,7 @@ private fun PortraitUI(
                             onTouchEvent = viewModel.onSwipe()
                         )
                 ) {
-                    val ghostItem by viewModel.ghostItem.observeAsState()
+                    val ghostItem by viewModel.ghostItem.collectAsState()
                     actionItemData?.let {
                         when (it.action) {
                             ActionItemDataType.Add -> AddCircleMenuItemUI(viewModel.size, it.size)
@@ -346,7 +346,7 @@ fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
 private fun CircleMenuTitle(
     viewModel: EditCircleMenuScreenVM
 ) {
-    val circleMenu by viewModel.circleMenu.observeAsState()
+    val circleMenu by viewModel.circleMenu.collectAsState()
     circleMenu?.let { menu ->
         val fontSize = 24.sp
         Box(
@@ -387,7 +387,7 @@ private fun SelectedItemBox(
     Box(
         modifier = Modifier
             .offset(
-                x = data.offset.x.dp,
+                x =  data.offset.x.dp,
                 y = data.offset.y.dp
             )
             .size(data.size.dp)
