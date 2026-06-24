@@ -21,6 +21,6 @@ interface CircleMenuDao {
     suspend fun insertMany(entities: List<CircleMenuEntity>)
 
     @Delete(CircleMenuEntity::class)
-    suspend fun delete(entity: CircleMenuEntity)
+    suspend fun deleteMany(entities: List<CircleMenuEntity>)
 
 }
