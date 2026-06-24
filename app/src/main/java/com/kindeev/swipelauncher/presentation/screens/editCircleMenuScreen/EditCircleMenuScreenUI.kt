@@ -56,9 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.SelectedItemBoxData

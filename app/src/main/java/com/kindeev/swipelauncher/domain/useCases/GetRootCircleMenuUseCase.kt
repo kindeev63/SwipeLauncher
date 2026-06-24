@@ -4,18 +4,18 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings
 import android.provider.Telephony
 import android.telecom.TelecomManager
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import androidx.core.net.toUri
 
 class GetRootCircleMenuUseCase(private val context: Context) {
     fun get(title: String): CircleMenu {
@@ -80,7 +80,7 @@ class GetRootCircleMenuUseCase(private val context: Context) {
     }
 
     private fun getDefaultBrowserApp(context: Context): String? {
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
+        val browserIntent = Intent(Intent.ACTION_VIEW, "http://".toUri())
         val resolveInfo =
             context.packageManager.resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY)
         return resolveInfo?.activityInfo?.packageName
@@ -92,7 +92,7 @@ class GetRootCircleMenuUseCase(private val context: Context) {
     }
 
     private fun getDefaultEmailApp(context: Context): String? {
-        val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+        val emailIntent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri())
         val resolveInfoList =
             context.packageManager.queryIntentActivities(emailIntent, PackageManager.MATCH_DEFAULT_ONLY)
         if (resolveInfoList.isNotEmpty()) {

@@ -7,9 +7,9 @@ import android.os.Handler
 import android.os.Looper
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase

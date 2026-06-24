@@ -1,12 +1,12 @@
 package com.kindeev.swipelauncher.domain.useCases
 
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 
 class CheckCircleMenuUseCase(
     private val userImagesUseCase: UserImagesUseCase,

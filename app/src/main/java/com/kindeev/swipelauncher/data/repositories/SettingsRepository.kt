@@ -4,7 +4,7 @@ import com.kindeev.swipelauncher.data.daos.SettingsDao
 import com.kindeev.swipelauncher.data.mappers.fromEntity
 import com.kindeev.swipelauncher.data.mappers.toEntity
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

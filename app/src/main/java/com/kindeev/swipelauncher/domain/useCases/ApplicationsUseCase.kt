@@ -8,9 +8,10 @@ import android.provider.Settings
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import androidx.core.net.toUri
 
 class ApplicationsUseCase(
     private val context: Context
@@ -76,7 +77,7 @@ class ApplicationsUseCase(
             .asImageBitmap()
 
     fun deleteApp(packageName: String) {
-        val packageUri = Uri.parse("package:$packageName")
+        val packageUri = "package:$packageName".toUri()
         val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
         context.startActivity(uninstallIntent)
     }

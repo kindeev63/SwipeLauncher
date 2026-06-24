@@ -1,8 +1,8 @@
 package com.kindeev.swipelauncher.domain.interfaces
 
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {

@@ -3,12 +3,12 @@ package com.kindeev.swipelauncher.data.mappers
 import com.kindeev.swipelauncher.data.entities.circleMenu.actions.OpenSettingsEntityAction
 import com.kindeev.swipelauncher.data.entities.settings.ClickOnClockEntity
 import com.kindeev.swipelauncher.data.entities.settings.LauncherSettingsEntity
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 
 fun List<SettingData>.toEntity(): LauncherSettingsEntity =

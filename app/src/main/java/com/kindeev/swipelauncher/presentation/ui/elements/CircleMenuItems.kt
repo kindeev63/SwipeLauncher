@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow

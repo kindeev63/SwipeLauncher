@@ -21,8 +21,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase

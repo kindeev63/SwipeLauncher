@@ -2,13 +2,13 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.PickAppActionWithImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType

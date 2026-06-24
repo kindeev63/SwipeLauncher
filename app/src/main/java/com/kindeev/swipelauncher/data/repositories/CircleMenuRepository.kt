@@ -3,7 +3,7 @@ package com.kindeev.swipelauncher.data.repositories
 import com.kindeev.swipelauncher.data.daos.CircleMenuDao
 import com.kindeev.swipelauncher.data.mappers.fromEntity
 import com.kindeev.swipelauncher.data.mappers.toEntity
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -7,10 +7,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
-import com.kindeev.swipelauncher.domain.dataBase.typeConverter.SettingsTypeConverter
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileInputStream

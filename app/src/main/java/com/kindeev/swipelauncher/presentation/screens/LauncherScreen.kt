@@ -20,8 +20,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.ClickOnClock
+import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
+import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM

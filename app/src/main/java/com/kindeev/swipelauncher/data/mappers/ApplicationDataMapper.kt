@@ -1,7 +1,7 @@
 package com.kindeev.swipelauncher.data.mappers
 
 import com.kindeev.swipelauncher.data.entities.applicationData.ApplicationDataEntity
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
 
 fun ApplicationData.toEntity(): ApplicationDataEntity =
     ApplicationDataEntity(

@@ -3,7 +3,7 @@ package com.kindeev.swipelauncher.data.repositories
 import com.kindeev.swipelauncher.data.daos.ApplicationDataDao
 import com.kindeev.swipelauncher.data.mappers.fromEntity
 import com.kindeev.swipelauncher.data.mappers.toEntity
-import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
+import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
