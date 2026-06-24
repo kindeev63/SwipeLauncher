@@ -222,19 +222,6 @@ fun AllActionTypes.getFlashlightAction(): CircleMenuAction {
     }
 }
 
-suspend fun List<SettingData>.checkSettings() {
-    val settingNames = this.map { it.name }
-    val newSettings = mutableListOf<SettingData>()
-    Constants.defaultSettings.forEach { defaultSetting ->
-        if (defaultSetting.name !in settingNames) {
-            newSettings.add(defaultSetting)
-        }
-    }
-    if (newSettings.isNotEmpty()) {
-        LauncherData.insertSettings(newSettings)
-    }
-}
-
 fun LazyListScope.spacer() {
     item { Spacer(modifier = Modifier.height(5.dp)) }
 }

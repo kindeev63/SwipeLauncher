@@ -2,17 +2,17 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import com.kindeev.swipelauncher.domain.dataBase.AppDao
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object LauncherData {
 
-    private lateinit var appDao: AppDao
+    private lateinit var dataRepository: DataRepository
     lateinit var allCircleMenus: StateFlow<List<CircleMenu>>
     lateinit var allApplicationData: StateFlow<List<ApplicationData>>
     lateinit var settings: StateFlow<List<SettingData>>
@@ -26,8 +26,8 @@ object LauncherData {
     private val _textColorOnWallpaper = MutableStateFlow(Color.White)
     val textColorOnWallpaper: StateFlow<Color> = _textColorOnWallpaper
 
-    fun setAppDao(appDao: AppDao) {
-        this.appDao = appDao
+    fun setDataRepository(repository: DataRepository) {
+        dataRepository = repository
     }
 
     fun setTextColorOnWallpaper(color: Color) {
@@ -39,42 +39,44 @@ object LauncherData {
     }
 
     suspend fun insertCircleMenu(circleMenu: CircleMenu) {
-        appDao.insertCircleMenu(circleMenu)
+        dataRepository.insertCircleMenu(circleMenu)
     }
 
     suspend fun insertCircleMenus(circleMenus: List<CircleMenu>) {
-        appDao.insertCircleMenus(circleMenus)
+        dataRepository.insertCircleMenus(circleMenus)
     }
 
     suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) {
-        appDao.deleteCircleMenus(circleMenus)
+        dataRepository.deleteCircleMenus(circleMenus)
     }
 
     suspend fun insertSetting(settingData: SettingData) {
-        appDao.insertSetting(settingData)
-    }
-
-    suspend fun insertSettings(settingsData: List<SettingData>) {
-        appDao.insertSettings(settingsData)
+        dataRepository.insertSettings(
+            settings.value.map {
+                if (it.name == settingData.name)
+                    settingData
+                else it
+            }
+        )
     }
 
     suspend fun insertApplicationData(applicationData: ApplicationData) {
-        appDao.insertApplicationData(applicationData)
+        dataRepository.insertApplicationData(applicationData)
     }
 
     suspend fun insertApplicationsData(applicationsData: List<ApplicationData>) {
-        appDao.insertApplicationsData(applicationsData)
+        dataRepository.insertApplicationsData(applicationsData)
     }
 
     suspend fun deleteApplicationData(applicationData: ApplicationData) {
-        appDao.deleteApplicationData(applicationData)
+        dataRepository.deleteApplicationData(applicationData)
     }
 
     suspend fun deleteApplicationDataByPackageName(packageName: String) {
-        appDao.deleteApplicationDataByPackageName(packageName)
+        dataRepository.deleteApplicationDataByPackageName(packageName)
     }
 
     suspend fun deleteApplicationsData(applicationsData: List<ApplicationData>) {
-        appDao.deleteApplicationsData(applicationsData)
+        dataRepository.deleteApplicationsData(applicationsData)
     }
 }

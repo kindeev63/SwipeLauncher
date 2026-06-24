@@ -19,10 +19,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
-import com.kindeev.swipelauncher.domain.utils.checkSettings
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
@@ -87,7 +85,6 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     )
-                                    LauncherData.insertSettings(Constants.defaultSettings)
                                 }
                                 onBoardingComplete()
                                 navigationState.navHostController.popBackStack()
@@ -107,7 +104,6 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                             )
-                            LauncherData.insertSettings(Constants.defaultSettings)
                             onBoardingComplete()
                             ScreensOnBoarding.MainScreenObject
                         } else {
@@ -171,9 +167,6 @@ class MainActivity : ComponentActivity() {
                             )?.enabled == true
                         ) Color.Black else Color.White
                     )
-                    CoroutineScope(Dispatchers.IO).launch {
-                        settings.checkSettings()
-                    }
                 }
             }
         }

@@ -3,45 +3,46 @@ package com.kindeev.swipelauncher.data.repositories
 import com.kindeev.swipelauncher.domain.dataBase.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.dataBase.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.dataBase.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import kotlinx.coroutines.flow.Flow
 
 class DatabaseRepository(
     private val circleMenuRepository: CircleMenuRepository,
     private val settingsRepository: SettingsRepository,
     private val applicationDataRepository: ApplicationDataRepository
-) {
+): DataRepository {
 
-    fun getAllCircleMenus(): Flow<List<CircleMenu>> = circleMenuRepository.getAll()
+    override fun getAllCircleMenus(): Flow<List<CircleMenu>> = circleMenuRepository.getAll()
 
-    fun getAllSettings(): Flow<List<SettingData>> = settingsRepository.getAll()
+    override fun getAllSettings(): Flow<List<SettingData>> = settingsRepository.getAll()
 
-    fun getAllApplicationsData(): Flow<List<ApplicationData>> = applicationDataRepository.getAll()
+    override fun getAllApplicationsData(): Flow<List<ApplicationData>> = applicationDataRepository.getAll()
 
-    suspend fun insertCircleMenu(circleMenu: CircleMenu) =
+    override suspend fun insertCircleMenu(circleMenu: CircleMenu) =
         circleMenuRepository.insert(circleMenu)
 
-    suspend fun insertCircleMenus(circleMenus: List<CircleMenu>) =
+    override suspend fun insertCircleMenus(circleMenus: List<CircleMenu>) =
         circleMenuRepository.insertMany(circleMenus)
 
-    suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) =
+    override suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) =
         circleMenuRepository.deleteMany(circleMenus)
 
-    suspend fun insertSettings(settings: List<SettingData>) =
+    override suspend fun insertSettings(settings: List<SettingData>) =
         settingsRepository.insert(settings)
 
-    suspend fun insertApplicationData(applicationData: ApplicationData) =
+    override suspend fun insertApplicationData(applicationData: ApplicationData) =
         applicationDataRepository.insert(applicationData)
 
-    suspend fun insertApplicationsData(applicationsData: List<ApplicationData>) =
+    override suspend fun insertApplicationsData(applicationsData: List<ApplicationData>) =
         applicationDataRepository.insertMany(applicationsData)
 
-    suspend fun deleteApplicationData(applicationData: ApplicationData) =
+    override suspend fun deleteApplicationData(applicationData: ApplicationData) =
         applicationDataRepository.delete(applicationData)
 
-    suspend fun deleteApplicationDataByPackageName(packageName: String) =
+    override suspend fun deleteApplicationDataByPackageName(packageName: String) =
         applicationDataRepository.deleteByPackageName(packageName)
 
-    suspend fun deleteApplicationsData(applicationsData: List<ApplicationData>) =
+    override suspend fun deleteApplicationsData(applicationsData: List<ApplicationData>) =
         applicationDataRepository.deleteMany(applicationsData)
 
 }

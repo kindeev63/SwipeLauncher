@@ -2,9 +2,10 @@ package com.kindeev.swipelauncher.presentation
 
 import android.app.Application
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.data.AppDataBase
+import com.kindeev.swipelauncher.data.getRepository
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
-import com.kindeev.swipelauncher.domain.dataBase.AppDataBase
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
 import com.kindeev.swipelauncher.presentation.activities.ErrorActivity
 import kotlinx.coroutines.CoroutineScope
@@ -18,19 +19,19 @@ class MainApp: Application() {
     override fun onCreate() {
         super.onCreate()
 //        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
-        val appDao = AppDataBase.getDataBase(this).getDao()
-        LauncherData.setAppDao(appDao)
-        LauncherData.settings = appDao.getAllSettings().stateIn(
+        val dataRepository = AppDataBase.getDataBase(this).getRepository()
+        LauncherData.setDataRepository(dataRepository)
+        LauncherData.settings = dataRepository.getAllSettings().stateIn(
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             started = SharingStarted.Eagerly,
             initialValue = Constants.defaultSettings
         )
-        LauncherData.allCircleMenus = appDao.getAllCircleMenu().stateIn(
+        LauncherData.allCircleMenus = dataRepository.getAllCircleMenus().stateIn(
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
-        LauncherData.allApplicationData = appDao.getAllApplicationData().stateIn(
+        LauncherData.allApplicationData = dataRepository.getAllApplicationsData().stateIn(
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             started = SharingStarted.Eagerly,
             initialValue = emptyList()

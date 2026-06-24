@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsDao {
 
     @Query("SELECT * FROM settings")
-    fun get(): Flow<LauncherSettingsEntity>
+    fun get(): Flow<LauncherSettingsEntity?>
 
     @Insert(LauncherSettingsEntity::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: LauncherSettingsEntity)
