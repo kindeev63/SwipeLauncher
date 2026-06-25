@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.database.AppDataBase
 import com.kindeev.swipelauncher.data.database.getRepository
+import com.kindeev.swipelauncher.data.userImages.initCoil
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
@@ -18,6 +19,8 @@ class MainApp: Application() {
     override fun onCreate() {
         super.onCreate()
 //        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
+
+        // Database
         val dataRepository = AppDataBase.getDataBase(this).getRepository()
         LauncherData.setDataRepository(dataRepository)
         LauncherData.settings = dataRepository.getAllSettings().stateIn(
@@ -35,6 +38,11 @@ class MainApp: Application() {
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
+
+        // UserImages
+        initCoil(this)
+
+        // Constants
         setConstants()
     }
 

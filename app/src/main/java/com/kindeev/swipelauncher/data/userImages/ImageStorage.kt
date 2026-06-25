@@ -45,18 +45,13 @@ class ImageStorage(private val context: Context) {
             it.nameWithoutExtension.toIntOrNull()
         } ?: emptyList()
 
-    fun deleteMany(ids: List<Int>): Boolean =
-        ids
-            .map {
-                getFile(it).run {
-                    !exists() || delete()
-                }
-            }
-            .all { it }
+    fun delete(id: Int): Boolean =
+        getFile(id).let { file ->
+            !file.exists() || file.delete()
+        }
 
-    private fun getFile(id: Int): File {
-        return File(dir, "$id.png")
-    }
+    fun getFile(id: Int): File = File(dir, "$id.png")
+
 
     private fun BitmapFactory.Options.decodeBitmap(uri: Uri): Bitmap? =
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
