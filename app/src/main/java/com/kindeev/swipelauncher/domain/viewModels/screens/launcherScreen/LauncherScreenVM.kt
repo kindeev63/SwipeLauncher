@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -25,22 +24,21 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
-import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -51,11 +49,9 @@ import kotlin.math.sqrt
 
 class LauncherScreenVM(context: Context) : ViewModel() {
 
-    private val userImagesUseCase = UserImagesUseCase(context)
-    private val getItemImageUseCase = GetItemImageUseCase(context)
     private val applicationsUseCase = ApplicationsUseCase(context)
     private val checkCircleMenuUseCase =
-        CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+        CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
@@ -142,7 +138,9 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                         )
                         index?.let {
                             currentMenu.value?.circleMenu?.items?.getOrNull(index)?.let { item ->
-                                executeAction(item.action, offset)
+                                viewModelScope.launch {
+                                    executeAction(item.action, offset)
+                                }
                             }
                         }
                     }
@@ -163,7 +161,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         true
     }
 
-    fun executeAction(
+    suspend fun executeAction(
         action: CircleMenuAction,
         offset: Offset? = null
     ) {
@@ -328,9 +326,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         return -360 / items.size / 2f
     }
 
-    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
-        return getItemImageUseCase.getItemImage(circleMenuImage)
-    }
 
 // Search Box
 
@@ -381,8 +376,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         viewModelScope.launch { applicationsUseCase.changeApp(applicationData) }
     }
 
-    fun addUserImage(uri: Uri): UserImage? {
-        return userImagesUseCase.addUserImage(uri = uri)
+    suspend fun addUserImage(uri: Uri) = withContext(Dispatchers.IO) {
+        LauncherData.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
     }
 
     fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {

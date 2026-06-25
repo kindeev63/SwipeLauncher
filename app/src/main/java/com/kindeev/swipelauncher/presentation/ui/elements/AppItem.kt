@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,16 +14,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 
 @Composable
 fun AppItem(
     title: String,
-    image: ImageBitmap,
+    image: CircleMenuImage,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,9 +38,9 @@ fun AppItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ){
-        Image(
+        AsyncImage(
+            model = image.getCoilModel(context),
             modifier = Modifier.size(50.dp),
-            bitmap = image,
             contentDescription = null
         )
         Spacer(modifier = Modifier.width(10.dp))

@@ -9,6 +9,9 @@ import coil.memory.MemoryCache
 fun initCoil(context: Context): Unit =
     Coil.setImageLoader(
         ImageLoader.Builder(context)
+            .components {
+                add(AppIconFetcher.Factory(context))
+            }
             .memoryCache {
                 MemoryCache.Builder(context)
                     .maxSizePercent(0.25)
@@ -22,6 +25,5 @@ fun initCoil(context: Context): Unit =
                     .build()
             }
             .allowHardware(true)
-            .crossfade(true)
             .build()
     )

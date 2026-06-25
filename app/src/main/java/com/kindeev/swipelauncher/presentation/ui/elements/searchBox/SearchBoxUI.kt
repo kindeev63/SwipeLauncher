@@ -82,24 +82,22 @@ fun SearchBoxUI(
             items(
                 items = searchResults
             ) { applicationData ->
-                viewModel.getItemImage(applicationData.image)?.let { image ->
-                    SearchAppItem(
-                        title = applicationData.title,
-                        image = image,
-                        onClick = {
-                            if (applicationData.packageName == context.packageName) {
-                                val intent = Intent(context, SettingsActivity::class.java)
-                                context.startActivity(intent)
-                            } else {
-                                context.openApp(applicationData.packageName)
-                            }
-                            onClose()
-                        },
-                        onLongClick = {
-                            applicationInfoDialog = applicationData.packageName
+                SearchAppItem(
+                    title = applicationData.title,
+                    image = applicationData.image,
+                    onClick = {
+                        if (applicationData.packageName == context.packageName) {
+                            val intent = Intent(context, SettingsActivity::class.java)
+                            context.startActivity(intent)
+                        } else {
+                            context.openApp(applicationData.packageName)
                         }
-                    )
-                }
+                        onClose()
+                    },
+                    onLongClick = {
+                        applicationInfoDialog = applicationData.packageName
+                    }
+                )
             }
         }
     }

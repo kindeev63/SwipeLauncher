@@ -2,16 +2,12 @@ package com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.useCases.ExportCircleMenusUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
 import com.kindeev.swipelauncher.domain.useCases.ImportCircleMenusUseCase
-import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,10 +15,8 @@ import kotlinx.coroutines.launch
 class AllCircleMenusScreenVM(context: Context) : ViewModel() {
     private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
     val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
-    private val userImagesUseCase = UserImagesUseCase(context)
-    private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, userImagesUseCase)
+    private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, LauncherData.userImagesRepository)
     private val exportCircleMenusUseCase = ExportCircleMenusUseCase(context)
-    private val getItemImageUseCase = GetItemImageUseCase(context)
 
     fun selectAllMenus(allMenus: List<CircleMenu>) {
         _selectedMenuIds.value = allMenus.map { it.id }
@@ -58,9 +52,5 @@ class AllCircleMenusScreenVM(context: Context) : ViewModel() {
                     add(circleMenu.id)
                 }
             }
-    }
-
-    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
-        return getItemImageUseCase.getItemImage(circleMenuImage)
     }
 }

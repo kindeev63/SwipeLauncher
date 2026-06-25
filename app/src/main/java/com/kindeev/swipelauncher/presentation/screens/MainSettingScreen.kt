@@ -167,7 +167,6 @@ fun MainSettingsScreen(
                                 ),
                                 getAllApplicationsData = viewModel::getAllApplicationsData,
                                 getApplicationInfo = viewModel::getApplicationInfo,
-                                getItemImage = viewModel::getItemImage,
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = {
                                     scope.launch {

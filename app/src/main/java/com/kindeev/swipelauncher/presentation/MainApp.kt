@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.database.AppDataBase
 import com.kindeev.swipelauncher.data.database.getRepository
+import com.kindeev.swipelauncher.data.userImages.UserImagesRepository
+import com.kindeev.swipelauncher.data.userImages.UserImagesStorage
 import com.kindeev.swipelauncher.data.userImages.initCoil
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
@@ -13,12 +15,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class MainApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
 //        GlobalExceptionHandler.initialize(this, ErrorActivity::class.java)
+
+        // Constants
+        setConstants()
 
         // Database
         val dataRepository = AppDataBase.getDataBase(this).getRepository()
@@ -41,9 +47,12 @@ class MainApp: Application() {
 
         // UserImages
         initCoil(this)
-
-        // Constants
-        setConstants()
+        val userImagesStorage = UserImagesStorage(this)
+        val userImagesRepository = UserImagesRepository(userImagesStorage, this)
+        LauncherData.setUserImagesRepository(userImagesRepository)
+        CoroutineScope(Dispatchers.IO).launch {
+            userImagesRepository.prefetchAll()
+        }
     }
 
     private fun setConstants() {

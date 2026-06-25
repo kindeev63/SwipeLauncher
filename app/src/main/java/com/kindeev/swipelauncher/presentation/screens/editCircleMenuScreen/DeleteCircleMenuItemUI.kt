@@ -29,9 +29,9 @@ fun DeleteCircleMenuItemUI(
                 )
                 .size(actionItemData.size.dp)
                 .clip(CircleShape)
-                .background(Color.Companion.Red),
+                .background(Color.Red),
             painter = painterResource(R.drawable.ic_delete),
-            colorFilter = ColorFilter.Companion.tint(Color.Companion.White),
+            colorFilter = ColorFilter.tint(Color.White),
             contentDescription = null
         )
     } else {
@@ -43,7 +43,7 @@ fun DeleteCircleMenuItemUI(
                 )
                 .size(actionItemData.size.dp),
             painter = painterResource(R.drawable.ic_delete),
-            colorFilter = ColorFilter.Companion.tint(Color.Companion.Black),
+            colorFilter = ColorFilter.tint(Color.Black),
             contentDescription = null
         )
     }

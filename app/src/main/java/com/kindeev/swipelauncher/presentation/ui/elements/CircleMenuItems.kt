@@ -1,16 +1,16 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -19,7 +19,6 @@ import kotlin.math.sqrt
 
 @Composable
 fun CircleMenuItems(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     items: List<CircleMenuItem>,
     menuSize: Float
 ) {
@@ -29,20 +28,18 @@ fun CircleMenuItems(
     ) {
         val itemsOffset = getOffset(items.size, menuSize)
         val itemSize = getItemSize(items.size, menuSize)
+        val context = LocalContext.current
         items.forEachIndexed { index, item ->
-            getItemImage(item.image)?.let { imageBitmap ->
-                Image(
-                    modifier = Modifier
-                        .offset(
-                            x = itemsOffset[index].x,
-                            y = itemsOffset[index].y
-                        )
-                        .size(itemSize.dp),
-                    bitmap = imageBitmap,
-                    contentDescription = null
-                )
-            }
-
+            AsyncImage(
+                model = item.image.getCoilModel(context),
+                modifier = Modifier
+                    .offset(
+                        x = itemsOffset[index].x,
+                        y = itemsOffset[index].y
+                    )
+                    .size(itemSize.dp),
+                contentDescription = null
+            )
         }
     }
 }

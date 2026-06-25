@@ -11,6 +11,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.Circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileOutputStream
@@ -20,7 +21,7 @@ import kotlin.collections.forEach
 
 class ImportCircleMenusUseCase(
     private val context: Context,
-    private val userImagesUseCase: UserImagesUseCase
+    private val userImagesRepository: UserImagesRepository
 ) {
     private val gson = Gson()
 
@@ -38,7 +39,7 @@ class ImportCircleMenusUseCase(
             userImageIds = userImageIds
         )
         addUserImages(files.filter { it.name != "data.json" }, userImageIds)
-        LauncherData.userImages = userImagesUseCase.getUserImages()
+        userImagesRepository.prefetchAll()
         LauncherData.insertCircleMenus(newCircleMenus)
         files.forEach { it.delete() }
         return true
@@ -128,11 +129,11 @@ class ImportCircleMenusUseCase(
 
     private class CircleMenuItemWithIndex(val index: Int, val item: CircleMenuItem)
 
-    private fun getNewUserImages(
+    private suspend fun getNewUserImages(
         circleMenus: List<CircleMenu>
     ): Map<Int, Int> {
         val userImageIds = mutableMapOf<Int, Int>()
-        val existingUserImagesIds = userImagesUseCase.getUserImageIds()
+        val existingUserImagesIds = userImagesRepository.getAllIds()
         circleMenus.getUserImageIdsFromCircleMenus().forEach { id ->
             var newId = id
             while (newId in existingUserImagesIds || newId in userImageIds.values) {
@@ -145,9 +146,7 @@ class ImportCircleMenusUseCase(
 
     private fun List<CircleMenu>.getUserImageIdsFromCircleMenus(): List<Int> {
         return this
-            .asSequence()
-            .map { it.items } // get lists of items
-            .flatten() // get one list with all items
+            .asSequence().flatMap { it.items } // get one list with all items
             .map { it.image } // list with CircleMenuImage
             .filter { it is UserImage } // list with UserImages
             .map { (it as UserImage).id }

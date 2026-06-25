@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -11,7 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 
@@ -22,6 +24,7 @@ fun SwipeBoxUI(
 ) {
     val size = Constants.minScreenLength / 3f * 2
     val currentMenu by viewModel.currentMenu.collectAsState()
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -41,18 +44,16 @@ fun SwipeBoxUI(
                 currentMenu?.circleMenu?.items?.let { items ->
                     val itemsOffset = viewModel.getOffset()
                     items.forEachIndexed { index, item ->
-                        viewModel.getItemImage(item.image)?.let { imageBitmap ->
-                            Image(
-                                modifier = Modifier
-                                    .offset(
-                                        x = itemsOffset[index].x,
-                                        y = itemsOffset[index].y
-                                    )
-                                    .size(viewModel.itemSize),
-                                bitmap = imageBitmap,
-                                contentDescription = null
-                            )
-                        }
+                        AsyncImage(
+                            model = item.image.getCoilModel(context),
+                            modifier = Modifier
+                                .offset(
+                                    x = itemsOffset[index].x,
+                                    y = itemsOffset[index].y
+                                )
+                                .size(viewModel.itemSize),
+                            contentDescription = null
+                        )
                     }
                 }
             }

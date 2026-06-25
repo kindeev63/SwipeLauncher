@@ -92,6 +92,7 @@ fun LauncherScreen() {
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by LauncherData.settings.collectAsState()
     val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
+    val scope = rememberCoroutineScope()
     SwipeBoxUI(viewModel = viewModel)
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -100,7 +101,10 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (clickOnClock?.enabled == true) {
             ClickableClockWidget {
-                viewModel.executeAction(clickOnClock.action)
+                scope.launch {
+                    viewModel.executeAction(clickOnClock.action)
+                }
+
             }
         } else {
             ClockWidget()

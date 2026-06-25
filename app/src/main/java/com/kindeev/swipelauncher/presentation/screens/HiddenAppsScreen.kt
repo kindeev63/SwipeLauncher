@@ -104,13 +104,11 @@ fun HiddenAppsScreen(
             items(
                 items = data
             ) { applicationData ->
-                viewModel.getItemImage(applicationData.image)?.let { image ->
-                    AppItem(
-                        title = applicationData.title,
-                        image = image,
-                        onClick = { questionDialog = applicationData.packageName }
-                    )
-                }
+                AppItem(
+                    title = applicationData.title,
+                    image = applicationData.image,
+                    onClick = { questionDialog = applicationData.packageName }
+                )
             }
         }
     }

@@ -7,40 +7,45 @@ import coil.annotation.ExperimentalCoilApi
 import coil.memory.MemoryCache
 import coil.request.Disposable
 import coil.request.ImageRequest
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class ImageRepository(
-    private val storage: ImageStorage,
+class UserImagesRepository(
+    private val storage: UserImagesStorage,
     private val context: Context
-) {
+): UserImagesRepository {
     private val loader = Coil.imageLoader(context)
 
-    suspend fun getAllIds(): List<Int> = withContext(Dispatchers.IO) {
+    override suspend fun getAllIds(): List<Int> = withContext(Dispatchers.IO) {
         storage.getIds()
     }
 
-    fun getFile(id: Int): File = storage.getFile(id)
+    override fun getFile(id: Int): File = storage.getFile(id)
 
-    suspend fun insert(uri: Uri): Int? = withContext(Dispatchers.IO) {
+    override suspend fun insert(uri: Uri): Int? = withContext(Dispatchers.IO) {
         findFreeId()
             .takeIf { storage.insert(uri, it) }
             ?.also { prefetch(it) }
     }
 
-    suspend fun delete(id: Int): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun delete(id: Int): Boolean = withContext(Dispatchers.IO) {
         val deleteResult = storage.delete(id)
         val clearCacheResult = removeFromCache(id)
         return@withContext deleteResult && clearCacheResult
     }
 
-    suspend fun deleteMany(ids: Collection<Int>): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun deleteMany(ids: Collection<Int>): Boolean = withContext(Dispatchers.IO) {
         ids.map { delete(it) }.all { it }
     }
 
-    suspend fun removeUnused(usedIds: Set<Int>): Boolean = withContext(Dispatchers.IO) {
-        deleteMany(storage.getIds().toSet() - usedIds)
+    override suspend fun removeUnused(usedIds: Set<Int>): Boolean = withContext(Dispatchers.IO) {
+        deleteMany(getAllIds().toSet() - usedIds)
+    }
+
+    override suspend fun prefetchAll(): Unit = withContext(Dispatchers.IO) {
+        getAllIds().forEach { prefetch(it) }
     }
 
     private fun prefetch(id: Int): Disposable? =

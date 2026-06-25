@@ -9,7 +9,7 @@ import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
 import java.io.FileOutputStream
 
-class ImageStorage(private val context: Context) {
+class UserImagesStorage(private val context: Context) {
     private val dir: File = context.userImagesDir()
     private val maxImageSize = 512
 

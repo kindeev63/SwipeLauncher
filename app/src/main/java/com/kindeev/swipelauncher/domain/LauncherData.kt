@@ -7,12 +7,18 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object LauncherData {
 
     private lateinit var dataRepository: DataRepository
+    private lateinit var _userImagesRepository: UserImagesRepository
+
+    val userImagesRepository: UserImagesRepository
+        get() = _userImagesRepository
+
     lateinit var allCircleMenus: StateFlow<List<CircleMenu>>
     lateinit var allApplicationData: StateFlow<List<ApplicationData>>
     lateinit var settings: StateFlow<List<SettingData>>
@@ -28,6 +34,10 @@ object LauncherData {
 
     fun setDataRepository(repository: DataRepository) {
         dataRepository = repository
+    }
+
+    fun setUserImagesRepository(repository: UserImagesRepository) {
+        _userImagesRepository = repository
     }
 
     fun setTextColorOnWallpaper(color: Color) {

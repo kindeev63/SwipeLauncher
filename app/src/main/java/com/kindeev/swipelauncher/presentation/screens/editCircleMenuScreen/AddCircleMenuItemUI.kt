@@ -24,7 +24,7 @@ fun AddCircleMenuItemUI(
             )
             .size(itemSize.dp),
         painter = painterResource(R.drawable.ic_add_circle),
-        colorFilter = ColorFilter.Companion.tint(Color.Companion.Black),
+        colorFilter = ColorFilter.tint(Color.Black),
         contentDescription = null
     )
 }

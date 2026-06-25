@@ -26,7 +26,6 @@ import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTex
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
@@ -44,16 +43,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.kindeev.swipelauncher.data.userImages.getUsedImageIds
 
 class MainActivity : ComponentActivity() {
 
     private val appsReceiver = AppsReceiver()
 
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
-    private val userImagesUseCase = UserImagesUseCase(this)
     private val applicationsUseCase = ApplicationsUseCase(this)
     private val checkCircleMenuUseCase =
-        CheckCircleMenuUseCase(userImagesUseCase, applicationsUseCase)
+        CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,11 +118,12 @@ class MainActivity : ComponentActivity() {
                     LauncherData.setAllApplications(
                         applicationsUseCase.getAllApplicationInfo()
                     )
-                    userImagesUseCase.removeUnusedUserImages(
-                        LauncherData.allCircleMenus.value,
-                        allApplicationData
+                    LauncherData.userImagesRepository.removeUnused(
+                        getUsedImageIds(
+                            LauncherData.allCircleMenus.value,
+                            allApplicationData
+                        )
                     )
-                    LauncherData.userImages = userImagesUseCase.getUserImages()
                     val changedCircleMenus =
                         checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
                     Handler(Looper.getMainLooper()).post {
@@ -140,11 +140,12 @@ class MainActivity : ComponentActivity() {
             launch {
                 LauncherData.allCircleMenus.collect { allCircleMenus ->
                     LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                    userImagesUseCase.removeUnusedUserImages(
-                        allCircleMenus,
-                        LauncherData.allApplicationData.value
+                    LauncherData.userImagesRepository.removeUnused(
+                        getUsedImageIds(
+                            allCircleMenus,
+                            LauncherData.allApplicationData.value
+                        )
                     )
-                    LauncherData.userImages = userImagesUseCase.getUserImages()
                     val changedCircleMenus =
                         checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
                     Handler(Looper.getMainLooper()).post {

@@ -7,7 +7,6 @@ import android.content.Context
 import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -17,23 +16,22 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetItemImageUseCase
-import com.kindeev.swipelauncher.domain.useCases.UserImagesUseCase
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.SelectedItemBoxData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -48,9 +46,7 @@ class EditCircleMenuScreenVM(
     context: Context
 ) : ViewModel() {
 
-    private val getItemImageUseCase = GetItemImageUseCase(context)
     private val applicationsUseCase = ApplicationsUseCase(context)
-    private val userImagesUseCase = UserImagesUseCase(context)
 
     // CircleMenu
     private val _circleMenu = MutableStateFlow<CircleMenu?>(null)
@@ -81,10 +77,6 @@ class EditCircleMenuScreenVM(
             _circleMenu.value = menu
             itemSize = getItemSize(menu?.items?.size ?: 0)
         }
-    }
-
-    fun getItemImage(circleMenuImage: CircleMenuImage): ImageBitmap? {
-        return getItemImageUseCase.getItemImage(circleMenuImage)
     }
 
     fun changeTitle(title: String) {
@@ -318,7 +310,7 @@ class EditCircleMenuScreenVM(
                 )
                 return GhostCircleMenuItem(
                     index = item.index,
-                    image = getItemImageUseCase.getItemImage(item.circleMenuItem.image),
+                    image = item.circleMenuItem.image,
                     offset = Offset(
                         x = offset.x + firstOffset.x,
                         y = offset.y + firstOffset.y
@@ -420,7 +412,7 @@ class EditCircleMenuScreenVM(
         )
         return GhostCircleMenuItem(
             index = null,
-            image = getItemImageUseCase.getItemImage(DefaultImage(DefaultImages.Build)),
+            image = DefaultImage(DefaultImages.Build),
             offset = Offset(
                 x = offset.x + firstOffset.x,
                 y = offset.y + firstOffset.y
@@ -474,7 +466,7 @@ class EditCircleMenuScreenVM(
         return applicationsUseCase.getAllApplicationData(applicationsInfo)
     }
 
-    fun addUserImage(uri: Uri): UserImage? {
-        return userImagesUseCase.addUserImage(uri = uri)
+    suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {
+        LauncherData.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
     }
 }

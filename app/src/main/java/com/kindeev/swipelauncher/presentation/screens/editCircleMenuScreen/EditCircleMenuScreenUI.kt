@@ -1,7 +1,6 @@
 package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +53,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
@@ -101,6 +102,7 @@ private fun LandscapeUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenu by viewModel.circleMenu.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val context = LocalContext.current
 
     // UI
     Scaffold(
@@ -163,18 +165,16 @@ private fun LandscapeUI(
                             val itemsOffset = viewModel.getItemsOffsets()
                             menu.items.forEachIndexed { index, item ->
                                 if (index != ghostItem?.index) {
-                                    viewModel.getItemImage(item.image)?.let { imageBitmap ->
-                                        Image(
-                                            modifier = Modifier
-                                                .offset(
-                                                    x = itemsOffset[index].x,
-                                                    y = itemsOffset[index].y
-                                                )
-                                                .size(viewModel.itemSize.dp),
-                                            bitmap = imageBitmap,
-                                            contentDescription = null
-                                        )
-                                    }
+                                    AsyncImage(
+                                        model = item.image.getCoilModel(context),
+                                        modifier = Modifier
+                                            .offset(
+                                                x = itemsOffset[index].x,
+                                                y = itemsOffset[index].y
+                                            )
+                                            .size(viewModel.itemSize.dp),
+                                        contentDescription = null
+                                    )
                                 }
                             }
                         }
@@ -220,6 +220,7 @@ private fun PortraitUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenu by viewModel.circleMenu.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val context = LocalContext.current
 
     // UI
     Scaffold(
@@ -269,18 +270,16 @@ private fun PortraitUI(
                         val itemsOffset = viewModel.getItemsOffsets()
                         menu.items.forEachIndexed { index, item ->
                             if (index != ghostItem?.index) {
-                                viewModel.getItemImage(item.image)?.let { imageBitmap ->
-                                    Image(
-                                        modifier = Modifier
-                                            .offset(
-                                                x = itemsOffset[index].x,
-                                                y = itemsOffset[index].y
-                                            )
-                                            .size(viewModel.itemSize.dp),
-                                        bitmap = imageBitmap,
-                                        contentDescription = null
-                                    )
-                                }
+                                AsyncImage(
+                                    model = item.image.getCoilModel(context),
+                                    modifier = Modifier
+                                        .offset(
+                                            x = itemsOffset[index].x,
+                                            y = itemsOffset[index].y
+                                        )
+                                        .size(viewModel.itemSize.dp),
+                                    contentDescription = null
+                                )
                             }
                         }
                     }
@@ -448,7 +447,6 @@ private fun ImageAndActionEdit(
                 action = circleMenuItem.action,
                 getAllApplicationsData = viewModel::getAllApplicationsData,
                 getApplicationInfo = viewModel::getApplicationInfo,
-                getItemImage = viewModel::getItemImage,
                 size = viewModel.size / 5,
                 onChangeAction = onChangeAction
             )
@@ -466,26 +464,24 @@ fun ItemImage(
     var showImageDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
 
     if (showImageDialog) {
         ImageDialog(
             addUserImage = viewModel::addUserImage,
-            getItemImage = viewModel::getItemImage,
             getAllApplicationsData = viewModel::getAllApplicationsData,
             onDismissRequest = { showImageDialog = false },
             onPick = onChangeImage
         )
     }
 
-    viewModel.getItemImage(image)?.let { bitmap ->
-        Image(
-            modifier = Modifier
-                .size(size.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .clickable { showImageDialog = true }
-                .padding(5.dp),
-            bitmap = bitmap,
-            contentDescription = null
-        )
-    }
+    AsyncImage(
+        model = image.getCoilModel(context),
+        modifier = Modifier
+            .size(size.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { showImageDialog = true }
+            .padding(5.dp),
+        contentDescription = null
+    )
 }

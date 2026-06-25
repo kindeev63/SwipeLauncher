@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 
@@ -51,9 +54,9 @@ fun ApplicationInfoDialog(
     val firstApplicationData = rememberSaveable { viewModel.getApplicationData(packageName) }
     var appData by rememberSaveable { mutableStateOf(firstApplicationData) }
     var imageDialogVisibility by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
     if (imageDialogVisibility) {
         ImageDialog(
-            getItemImage = viewModel::getItemImage,
             addUserImage = viewModel::addUserImage,
             getAllApplicationsData = viewModel::getAllApplicationsData,
             onDismissRequest = {
@@ -84,14 +87,13 @@ fun ApplicationInfoDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.width(10.dp))
-                Image(
+                AsyncImage(
+                    model = appData.image.getCoilModel(context),
                     modifier = Modifier
                         .size(Constants.minScreenLength.dp / 7 + 10.dp)
                         .clip(RoundedCornerShape(7.dp))
                         .clickable { imageDialogVisibility = true }
                         .padding(5.dp),
-                    bitmap = viewModel.getItemImage(appData.image)
-                        ?: throw IllegalArgumentException("Illegal image"),
                     contentDescription = "Application Image"
                 )
                 Spacer(modifier = Modifier.width(15.dp))

@@ -7,13 +7,14 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 
 class CheckCircleMenuUseCase(
-    private val userImagesUseCase: UserImagesUseCase,
+    private val userImagesRepository: UserImagesRepository,
     private val applicationsUseCase: ApplicationsUseCase
 ) {
 
-    fun check(
+    suspend fun check(
         circleMenu: CircleMenu,
 
     ): Boolean {
@@ -21,7 +22,7 @@ class CheckCircleMenuUseCase(
             circleMenu = circleMenu,
             allCircleMenuIds = LauncherData.allCircleMenus.value.map { it.id },
             allPackageNames = LauncherData.allApplicationInfo.value.map { it.packageName },
-            userImageIds = userImagesUseCase.getUserImageIds()
+            userImageIds = userImagesRepository.getAllIds()
         ) == null
     }
 
@@ -90,12 +91,12 @@ class CheckCircleMenuUseCase(
         return changedCircleMenus
     }
 
-    fun getOnlyChanged(
+    suspend fun getOnlyChanged(
         circleMenus: List<CircleMenu>
     ) = getOnlyChanged(
         circleMenus = circleMenus,
         allCircleMenuIds = LauncherData.allCircleMenus.value.map { it.id },
         allPackageNames = applicationsUseCase.getAllApplicationInfo().map { it.packageName },
-        userImageIds = userImagesUseCase.getUserImageIds()
+        userImageIds = userImagesRepository.getAllIds()
     )
 }

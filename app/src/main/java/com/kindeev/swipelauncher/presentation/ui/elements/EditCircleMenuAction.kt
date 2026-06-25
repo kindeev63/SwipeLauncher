@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.userImages.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
@@ -48,7 +49,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
@@ -64,7 +64,6 @@ fun EditCircleMenuAction(
     action: CircleMenuAction,
     getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     getApplicationInfo: (String) -> ApplicationInfo,
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     size: Float,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -74,7 +73,6 @@ fun EditCircleMenuAction(
 
     if (showActionDialog) {
         ActionDialog(
-            getItemImage = getItemImage,
             getAllApplicationsData = getAllApplicationsData,
             onDismissRequest = { showActionDialog = false },
             onPick = onChangeAction
@@ -83,7 +81,6 @@ fun EditCircleMenuAction(
     when (action) {
         is OpenCircleMenuAction -> {
             OpenCircleMenuDataItem(
-                getItemImage = getItemImage,
                 size = size,
                 action = action,
                 changeAction = { showActionDialog = true }
@@ -92,7 +89,6 @@ fun EditCircleMenuAction(
 
         is OpenSettingsAction -> {
             OpenSettingsDataItem(
-                getItemImage = getItemImage,
                 size = size,
                 changeAction = { showActionDialog = true }
             )
@@ -160,7 +156,6 @@ fun EditCircleMenuAction(
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 private fun OpenCircleMenuDataItem(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     size: Float,
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
@@ -183,7 +178,6 @@ private fun OpenCircleMenuDataItem(
                 contentAlignment = Alignment.Center
             ) {
                 CircleMenuItems(
-                    getItemImage = getItemImage,
                     items = it.items,
                     menuSize = size - 10,
                 )
@@ -200,21 +194,19 @@ private fun OpenCircleMenuDataItem(
 
 @Composable
 private fun OpenSettingsDataItem(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     size: Float,
     changeAction: () -> Unit
 ) {
-    getItemImage(DefaultImage(DefaultImages.Settings))?.let { bitmap ->
-        Image(
-            modifier = Modifier
-                .size(size.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = changeAction)
-                .padding(5.dp),
-            bitmap = bitmap,
-            contentDescription = null
-        )
-    }
+    val context = LocalContext.current
+    AsyncImage(
+        model = DefaultImage(DefaultImages.Settings).getCoilModel(context),
+        modifier = Modifier
+            .size(size.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = changeAction)
+            .padding(5.dp),
+        contentDescription = null
+    )
 }
 
 @Composable

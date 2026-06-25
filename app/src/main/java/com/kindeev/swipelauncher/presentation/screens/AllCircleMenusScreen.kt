@@ -175,7 +175,6 @@ fun AllCircleMenusScreen(
                 items = allCircleMenus
             ) { circleMenu ->
                 MiniCircleMenuItem(
-                    getItemImage = viewModel::getItemImage,
                     size = LocalConfiguration.current.screenWidthDp / 2f,
                     selected = circleMenu.id in selectedMenuIds,
                     root = circleMenu.id == 0,

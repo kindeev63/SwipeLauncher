@@ -28,12 +28,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,28 +52,31 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageDialog(
     onDismissRequest: () -> Unit,
-    addUserImage: (Uri) -> UserImage?,
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
+    addUserImage: suspend (Uri) -> UserImage?,
     getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onLaunchGetUserImage: () -> Unit = {},
     onPick: (CircleMenuImage) -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val launcher = rememberLauncherForActivityResult(
         contract =
-        ActivityResultContracts.GetContent()
+            ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val userImage = addUserImage(uri)
-            if (userImage == null) {
-                Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
-            } else {
-                onPick(userImage)
-                onDismissRequest()
+            scope.launch {
+                val userImage = addUserImage(uri)
+                if (userImage == null) {
+                    Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
+                } else {
+                    onPick(userImage)
+                    onDismissRequest()
+                }
             }
         }
     }
@@ -94,7 +97,6 @@ fun ImageDialog(
     when (imageType) {
         AllImageTypes.AppImage -> {
             AppImageData(
-                getItemImage = getItemImage,
                 getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
@@ -113,6 +115,7 @@ fun ImageDialog(
                 onDismissRequest = { imageType = null }
             )
         }
+
         else -> {}
     }
 }
@@ -194,7 +197,6 @@ private fun ImageTypeElement(
 
 @Composable
 fun AppImageData(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onPick: (CircleMenuImage) -> Unit,
     onDismissRequest: () -> Unit
@@ -224,14 +226,12 @@ fun AppImageData(
                     },
                     key = { it.packageName }
                 ) { applicationData ->
-                    getItemImage(applicationData.image)?.let { image ->
-                        AppItem(
-                            title = applicationData.title,
-                            image = image
-                        ) {
-                            onPick(AppImage(applicationData.packageName))
-                            onDismissRequest()
-                        }
+                    AppItem(
+                        title = applicationData.title,
+                        image = applicationData.image
+                    ) {
+                        onPick(AppImage(applicationData.packageName))
+                        onDismissRequest()
                     }
                 }
             }

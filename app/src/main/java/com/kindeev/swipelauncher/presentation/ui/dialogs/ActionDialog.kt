@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -67,7 +66,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
@@ -79,7 +77,6 @@ import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 
 @Composable
 fun ActionDialog(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
@@ -94,7 +91,6 @@ fun ActionDialog(
     when (actionCategory) {
         ActionCategories.OpenCircleMenu -> {
             OpenCircleMenuActionData(
-                getItemImage = getItemImage,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -105,7 +101,6 @@ fun ActionDialog(
 
         ActionCategories.OpenApp -> {
             OpenAppActionData(
-                getItemImage = getItemImage,
                 getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
@@ -232,7 +227,6 @@ private fun ActionTypeElement(
 
 @Composable
 fun OpenCircleMenuActionData(
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -263,7 +257,6 @@ fun OpenCircleMenuActionData(
                     }
                 ) { circleMenu ->
                     MiniCircleMenuItem(
-                        getItemImage = getItemImage,
                         size = (Integer.min(
                             LocalConfiguration.current.screenWidthDp,
                             LocalConfiguration.current.screenHeightDp
@@ -283,7 +276,6 @@ fun OpenCircleMenuActionData(
 @Composable
 fun OpenAppActionData(
     getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
-    getItemImage: (CircleMenuImage) -> ImageBitmap?,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -312,14 +304,12 @@ fun OpenAppActionData(
                     },
                     key = { it.packageName }
                 ) { applicationData ->
-                    getItemImage(applicationData.image)?.let { image ->
-                        AppItem(
-                            title = applicationData.title,
-                            image = image
-                        ) {
-                            onPick(OpenAppAction(packageName = applicationData.packageName))
-                            onDismissRequest()
-                        }
+                    AppItem(
+                        title = applicationData.title,
+                        image = applicationData.image
+                    ) {
+                        onPick(OpenAppAction(packageName = applicationData.packageName))
+                        onDismissRequest()
                     }
                 }
 

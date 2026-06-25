@@ -57,8 +57,8 @@ fun Context.showLauncherSelection() {
     }
 }
 
-fun DefaultImages.getResourceId(): Int? {
-    return Constants.defaultImages[this]
+fun DefaultImages.getResourceId(): Int {
+    return Constants.defaultImages.getOrDefault(this, 0)
 }
 
 fun Context.registerAppsReceiver(appsReceiver: AppsReceiver) {
