@@ -2,12 +2,11 @@ package com.kindeev.swipelauncher.presentation
 
 import android.app.Application
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.data.AppDataBase
-import com.kindeev.swipelauncher.data.getRepository
+import com.kindeev.swipelauncher.data.database.AppDataBase
+import com.kindeev.swipelauncher.data.database.getRepository
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
-import com.kindeev.swipelauncher.presentation.activities.ErrorActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
