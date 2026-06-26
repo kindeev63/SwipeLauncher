@@ -15,18 +15,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 
 @Composable
 fun SearchBoxSearchElement(
     searchText: String,
     onChangeText: (String) -> Unit
 ) {
-    val textColorOnWallpaper by LauncherData.textColorOnWallpaper.collectAsState()
+    val context = LocalContext.current
+    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {

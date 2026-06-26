@@ -55,7 +55,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
@@ -85,7 +85,7 @@ fun AllCircleMenusScreen(
     val viewModel: AllCircleMenusScreenVM = viewModel(
         factory = AllCircleMenusScreenVMFactory(context)
     )
-    val allCircleMenus by LauncherData.allCircleMenus.collectAsState()
+    val allCircleMenus by context.container.circleMenus.collectAsState()
     val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
 
     val pickJsonFile = rememberLauncherForActivityResult(

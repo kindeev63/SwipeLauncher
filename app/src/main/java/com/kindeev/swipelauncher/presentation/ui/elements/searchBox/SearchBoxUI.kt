@@ -19,7 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.utils.getValueOf
@@ -36,8 +36,8 @@ fun SearchBoxUI(
     BackHandler(onBack = onClose)
     val context = LocalContext.current
     val searchText by viewModel.searchText.collectAsState()
-    val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
-    val settings by LauncherData.settings.collectAsState()
+    val allApplicationInfo by context.container.applicationsInfo.collectAsState()
+    val settings by context.container.settings.collectAsState()
     val searchResults = viewModel.getSearchResults(allApplicationInfo)
     var applicationInfoDialog by rememberSaveable {
         mutableStateOf<String?>(null)

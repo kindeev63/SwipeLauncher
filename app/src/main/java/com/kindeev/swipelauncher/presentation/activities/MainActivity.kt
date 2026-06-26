@@ -19,7 +19,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
@@ -44,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
 import com.kindeev.swipelauncher.data.userImages.getUsedImageIds
+import com.kindeev.swipelauncher.di.container
 
 class MainActivity : ComponentActivity() {
 
@@ -51,8 +51,8 @@ class MainActivity : ComponentActivity() {
 
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
     private val applicationsUseCase = ApplicationsUseCase(this)
-    private val checkCircleMenuUseCase =
-        CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
+    private val checkCircleMenuUseCase by lazy {
+        CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         OnboardingScreen(
                             onFinish = {
                                 scope.launch {
-                                    LauncherData.insertCircleMenu(
+                                    container.dataRepository.insertCircleMenu(
                                         getRootCircleMenuUseCase.get(
                                             context.resources.getString(
                                                 R.string.root
@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     startDestination = if (isFirstRun()) {
                         if (context.isMyLauncherDefault()) {
-                            LauncherData.insertCircleMenu(
+                            container.dataRepository.insertCircleMenu(
                                 getRootCircleMenuUseCase.get(
                                     context.resources.getString(
                                         R.string.root
@@ -114,22 +114,22 @@ class MainActivity : ComponentActivity() {
         }
         CoroutineScope(Dispatchers.IO).launch {
             launch {
-                LauncherData.allApplicationData.collect { allApplicationData ->
-                    LauncherData.setAllApplications(
+                container.applicationsData.collect { allApplicationData ->
+                    container.setApplications(
                         applicationsUseCase.getAllApplicationInfo()
                     )
-                    LauncherData.userImagesRepository.removeUnused(
+                    container.userImagesRepository.removeUnused(
                         getUsedImageIds(
-                            LauncherData.allCircleMenus.value,
+                            container.circleMenus.value,
                             allApplicationData
                         )
                     )
                     val changedCircleMenus =
-                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                        checkCircleMenuUseCase.getOnlyChanged(container.circleMenus.value)
                     Handler(Looper.getMainLooper()).post {
                         if (changedCircleMenus.isNotEmpty()) {
                             CoroutineScope(Dispatchers.IO).launch {
-                                LauncherData.insertCircleMenus(
+                                container.dataRepository.insertCircleMenus(
                                     changedCircleMenus
                                 )
                             }
@@ -138,12 +138,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
             launch {
-                LauncherData.allCircleMenus.collect { allCircleMenus ->
-                    LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                    LauncherData.userImagesRepository.removeUnused(
+                container.circleMenus.collect { allCircleMenus ->
+                    container.setApplications(applicationsUseCase.getAllApplicationInfo())
+                    container.userImagesRepository.removeUnused(
                         getUsedImageIds(
                             allCircleMenus,
-                            LauncherData.allApplicationData.value
+                            container.applicationsData.value
                         )
                     )
                     val changedCircleMenus =
@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
                     Handler(Looper.getMainLooper()).post {
                         if (changedCircleMenus.isNotEmpty()) {
                             CoroutineScope(Dispatchers.IO).launch {
-                                LauncherData.insertCircleMenus(
+                                container.dataRepository.insertCircleMenus(
                                     changedCircleMenus
                                 )
                             }
@@ -160,8 +160,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
             launch {
-                LauncherData.settings.collect { settings ->
-                    LauncherData.setTextColorOnWallpaper(
+                container.settings.collect { settings ->
+                    container.setTextColorOnWallpaper(
                         if (settings.getValueOf(
                                 SettingNames.BlackTextColorOnWallpaper,
                                 BlackTextColorOnWallpaper::class.java

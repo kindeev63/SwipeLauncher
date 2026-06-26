@@ -19,7 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
 import com.kindeev.swipelauncher.domain.utils.getValueOf
@@ -44,7 +44,7 @@ fun LauncherScreen() {
     BackHandler {}
     val scope = rememberCoroutineScope()
     scope.launch {
-        LauncherData.allCircleMenus.collect { allMenus ->
+        context.container.circleMenus.collect { allMenus ->
             (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
                 ?: allMenus.find { it.id == 0 })?.let {
                 viewModel.setCircleMenu(it)
@@ -90,7 +90,8 @@ fun LauncherScreen() {
 
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val settings by LauncherData.settings.collectAsState()
+    val context = LocalContext.current
+    val settings by context.container.settings.collectAsState()
     val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
     val scope = rememberCoroutineScope()
     SwipeBoxUI(viewModel = viewModel)

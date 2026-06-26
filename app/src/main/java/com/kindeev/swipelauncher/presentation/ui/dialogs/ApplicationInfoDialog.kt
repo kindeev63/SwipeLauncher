@@ -40,7 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.userImages.getCoilModel
+import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 

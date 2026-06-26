@@ -54,9 +54,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
@@ -231,6 +231,7 @@ fun OpenCircleMenuActionData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
+    val context = LocalContext.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -252,7 +253,7 @@ fun OpenCircleMenuActionData(
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = LauncherData.allCircleMenus.value.filter {
+                    items = context.container.circleMenus.value.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     }
                 ) { circleMenu ->
@@ -280,6 +281,7 @@ fun OpenAppActionData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
+    val context = LocalContext.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -292,7 +294,7 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
+            val allApplicationInfo by context.container.applicationsInfo.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

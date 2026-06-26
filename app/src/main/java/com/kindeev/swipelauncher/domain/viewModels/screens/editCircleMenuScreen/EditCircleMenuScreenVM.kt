@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
@@ -46,6 +46,8 @@ class EditCircleMenuScreenVM(
     context: Context
 ) : ViewModel() {
 
+    private val container = context.container
+
     private val applicationsUseCase = ApplicationsUseCase(context)
 
     // CircleMenu
@@ -59,7 +61,7 @@ class EditCircleMenuScreenVM(
 
     init {
         if (circleMenuId == null) {
-            val allIds = LauncherData.allCircleMenus.value.map { it.id }
+            val allIds = container.circleMenus.value.map { it.id }
             var currentId = 0
             while (true) {
                 if (currentId !in allIds) break
@@ -73,7 +75,7 @@ class EditCircleMenuScreenVM(
             _circleMenu.value = circleMenu
             itemSize = getItemSize(0)
         } else {
-            val menu = LauncherData.allCircleMenus.value.find { it.id == circleMenuId }
+            val menu = container.circleMenus.value.find { it.id == circleMenuId }
             _circleMenu.value = menu
             itemSize = getItemSize(menu?.items?.size ?: 0)
         }
@@ -271,7 +273,7 @@ class EditCircleMenuScreenVM(
         }
         val alpha = 360f / menu.items.size
         val offsets = mutableListOf<CircleMenuItemWithOffset>()
-        (0 until menu.items.size).map { index ->
+        menu.items.indices.forEach { index ->
             val item = menu.items[index]
             val angle = (alpha * index + 0.5f * alpha + startOffset) * PI / 180f
             val offset = Offset(
@@ -331,7 +333,7 @@ class EditCircleMenuScreenVM(
                 return 0
             }
             val alpha = 360f / menu.items.size
-            val angles = (0 until menu.items.size).map { alpha * it }
+            val angles = menu.items.indices.map { alpha * it }
             val currentAngle = if (offset.y == 0f) {
                 ((if (offset.x > 0) 90 else 270) - startOffset) % 360
             } else {
@@ -369,7 +371,7 @@ class EditCircleMenuScreenVM(
 
     fun getItemsOffsets(): List<DpOffset> {
         val alpha = 360f / menu.items.size
-        return (0 until menu.items.size).map { alpha * it }.map {
+        return menu.items.indices.map { alpha * it }.map {
             DpOffset(
                 x = (size / 2 + sin((it + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
                 y = (size / 2 - cos((it + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
@@ -425,7 +427,7 @@ class EditCircleMenuScreenVM(
     private fun updateCircleMenu() {
         viewModelScope.launch {
             circleMenu.value?.let {
-                LauncherData.insertCircleMenu(it)
+                container.dataRepository.insertCircleMenu(it)
             }
         }
     }
@@ -447,7 +449,7 @@ class EditCircleMenuScreenVM(
     fun updateImage(item: CircleMenuItem, index: Int) = viewModelScope.launch {
         circleMenu.value?.let { circleMenu ->
             var action = item.action
-            if (item.image is AppImage && LauncherData.settings.value.getValueOf(
+            if (item.image is AppImage && container.settings.value.getValueOf(
                     SettingNames.PickAppActionWithImage,
                     PickAppActionWithImage::class.java
                 )?.enabled == true
@@ -467,6 +469,6 @@ class EditCircleMenuScreenVM(
     }
 
     suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {
-        LauncherData.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
+        container.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
     }
 }

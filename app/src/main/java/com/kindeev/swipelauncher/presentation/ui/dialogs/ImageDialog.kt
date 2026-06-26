@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
@@ -202,6 +202,7 @@ fun AppImageData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
+    val context = LocalContext.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -214,7 +215,7 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
+            val allApplicationInfo by context.container.applicationsInfo.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

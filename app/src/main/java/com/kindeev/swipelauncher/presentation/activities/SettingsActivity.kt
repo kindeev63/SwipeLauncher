@@ -13,7 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.data.userImages.getUsedImageIds
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class SettingsActivity : ComponentActivity() {
 
     private val applicationsUseCase = ApplicationsUseCase(this)
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
+    private val checkCircleMenuUseCase by lazy { CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +38,12 @@ class SettingsActivity : ComponentActivity() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            LauncherData.allCircleMenus.collect { allCircleMenus ->
-                LauncherData.setAllApplications(applicationsUseCase.getAllApplicationInfo())
-                LauncherData.userImagesRepository.removeUnused(
+            container.circleMenus.collect { allCircleMenus ->
+                container.setApplications(applicationsUseCase.getAllApplicationInfo())
+                container.userImagesRepository.removeUnused(
                     getUsedImageIds(
                         allCircleMenus,
-                        LauncherData.allApplicationData.value
+                        container.applicationsData.value
                     )
                 )
                 val changedCircleMenus =
@@ -51,7 +51,7 @@ class SettingsActivity : ComponentActivity() {
                 Handler(Looper.getMainLooper()).post {
                     if (changedCircleMenus.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            LauncherData.insertCircleMenus(
+                            container.dataRepository.insertCircleMenus(
                                 changedCircleMenus
                             )
                         }

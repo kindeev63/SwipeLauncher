@@ -28,8 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
@@ -52,9 +52,10 @@ fun MainSettingsScreen(
     navigateToHiddenApps: () -> Unit,
     navigateToTutorial: () -> Unit
 ) {
-    val settings by LauncherData.settings.collectAsState()
-    val allApplicationData by LauncherData.allApplicationData.collectAsState()
     val context = LocalContext.current
+    val container = context.container
+    val settings by container.settings.collectAsState()
+    val allApplicationData by container.applicationsData.collectAsState()
     val scope = rememberCoroutineScope()
     val viewModel: MainSettingsScreenVM = viewModel(
         factory = MainSettingsScreenVMFactory(context)
@@ -113,7 +114,7 @@ fun MainSettingsScreen(
                         ?: throw IllegalArgumentException("Illegal open app setting value"),
                     onChangeValue = {
                         scope.launch {
-                            LauncherData.insertSetting(
+                            container.insertSetting(
                                 SettingData(
                                     name = SettingNames.OpenLastApp,
                                     value = OpenLastApp(it)
@@ -135,7 +136,7 @@ fun MainSettingsScreen(
                         value = value?.enabled == true,
                         onChangeValue = {
                             scope.launch {
-                                LauncherData.insertSetting(
+                                container.insertSetting(
                                     SettingData(
                                         name = SettingNames.ClickOnClock,
                                         value = ClickOnClock(it, value?.action)
@@ -170,7 +171,7 @@ fun MainSettingsScreen(
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = {
                                     scope.launch {
-                                        LauncherData.insertSetting(
+                                        container.insertSetting(
                                             SettingData(
                                                 name = SettingNames.ClickOnClock,
                                                 value = ClickOnClock(true, it)
@@ -197,7 +198,7 @@ fun MainSettingsScreen(
                         ?: throw IllegalArgumentException("Illegal black text color on wallpaper setting value"),
                     onChangeValue = {
                         scope.launch {
-                            LauncherData.insertSetting(
+                            container.insertSetting(
                                 SettingData(
                                     name = SettingNames.BlackTextColorOnWallpaper,
                                     value = BlackTextColorOnWallpaper(it)
@@ -221,7 +222,7 @@ fun MainSettingsScreen(
                         ?: throw IllegalArgumentException("Illegal pick app action with image setting value"),
                     onChangeValue = {
                         scope.launch {
-                            LauncherData.insertSetting(
+                            container.insertSetting(
                                 SettingData(
                                     name = SettingNames.PickAppActionWithImage,
                                     value = PickAppActionWithImage(it)

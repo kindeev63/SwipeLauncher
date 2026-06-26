@@ -1,8 +1,9 @@
-package com.kindeev.swipelauncher.data.userImages
+package com.kindeev.swipelauncher.data.coil
 
 import android.content.Context
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import com.kindeev.swipelauncher.data.userImages.UserImagesRepository
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage

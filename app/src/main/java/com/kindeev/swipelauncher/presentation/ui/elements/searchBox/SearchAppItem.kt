@@ -20,8 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.userImages.getCoilModel
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.data.coil.getCoilModel
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -32,8 +32,8 @@ fun SearchAppItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val textColorOnWallpaper by LauncherData.textColorOnWallpaper.collectAsState()
     val context = LocalContext.current
+    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
@@ -40,7 +40,7 @@ class ImportCircleMenusUseCase(
         )
         addUserImages(files.filter { it.name != "data.json" }, userImageIds)
         userImagesRepository.prefetchAll()
-        LauncherData.insertCircleMenus(newCircleMenus)
+        context.container.dataRepository.insertCircleMenus(newCircleMenus)
         files.forEach { it.delete() }
         return true
     }
@@ -156,7 +156,7 @@ class ImportCircleMenusUseCase(
     private fun getNewCircleMenuIds(circleMenus: List<CircleMenu>): Map<Int, Int> {
         val circleMenuIds = mutableMapOf<Int, Int>()
         val existingCircleMenuIds =
-            LauncherData.allCircleMenus.value.map { it.id }.filter { it != 0 }
+            context.container.circleMenus.value.map { it.id }.filter { it != 0 }
         circleMenus.map { it.id }.forEach { id ->
             var newId = id
             while (newId in existingCircleMenuIds || newId in circleMenuIds.values) {

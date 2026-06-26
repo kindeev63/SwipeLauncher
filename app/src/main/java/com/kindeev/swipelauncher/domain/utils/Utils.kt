@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
@@ -196,8 +196,8 @@ fun <T> List<SettingData>.getValueOf(name: SettingNames, classOfT: Class<T>): T?
     return this.find { it.name == name }?.value as T?
 }
 
-fun getLauncherStatusBarStyle(): SystemBarStyle {
-    return if (LauncherData.settings.value.getValueOf(
+fun Context.getLauncherStatusBarStyle(): SystemBarStyle {
+    return if (container.settings.value.getValueOf(
             SettingNames.BlackTextColorOnWallpaper,
             BlackTextColorOnWallpaper::class.java
         )?.enabled == true

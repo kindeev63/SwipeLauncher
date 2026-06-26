@@ -17,17 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
 fun ClockWidget(
 ) {
-    val textColorOnWallpaper by LauncherData.textColorOnWallpaper.collectAsState()
     val context = LocalContext.current
+    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))
@@ -41,7 +42,7 @@ fun ClockWidget(
             val locTime = LocalDateTime.now()
             time = getTime(locTime)
             date = getDate(context, locTime)
-            delay(1000L)
+            delay(1000L.milliseconds)
         }
 
     }
@@ -66,8 +67,8 @@ fun ClockWidget(
 fun ClickableClockWidget(
     onClick: () -> Unit
 ) {
-    val textColorOnWallpaper by LauncherData.textColorOnWallpaper.collectAsState()
     val context = LocalContext.current
+    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))
@@ -81,7 +82,7 @@ fun ClickableClockWidget(
             val locTime = LocalDateTime.now()
             time = getTime(locTime)
             date = getDate(context, locTime)
-            delay(1000L)
+            delay(1000L.milliseconds)
         }
 
     }

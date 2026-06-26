@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
@@ -23,7 +23,7 @@ class AppsReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val applicationsUseCase = ApplicationsUseCase(context)
-        val checkCircleMenuUseCase = CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
+        val checkCircleMenuUseCase = CheckCircleMenuUseCase(context.container.userImagesRepository, applicationsUseCase)
 
         thread {
             val newApplicationsInfo = applicationsUseCase.getAllApplicationInfo()
@@ -31,11 +31,11 @@ class AppsReceiver : BroadcastReceiver() {
                 this.goAsync()
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.launch {
-                    LauncherData.setAllApplications(newApplicationsInfo)
-                    LauncherData.insertCircleMenus(
-                        checkCircleMenuUseCase.getOnlyChanged(LauncherData.allCircleMenus.value)
+                    context.container.setApplications(newApplicationsInfo)
+                    context.container.dataRepository.insertCircleMenus(
+                        checkCircleMenuUseCase.getOnlyChanged(context.container.circleMenus.value)
                     )
-                    LauncherData.settings.value.getValueOf(
+                    context.container.settings.value.getValueOf(
                         SettingNames.ClickOnClock,
                         ClickOnClock::class.java
                     )?.action?.let { circleMenuAction ->
@@ -44,7 +44,7 @@ class AppsReceiver : BroadcastReceiver() {
                                 if (!applicationsUseCase.isAppInstalled(circleMenuAction.packageName)) {
                                     Constants.defaultSettings.find { it.name == SettingNames.ClickOnClock }
                                         ?.let {
-                                            LauncherData.insertSetting(it)
+                                            context.container.insertSetting(it)
                                         }
                                 }
                             }
@@ -53,7 +53,7 @@ class AppsReceiver : BroadcastReceiver() {
                         }
                     }
                     applicationsUseCase.check(
-                        LauncherData.allApplicationData.value,
+                        context.container.applicationsData.value,
                         newApplicationsInfo
                     )
                 }

@@ -10,8 +10,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
@@ -49,16 +49,18 @@ import kotlin.math.sqrt
 
 class LauncherScreenVM(context: Context) : ViewModel() {
 
+    private val container = context.container
+
     private val applicationsUseCase = ApplicationsUseCase(context)
     private val checkCircleMenuUseCase =
-        CheckCircleMenuUseCase(LauncherData.userImagesRepository, applicationsUseCase)
+        CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase)
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
     private val openUrlUseCase = OpenUrlUseCase(context)
 
     private val _currentMenu = MutableStateFlow(
-        LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
+        container.circleMenus.value.find { it.id == 0 }?.let {
             CircleMenuWithOffset(it, null)
         }
     )
@@ -70,8 +72,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val size = Constants.minScreenLength / 3f * 2
     private val radius = (size / 2 - size / 5)
     private val radiusSq = radius.pow(2)
-    private var offsets = getOffsets(LauncherData.allCircleMenus.value, size)
-    private var sizes = getSizes(LauncherData.allCircleMenus.value)
+    private var offsets = getOffsets(container.circleMenus.value, size)
+    private var sizes = getSizes(container.circleMenus.value)
 
     private var clickTime = 0L
     private var actionInProgress = false
@@ -149,7 +151,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                LauncherData.allCircleMenus.value.find { it.id == 0 }?.let {
+                container.circleMenus.value.find { it.id == 0 }?.let {
                     _currentMenu.value =
                         CircleMenuWithOffset(
                             circleMenu = it,
@@ -170,17 +172,20 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             is OpenCircleMenuAction -> {
                 offset?.let { newOffset ->
                     var circleMenuForCheck =
-                        LauncherData.allCircleMenus.value.find { it.id == action.id }
-                            ?: LauncherData.allCircleMenus.value.find { it.id == 0 }
+                        container.circleMenus.value.find { it.id == action.id }
+                            ?: container.circleMenus.value.find { it.id == 0 }
                     circleMenuForCheck?.let { menu ->
                         circleMenuForCheck =
                             if (checkCircleMenuUseCase.check(
-                                    menu
-                                )
+                                    circleMenu = menu,
+                                    allCircleMenuIds = container.circleMenus.value.map { it.id },
+                                    allPackageNames = container.applicationsInfo.value.map { it.packageName },
+                                    userImageIds = container.userImagesRepository.getAllIds()
+                                ) == null
                             ) {
                                 menu
                             } else {
-                                LauncherData.allCircleMenus.value.find { it.id == 0 }
+                                container.circleMenus.value.find { it.id == 0 }
                             }
                     }
                     circleMenuForCheck?.let {
@@ -204,21 +209,21 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
             is FlashLightOnAction -> {
                 flashLightUseCase.on()
-                LauncherData.flashLightCondition = true
+                container.flashLightCondition = true
             }
 
             is FlashLightOffAction -> {
                 flashLightUseCase.off()
-                LauncherData.flashLightCondition = false
+                container.flashLightCondition = false
             }
 
             is ChangeFlashLightConditionAction -> {
-                if (LauncherData.flashLightCondition) {
+                if (container.flashLightCondition) {
                     flashLightUseCase.off()
                 } else {
                     flashLightUseCase.on()
                 }
-                LauncherData.flashLightCondition = !LauncherData.flashLightCondition
+                container.flashLightCondition = !container.flashLightCondition
             }
 
             is CallAction -> {
@@ -377,7 +382,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     }
 
     suspend fun addUserImage(uri: Uri) = withContext(Dispatchers.IO) {
-        LauncherData.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
+        container.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
     }
 
     fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {

@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.userImages.getCoilModel
+import com.kindeev.swipelauncher.data.coil.getCoilModel
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
@@ -160,7 +160,8 @@ private fun OpenCircleMenuDataItem(
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-    val circleMenus = LauncherData.allCircleMenus.collectAsState()
+    val context = LocalContext.current
+    val circleMenus = context.container.circleMenus.collectAsState()
 
     circleMenus.value.find { it.id == action.id }?.let {
         Row(

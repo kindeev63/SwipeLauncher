@@ -7,11 +7,11 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import androidx.core.net.toUri
+import com.kindeev.swipelauncher.di.container
 
 class ApplicationsUseCase(
     private val context: Context
@@ -57,7 +57,7 @@ class ApplicationsUseCase(
 
     fun getApplicationInfo(packageName: String): ApplicationInfo {
         val applicationInfo =
-            LauncherData.allApplicationInfo.value.find { it.packageName == packageName }
+            context.container.applicationsInfo.value.find { it.packageName == packageName }
         return if (applicationInfo == null) {
             val appInfo =
                 context.packageManager.getApplicationInfo(packageName, 0)
@@ -103,8 +103,8 @@ class ApplicationsUseCase(
                             && it.copy(image = AppImage(it.packageName)) in allNotMaskApplicationData
                             )
         }
-        LauncherData.deleteApplicationsData(toDelete)
-        LauncherData.insertApplicationsData(
+        context.container.dataRepository.deleteApplicationsData(toDelete)
+        context.container.dataRepository.insertApplicationsData(
             applicationsData
                 .filter { it !in toDelete }
                 .filter { it.image is AppImage && it.image.packageName !in applicationInfoPackageNames }
@@ -115,13 +115,13 @@ class ApplicationsUseCase(
     }
 
     suspend fun showApp(packageName: String) {
-        LauncherData.allApplicationData.value.find { it.packageName == packageName }
+        context.container.applicationsData.value.find { it.packageName == packageName }
             ?.let { applicationData ->
                 val notMaskAppData = getNotMaskApplicationData(applicationData.packageName)
                 if (notMaskAppData == applicationData.copy(hidden = false)) {
-                    LauncherData.deleteApplicationData(applicationData)
+                    context.container.dataRepository.deleteApplicationData(applicationData)
                 } else {
-                    LauncherData.insertApplicationData(applicationData.copy(hidden = false))
+                    context.container.dataRepository.insertApplicationData(applicationData.copy(hidden = false))
                 }
             }
     }
@@ -129,15 +129,15 @@ class ApplicationsUseCase(
     suspend fun changeApp(applicationData: ApplicationData) {
         val notMaskAppData = getNotMaskApplicationData(applicationData.packageName)
         if (applicationData == notMaskAppData) {
-            LauncherData.deleteApplicationDataByPackageName(applicationData.packageName)
+            context.container.dataRepository.deleteApplicationDataByPackageName(applicationData.packageName)
         } else {
-            LauncherData.insertApplicationData(applicationData)
+            context.container.dataRepository.insertApplicationData(applicationData)
         }
     }
 
     fun getNotHidden(applicationsInfo: List<ApplicationInfo>): List<ApplicationInfo> {
         val hidden =
-            LauncherData.allApplicationData.value.filter { it.hidden }.map { it.packageName }
+            context.container.applicationsData.value.filter { it.hidden }.map { it.packageName }
         return applicationsInfo.filter { it.packageName !in hidden }
     }
 
@@ -171,12 +171,12 @@ class ApplicationsUseCase(
     }
 
     fun getApplicationData(packageName: String): ApplicationData {
-        return LauncherData.allApplicationData.value.find { it.packageName == packageName }
+        return context.container.applicationsData.value.find { it.packageName == packageName }
             ?: getApplicationData(getApplicationInfo(packageName))
     }
 
     fun getApplicationData(applicationInfo: ApplicationInfo): ApplicationData {
-        return LauncherData.allApplicationData.value.find { it.packageName == applicationInfo.packageName }
+        return context.container.applicationsData.value.find { it.packageName == applicationInfo.packageName }
             ?: ApplicationData(
                 packageName = applicationInfo.packageName,
                 title = applicationInfo.title,

@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.data.userImages
+package com.kindeev.swipelauncher.data.coil
 
 import android.content.Context
 import coil.Coil

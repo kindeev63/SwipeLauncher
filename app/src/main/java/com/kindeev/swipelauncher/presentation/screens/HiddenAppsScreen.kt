@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.hiddenAppsScreen.HiddenAppsScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
@@ -67,8 +67,8 @@ fun HiddenAppsScreen(
         scope.launch { controller.isAppearanceLightStatusBars = true }
         onBackPressed()
     }
-    val allApplicationInfo by LauncherData.allApplicationInfo.collectAsState()
-    val allApplicationData by LauncherData.allApplicationData.collectAsState()
+    val allApplicationInfo by context.container.applicationsInfo.collectAsState()
+    val allApplicationData by context.container.applicationsData.collectAsState()
 
     var questionDialog by rememberSaveable {
         mutableStateOf<String?>(null)

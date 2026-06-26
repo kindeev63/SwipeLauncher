@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.domain.LauncherData
+import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.useCases.ExportCircleMenusUseCase
 import com.kindeev.swipelauncher.domain.useCases.ImportCircleMenusUseCase
@@ -13,9 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AllCircleMenusScreenVM(context: Context) : ViewModel() {
+
+    private val container = context.container
     private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
     val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
-    private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, LauncherData.userImagesRepository)
+    private val importCircleMenusUseCase = ImportCircleMenusUseCase(context, container.userImagesRepository)
     private val exportCircleMenusUseCase = ExportCircleMenusUseCase(context)
 
     fun selectAllMenus(allMenus: List<CircleMenu>) {
@@ -23,7 +25,7 @@ class AllCircleMenusScreenVM(context: Context) : ViewModel() {
     }
 
     fun deleteSelectedMenus(allMenus: List<CircleMenu>) = viewModelScope.launch {
-        LauncherData.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
+        container.dataRepository.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
             .filter { it.id != 0 })
         _selectedMenuIds.value = emptyList()
     }

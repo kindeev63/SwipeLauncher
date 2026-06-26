@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain.useCases
 
-import com.kindeev.swipelauncher.domain.LauncherData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
@@ -13,18 +12,6 @@ class CheckCircleMenuUseCase(
     private val userImagesRepository: UserImagesRepository,
     private val applicationsUseCase: ApplicationsUseCase
 ) {
-
-    suspend fun check(
-        circleMenu: CircleMenu,
-
-    ): Boolean {
-        return check(
-            circleMenu = circleMenu,
-            allCircleMenuIds = LauncherData.allCircleMenus.value.map { it.id },
-            allPackageNames = LauncherData.allApplicationInfo.value.map { it.packageName },
-            userImageIds = userImagesRepository.getAllIds()
-        ) == null
-    }
 
     fun check(
         circleMenu: CircleMenu,
@@ -95,7 +82,7 @@ class CheckCircleMenuUseCase(
         circleMenus: List<CircleMenu>
     ) = getOnlyChanged(
         circleMenus = circleMenus,
-        allCircleMenuIds = LauncherData.allCircleMenus.value.map { it.id },
+        allCircleMenuIds = circleMenus.map { it.id },
         allPackageNames = applicationsUseCase.getAllApplicationInfo().map { it.packageName },
         userImageIds = userImagesRepository.getAllIds()
     )

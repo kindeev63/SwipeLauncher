@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.userImages.getCoilModel
+import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 
 @Composable
