@@ -52,6 +52,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
@@ -218,6 +219,7 @@ private fun OpenAppDataItem(
     changeAction: () -> Unit
 ) {
     val applicationData = getApplicationInfo(action.packageName)
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -227,9 +229,9 @@ private fun OpenAppDataItem(
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
+        AsyncImage(
+            model = AppImage(applicationData.packageName).getCoilModel(context),
             modifier = Modifier.size(size.dp - 20.dp),
-            bitmap = applicationData.icon,
             contentDescription = "App image"
         )
         Spacer(modifier = Modifier.width(10.dp))

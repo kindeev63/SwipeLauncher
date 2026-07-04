@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
 
-    private val applicationsUseCase = ApplicationsUseCase(this)
+    private val applicationsUseCase by lazy { ApplicationsUseCase(this) }
     private val checkCircleMenuUseCase by lazy { CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase) }
 
     override fun onCreate(savedInstanceState: Bundle?) {

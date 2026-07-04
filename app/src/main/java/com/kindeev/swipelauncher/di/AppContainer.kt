@@ -3,7 +3,11 @@ package com.kindeev.swipelauncher.di
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import com.kindeev.swipelauncher.data.applications.AppsRepository
+import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
 import com.kindeev.swipelauncher.data.coil.initCoil
+import com.kindeev.swipelauncher.data.coil.prefetchApplicationImages
+import com.kindeev.swipelauncher.data.coil.prefetchUserImages
 import com.kindeev.swipelauncher.data.database.AppDataBase
 import com.kindeev.swipelauncher.data.database.getRepository
 import com.kindeev.swipelauncher.data.userImages.UserImagesRepository
@@ -26,8 +30,14 @@ class AppContainer(context: Context) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     val dataRepository = AppDataBase.getDataBase(appContext).getRepository()
+
+    val appsRepository = AppsRepository(appContext)
+
     private val userImagesStorage = UserImagesStorage(appContext)
-    val userImagesRepository = UserImagesRepository(userImagesStorage, appContext)
+
+    private val coilLoaderManager = CoilLoaderManager(appContext)
+
+    val userImagesRepository = UserImagesRepository(userImagesStorage, coilLoaderManager)
 
     val circleMenus = dataRepository.getAllCircleMenus().stateIn(
         scope = appScope,
@@ -60,8 +70,14 @@ class AppContainer(context: Context) {
         Constants.settingsTextSize = Constants.minScreenLength.sp / 20
 
         initCoil(appContext)
-        appScope.launch {
-            userImagesRepository.prefetchAll()
+        appScope.launch(Dispatchers.IO) {
+            launch {
+                coilLoaderManager.prefetchUserImages(userImagesRepository.getAllFiles())
+            }
+            launch {
+                val applications = appsRepository.loadApplications()
+                coilLoaderManager.prefetchApplicationImages(applications.map { it.packageName })
+            }
         }
     }
 

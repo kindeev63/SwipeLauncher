@@ -1,10 +1,10 @@
 package com.kindeev.swipelauncher.domain.entities
 
-import androidx.compose.ui.graphics.ImageBitmap
+import android.content.ComponentName
 import java.io.Serializable
 
 data class ApplicationInfo(
     val title: String,
-    val icon: ImageBitmap,
+    val componentName: ComponentName,
     val packageName: String
 ): Serializable

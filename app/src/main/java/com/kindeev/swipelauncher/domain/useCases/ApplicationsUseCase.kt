@@ -2,8 +2,10 @@ package com.kindeev.swipelauncher.domain.useCases
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Process
 import android.provider.Settings
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -16,26 +18,21 @@ import com.kindeev.swipelauncher.di.container
 class ApplicationsUseCase(
     private val context: Context
 ) {
-    fun getAllApplicationInfo(): List<ApplicationInfo> {
-        val intent = Intent(Intent.ACTION_MAIN, null)
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val allAppInfo = context.packageManager.queryIntentActivities(intent, 0)
-            .map { it.activityInfo.applicationInfo }
-            .map {
+
+    private val launcherApps: LauncherApps =
+        context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+
+    fun getAllApplicationInfo(): List<ApplicationInfo> =
+        launcherApps.getActivityList(null, Process.myUserHandle())
+            .map { activityInfo ->
                 ApplicationInfo(
-                    title = it.loadLabel(context.packageManager).toString(),
-                    icon = it.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
-                    packageName = it.packageName
+                    title = activityInfo.label.toString(),
+                    packageName = activityInfo.componentName.packageName,
+                    componentName = activityInfo.componentName
                 )
             }
-        val mutableAllApplicationInfo = allAppInfo.toMutableList()
-        allAppInfo.forEach { applicationData ->
-            if (mutableAllApplicationInfo.count { it.packageName == applicationData.packageName } > 1) {
-                mutableAllApplicationInfo.remove(applicationData)
-            }
-        }
-        return mutableAllApplicationInfo.sortedBy { it.title }
-    }
+            .distinctBy { it.packageName }
+            .sortedBy { it.title.lowercase() }
 
     fun isAppInstalled(packageName: String): Boolean {
         return try {
@@ -56,19 +53,20 @@ class ApplicationsUseCase(
     }
 
     fun getApplicationInfo(packageName: String): ApplicationInfo {
-        val applicationInfo =
-            context.container.applicationsInfo.value.find { it.packageName == packageName }
-        return if (applicationInfo == null) {
-            val appInfo =
-                context.packageManager.getApplicationInfo(packageName, 0)
-            ApplicationInfo(
-                title = appInfo.loadLabel(context.packageManager).toString(),
-                icon = appInfo.loadIcon(context.packageManager).toBitmap().asImageBitmap(),
-                packageName = appInfo.packageName
-            )
-        } else {
-            applicationInfo
-        }
+        context.container.applicationsInfo.value
+            .find { it.packageName == packageName }
+            ?.let { return it }
+
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        val activities = launcherApps.getActivityList(packageName, Process.myUserHandle())
+
+        val activityInfo = activities.first()
+
+        return ApplicationInfo(
+            title = activityInfo.label.toString(),
+            packageName = activityInfo.componentName.packageName,
+            componentName = activityInfo.componentName
+        )
     }
 
     fun getThisAppIcon() =

@@ -12,7 +12,7 @@ import com.kindeev.swipelauncher.domain.utils.getResourceId
 
 fun CircleMenuImage.getCoilModel(context: Context): ImageRequest {
     val (data, key) = when (this) {
-        is UserImage -> id to UserImagesRepository.diskCacheKey(id)
+        is UserImage -> id to UserImagesRepository.cacheKey(id)
         is DefaultImage -> data.getResourceId() to "default_image_${data.name}"
         is AppImage -> appIconUri(packageName) to "app_image_$packageName"
         else -> throw IllegalArgumentException("Illegal image type $this")

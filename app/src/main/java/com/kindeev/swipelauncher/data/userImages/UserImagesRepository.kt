@@ -1,12 +1,8 @@
 package com.kindeev.swipelauncher.data.userImages
 
-import android.content.Context
 import android.net.Uri
-import coil.Coil
-import coil.annotation.ExperimentalCoilApi
-import coil.memory.MemoryCache
 import coil.request.Disposable
-import coil.request.ImageRequest
+import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,12 +10,15 @@ import java.io.File
 
 class UserImagesRepository(
     private val storage: UserImagesStorage,
-    private val context: Context
+    private val coilLoaderManager: CoilLoaderManager
 ): UserImagesRepository {
-    private val loader = Coil.imageLoader(context)
 
     override suspend fun getAllIds(): List<Int> = withContext(Dispatchers.IO) {
         storage.getIds()
+    }
+
+    suspend fun getAllFiles(): List<Pair<Int, File>> = withContext(Dispatchers.IO) {
+        storage.getIds().map { id -> id to getFile(id) }
     }
 
     override fun getFile(id: Int): File = storage.getFile(id)
@@ -32,7 +31,7 @@ class UserImagesRepository(
 
     override suspend fun delete(id: Int): Boolean = withContext(Dispatchers.IO) {
         val deleteResult = storage.delete(id)
-        val clearCacheResult = removeFromCache(id)
+        val clearCacheResult = coilLoaderManager.remove(cacheKey(id))
         return@withContext deleteResult && clearCacheResult
     }
 
@@ -52,13 +51,7 @@ class UserImagesRepository(
         storage.getFile(id)
             .takeIf { it.exists() }
             ?.let { file ->
-                loader.enqueue(
-                    ImageRequest.Builder(context)
-                        .data(file)
-                        .memoryCacheKey(memoryCacheKey(id))
-                        .diskCacheKey(diskCacheKey(id))
-                        .build()
-                )
+                coilLoaderManager.prefetch(file, cacheKey(id))
             }
 
     private fun findFreeId(): Int {
@@ -67,20 +60,10 @@ class UserImagesRepository(
             .first { it !in ids }
     }
 
-    @OptIn(ExperimentalCoilApi::class)
-    private fun removeFromCache(id: Int): Boolean {
-        val memoryResult = loader.memoryCache?.remove(memoryCacheKey(id)) ?: true
-        val diskResult = loader.diskCache?.remove(diskCacheKey(id)) ?: true
-        return memoryResult && diskResult
-    }
-
     companion object {
 
-        fun diskCacheKey(id: Int): String =
+        fun cacheKey(id: Int): String =
             "user_image_$id"
-
-        fun memoryCacheKey(id: Int): MemoryCache.Key =
-            MemoryCache.Key(diskCacheKey(id))
 
     }
 }

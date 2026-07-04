@@ -1,16 +1,18 @@
 package com.kindeev.swipelauncher.data.coil
 
 import android.content.Context
+import android.content.pm.LauncherApps
 import coil.Coil
 import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 
-fun initCoil(context: Context): Unit =
+fun initCoil(context: Context)  {
+    val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     Coil.setImageLoader(
         ImageLoader.Builder(context)
             .components {
-                add(AppIconFetcher.Factory(context))
+                add(AppIconFetcher.Factory(context, launcherApps))
             }
             .memoryCache {
                 MemoryCache.Builder(context)
@@ -27,3 +29,4 @@ fun initCoil(context: Context): Unit =
             .allowHardware(true)
             .build()
     )
+}

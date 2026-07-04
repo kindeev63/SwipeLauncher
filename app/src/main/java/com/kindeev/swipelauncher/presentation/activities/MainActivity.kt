@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
     private val appsReceiver = AppsReceiver()
 
     private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
-    private val applicationsUseCase = ApplicationsUseCase(this)
+    private val applicationsUseCase by lazy { ApplicationsUseCase(this) }
     private val checkCircleMenuUseCase by lazy {
         CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase) }
 
