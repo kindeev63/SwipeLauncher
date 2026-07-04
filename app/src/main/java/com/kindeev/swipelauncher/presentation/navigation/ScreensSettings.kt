@@ -11,9 +11,6 @@ sealed class ScreensSettings {
     object AllCircleMenusScreenObject: ScreensSettings()
 
     @Serializable
-    object HiddenAppsScreenObject: ScreensSettings()
-
-    @Serializable
     object TutorialScreenObject: ScreensSettings()
 
     @Serializable

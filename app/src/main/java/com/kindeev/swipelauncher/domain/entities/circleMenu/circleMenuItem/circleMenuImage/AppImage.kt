@@ -1,3 +1,3 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage
 
-sealed interface CircleMenuImage
+data class AppImage(val packageName: String): CircleMenuImage

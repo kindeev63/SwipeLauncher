@@ -11,7 +11,6 @@ fun SettingsMainGraph(
     navHostController: NavHostController,
     mainSettingsScreen: @Composable () -> Unit,
     allCircleMenusScreen: @Composable () -> Unit,
-    hiddenAppsScreen: @Composable () -> Unit,
     tutorialScreen: @Composable () -> Unit,
     editCircleMenuScreen: @Composable (Int?) -> Unit
 ) {
@@ -28,9 +27,6 @@ fun SettingsMainGraph(
         composable<ScreensSettings.EditCircleMenuScreenObject> { navBackStackEntry ->
             val data = navBackStackEntry.toRoute<ScreensSettings.EditCircleMenuScreenObject>()
             editCircleMenuScreen(data.circleMenuId)
-        }
-        composable<ScreensSettings.HiddenAppsScreenObject> {
-            hiddenAppsScreen()
         }
         composable<ScreensSettings.TutorialScreenObject> {
             tutorialScreen()

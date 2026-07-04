@@ -20,15 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.coil.getCoilModel
+import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchAppItem(
     title: String,
-    image: CircleMenuImage,
+    packageName: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
@@ -46,7 +45,7 @@ fun SearchAppItem(
         verticalAlignment = Alignment.CenterVertically
     ){
         AsyncImage(
-            model = image.getCoilModel(context),
+            model = appImageUri(packageName),
             modifier = Modifier.size(50.dp),
             contentDescription = null
         )

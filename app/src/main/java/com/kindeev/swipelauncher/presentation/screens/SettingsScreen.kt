@@ -16,9 +16,6 @@ fun SettingsScreen() {
                 navigateToAllCircleMenus = {
                     navigationState.navigateTo(ScreensSettings.AllCircleMenusScreenObject)
                 },
-                navigateToHiddenApps = {
-                    navigationState.navigateTo(ScreensSettings.HiddenAppsScreenObject)
-                },
                 navigateToTutorial = {
                     navigationState.navigateTo(ScreensSettings.TutorialScreenObject)
                 }
@@ -37,13 +34,6 @@ fun SettingsScreen() {
         editCircleMenuScreen = { circleMenuId ->
             EditCircleMenuScreenUI(
                 circleMenuId = circleMenuId,
-                onBackPressed = {
-                    navigationState.navHostController.popBackStack()
-                }
-            )
-        },
-        hiddenAppsScreen = {
-            HiddenAppsScreen(
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
                 }

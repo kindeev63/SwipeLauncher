@@ -43,25 +43,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
-import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.screens.onBoardingScreen.OnBoardingScreenVMFactory
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel: OnBoardingScreenVM = viewModel(
-        factory = OnBoardingScreenVMFactory(context)
-    )
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
@@ -89,12 +84,10 @@ fun OnboardingScreen(
             if (orientationPhone) {
                 PageContentPhone(
                     page = page,
-                    viewModel = viewModel
                 )
             } else {
                 PageContentTablet(
                     page = page,
-                    viewModel = viewModel
                 )
             }
         }
@@ -116,9 +109,9 @@ fun OnboardingScreen(
 @Composable
 private fun PageContentTablet(
     page: Int,
-    viewModel: OnBoardingScreenVM
 ) {
     val screenWidth = Constants.minScreenLength
+    val context = LocalContext.current
     when (page) {
         0 -> {
             Row(
@@ -134,9 +127,9 @@ private fun PageContentTablet(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Image(
+                        AsyncImage(
+                            model = appImageUri(context.packageName),
                             modifier = Modifier.size(screenWidth.dp / 10 * 5),
-                            bitmap = viewModel.getThisAppIcon(),
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
@@ -532,9 +525,9 @@ private fun PageContentTablet(
 @Composable
 private fun PageContentPhone(
     page: Int,
-    viewModel: OnBoardingScreenVM
 ) {
     val screenWidth = Constants.minScreenLength
+    val context = LocalContext.current
     when (page) {
         0 -> {
             Column(
@@ -545,9 +538,9 @@ private fun PageContentPhone(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
-                Image(
+                AsyncImage(
+                    model = appImageUri(context.packageName),
                     modifier = Modifier.size(screenWidth.dp / 10 * 6),
-                    bitmap = viewModel.getThisAppIcon(),
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))

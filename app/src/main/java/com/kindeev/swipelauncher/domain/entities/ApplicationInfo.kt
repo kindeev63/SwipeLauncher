@@ -4,7 +4,7 @@ import android.content.ComponentName
 import java.io.Serializable
 
 data class ApplicationInfo(
+    val packageName: String,
     val title: String,
-    val componentName: ComponentName,
-    val packageName: String
+    val componentName: ComponentName
 ): Serializable

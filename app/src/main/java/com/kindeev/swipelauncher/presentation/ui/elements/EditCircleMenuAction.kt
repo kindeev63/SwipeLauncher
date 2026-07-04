@@ -35,24 +35,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
@@ -63,8 +62,7 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
 @Composable
 fun EditCircleMenuAction(
     action: CircleMenuAction,
-    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
-    getApplicationInfo: (String) -> ApplicationInfo,
+    getApplicationInfo: (String) -> ApplicationInfo?,
     size: Float,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -74,7 +72,6 @@ fun EditCircleMenuAction(
 
     if (showActionDialog) {
         ActionDialog(
-            getAllApplicationsData = getAllApplicationsData,
             onDismissRequest = { showActionDialog = false },
             onPick = onChangeAction
         )
@@ -213,13 +210,12 @@ private fun OpenSettingsDataItem(
 
 @Composable
 private fun OpenAppDataItem(
-    getApplicationInfo: (String) -> ApplicationInfo,
+    getApplicationInfo: (String) -> ApplicationInfo?,
     action: OpenAppAction,
     size: Float,
     changeAction: () -> Unit
 ) {
-    val applicationData = getApplicationInfo(action.packageName)
-    val context = LocalContext.current
+    val applicationInfo = getApplicationInfo(action.packageName)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -230,13 +226,13 @@ private fun OpenAppDataItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = AppImage(applicationData.packageName).getCoilModel(context),
+            model = appImageUri(action.packageName),
             modifier = Modifier.size(size.dp - 20.dp),
             contentDescription = "App image"
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = applicationData.title,
+            text = applicationInfo?.title ?: "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

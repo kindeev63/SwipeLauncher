@@ -1,7 +1,6 @@
 package com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen
 
 import android.content.Context
-import android.net.Uri
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
@@ -12,33 +11,28 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -51,9 +45,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
     private val container = context.container
 
-    private val applicationsUseCase = ApplicationsUseCase(context)
-    private val checkCircleMenuUseCase =
-        CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase)
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase()
     private val telephoneUseCase = TelephoneUseCase(context)
     private val openSettingsUseCase = OpenSettingsUseCase(context)
     private val flashLightUseCase = FlashLightUseCase(context)
@@ -179,7 +171,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             if (checkCircleMenuUseCase.check(
                                     circleMenu = menu,
                                     allCircleMenuIds = container.circleMenus.value.map { it.id },
-                                    allPackageNames = container.applicationsInfo.value.map { it.packageName },
+                                    allPackageNames = container.applicationsManager.applications.value.map { it.packageName },
                                     userImageIds = container.userImagesRepository.getAllIds()
                                 ) == null
                             ) {
@@ -204,7 +196,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             is OpenAppAction -> {
-                applicationsUseCase.openApp(action.packageName)
+                container.applicationsManager.open(action.packageName)
             }
 
             is FlashLightOnAction -> {
@@ -345,47 +337,23 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         _searchText.value = ""
     }
 
-    fun getSearchResults(allApplicationInfo: List<ApplicationInfo>): List<ApplicationData> {
-        return applicationsUseCase.getAllApplicationData(
-            applicationsUseCase
-                .getNotHidden(allApplicationInfo)
-                .filter {
-                    it.title
-                        .lowercase()
-                        .contains(searchText.value.lowercase().trim())
-                }
-        )
+    fun getSearchResults(applications: List<ApplicationInfo>): List<ApplicationInfo> {
+        return applications
+            .filter {
+                it.title
+                    .lowercase()
+                    .contains(searchText.value.lowercase().trim())
+            }
     }
 
 // ApplicationInfoDialog
 
-    var userImageGetProcess = false
-
-    fun getApplicationData(packageName: String): ApplicationData {
-        return applicationsUseCase.getApplicationData(packageName)
-    }
-
-    fun getNotMaskApplicationData(packageName: String): ApplicationData {
-        return applicationsUseCase.getNotMaskApplicationData(packageName)
-    }
-
     fun getAppDetails(packageName: String) {
-        applicationsUseCase.getAppDetails(packageName)
+        container.applicationsManager.openAppDetails(packageName)
     }
 
     fun deleteApp(packageName: String) {
-        applicationsUseCase.deleteApp(packageName)
+        container.applicationsManager.delete(packageName)
     }
 
-    fun changeApp(applicationData: ApplicationData) {
-        viewModelScope.launch { applicationsUseCase.changeApp(applicationData) }
-    }
-
-    suspend fun addUserImage(uri: Uri) = withContext(Dispatchers.IO) {
-        container.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
-    }
-
-    fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {
-        return applicationsUseCase.getAllApplicationData(applicationsInfo)
-    }
 }

@@ -49,13 +49,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainSettingsScreen(
     navigateToAllCircleMenus: () -> Unit,
-    navigateToHiddenApps: () -> Unit,
     navigateToTutorial: () -> Unit
 ) {
     val context = LocalContext.current
     val container = context.container
     val settings by container.settings.collectAsState()
-    val allApplicationData by container.applicationsData.collectAsState()
     val scope = rememberCoroutineScope()
     val viewModel: MainSettingsScreenVM = viewModel(
         factory = MainSettingsScreenVMFactory(context)
@@ -81,17 +79,6 @@ fun MainSettingsScreen(
             }
 
             spacer()
-
-            // Hidden apps
-            if (allApplicationData.any { it.hidden }) {
-                item {
-                    ClickableSettingItem(
-                        text = stringResource(id = R.string.setting_hidden_apps),
-                        onClick = navigateToHiddenApps
-                    )
-                }
-                spacer()
-            }
 
             // Change default launcher
             item {
@@ -166,7 +153,6 @@ fun MainSettingsScreen(
                                 action = value?.action ?: throw IllegalAccessException(
                                     "Illegal action type"
                                 ),
-                                getAllApplicationsData = viewModel::getAllApplicationsData,
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = {

@@ -43,12 +43,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
@@ -58,7 +56,6 @@ import kotlinx.coroutines.launch
 fun ImageDialog(
     onDismissRequest: () -> Unit,
     addUserImage: suspend (Uri) -> UserImage?,
-    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onLaunchGetUserImage: () -> Unit = {},
     onPick: (CircleMenuImage) -> Unit
 ) {
@@ -97,7 +94,6 @@ fun ImageDialog(
     when (imageType) {
         AllImageTypes.AppImage -> {
             AppImageData(
-                getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -197,7 +193,6 @@ private fun ImageTypeElement(
 
 @Composable
 fun AppImageData(
-    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onPick: (CircleMenuImage) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -215,23 +210,23 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val allApplicationInfo by context.container.applicationsInfo.collectAsState()
+            val applications by context.container.applicationsManager.applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = getAllApplicationsData(allApplicationInfo).filter {
+                    items = applications.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationData ->
+                ) { applicationInfo ->
                     AppItem(
-                        title = applicationData.title,
-                        image = applicationData.image
+                        title = applicationInfo.title,
+                        packageName = applicationInfo.packageName
                     ) {
-                        onPick(AppImage(applicationData.packageName))
+                        onPick(AppImage(applicationInfo.packageName))
                         onDismissRequest()
                     }
                 }

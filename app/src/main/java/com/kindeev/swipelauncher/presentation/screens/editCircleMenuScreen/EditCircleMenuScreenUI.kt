@@ -445,7 +445,6 @@ private fun ImageAndActionEdit(
             Text(text = stringResource(R.string.action))
             EditCircleMenuAction(
                 action = circleMenuItem.action,
-                getAllApplicationsData = viewModel::getAllApplicationsData,
                 getApplicationInfo = viewModel::getApplicationInfo,
                 size = viewModel.size / 5,
                 onChangeAction = onChangeAction
@@ -469,7 +468,6 @@ fun ItemImage(
     if (showImageDialog) {
         ImageDialog(
             addUserImage = viewModel::addUserImage,
-            getAllApplicationsData = viewModel::getAllApplicationsData,
             onDismissRequest = { showImageDialog = false },
             onPick = onChangeImage
         )

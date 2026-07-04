@@ -71,5 +71,5 @@ class AppIconFetcher(
     }
 }
 
-fun appIconUri(packageName: String): Uri =
+fun appImageUri(packageName: String): Uri =
     "${AppIconFetcher.Factory.SCHEME_APP_ICON}://$packageName".toUri()
