@@ -8,8 +8,8 @@ import com.google.gson.reflect.TypeToken
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.domain.utils.userImagesDir

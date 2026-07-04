@@ -12,9 +12,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.kindeev.swipelauncher.data.userImages.getUsedImageIds
+import com.kindeev.swipelauncher.data.userImages.getUsedImagesIds
 import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
 import com.kindeev.swipelauncher.presentation.screens.SettingsScreen
@@ -24,8 +23,7 @@ import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
 
-    private val applicationsUseCase by lazy { ApplicationsUseCase(this) }
-    private val checkCircleMenuUseCase by lazy { CheckCircleMenuUseCase(container.userImagesRepository, applicationsUseCase) }
+    private val checkCircleMenuUseCase = CheckCircleMenuUseCase()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,15 +37,15 @@ class SettingsActivity : ComponentActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             container.circleMenus.collect { allCircleMenus ->
-                container.setApplications(applicationsUseCase.getAllApplicationInfo())
                 container.userImagesRepository.removeUnused(
-                    getUsedImageIds(
-                        allCircleMenus,
-                        container.applicationsData.value
-                    )
+                    allCircleMenus.getUsedImagesIds().toSet()
                 )
                 val changedCircleMenus =
-                    checkCircleMenuUseCase.getOnlyChanged(allCircleMenus)
+                    checkCircleMenuUseCase.getOnlyChanged(
+                        circleMenus = allCircleMenus,
+                        allPackageNames = container.applicationsManager.applications.value.map { it.packageName },
+                        userImageIds = container.userImagesRepository.getAllIds()
+                    )
                 Handler(Looper.getMainLooper()).post {
                     if (changedCircleMenus.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {

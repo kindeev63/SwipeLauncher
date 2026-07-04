@@ -1,8 +1,8 @@
 package com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen
 
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
 import android.content.Context
 import android.net.Uri
 import android.view.MotionEvent
@@ -12,16 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.useCases.ApplicationsUseCase
 import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemDataType
@@ -47,8 +45,6 @@ class EditCircleMenuScreenVM(
 ) : ViewModel() {
 
     private val container = context.container
-
-    private val applicationsUseCase = ApplicationsUseCase(context)
 
     // CircleMenu
     private val _circleMenu = MutableStateFlow<CircleMenu?>(null)
@@ -432,8 +428,8 @@ class EditCircleMenuScreenVM(
         }
     }
 
-    fun getApplicationInfo(packageName: String): ApplicationInfo {
-        return applicationsUseCase.getApplicationInfo(packageName)
+    fun getApplicationInfo(packageName: String): ApplicationInfo? {
+        return container.applicationsManager.getApplication(packageName)
     }
 
     fun updateCircleMenuItem(item: CircleMenuItem, index: Int) = viewModelScope.launch {
@@ -462,10 +458,6 @@ class EditCircleMenuScreenVM(
             _circleMenu.value = newCircleMenu
             updateCircleMenu()
         }
-    }
-
-    fun getAllApplicationsData(applicationsInfo: List<ApplicationInfo>): List<ApplicationData> {
-        return applicationsUseCase.getAllApplicationData(applicationsInfo)
     }
 
     suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {

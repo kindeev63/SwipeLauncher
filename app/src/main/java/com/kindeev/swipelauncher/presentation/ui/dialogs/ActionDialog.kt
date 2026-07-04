@@ -57,16 +57,14 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.ApplicationData
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.CallAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.DialAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenSettingsAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
@@ -77,7 +75,6 @@ import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 
 @Composable
 fun ActionDialog(
-    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
@@ -101,7 +98,6 @@ fun ActionDialog(
 
         ActionCategories.OpenApp -> {
             OpenAppActionData(
-                getAllApplicationsData = getAllApplicationsData,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -276,7 +272,6 @@ fun OpenCircleMenuActionData(
 
 @Composable
 fun OpenAppActionData(
-    getAllApplicationsData: (List<ApplicationInfo>) -> List<ApplicationData>,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -294,23 +289,23 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val allApplicationInfo by context.container.applicationsInfo.collectAsState()
+            val applications by context.container.applicationsManager.applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = getAllApplicationsData(allApplicationInfo).filter {
+                    items = applications.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     },
                     key = { it.packageName }
-                ) { applicationData ->
+                ) { applicationInfo ->
                     AppItem(
-                        title = applicationData.title,
-                        image = applicationData.image
+                        packageName = applicationInfo.packageName,
+                        title = applicationInfo.title,
                     ) {
-                        onPick(OpenAppAction(packageName = applicationData.packageName))
+                        onPick(OpenAppAction(packageName = applicationInfo.packageName))
                         onDismissRequest()
                     }
                 }

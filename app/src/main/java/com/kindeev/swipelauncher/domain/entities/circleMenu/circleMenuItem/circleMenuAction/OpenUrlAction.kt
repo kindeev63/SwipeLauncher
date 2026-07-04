@@ -1,3 +1,3 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction
 
-sealed interface CircleMenuAction
+data class OpenUrlAction(val url: String): CircleMenuAction

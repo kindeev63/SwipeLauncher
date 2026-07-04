@@ -75,7 +75,7 @@ fun LauncherScreen() {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE && !viewModel.userImageGetProcess) {
+            if (event == Lifecycle.Event.ON_PAUSE) {
                 viewModel.closeSearchBox()
             }
         }

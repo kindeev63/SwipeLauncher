@@ -3,7 +3,6 @@ package com.kindeev.swipelauncher.domain.utils
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
@@ -20,10 +19,10 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.ChangeFlashLightConditionAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOffAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.FlashLightOnAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
@@ -33,7 +32,6 @@ import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.Acti
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
-import com.kindeev.swipelauncher.presentation.receivers.AppsReceiver
 
 fun Context.isMyLauncherDefault(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -59,25 +57,6 @@ fun Context.showLauncherSelection() {
 
 fun DefaultImages.getResourceId(): Int {
     return Constants.defaultImages.getOrDefault(this, 0)
-}
-
-fun Context.registerAppsReceiver(appsReceiver: AppsReceiver) {
-    val filter = IntentFilter().apply {
-        addAction(Intent.ACTION_PACKAGE_ADDED)
-        addAction(Intent.ACTION_PACKAGE_REMOVED)
-        addAction(Intent.ACTION_PACKAGE_REPLACED)
-        addDataScheme("package")
-    }
-    this.registerReceiver(appsReceiver, filter)
-}
-
-fun Context.unregisterAppsReceiver(
-    appsReceiver: AppsReceiver,
-) {
-    try {
-        this.unregisterReceiver(appsReceiver)
-    } catch (_: Exception) {
-    }
 }
 
 fun Context.setActionAndImageTypes() {

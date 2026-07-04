@@ -14,20 +14,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.coil.getCoilModel
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.data.coil.appImageUri
 
 @Composable
 fun AppItem(
+    packageName: String,
     title: String,
-    image: CircleMenuImage,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,7 +36,7 @@ fun AppItem(
         verticalAlignment = Alignment.CenterVertically
     ){
         AsyncImage(
-            model = image.getCoilModel(context),
+            model = appImageUri(packageName),
             modifier = Modifier.size(50.dp),
             contentDescription = null
         )

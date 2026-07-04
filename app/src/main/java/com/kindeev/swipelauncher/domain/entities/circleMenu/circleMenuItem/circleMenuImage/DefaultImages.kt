@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.defaultImage
+package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage
 
 enum class DefaultImages {
     Settings,

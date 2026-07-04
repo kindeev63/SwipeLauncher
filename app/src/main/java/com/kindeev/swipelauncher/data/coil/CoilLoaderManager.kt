@@ -6,20 +6,19 @@ import coil.annotation.ExperimentalCoilApi
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
 
-class CoilLoaderManager(private val context: Context) {
-    private val loader = Coil.imageLoader(context)
+class CoilLoaderManager(context: Context) {
+
+    private val appContext = context.applicationContext
+    private val loader = Coil.imageLoader(appContext)
 
     fun prefetch(data: Any, key: String) =
         loader.enqueue(
-            ImageRequest.Builder(context)
+            ImageRequest.Builder(appContext)
                 .data(data)
                 .memoryCacheKey(MemoryCache.Key(key))
                 .diskCacheKey(key)
                 .build()
         )
-
-    fun <T: Any> prefetchMany(data: Collection<T>, key: (T) -> String) =
-        data.map { prefetch(it, key(it)) }
 
     @OptIn(ExperimentalCoilApi::class)
     fun remove(key: String): Boolean {

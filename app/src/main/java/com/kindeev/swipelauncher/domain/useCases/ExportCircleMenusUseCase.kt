@@ -8,7 +8,7 @@ import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.dataBase.typeConverter.CircleMenuTypeConverter
 import com.kindeev.swipelauncher.domain.utils.userImagesDir
 import java.io.File
@@ -56,8 +56,7 @@ class ExportCircleMenusUseCase(private val context: Context) {
     private fun List<CircleMenu>.getUserImageNamesFromCircleMenus(): List<String> {
         return this
             .asSequence()
-            .map { it.items } // get lists of items
-            .flatten() // get one list with all items
+            .flatMap { it.items } // get one list with all items
             .map { it.image } // list with CircleMenuImage
             .filter { it is UserImage } // list with UserImages
             .map { "${(it as UserImage).id}.png" }

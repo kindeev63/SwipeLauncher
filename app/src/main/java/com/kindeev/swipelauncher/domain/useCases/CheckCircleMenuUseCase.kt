@@ -2,16 +2,12 @@ package com.kindeev.swipelauncher.domain.useCases
 
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenAppAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.actionTypes.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.imageTypes.UserImage
-import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 
-class CheckCircleMenuUseCase(
-    private val userImagesRepository: UserImagesRepository,
-    private val applicationsUseCase: ApplicationsUseCase
-) {
+class CheckCircleMenuUseCase {
 
     fun check(
         circleMenu: CircleMenu,
@@ -60,10 +56,9 @@ class CheckCircleMenuUseCase(
         } else circleMenu.copy(items = newItems)
     }
 
-    private fun getOnlyChanged(
+    fun getOnlyChanged(
         circleMenus: List<CircleMenu>,
         allPackageNames: List<String>,
-        allCircleMenuIds: List<Int>,
         userImageIds: List<Int>
     ): List<CircleMenu> {
         val changedCircleMenus = mutableListOf<CircleMenu>()
@@ -71,19 +66,11 @@ class CheckCircleMenuUseCase(
             check(
                 circleMenu = circleMenu,
                 allPackageNames = allPackageNames,
-                allCircleMenuIds = allCircleMenuIds,
+                allCircleMenuIds = circleMenus.map { it.id },
                 userImageIds = userImageIds
             )?.let { changedCircleMenus.add(it) }
         }
         return changedCircleMenus
     }
 
-    suspend fun getOnlyChanged(
-        circleMenus: List<CircleMenu>
-    ) = getOnlyChanged(
-        circleMenus = circleMenus,
-        allCircleMenuIds = circleMenus.map { it.id },
-        allPackageNames = applicationsUseCase.getAllApplicationInfo().map { it.packageName },
-        userImageIds = userImagesRepository.getAllIds()
-    )
 }

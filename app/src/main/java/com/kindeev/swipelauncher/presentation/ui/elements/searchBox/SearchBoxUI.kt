@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
 import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
 import com.kindeev.swipelauncher.domain.utils.getValueOf
@@ -36,17 +37,17 @@ fun SearchBoxUI(
     BackHandler(onBack = onClose)
     val context = LocalContext.current
     val searchText by viewModel.searchText.collectAsState()
-    val allApplicationInfo by context.container.applicationsInfo.collectAsState()
+    val applications by context.container.applicationsManager.applications.collectAsState()
     val settings by context.container.settings.collectAsState()
-    val searchResults = viewModel.getSearchResults(allApplicationInfo)
+    val searchResults = viewModel.getSearchResults(applications)
     var applicationInfoDialog by rememberSaveable {
-        mutableStateOf<String?>(null)
+        mutableStateOf<ApplicationInfo?>(null)
     }
 
-    applicationInfoDialog?.let { packageName ->
+    applicationInfoDialog?.let { applicationInfo ->
         ApplicationInfoDialog(
             viewModel = viewModel,
-            packageName = packageName,
+            applicationInfo = applicationInfo,
             onDismissRequest = { applicationInfoDialog = null }
         )
     }
@@ -81,21 +82,21 @@ fun SearchBoxUI(
         ) {
             items(
                 items = searchResults
-            ) { applicationData ->
+            ) { applicationInfo ->
                 SearchAppItem(
-                    title = applicationData.title,
-                    image = applicationData.image,
+                    title = applicationInfo.title,
+                    packageName = applicationInfo.packageName,
                     onClick = {
-                        if (applicationData.packageName == context.packageName) {
+                        if (applicationInfo.packageName == context.packageName) {
                             val intent = Intent(context, SettingsActivity::class.java)
                             context.startActivity(intent)
                         } else {
-                            context.openApp(applicationData.packageName)
+                            context.openApp(applicationInfo.packageName)
                         }
                         onClose()
                     },
                     onLongClick = {
-                        applicationInfoDialog = applicationData.packageName
+                        applicationInfoDialog = applicationInfo
                     }
                 )
             }
