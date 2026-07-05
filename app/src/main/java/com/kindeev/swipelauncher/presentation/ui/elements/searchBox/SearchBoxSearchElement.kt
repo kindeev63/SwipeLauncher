@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -28,7 +29,7 @@ fun SearchBoxSearchElement(
     onChangeText: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
+    val settings by context.container.settings.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
@@ -51,7 +52,7 @@ fun SearchBoxSearchElement(
                 },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             textStyle = TextStyle(
-                color = textColorOnWallpaper,
+                color = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White,
                 fontSize = (LocalConfiguration.current.screenWidthDp / 15).sp
             ),
             value = searchText,

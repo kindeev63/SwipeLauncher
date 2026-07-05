@@ -1,14 +1,14 @@
 package com.kindeev.swipelauncher.domain.interfaces
 
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.settings.LauncherSettings
 import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
 
     fun getAllCircleMenus(): Flow<List<CircleMenu>>
 
-    fun getAllSettings(): Flow<List<SettingData>>
+    fun getSettings(): Flow<LauncherSettings>
 
     suspend fun insertCircleMenu(circleMenu: CircleMenu)
 
@@ -16,6 +16,6 @@ interface DataRepository {
 
     suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>)
 
-    suspend fun insertSettings(settings: List<SettingData>)
+    suspend fun insertSettings(settings: LauncherSettings)
 
 }

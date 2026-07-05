@@ -23,9 +23,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
@@ -170,20 +167,13 @@ fun Context.getMinScreenLength(): Float {
     ).toFloat()
 }
 
-fun <T> List<SettingData>.getValueOf(name: SettingNames, classOfT: Class<T>): T? {
-    @Suppress("UNCHECKED_CAST")
-    return this.find { it.name == name }?.value as T?
-}
-
 fun Context.getLauncherStatusBarStyle(): SystemBarStyle {
-    return if (container.settings.value.getValueOf(
-            SettingNames.BlackTextColorOnWallpaper,
-            BlackTextColorOnWallpaper::class.java
-        )?.enabled == true
-    ) SystemBarStyle.light(
-        Color.TRANSPARENT,
-        Color.TRANSPARENT
-    ) else SystemBarStyle.dark(Color.TRANSPARENT)
+    return if (container.settings.value.blackTextColorOnWallpaper) {
+        SystemBarStyle.light(
+            Color.TRANSPARENT,
+            Color.TRANSPARENT
+        )
+    } else SystemBarStyle.dark(Color.TRANSPARENT)
 }
 
 fun Context.openApp(packageName: String) {

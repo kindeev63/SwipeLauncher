@@ -6,13 +6,21 @@ import androidx.core.net.toUri
 
 class TelephoneUseCase(private val context: Context) {
     fun call(phoneNumber: String) {
-        val intent = Intent(Intent.ACTION_CALL)
+        val intent = Intent(
+            Intent.ACTION_CALL
+        ).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
         intent.data = "tel:$phoneNumber".toUri()
         context.startActivity(intent)
     }
 
     fun dial(phoneNumber: String) {
-        val intent = Intent(Intent.ACTION_DIAL)
+        val intent = Intent(
+            Intent.ACTION_DIAL
+        ).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
         intent.data = "tel:$phoneNumber".toUri()
         context.startActivity(intent)
     }

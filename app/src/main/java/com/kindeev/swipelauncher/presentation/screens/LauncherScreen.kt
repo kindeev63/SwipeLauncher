@@ -20,9 +20,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVMFactory
@@ -92,7 +89,6 @@ fun LauncherScreen() {
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val context = LocalContext.current
     val settings by context.container.settings.collectAsState()
-    val clickOnClock = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
     val scope = rememberCoroutineScope()
     SwipeBoxUI(viewModel = viewModel)
     Column(
@@ -100,10 +96,10 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
-        if (clickOnClock?.enabled == true) {
+        if (settings.clickOnClock.enable) {
             ClickableClockWidget {
                 scope.launch {
-                    viewModel.executeAction(clickOnClock.action)
+                    viewModel.executeAction(settings.clickOnClock.action)
                 }
 
             }

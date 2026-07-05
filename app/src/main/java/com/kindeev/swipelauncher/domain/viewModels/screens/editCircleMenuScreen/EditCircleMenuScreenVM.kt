@@ -17,10 +17,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.domain.viewModels.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
@@ -445,10 +442,9 @@ class EditCircleMenuScreenVM(
     fun updateImage(item: CircleMenuItem, index: Int) = viewModelScope.launch {
         circleMenu.value?.let { circleMenu ->
             var action = item.action
-            if (item.image is AppImage && container.settings.value.getValueOf(
-                    SettingNames.PickAppActionWithImage,
-                    PickAppActionWithImage::class.java
-                )?.enabled == true
+            if (
+                item.image is AppImage &&
+                container.settings.value.pickAppActionWithImage
             ) {
                 action = OpenAppAction(item.image.packageName)
             }

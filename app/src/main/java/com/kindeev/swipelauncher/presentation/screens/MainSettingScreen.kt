@@ -30,13 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
-import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.domain.utils.spacer
 import com.kindeev.swipelauncher.domain.viewModels.screens.mainSettingsScreen.MainSettingsScreenVM
@@ -94,17 +87,12 @@ fun MainSettingsScreen(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_open_last_app),
-                    value = settings.getValueOf(
-                        SettingNames.OpenLastApp,
-                        OpenLastApp::class.java
-                    )?.enabled
-                        ?: throw IllegalArgumentException("Illegal open app setting value"),
+                    value = settings.openLastApp,
                     onChangeValue = {
                         scope.launch {
-                            container.insertSetting(
-                                SettingData(
-                                    name = SettingNames.OpenLastApp,
-                                    value = OpenLastApp(it)
+                            container.dataRepository.insertSettings(
+                                settings.copy(
+                                    openLastApp = it
                                 )
                             )
                         }
@@ -116,25 +104,25 @@ fun MainSettingsScreen(
 
             // Click On Clock
             item {
-                val value = settings.getValueOf(SettingNames.ClickOnClock, ClickOnClock::class.java)
                 Column {
                     SwitchSettingItem(
                         text = stringResource(id = R.string.setting_click_on_clock),
-                        value = value?.enabled == true,
+                        value = settings.clickOnClock.enable,
                         onChangeValue = {
                             scope.launch {
-                                container.insertSetting(
-                                    SettingData(
-                                        name = SettingNames.ClickOnClock,
-                                        value = ClickOnClock(it, value?.action)
+                                container.dataRepository.insertSettings(
+                                    settings.copy(
+                                        clickOnClock = settings.clickOnClock.copy(
+                                            enable = it
+                                        )
                                     )
                                 )
                             }
                         },
-                        last = value?.enabled == false
+                        last = !settings.clickOnClock.enable
                     )
                     AnimatedVisibility(
-                        visible = value?.enabled == true,
+                        visible = settings.clickOnClock.enable,
                         enter = fadeIn() + expandVertically(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
@@ -150,17 +138,16 @@ fun MainSettingsScreen(
                                 fontWeight = FontWeight.Black
                             )
                             EditCircleMenuAction(
-                                action = value?.action ?: throw IllegalAccessException(
-                                    "Illegal action type"
-                                ),
+                                action = settings.clickOnClock.action,
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = {
                                     scope.launch {
-                                        container.insertSetting(
-                                            SettingData(
-                                                name = SettingNames.ClickOnClock,
-                                                value = ClickOnClock(true, it)
+                                        container.dataRepository.insertSettings(
+                                            settings.copy(
+                                                clickOnClock = settings.clickOnClock.copy(
+                                                    action = it
+                                                )
                                             )
                                         )
                                     }
@@ -177,17 +164,12 @@ fun MainSettingsScreen(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_black_text_color_on_wallpaper),
-                    value = settings.getValueOf(
-                        SettingNames.BlackTextColorOnWallpaper,
-                        BlackTextColorOnWallpaper::class.java
-                    )?.enabled
-                        ?: throw IllegalArgumentException("Illegal black text color on wallpaper setting value"),
+                    value = settings.blackTextColorOnWallpaper,
                     onChangeValue = {
                         scope.launch {
-                            container.insertSetting(
-                                SettingData(
-                                    name = SettingNames.BlackTextColorOnWallpaper,
-                                    value = BlackTextColorOnWallpaper(it)
+                            container.dataRepository.insertSettings(
+                                settings.copy(
+                                    blackTextColorOnWallpaper = it
                                 )
                             )
                         }
@@ -201,17 +183,12 @@ fun MainSettingsScreen(
             item {
                 SwitchSettingItem(
                     text = stringResource(id = R.string.setting_pick_app_action_with_image),
-                    value = settings.getValueOf(
-                        SettingNames.PickAppActionWithImage,
-                        PickAppActionWithImage::class.java
-                    )?.enabled
-                        ?: throw IllegalArgumentException("Illegal pick app action with image setting value"),
+                    value = settings.pickAppActionWithImage,
                     onChangeValue = {
                         scope.launch {
-                            container.insertSetting(
-                                SettingData(
-                                    name = SettingNames.PickAppActionWithImage,
-                                    value = PickAppActionWithImage(it)
+                            container.dataRepository.insertSettings(
+                                settings.copy(
+                                    pickAppActionWithImage = it
                                 )
                             )
                         }

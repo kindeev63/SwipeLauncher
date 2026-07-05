@@ -1,7 +1,6 @@
 package com.kindeev.swipelauncher.di
 
 import android.content.Context
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.data.applications.AppsObserver
@@ -15,15 +14,12 @@ import com.kindeev.swipelauncher.data.database.getRepository
 import com.kindeev.swipelauncher.data.userImages.UserImagesRepository
 import com.kindeev.swipelauncher.data.userImages.UserImagesStorage
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -52,14 +48,11 @@ class AppContainer(context: Context) {
         initialValue = emptyList()
     )
 
-    val settings = dataRepository.getAllSettings().stateIn(
+    val settings = dataRepository.getSettings().stateIn(
         scope = appScope,
         started = SharingStarted.Eagerly,
-        initialValue = emptyList()
+        initialValue = Constants.defaultSettings
     )
-
-    private val _textColorOnWallpaper = MutableStateFlow(Color.White)
-    val textColorOnWallpaper: StateFlow<Color> = _textColorOnWallpaper
 
     var flashLightCondition = false
 
@@ -92,17 +85,4 @@ class AppContainer(context: Context) {
         }
     }
 
-    suspend fun insertSetting(settingData: SettingData) {
-        dataRepository.insertSettings(
-            settings.value.map {
-                if (it.name == settingData.name)
-                    settingData
-                else it
-            }
-        )
-    }
-
-    fun setTextColorOnWallpaper(color: Color) {
-        _textColorOnWallpaper.value = color
-    }
 }

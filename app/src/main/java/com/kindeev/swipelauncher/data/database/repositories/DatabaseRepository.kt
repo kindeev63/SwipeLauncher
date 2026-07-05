@@ -1,7 +1,7 @@
 package com.kindeev.swipelauncher.data.database.repositories
 
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
+import com.kindeev.swipelauncher.domain.entities.settings.LauncherSettings
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -12,7 +12,7 @@ class DatabaseRepository(
 
     override fun getAllCircleMenus(): Flow<List<CircleMenu>> = circleMenuRepository.getAll()
 
-    override fun getAllSettings(): Flow<List<SettingData>> = settingsRepository.getAll()
+    override fun getSettings(): Flow<LauncherSettings> = settingsRepository.getAll()
 
     override suspend fun insertCircleMenu(circleMenu: CircleMenu) =
         circleMenuRepository.insert(circleMenu)
@@ -23,7 +23,7 @@ class DatabaseRepository(
     override suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) =
         circleMenuRepository.deleteMany(circleMenus)
 
-    override suspend fun insertSettings(settings: List<SettingData>) =
+    override suspend fun insertSettings(settings: LauncherSettings) =
         settingsRepository.insert(settings)
 
 }

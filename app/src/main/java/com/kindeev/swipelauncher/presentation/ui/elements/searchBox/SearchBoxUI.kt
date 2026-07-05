@@ -21,9 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.openApp
 import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
@@ -52,10 +49,7 @@ fun SearchBoxUI(
         )
     }
 
-    if (searchResults.size == 1 && settings.getValueOf(
-            SettingNames.OpenLastApp,
-            OpenLastApp::class.java
-        )?.enabled == true && searchText.firstOrNull() != ' '
+    if (searchResults.size == 1 && settings.openLastApp && searchText.firstOrNull() != ' '
     ) {
         searchResults.firstOrNull()?.let {
             if (it.packageName == context.packageName) {

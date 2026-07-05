@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,7 +33,7 @@ fun SearchAppItem(
     onLongClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
+    val settings by context.container.settings.collectAsState()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +44,7 @@ fun SearchAppItem(
                 onLongClick = onLongClick
             ),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         AsyncImage(
             model = appImageUri(packageName),
             modifier = Modifier.size(50.dp),
@@ -53,7 +54,7 @@ fun SearchAppItem(
         Text(
             text = title,
             fontSize = 14.sp,
-            color = textColorOnWallpaper,
+            color = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White,
             maxLines = 1
         )
     }

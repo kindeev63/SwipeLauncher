@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
@@ -28,7 +29,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun ClockWidget(
 ) {
     val context = LocalContext.current
-    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
+    val settings by context.container.settings.collectAsState()
+    val textColorOnWallpaper = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))
@@ -68,7 +70,8 @@ fun ClickableClockWidget(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val textColorOnWallpaper by context.container.textColorOnWallpaper.collectAsState()
+    val settings by context.container.settings.collectAsState()
+    val textColorOnWallpaper = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))

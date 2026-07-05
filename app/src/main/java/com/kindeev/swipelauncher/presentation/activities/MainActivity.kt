@@ -13,19 +13,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.checkDirs
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
-import com.kindeev.swipelauncher.domain.utils.getValueOf
 import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
 import com.kindeev.swipelauncher.domain.utils.setActionAndImageTypes
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
@@ -124,17 +120,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                }
-            }
-            launch {
-                container.settings.collect { settings ->
-                    container.setTextColorOnWallpaper(
-                        if (settings.getValueOf(
-                                SettingNames.BlackTextColorOnWallpaper,
-                                BlackTextColorOnWallpaper::class.java
-                            )?.enabled == true
-                        ) Color.Black else Color.White
-                    )
                 }
             }
         }

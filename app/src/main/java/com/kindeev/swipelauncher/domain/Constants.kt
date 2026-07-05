@@ -3,15 +3,12 @@ package com.kindeev.swipelauncher.domain
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
-import com.kindeev.swipelauncher.domain.entities.settings.SettingData
-import com.kindeev.swipelauncher.domain.entities.settings.SettingNames
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.BlackTextColorOnWallpaper
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.ClickOnClock
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.OpenLastApp
-import com.kindeev.swipelauncher.domain.entities.settings.settingValues.PickAppActionWithImage
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
+import com.kindeev.swipelauncher.domain.entities.settings.ClickOnClock
+import com.kindeev.swipelauncher.domain.entities.settings.LauncherSettings
 
 object Constants {
     const val USER_IMAGES_DIR = "UserImages"
@@ -21,11 +18,14 @@ object Constants {
     var telephoneActionCategoryItems = listOf<ActionCategoryItem>()
     var minScreenLength = 0f
     var settingsTextSize = 0.sp
-    val defaultSettings = listOf(
-        SettingData(SettingNames.OpenLastApp, OpenLastApp(true)),
-        SettingData(SettingNames.ClickOnClock, ClickOnClock(false)),
-        SettingData(SettingNames.BlackTextColorOnWallpaper, BlackTextColorOnWallpaper(false)),
-        SettingData(SettingNames.PickAppActionWithImage, PickAppActionWithImage(true)),
+    val defaultSettings = LauncherSettings(
+        blackTextColorOnWallpaper = false,
+        clickOnClock = ClickOnClock(
+            false,
+            OpenSettingsAction
+        ),
+        openLastApp = true,
+        pickAppActionWithImage = true
     )
 
     val defaultImages = mapOf(
