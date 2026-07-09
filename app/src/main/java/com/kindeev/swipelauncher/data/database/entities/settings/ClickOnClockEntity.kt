@@ -1,6 +1,6 @@
 package com.kindeev.swipelauncher.data.database.entities.settings
 
-import com.kindeev.swipelauncher.data.database.entities.circleMenu.actions.CircleMenuEntityAction
+import com.kindeev.swipelauncher.data.entities.actions.CircleMenuEntityAction
 import kotlinx.serialization.Serializable
 
 @Serializable

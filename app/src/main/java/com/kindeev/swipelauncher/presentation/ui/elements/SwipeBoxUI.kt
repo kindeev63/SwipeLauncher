@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

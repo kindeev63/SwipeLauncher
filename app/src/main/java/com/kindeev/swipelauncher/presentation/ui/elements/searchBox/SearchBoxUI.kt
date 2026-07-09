@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.openApp
-import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ApplicationInfoDialog
 

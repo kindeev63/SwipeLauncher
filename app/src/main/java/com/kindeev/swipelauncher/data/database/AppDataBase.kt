@@ -7,15 +7,15 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.kindeev.swipelauncher.data.database.daos.CircleMenuDao
 import com.kindeev.swipelauncher.data.database.daos.SettingsDao
-import com.kindeev.swipelauncher.data.database.entities.circleMenu.CircleMenuEntity
-import com.kindeev.swipelauncher.data.database.entities.settings.LauncherSettingsEntity
+import com.kindeev.swipelauncher.data.database.entities.circleMenu.CircleMenuTable
+import com.kindeev.swipelauncher.data.database.entities.settings.LauncherSettingsTable
 import com.kindeev.swipelauncher.data.database.typeConverters.CircleMenuTypeConverter
 import com.kindeev.swipelauncher.data.database.typeConverters.SettingsTypeConverter
 
 @Database(
     entities = [
-        CircleMenuEntity::class,
-        LauncherSettingsEntity::class,
+        CircleMenuTable::class,
+        LauncherSettingsTable::class,
     ],
     version = 1
 )

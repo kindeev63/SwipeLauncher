@@ -11,6 +11,9 @@ class CoilLoaderManager(context: Context) {
     private val appContext = context.applicationContext
     private val loader = Coil.imageLoader(appContext)
 
+    init {
+        initCoil(context)
+    }
     fun prefetch(data: Any, key: String) =
         loader.enqueue(
             ImageRequest.Builder(appContext)

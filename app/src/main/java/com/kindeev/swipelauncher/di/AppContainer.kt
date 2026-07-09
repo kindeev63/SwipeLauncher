@@ -5,8 +5,9 @@ import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.data.applications.AppsObserver
 import com.kindeev.swipelauncher.data.applications.AppsRepository
+import com.kindeev.swipelauncher.data.backup.ExportCircleMenusUseCase
+import com.kindeev.swipelauncher.data.backup.ImportCircleMenusUseCase
 import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
-import com.kindeev.swipelauncher.data.coil.initCoil
 import com.kindeev.swipelauncher.data.coil.prefetchApplicationImages
 import com.kindeev.swipelauncher.data.coil.prefetchUserImages
 import com.kindeev.swipelauncher.data.database.AppDataBase
@@ -42,6 +43,10 @@ class AppContainer(context: Context) {
 
     val userImagesRepository = UserImagesRepository(userImagesStorage, coilLoaderManager)
 
+    val importCircleMenusUseCase = ImportCircleMenusUseCase(userImagesRepository, dataRepository, appContext)
+
+    val exportCircleMenusUseCase = ExportCircleMenusUseCase(userImagesRepository, appContext)
+
     val circleMenus = dataRepository.getAllCircleMenus().stateIn(
         scope = appScope,
         started = SharingStarted.Eagerly,
@@ -60,7 +65,6 @@ class AppContainer(context: Context) {
         Constants.minScreenLength = appContext.getMinScreenLength()
         Constants.settingsTextSize = Constants.minScreenLength.sp / 20
 
-        initCoil(appContext)
         appScope.launch(Dispatchers.IO) {
             launch {
                 coilLoaderManager.prefetchUserImages(userImagesRepository.getAllFiles())

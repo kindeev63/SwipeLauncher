@@ -32,8 +32,8 @@ import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.domain.utils.spacer
-import com.kindeev.swipelauncher.domain.viewModels.screens.mainSettingsScreen.MainSettingsScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.screens.mainSettingsScreen.MainSettingsScreenVMFactory
+import com.kindeev.swipelauncher.presentation.viewModels.mainSettingsScreen.MainSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.mainSettingsScreen.MainSettingsScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.ClickableSettingItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSettingItem

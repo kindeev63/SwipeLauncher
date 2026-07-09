@@ -33,7 +33,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
 @Composable
 fun ApplicationInfoDialog(

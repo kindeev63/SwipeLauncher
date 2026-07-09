@@ -21,8 +21,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
-import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.screens.launcherScreen.LauncherScreenVMFactory
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI

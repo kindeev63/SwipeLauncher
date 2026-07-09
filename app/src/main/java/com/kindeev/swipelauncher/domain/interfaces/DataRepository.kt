@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
 
+    suspend fun getCircleMenuIds(): List<Int>
+
     fun getAllCircleMenus(): Flow<List<CircleMenu>>
 
     fun getSettings(): Flow<LauncherSettings>

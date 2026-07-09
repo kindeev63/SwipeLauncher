@@ -4,15 +4,15 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.kindeev.swipelauncher.data.database.entities.settings.LauncherSettingsEntity
+import com.kindeev.swipelauncher.data.database.entities.settings.LauncherSettingsTable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SettingsDao {
 
     @Query("SELECT * FROM settings")
-    fun get(): Flow<LauncherSettingsEntity?>
+    fun get(): Flow<LauncherSettingsTable?>
 
-    @Insert(LauncherSettingsEntity::class, onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(entity: LauncherSettingsEntity)
+    @Insert(LauncherSettingsTable::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entity: LauncherSettingsTable)
 }

@@ -1,7 +1,7 @@
 package com.kindeev.swipelauncher.data.database.typeConverters
 
 import androidx.room.TypeConverter
-import com.kindeev.swipelauncher.data.database.entities.circleMenu.CircleMenuEntityItem
+import com.kindeev.swipelauncher.data.entities.CircleMenuItemEntity
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
@@ -12,16 +12,16 @@ class CircleMenuTypeConverter {
     }
 
     @TypeConverter
-    fun fromCircleMenuEntityItemList(items: List<CircleMenuEntityItem>): String =
+    fun fromCircleMenuEntityItemList(items: List<CircleMenuItemEntity>): String =
         json.encodeToString(
-            serializer = ListSerializer(CircleMenuEntityItem.serializer()),
+            serializer = ListSerializer(CircleMenuItemEntity.serializer()),
             value = items
         )
 
     @TypeConverter
-    fun toCircleMenuEntityItemList(data: String): List<CircleMenuEntityItem> =
+    fun toCircleMenuEntityItemList(data: String): List<CircleMenuItemEntity> =
         json.decodeFromString(
-            deserializer = ListSerializer(CircleMenuEntityItem.serializer()),
+            deserializer = ListSerializer(CircleMenuItemEntity.serializer()),
             string = data
         )
 }

@@ -16,7 +16,7 @@ fun initCoil(context: Context)  {
             }
             .memoryCache {
                 MemoryCache.Builder(context)
-                    .maxSizePercent(0.25)
+                    .maxSizePercent(0.4)
                     .strongReferencesEnabled(true)
                     .build()
             }

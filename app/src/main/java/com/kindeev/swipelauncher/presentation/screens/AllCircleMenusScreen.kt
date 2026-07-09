@@ -56,8 +56,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.domain.viewModels.screens.allCircleMenus.AllCircleMenusScreenVMFactory
+import com.kindeev.swipelauncher.presentation.viewModels.allCircleMenus.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.allCircleMenus.AllCircleMenusScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import kotlinx.coroutines.launch
@@ -91,8 +91,10 @@ fun AllCircleMenusScreen(
     val pickJsonFile = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
-            viewModel.importCircleMenus(uri) { result ->
-                scope.launch { snackbarHostState.showSnackbar(context.resources.getString(if (result) R.string.successfully else R.string.error)) }
+            if (uri != null) {
+                viewModel.importCircleMenus(uri) { result ->
+                    scope.launch { snackbarHostState.showSnackbar(context.resources.getString(if (result) R.string.successfully else R.string.error)) }
+                }
             }
         }
     )
