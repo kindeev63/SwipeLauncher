@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 class CircleMenuRepository(private val dao: CircleMenuDao) {
 
-    suspend fun getCircleMenuIds(): List<Int> = dao.getCircleMenuIds()
+    suspend fun getCircleMenus(): List<CircleMenu> = dao.getCircleMenus().map { it.fromTable() }
 
     fun getAll(): Flow<List<CircleMenu>> =
         dao.getAll().map { data -> data.map { it.fromTable() } }

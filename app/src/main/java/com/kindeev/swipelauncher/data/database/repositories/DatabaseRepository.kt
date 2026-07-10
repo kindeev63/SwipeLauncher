@@ -9,7 +9,7 @@ class DatabaseRepository(
     private val circleMenuRepository: CircleMenuRepository,
     private val settingsRepository: SettingsRepository,
 ): DataRepository {
-    override suspend fun getCircleMenuIds(): List<Int> = circleMenuRepository.getCircleMenuIds()
+    override suspend fun getCircleMenus(): List<CircleMenu> = circleMenuRepository.getCircleMenus()
 
     override fun getAllCircleMenus(): Flow<List<CircleMenu>> = circleMenuRepository.getAll()
 

@@ -43,7 +43,13 @@ class AppContainer(context: Context) {
 
     val userImagesRepository = UserImagesRepository(userImagesStorage, coilLoaderManager)
 
-    val importCircleMenusUseCase = ImportCircleMenusUseCase(userImagesRepository, dataRepository, appContext)
+    val importCircleMenusUseCase = ImportCircleMenusUseCase(
+        userImagesRepository,
+        dataRepository,
+        checkCircleMenuUseCase,
+        applicationsManager,
+        appContext
+    )
 
     val exportCircleMenusUseCase = ExportCircleMenusUseCase(userImagesRepository, appContext)
 
@@ -74,14 +80,16 @@ class AppContainer(context: Context) {
                 coilLoaderManager.prefetchApplicationImages(applications.map { it.packageName })
                 appsObserver.start(
                     onChange = {
-                        appScope.launch {
-                            dataRepository.insertCircleMenus(
-                                checkCircleMenuUseCase.getOnlyChanged(
-                                    circleMenus = circleMenus.value,
-                                    allPackageNames = appsRepository.applications.value.map { it.packageName },
-                                    userImageIds = userImagesRepository.getAllIds()
+                        if (appsRepository.applications.value.isNotEmpty()) {
+                            appScope.launch {
+                                dataRepository.insertCircleMenus(
+                                    checkCircleMenuUseCase.getOnlyChanged(
+                                        circleMenus = circleMenus.value,
+                                        allPackageNames = appsRepository.applications.value.map { it.packageName },
+                                        userImageIds = userImagesRepository.getAllIds()
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 )

@@ -2,12 +2,16 @@ package com.kindeev.swipelauncher.data.backup
 
 import android.content.Context
 import android.net.Uri
+import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.data.entities.CircleMenuEntity
 import com.kindeev.swipelauncher.data.entities.mappers.fromEntity
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -18,6 +22,8 @@ import java.util.zip.ZipInputStream
 class ImportCircleMenusUseCase(
     private val userImagesRepository: UserImagesRepository,
     private val dataRepository: DataRepository,
+    private val checkCircleMenuUseCase: CheckCircleMenuUseCase,
+    private val applicationsManager: ApplicationsManager,
     context: Context
 ) {
     private val appContext = context.applicationContext
@@ -33,12 +39,21 @@ class ImportCircleMenusUseCase(
             if (data == null) {
                 false
             } else {
-                val circleMenuIds = dataRepository.getCircleMenuIds()
+                val circleMenus = dataRepository.getCircleMenus()
+                val existIds = circleMenus.map { it.id }
                 val newCircleMenus = data.getCircleMenus().changeIds(
                     userImageIdsMapper = userImageIdsMapper,
-                    userCircleMenuIds = circleMenuIds.toSet()
+                    userCircleMenuIds = existIds.toSet()
                 )
-                dataRepository.insertCircleMenus(newCircleMenus)
+                val changed = checkCircleMenuUseCase.getOnlyChanged(
+                    circleMenus = circleMenus + newCircleMenus,
+                    allPackageNames = applicationsManager.applications.value.map { it.packageName },
+                    userImageIds = userImagesRepository.getAllIds()
+                )
+                val changedIds = changed.map { it.id }.toSet()
+                dataRepository.insertCircleMenus(
+                    changed + newCircleMenus.filter { it.id !in changedIds }
+                )
                 true
             }
         } catch (_: Exception) {
@@ -98,16 +113,24 @@ class ImportCircleMenusUseCase(
                 menu.copy(
                     id = circleMenuIdsMapper.getOrDefault(menu.id, it.id),
                     items = menu.items.map { item ->
-                        if (item.image is UserImage && item.image.id in userImageIdsMapper) {
-                            item.copy(
-                                image = UserImage(
+                        CircleMenuItem(
+                            image = if (item.image is UserImage && item.image.id in userImageIdsMapper) {
+                                UserImage(
                                     userImageIdsMapper.getOrDefault(
                                         item.image.id,
                                         item.image.id
                                     )
                                 )
-                            )
-                        } else item
+                            } else item.image,
+                            action = if (item.action is OpenCircleMenuAction && item.action.id in circleMenuIdsMapper) {
+                                OpenCircleMenuAction(
+                                    circleMenuIdsMapper.getOrDefault(
+                                        item.action.id,
+                                        item.action.id
+                                    )
+                                )
+                            } else item.action
+                        )
                     }
                 )
             }
