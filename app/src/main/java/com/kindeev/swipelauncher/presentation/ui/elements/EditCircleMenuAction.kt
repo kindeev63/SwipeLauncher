@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.coil.appImageUri
-import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
@@ -49,8 +48,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
@@ -159,7 +156,7 @@ private fun OpenCircleMenuDataItem(
     changeAction: () -> Unit
 ) {
     val context = LocalContext.current
-    val circleMenus = context.container.circleMenus.collectAsState()
+    val circleMenus = context.container.circleMenusForUI.collectAsState()
 
     circleMenus.value.find { it.id == action.id }?.let {
         Row(
@@ -196,9 +193,8 @@ private fun OpenSettingsDataItem(
     size: Float,
     changeAction: () -> Unit
 ) {
-    val context = LocalContext.current
-    AsyncImage(
-        model = DefaultImage(DefaultImages.Settings).getCoilModel(context),
+    Image(
+        painter = painterResource(R.drawable.ic_settings),
         modifier = Modifier
             .size(size.dp)
             .clip(RoundedCornerShape(12.dp))

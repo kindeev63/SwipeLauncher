@@ -102,6 +102,7 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             launch {
                 container.circleMenus.collect { allCircleMenus ->
+                    if (allCircleMenus.isEmpty()) return@collect
                     container.userImagesRepository.removeUnused(
                         allCircleMenus.getUsedImagesIds().toSet()
                     )

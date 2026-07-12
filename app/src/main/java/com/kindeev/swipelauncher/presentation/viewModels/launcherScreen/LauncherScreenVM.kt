@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
@@ -30,6 +29,7 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuForUI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -52,7 +52,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val openUrlUseCase = OpenUrlUseCase(context)
 
     private val _currentMenu = MutableStateFlow(
-        container.circleMenus.value.find { it.id == 0 }?.let {
+        container.circleMenusForUI.value.find { it.id == 0 }?.let {
             CircleMenuWithOffset(it, null)
         }
     )
@@ -64,8 +64,8 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val size = Constants.minScreenLength / 3f * 2
     private val radius = (size / 2 - size / 5)
     private val radiusSq = radius.pow(2)
-    private var offsets = getOffsets(container.circleMenus.value, size)
-    private var sizes = getSizes(container.circleMenus.value)
+    private var offsets = getOffsets(container.circleMenusForUI.value, size)
+    private var sizes = getSizes(container.circleMenusForUI.value)
 
     private var clickTime = 0L
     private var actionInProgress = false
@@ -73,16 +73,16 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private val _screenState = MutableStateFlow(LauncherScreenState.SwipeBox)
     val screenState: StateFlow<LauncherScreenState> = _screenState
 
-    fun setCircleMenu(circleMenu: CircleMenu) {
-        _currentMenu.value = _currentMenu.value?.copy(circleMenu = circleMenu)
+    fun setCircleMenu(circleMenuForUI: CircleMenuForUI) {
+        _currentMenu.value = _currentMenu.value?.copy(circleMenuForUI = circleMenuForUI)
     }
 
-    fun setOffsets(circleMenus: List<CircleMenu>) {
-        offsets = getOffsets(circleMenus, size)
+    fun setOffsets(circleMenusForUI: List<CircleMenuForUI>) {
+        offsets = getOffsets(circleMenusForUI, size)
     }
 
-    fun setSizes(circleMenus: List<CircleMenu>) {
-        sizes = getSizes(circleMenus)
+    fun setSizes(circleMenusForUI: List<CircleMenuForUI>) {
+        sizes = getSizes(circleMenusForUI)
     }
 
     fun closeSearchBox() {
@@ -94,14 +94,14 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         if (offsets.isEmpty()) {
             return emptyList()
         }
-        currentMenu.value?.circleMenu?.id?.let {
+        currentMenu.value?.circleMenuForUI?.id?.let {
             return offsets[it] ?: emptyList()
         }
         return emptyList()
     }
 
     val itemSize: Dp
-        get() = sizes[currentMenu.value?.circleMenu?.id ?: 0] ?: 0.dp
+        get() = sizes[currentMenu.value?.circleMenuForUI?.id ?: 0] ?: 0.dp
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -131,7 +131,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                             )
                         )
                         index?.let {
-                            currentMenu.value?.circleMenu?.items?.getOrNull(index)?.let { item ->
+                            currentMenu.value?.circleMenuForUI?.items?.getOrNull(index)?.let { item ->
                                 viewModelScope.launch {
                                     executeAction(item.action, offset)
                                 }
@@ -143,10 +143,10 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                container.circleMenus.value.find { it.id == 0 }?.let {
+                container.circleMenusForUI.value.find { it.id == 0 }?.let {
                     _currentMenu.value =
                         CircleMenuWithOffset(
-                            circleMenu = it,
+                            circleMenuForUI = it,
                             offset = null
                         )
                 }
@@ -166,24 +166,24 @@ class LauncherScreenVM(context: Context) : ViewModel() {
                     var circleMenuForCheck =
                         container.circleMenus.value.find { it.id == action.id }
                             ?: container.circleMenus.value.find { it.id == 0 }
+                    var menuForUI = container.circleMenusForUI.value.find { it.id == action.id }
+                            ?: container.circleMenusForUI.value.find { it.id == 0 }
+
                     circleMenuForCheck?.let { menu ->
-                        circleMenuForCheck =
                             if (checkCircleMenuUseCase.check(
                                     circleMenu = menu,
                                     allCircleMenuIds = container.circleMenus.value.map { it.id },
                                     allPackageNames = container.applicationsManager.applications.value.map { it.packageName },
                                     userImageIds = container.userImagesRepository.getAllIds()
-                                ) == null
+                                ) != null
                             ) {
-                                menu
-                            } else {
-                                container.circleMenus.value.find { it.id == 0 }
+                                menuForUI = container.circleMenusForUI.value.find { it.id == 0 }
                             }
                     }
-                    circleMenuForCheck?.let {
+                    menuForUI?.let {
                         _currentMenu.value =
                             CircleMenuWithOffset(
-                                circleMenu = it,
+                                circleMenuForUI = it,
                                 offset = newOffset
                             )
                     }
@@ -233,11 +233,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     }
 
     private fun getOffsets(
-        circleMenus: List<CircleMenu>,
+        circleMenusForUI: List<CircleMenuForUI>,
         size: Float
     ): Map<Int, List<DpOffset>> {
         val offsets = mutableMapOf<Int, List<DpOffset>>()
-        circleMenus.forEach { circleMenu ->
+        circleMenusForUI.forEach { circleMenu ->
             val itemSize = getSize(circleMenu.items.size)
             val alpha = 360f / circleMenu.items.size
             offsets[circleMenu.id] = circleMenu.items.indices.map { alpha * it }.map {
@@ -251,10 +251,10 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     }
 
     private fun getSizes(
-        circleMenus: List<CircleMenu>
+        circleMenusForUI: List<CircleMenuForUI>
     ): Map<Int, Dp> {
         val sizes = mutableMapOf<Int, Dp>()
-        circleMenus.forEach { circleMenu ->
+        circleMenusForUI.forEach { circleMenu ->
             sizes[circleMenu.id] = getSize(circleMenu.items.size).dp
         }
         return sizes
@@ -277,7 +277,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     private fun getElementIndexOnCords(
         offset: Offset
     ): Int? {
-        currentMenu.value?.circleMenu?.let { circleMenu ->
+        currentMenu.value?.circleMenuForUI?.let { circleMenu ->
             if (offset.x.pow(2) + offset.y.pow(2) > radiusSq) {
                 val alpha = 360f / circleMenu.items.size
                 val angles = circleMenu.items.indices.map { alpha * it }
@@ -316,7 +316,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
         }) % 360
     }
 
-    private fun CircleMenu.getStartOffset(): Float {
+    private fun CircleMenuForUI.getStartOffset(): Float {
         if (items.isEmpty()) {
             return 0f
         }

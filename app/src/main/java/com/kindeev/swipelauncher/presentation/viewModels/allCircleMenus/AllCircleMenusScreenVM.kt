@@ -45,13 +45,13 @@ class AllCircleMenusScreenVM(context: Context) : ViewModel() {
         _selectedMenuIds.value = emptyList()
     }
 
-    fun changeSelectionStateOf(circleMenu: CircleMenu) {
+    fun changeSelectionStateOf(id: Int) {
         _selectedMenuIds.value =
             selectedMenuIds.value.toMutableList().apply {
-                if (contains(circleMenu.id)) {
-                    remove(circleMenu.id)
+                if (contains(id)) {
+                    remove(id)
                 } else {
-                    add(circleMenu.id)
+                    add(id)
                 }
             }
     }

@@ -41,8 +41,8 @@ fun LauncherScreen() {
     BackHandler {}
     val scope = rememberCoroutineScope()
     scope.launch {
-        context.container.circleMenus.collect { allMenus ->
-            (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenu?.id }
+        context.container.circleMenusForUI.collect { allMenus ->
+            (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenuForUI?.id }
                 ?: allMenus.find { it.id == 0 })?.let {
                 viewModel.setCircleMenu(it)
             }

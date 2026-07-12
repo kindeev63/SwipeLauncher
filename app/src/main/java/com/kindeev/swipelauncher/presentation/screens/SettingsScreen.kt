@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
 
 @Composable
 fun SettingsScreen() {

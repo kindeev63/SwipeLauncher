@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -18,10 +19,11 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ActionItemData
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ActionItemDataType
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.GhostCircleMenuItem
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -134,6 +136,9 @@ class EditCircleMenuScreenVM(
             value
         }
     }
+
+    fun getImageBitmap(circleMenuImage: CircleMenuImage): ImageBitmap? =
+        container.circleMenuForUIMapper.CircleMenuImageToUI(circleMenuImage)
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -305,7 +310,7 @@ class EditCircleMenuScreenVM(
                 )
                 return GhostCircleMenuItem(
                     index = item.index,
-                    image = item.circleMenuItem.image,
+                    image = getImageBitmap(item.circleMenuItem.image) ?: return null,
                     offset = Offset(
                         x = offset.x + firstOffset.x,
                         y = offset.y + firstOffset.y
@@ -400,14 +405,14 @@ class EditCircleMenuScreenVM(
         return (offset.x - size / 2).pow(2) + (offset.y - size / 2).pow(2) < actionRadiusSq
     }
 
-    private fun getAddGhostItem(offset: Offset): GhostCircleMenuItem {
+    private fun getAddGhostItem(offset: Offset): GhostCircleMenuItem? {
         val firstOffset = Offset(
             x = size / 2 - offset.x,
             y = size / 2 - offset.y
         )
         return GhostCircleMenuItem(
             index = null,
-            image = DefaultImage(DefaultImages.Build),
+            image = getImageBitmap(DefaultImage(DefaultImages.Build)) ?: return null,
             offset = Offset(
                 x = offset.x + firstOffset.x,
                 y = offset.y + firstOffset.y

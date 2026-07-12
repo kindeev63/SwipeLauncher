@@ -249,7 +249,7 @@ fun OpenCircleMenuActionData(
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = context.container.circleMenus.value.filter {
+                    items = context.container.circleMenusForUI.value.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     }
                 ) { circleMenu ->

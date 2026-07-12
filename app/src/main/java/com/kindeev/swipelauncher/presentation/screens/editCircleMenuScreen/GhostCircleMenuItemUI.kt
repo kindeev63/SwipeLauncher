@@ -1,22 +1,19 @@
-package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen
+package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.coil.getCoilModel
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.GhostCircleMenuItem
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 
 @Composable
 fun GhostCircleMenuItemUI(
     item: GhostCircleMenuItem
 ) {
-    val context = LocalContext.current
-    AsyncImage(
-        model = item.image.getCoilModel(context),
+    Image(
+        bitmap = item.image,
         modifier = Modifier
             .offset(
                 x = item.offset.x.dp - item.size.dp / 2,

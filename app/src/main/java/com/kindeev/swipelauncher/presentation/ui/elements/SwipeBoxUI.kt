@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -10,10 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
@@ -24,7 +22,6 @@ fun SwipeBoxUI(
 ) {
     val size = Constants.minScreenLength / 3f * 2
     val currentMenu by viewModel.currentMenu.collectAsState()
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -41,11 +38,11 @@ fun SwipeBoxUI(
                         y = offset.y.dp - size.dp / 2,
                     )
             ) {
-                currentMenu?.circleMenu?.items?.let { items ->
+                currentMenu?.circleMenuForUI?.items?.let { items ->
                     val itemsOffset = viewModel.getOffset()
                     items.forEachIndexed { index, item ->
-                        AsyncImage(
-                            model = item.image.getCoilModel(context),
+                        Image(
+                            bitmap = item.image,
                             modifier = Modifier
                                 .offset(
                                     x = itemsOffset[index].x,

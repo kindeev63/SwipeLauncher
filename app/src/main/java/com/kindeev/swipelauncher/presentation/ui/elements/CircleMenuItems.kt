@@ -1,16 +1,14 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.data.coil.getCoilModel
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemForUI
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -19,7 +17,7 @@ import kotlin.math.sqrt
 
 @Composable
 fun CircleMenuItems(
-    items: List<CircleMenuItem>,
+    items: List<CircleMenuItemForUI>,
     menuSize: Float
 ) {
     Box(
@@ -28,10 +26,9 @@ fun CircleMenuItems(
     ) {
         val itemsOffset = getOffset(items.size, menuSize)
         val itemSize = getItemSize(items.size, menuSize)
-        val context = LocalContext.current
         items.forEachIndexed { index, item ->
-            AsyncImage(
-                model = item.image.getCoilModel(context),
+            Image(
+                bitmap = item.image,
                 modifier = Modifier
                     .offset(
                         x = itemsOffset[index].x,

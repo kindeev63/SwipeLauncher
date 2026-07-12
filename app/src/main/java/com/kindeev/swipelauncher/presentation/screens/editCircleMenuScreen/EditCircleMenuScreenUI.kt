@@ -1,6 +1,7 @@
-package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen
+package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,17 +54,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.coil.getCoilModel
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ActionItemDataType
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
+import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuVMFactory
 
 @Composable
 fun EditCircleMenuScreenUI(
@@ -100,7 +101,6 @@ private fun LandscapeUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenu by viewModel.circleMenu.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
-    val context = LocalContext.current
 
     // UI
     Scaffold(
@@ -163,16 +163,19 @@ private fun LandscapeUI(
                             val itemsOffset = viewModel.getItemsOffsets()
                             menu.items.forEachIndexed { index, item ->
                                 if (index != ghostItem?.index) {
-                                    AsyncImage(
-                                        model = item.image.getCoilModel(context),
-                                        modifier = Modifier
-                                            .offset(
-                                                x = itemsOffset[index].x,
-                                                y = itemsOffset[index].y
-                                            )
-                                            .size(viewModel.itemSize.dp),
-                                        contentDescription = null
-                                    )
+                                    viewModel.getImageBitmap(item.image)?.let {
+
+                                        Image(
+                                            bitmap = it,
+                                            modifier = Modifier
+                                                .offset(
+                                                    x = itemsOffset[index].x,
+                                                    y = itemsOffset[index].y
+                                                )
+                                                .size(viewModel.itemSize.dp),
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -218,7 +221,6 @@ private fun PortraitUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenu by viewModel.circleMenu.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
-    val context = LocalContext.current
 
     // UI
     Scaffold(
@@ -268,16 +270,18 @@ private fun PortraitUI(
                         val itemsOffset = viewModel.getItemsOffsets()
                         menu.items.forEachIndexed { index, item ->
                             if (index != ghostItem?.index) {
-                                AsyncImage(
-                                    model = item.image.getCoilModel(context),
-                                    modifier = Modifier
-                                        .offset(
-                                            x = itemsOffset[index].x,
-                                            y = itemsOffset[index].y
-                                        )
-                                        .size(viewModel.itemSize.dp),
-                                    contentDescription = null
-                                )
+                                viewModel.getImageBitmap(item.image)?.let {
+                                    Image(
+                                        bitmap = it,
+                                        modifier = Modifier
+                                            .offset(
+                                                x = itemsOffset[index].x,
+                                                y = itemsOffset[index].y
+                                            )
+                                            .size(viewModel.itemSize.dp),
+                                        contentDescription = null
+                                    )
+                                }
                             }
                         }
                     }
@@ -461,7 +465,6 @@ fun ItemImage(
     var showImageDialog by rememberSaveable {
         mutableStateOf(false)
     }
-    val context = LocalContext.current
 
     if (showImageDialog) {
         ImageDialog(
@@ -470,14 +473,15 @@ fun ItemImage(
             onPick = onChangeImage
         )
     }
-
-    AsyncImage(
-        model = image.getCoilModel(context),
-        modifier = Modifier
-            .size(size.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { showImageDialog = true }
-            .padding(5.dp),
-        contentDescription = null
-    )
+    viewModel.getImageBitmap(image)?.let {
+        Image(
+            bitmap = it,
+            modifier = Modifier
+                .size(size.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { showImageDialog = true }
+                .padding(5.dp),
+            contentDescription = null
+        )
+    }
 }

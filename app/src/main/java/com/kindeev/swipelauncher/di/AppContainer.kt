@@ -9,7 +9,6 @@ import com.kindeev.swipelauncher.data.backup.ExportCircleMenusUseCase
 import com.kindeev.swipelauncher.data.backup.ImportCircleMenusUseCase
 import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
 import com.kindeev.swipelauncher.data.coil.prefetchApplicationImages
-import com.kindeev.swipelauncher.data.coil.prefetchUserImages
 import com.kindeev.swipelauncher.data.database.AppDataBase
 import com.kindeev.swipelauncher.data.database.getRepository
 import com.kindeev.swipelauncher.data.userImages.UserImagesRepository
@@ -17,10 +16,12 @@ import com.kindeev.swipelauncher.data.userImages.UserImagesStorage
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
+import com.kindeev.swipelauncher.presentation.mappers.CircleMenuForUIMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -53,11 +54,20 @@ class AppContainer(context: Context) {
 
     val exportCircleMenusUseCase = ExportCircleMenusUseCase(userImagesRepository, appContext)
 
+    val circleMenuForUIMapper = CircleMenuForUIMapper(userImagesRepository, appContext)
+
     val circleMenus = dataRepository.getAllCircleMenus().stateIn(
         scope = appScope,
         started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
+
+    val circleMenusForUI =
+        circleMenus.map { it.map { menu -> circleMenuForUIMapper.map(menu) } }.stateIn(
+            scope = appScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
 
     val settings = dataRepository.getSettings().stateIn(
         scope = appScope,
@@ -72,9 +82,6 @@ class AppContainer(context: Context) {
         Constants.settingsTextSize = Constants.minScreenLength.sp / 20
 
         appScope.launch(Dispatchers.IO) {
-            launch {
-                coilLoaderManager.prefetchUserImages(userImagesRepository.getAllFiles())
-            }
             launch {
                 val applications = appsRepository.loadApplications()
                 coilLoaderManager.prefetchApplicationImages(applications.map { it.packageName })

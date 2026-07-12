@@ -86,6 +86,7 @@ fun AllCircleMenusScreen(
         factory = AllCircleMenusScreenVMFactory(context)
     )
     val allCircleMenus by context.container.circleMenus.collectAsState()
+    val allCircleMenusForUI by context.container.circleMenusForUI.collectAsState()
     val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
 
     val pickJsonFile = rememberLauncherForActivityResult(
@@ -174,7 +175,7 @@ fun AllCircleMenusScreen(
             columns = GridCells.Fixed(2)
         ) {
             items(
-                items = allCircleMenus
+                items = allCircleMenusForUI
             ) { circleMenu ->
                 MiniCircleMenuItem(
                     size = LocalConfiguration.current.screenWidthDp / 2f,
@@ -185,11 +186,11 @@ fun AllCircleMenusScreen(
                         if (selectedMenuIds.isEmpty()) {
                             navigateToCircleMenu(circleMenu.id)
                         } else {
-                            viewModel.changeSelectionStateOf(circleMenu)
+                            viewModel.changeSelectionStateOf(circleMenu.id)
                         }
                     },
                     onLongClick = {
-                        viewModel.changeSelectionStateOf(circleMenu)
+                        viewModel.changeSelectionStateOf(circleMenu.id)
                     }
                 )
             }

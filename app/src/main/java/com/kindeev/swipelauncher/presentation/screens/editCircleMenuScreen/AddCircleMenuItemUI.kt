@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen
+package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
