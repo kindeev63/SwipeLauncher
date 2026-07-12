@@ -61,6 +61,7 @@ class CheckCircleMenuUseCase {
         allPackageNames: List<String>,
         userImageIds: List<Int>
     ): List<CircleMenu> {
+        if (circleMenus.isEmpty() || allPackageNames.isEmpty()) return emptyList()
         val changedCircleMenus = mutableListOf<CircleMenu>()
         circleMenus.forEach { circleMenu ->
             check(
