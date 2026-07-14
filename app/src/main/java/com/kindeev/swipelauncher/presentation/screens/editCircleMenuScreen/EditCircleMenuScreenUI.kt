@@ -56,9 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemForUI
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
@@ -99,7 +99,7 @@ private fun LandscapeUI(
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
-    val circleMenu by viewModel.circleMenu.collectAsState()
+    val circleMenu by viewModel.circleMenuForUI.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
 
     // UI
@@ -163,19 +163,16 @@ private fun LandscapeUI(
                             val itemsOffset = viewModel.getItemsOffsets()
                             menu.items.forEachIndexed { index, item ->
                                 if (index != ghostItem?.index) {
-                                    viewModel.getImageBitmap(item.image)?.let {
-
-                                        Image(
-                                            bitmap = it,
-                                            modifier = Modifier
-                                                .offset(
-                                                    x = itemsOffset[index].x,
-                                                    y = itemsOffset[index].y
-                                                )
-                                                .size(viewModel.itemSize.dp),
-                                            contentDescription = null
-                                        )
-                                    }
+                                    Image(
+                                        bitmap = item.imageBitmap,
+                                        modifier = Modifier
+                                            .offset(
+                                                x = itemsOffset[index].x,
+                                                y = itemsOffset[index].y
+                                            )
+                                            .size(viewModel.itemSize.dp),
+                                        contentDescription = null
+                                    )
                                 }
                             }
                         }
@@ -219,7 +216,7 @@ private fun PortraitUI(
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
-    val circleMenu by viewModel.circleMenu.collectAsState()
+    val circleMenu by viewModel.circleMenuForUI.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
 
     // UI
@@ -270,18 +267,16 @@ private fun PortraitUI(
                         val itemsOffset = viewModel.getItemsOffsets()
                         menu.items.forEachIndexed { index, item ->
                             if (index != ghostItem?.index) {
-                                viewModel.getImageBitmap(item.image)?.let {
-                                    Image(
-                                        bitmap = it,
-                                        modifier = Modifier
-                                            .offset(
-                                                x = itemsOffset[index].x,
-                                                y = itemsOffset[index].y
-                                            )
-                                            .size(viewModel.itemSize.dp),
-                                        contentDescription = null
-                                    )
-                                }
+                                Image(
+                                    bitmap = item.imageBitmap,
+                                    modifier = Modifier
+                                        .offset(
+                                            x = itemsOffset[index].x,
+                                            y = itemsOffset[index].y
+                                        )
+                                        .size(viewModel.itemSize.dp),
+                                    contentDescription = null
+                                )
                             }
                         }
                     }
@@ -347,7 +342,7 @@ fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
 private fun CircleMenuTitle(
     viewModel: EditCircleMenuScreenVM
 ) {
-    val circleMenu by viewModel.circleMenu.collectAsState()
+    val circleMenu by viewModel.circleMenuForUI.collectAsState()
     circleMenu?.let { menu ->
         val fontSize = 24.sp
         Box(
@@ -402,7 +397,7 @@ private fun SelectedItemBox(
 @Composable
 private fun ImageAndActionEdit(
     viewModel: EditCircleMenuScreenVM,
-    circleMenuItem: CircleMenuItem,
+    circleMenuItem: CircleMenuItemForUI,
     onChangeImage: (CircleMenuImage) -> Unit,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {

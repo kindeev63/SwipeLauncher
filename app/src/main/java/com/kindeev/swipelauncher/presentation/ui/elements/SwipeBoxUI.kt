@@ -42,7 +42,7 @@ fun SwipeBoxUI(
                     val itemsOffset = viewModel.getOffset()
                     items.forEachIndexed { index, item ->
                         Image(
-                            bitmap = item.image,
+                            bitmap = item.imageBitmap,
                             modifier = Modifier
                                 .offset(
                                     x = itemsOffset[index].x,

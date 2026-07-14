@@ -28,7 +28,7 @@ fun CircleMenuItems(
         val itemSize = getItemSize(items.size, menuSize)
         items.forEachIndexed { index, item ->
             Image(
-                bitmap = item.image,
+                bitmap = item.imageBitmap,
                 modifier = Modifier
                     .offset(
                         x = itemsOffset[index].x,

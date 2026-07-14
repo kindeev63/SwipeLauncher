@@ -39,12 +39,13 @@ class CircleMenuForUIMapper(
 
     private fun CircleMenuItem.toUI(): CircleMenuItemForUI? {
         return CircleMenuItemForUI(
-            image = image.toUI() ?: return null,
+            image = image,
+            imageBitmap = image.toUI() ?: return null,
             action = action
         )
     }
 
-    fun CircleMenuImageToUI(image: CircleMenuImage): ImageBitmap? = image.toUI()
+    fun circleMenuImageToUI(image: CircleMenuImage): ImageBitmap? = image.toUI()
     private fun CircleMenuImage.toUI(): ImageBitmap? {
         return when (this) {
             is AppImage -> launcherApps.getApplicationInfo(
