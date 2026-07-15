@@ -8,6 +8,7 @@ import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -20,15 +21,19 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.presentation.entities.CircleMenuForUI
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemForUI
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.PI
@@ -38,6 +43,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.time.Duration.Companion.milliseconds
 
 class EditCircleMenuScreenVM(
     circleMenuId: Int?,
@@ -46,12 +52,14 @@ class EditCircleMenuScreenVM(
 ) : ViewModel() {
 
     private val container = context.container
+    private val id: Int
 
     // CircleMenu
-    private val _circleMenuForUI = MutableStateFlow<CircleMenuForUI?>(null)
-    val circleMenuForUI: StateFlow<CircleMenuForUI?> = _circleMenuForUI
-    private val menu: CircleMenuForUI
-        get() = _circleMenuForUI.value ?: throw IllegalArgumentException("Illegal CircleMenu")
+    private val _circleMenuItems = MutableStateFlow<List<CircleMenuItemForUI>>(emptyList())
+    val circleMenuItems: StateFlow<List<CircleMenuItemForUI>> = _circleMenuItems
+
+    private val _circleMenuTitle = MutableStateFlow(TextFieldValue("New"))
+    val circleMenuTitle = _circleMenuTitle.asStateFlow()
 
     // ItemSize
     var itemSize = 0f
@@ -59,32 +67,67 @@ class EditCircleMenuScreenVM(
     init {
         if (circleMenuId == null) {
             val allIds = container.circleMenus.value.map { it.id }
-            var currentId = 0
-            while (true) {
-                if (currentId !in allIds) break
-                currentId++
-            }
-            val circleMenu = CircleMenuForUI(
-                id = currentId,
-                title = "New",
-                items = emptyList()
-            )
-            _circleMenuForUI.value = circleMenu
-            itemSize = getItemSize(0)
+            id = generateSequence(1) { it + 1 }.first { it !in allIds }
         } else {
             val menu = container.circleMenusForUI.value.find { it.id == circleMenuId }
-            _circleMenuForUI.value = menu
-            itemSize = getItemSize(menu?.items?.size ?: 0)
+            if (menu == null) {
+                id = 0
+            } else {
+                id = menu.id
+                _circleMenuItems.value = menu.items
+                _circleMenuTitle.value = TextFieldValue(menu.title)
+                itemSize = getItemSize(menu.items.size)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            launch {
+                @OptIn(FlowPreview::class)
+                _circleMenuTitle
+                    .map { it.text }
+                    .distinctUntilChanged()
+                    .debounce(500.milliseconds)
+                    .collect {
+                        updateCircleMenuInDatabase()
+                    }
+            }
+            launch {
+                @OptIn(FlowPreview::class)
+                _circleMenuItems
+                    .debounce(500.milliseconds)
+                    .collect {
+                        updateCircleMenuInDatabase()
+                    }
+            }
         }
     }
 
-    fun changeTitle(title: String) {
-        _circleMenuForUI.value = circleMenuForUI.value?.copy(title = title)
-        updateCircleMenu()
+    private fun updateCircleMenuInDatabase() =
+        viewModelScope.launch(Dispatchers.IO) {
+            container.dataRepository.insertCircleMenu(
+                CircleMenu(
+                    id = id,
+                    title = circleMenuTitle.value.text,
+                    items = circleMenuItems.value.map { item ->
+                        CircleMenuItem(
+                            image = item.image,
+                            action = item.action
+                        )
+                    }
+                )
+            )
+        }
+
+    fun changeTitle(value: TextFieldValue) {
+        _circleMenuTitle.value = value
+    }
+
+    private fun updateItems(items: List<CircleMenuItemForUI>) {
+        _circleMenuItems.value = items
     }
 
     val startOffset: Float
-        get() = getStartOffset(menu.items.size)
+        get() = getStartOffset(circleMenuItems.value.size)
 
     // SelectedBoxItem
     private val _selectedBoxData = MutableStateFlow(getSelectedBoxData(0))
@@ -174,11 +217,11 @@ class EditCircleMenuScreenVM(
                     )
                     if (index != null && item.index != index) {
                         if (item.index != null) {
-                            val itemOnIndex = menu.items[index]
-                            _circleMenuForUI.value = menu.copy(
-                                items = menu.items.toMutableList().apply {
-                                    if (menu.items.isNotEmpty()) {
-                                        this[index] = menu.items[item.index]
+                            val itemOnIndex = circleMenuItems.value[index]
+                            updateItems(
+                                circleMenuItems.value.toMutableList().apply {
+                                    if (isNotEmpty()) {
+                                        this[index] = this[item.index]
                                     }
                                     this[item.index] = itemOnIndex
                                 }
@@ -188,8 +231,8 @@ class EditCircleMenuScreenVM(
                                 index = index
                             )
                         } else {
-                            _circleMenuForUI.value = menu.copy(
-                                items = menu.items.toMutableList().apply {
+                            updateItems(
+                                circleMenuItems.value.toMutableList().apply {
                                     container.circleMenuForUIMapper.circleMenuImageToUI(
                                         DefaultImage(DefaultImages.Build)
                                     )?.let { imageBitmap ->
@@ -208,7 +251,7 @@ class EditCircleMenuScreenVM(
                                 offset = itemOffset,
                                 index = index
                             )
-                            itemSize = getItemSize(menu.items.size)
+                            itemSize = getItemSize(circleMenuItems.value.size)
                             actionRadiusSq = getActionRadiusSq()
                         }
                     } else {
@@ -239,15 +282,15 @@ class EditCircleMenuScreenVM(
 
                         // Delete element
 
-                        _circleMenuForUI.value = menu.copy(
-                            items = menu.items.toMutableList().apply {
+                        updateItems(
+                            circleMenuItems.value.toMutableList().apply {
                                 remove(this[item.index])
                             }
                         )
 
                         // Update variables
                         _ghostItem.value = null
-                        itemSize = getItemSize(menu.items.size)
+                        itemSize = getItemSize(circleMenuItems.value.size)
                         actionRadiusSq = getActionRadiusSq()
 
                         if (selectedBoxData.value?.index == item.index) {
@@ -265,7 +308,6 @@ class EditCircleMenuScreenVM(
                         elementOnTop = false,
                         action = ActionItemDataType.Add
                     )
-                    updateCircleMenu()
                 }
             }
         }
@@ -273,13 +315,13 @@ class EditCircleMenuScreenVM(
     }
 
     private fun getOffsets(): List<CircleMenuItemWithOffset> {
-        if (menu.items.isEmpty()) {
+        if (circleMenuItems.value.isEmpty()) {
             return emptyList()
         }
-        val alpha = 360f / menu.items.size
+        val alpha = 360f / circleMenuItems.value.size
         val offsets = mutableListOf<CircleMenuItemWithOffset>()
-        menu.items.indices.forEach { index ->
-            val item = menu.items[index]
+        circleMenuItems.value.indices.forEach { index ->
+            val item = circleMenuItems.value[index]
             val angle = (alpha * index + 0.5f * alpha + startOffset) * PI / 180f
             val offset = Offset(
                 x = size / 2f + sin(angle).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2,
@@ -334,11 +376,11 @@ class EditCircleMenuScreenVM(
         offset: Offset
     ): Int? {
         if (offset.x.pow(2) + offset.y.pow(2) > swipeRadiusSq) {
-            if (menu.items.isEmpty()) {
+            if (circleMenuItems.value.isEmpty()) {
                 return 0
             }
-            val alpha = 360f / menu.items.size
-            val angles = menu.items.indices.map { alpha * it }
+            val alpha = 360f / circleMenuItems.value.size
+            val angles = circleMenuItems.value.indices.map { alpha * it }
             val currentAngle = if (offset.y == 0f) {
                 ((if (offset.x > 0) 90 else 270) - startOffset) % 360
             } else {
@@ -349,7 +391,7 @@ class EditCircleMenuScreenVM(
                     return index - 1
                 }
             }
-            return menu.items.size - 1
+            return circleMenuItems.value.size - 1
         }
         return null
     }
@@ -375,8 +417,8 @@ class EditCircleMenuScreenVM(
     }
 
     fun getItemsOffsets(): List<DpOffset> {
-        val alpha = 360f / menu.items.size
-        return menu.items.indices.map { alpha * it }.map {
+        val alpha = 360f / circleMenuItems.value.size
+        return circleMenuItems.value.indices.map { alpha * it }.map {
             DpOffset(
                 x = (size / 2 + sin((it + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
                 y = (size / 2 - cos((it + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2).dp,
@@ -387,10 +429,10 @@ class EditCircleMenuScreenVM(
     private fun getSelectedBoxData(
         index: Int
     ): SelectedItemBoxData? {
-        if (menu.items.isEmpty()) {
+        if (circleMenuItems.value.isEmpty()) {
             return null
         }
-        val alpha = 360f / menu.items.size
+        val alpha = 360f / circleMenuItems.value.size
         return SelectedItemBoxData(
             index = index,
             offset = Offset(
@@ -429,53 +471,35 @@ class EditCircleMenuScreenVM(
         )
     }
 
-    private fun updateCircleMenu() {
-        viewModelScope.launch {
-            circleMenuForUI.value?.let {
-                container.dataRepository.insertCircleMenu(
-                    CircleMenu(
-                        id = it.id,
-                        title = it.title,
-                        items = it.items.map { item ->
-                            CircleMenuItem(
-                                image = item.image,
-                                action = item.action
-                            )
-                        }
-                    )
-                )
-            }
-        }
-    }
-
     fun getApplicationInfo(packageName: String): ApplicationInfo? {
         return container.applicationsManager.getApplication(packageName)
     }
 
     fun updateCircleMenuItem(item: CircleMenuItemForUI, index: Int) = viewModelScope.launch {
-        circleMenuForUI.value?.let { circleMenu ->
-            val newCircleMenu = circleMenu.copy(
-                items = circleMenu.items.toMutableList()
-                    .apply { this[index] = item })
-            _circleMenuForUI.value = newCircleMenu
-            updateCircleMenu()
-        }
+        updateItems(
+            circleMenuItems.value.toMutableList().apply {
+                this[index] = item
+            }
+        )
     }
 
     fun updateImage(item: CircleMenuItemForUI, index: Int) = viewModelScope.launch {
-        circleMenuForUI.value?.let { circleMenu ->
-            var action = item.action
-            if (
-                item.image is AppImage &&
-                container.settings.value.pickAppActionWithImage
-            ) {
-                action = OpenAppAction(item.image.packageName)
-            }
-            val newCircleMenu = circleMenu.copy(
-                items = circleMenu.items.toMutableList()
-                    .apply { this[index] = item.copy(action = action) })
-            _circleMenuForUI.value = newCircleMenu
-            updateCircleMenu()
+        if (container.settings.value.pickAppActionWithImage && item.image is AppImage) {
+            updateItems(
+                circleMenuItems.value.toMutableList().apply {
+                    this[index] = item.copy(
+                        action = OpenAppAction(
+                            item.image.packageName
+                        )
+                    )
+                }
+            )
+        } else {
+            updateItems(
+                circleMenuItems.value.toMutableList().apply {
+                    this[index] = item.copy()
+                }
+            )
         }
     }
 

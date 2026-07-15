@@ -49,7 +49,7 @@ fun SearchBoxUI(
         )
     }
 
-    if (searchResults.size == 1 && settings.openLastApp && searchText.firstOrNull() != ' '
+    if (searchResults.size == 1 && settings.openLastApp && searchText.text.firstOrNull() != ' '
     ) {
         searchResults.firstOrNull()?.let {
             if (it.packageName == context.packageName) {

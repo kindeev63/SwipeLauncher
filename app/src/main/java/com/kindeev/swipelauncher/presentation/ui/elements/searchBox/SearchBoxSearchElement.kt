@@ -20,13 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.di.container
 
 @Composable
 fun SearchBoxSearchElement(
-    searchText: String,
-    onChangeText: (String) -> Unit
+    searchText: TextFieldValue,
+    onChangeText: (TextFieldValue) -> Unit
 ) {
     val context = LocalContext.current
     val settings by context.container.settings.collectAsState()

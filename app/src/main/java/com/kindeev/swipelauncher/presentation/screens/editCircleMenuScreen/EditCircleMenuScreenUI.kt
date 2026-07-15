@@ -51,6 +51,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -99,8 +101,8 @@ private fun LandscapeUI(
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
-    val circleMenu by viewModel.circleMenuForUI.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val circleMenuItems by viewModel.circleMenuItems.collectAsState()
 
     // UI
     Scaffold(
@@ -159,23 +161,12 @@ private fun LandscapeUI(
                         if (ghostItem == null) {
                             selectedBoxData?.let { SelectedItemBox(data = it) }
                         }
-                        circleMenu?.let { menu ->
-                            val itemsOffset = viewModel.getItemsOffsets()
-                            menu.items.forEachIndexed { index, item ->
-                                if (index != ghostItem?.index) {
-                                    Image(
-                                        bitmap = item.imageBitmap,
-                                        modifier = Modifier
-                                            .offset(
-                                                x = itemsOffset[index].x,
-                                                y = itemsOffset[index].y
-                                            )
-                                            .size(viewModel.itemSize.dp),
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        }
+                        CircleMenuItems(
+                            itemsOffset = viewModel.getItemsOffsets(),
+                            ghostIndex = ghostItem?.index,
+                            items = circleMenuItems,
+                            itemSize = viewModel.itemSize.dp,
+                        )
                     }
                 }
 
@@ -191,20 +182,42 @@ private fun LandscapeUI(
                         .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
                 ) {
-                    circleMenu?.items?.get(data.index)?.let { item ->
-                        ImageAndActionEdit(
-                            viewModel = viewModel,
-                            item,
-                            onChangeImage = {
-                                viewModel.updateImage(item.copy(image = it), data.index)
-                            },
-                            onChangeAction = {
-                                viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
-                            }
-                        )
-                    }
+                    val item = circleMenuItems[data.index]
+                    ImageAndActionEdit(
+                        viewModel = viewModel,
+                        item,
+                        onChangeImage = {
+                            viewModel.updateImage(item.copy(image = it), data.index)
+                        },
+                        onChangeAction = {
+                            viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
+                        }
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun CircleMenuItems(
+    itemsOffset: List<DpOffset>,
+    ghostIndex: Int?,
+    items: List<CircleMenuItemForUI>,
+    itemSize: Dp
+) {
+    items.forEachIndexed { index, item ->
+        if (index != ghostIndex) {
+            Image(
+                bitmap = item.imageBitmap,
+                modifier = Modifier
+                    .offset(
+                        x = itemsOffset[index].x,
+                        y = itemsOffset[index].y
+                    )
+                    .size(itemSize),
+                contentDescription = null
+            )
         }
     }
 }
@@ -216,7 +229,7 @@ private fun PortraitUI(
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
-    val circleMenu by viewModel.circleMenuForUI.collectAsState()
+    val circleMenuItems by viewModel.circleMenuItems.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
 
     // UI
@@ -263,23 +276,12 @@ private fun PortraitUI(
                     if (ghostItem == null) {
                         selectedBoxData?.let { SelectedItemBox(data = it) }
                     }
-                    circleMenu?.let { menu ->
-                        val itemsOffset = viewModel.getItemsOffsets()
-                        menu.items.forEachIndexed { index, item ->
-                            if (index != ghostItem?.index) {
-                                Image(
-                                    bitmap = item.imageBitmap,
-                                    modifier = Modifier
-                                        .offset(
-                                            x = itemsOffset[index].x,
-                                            y = itemsOffset[index].y
-                                        )
-                                        .size(viewModel.itemSize.dp),
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
+                    CircleMenuItems(
+                        itemsOffset = viewModel.getItemsOffsets(),
+                        ghostIndex = ghostItem?.index,
+                        items = circleMenuItems,
+                        itemSize = viewModel.itemSize.dp
+                    )
                 }
             }
 
@@ -298,18 +300,17 @@ private fun PortraitUI(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    circleMenu?.items?.get(data.index)?.let { item ->
-                        ImageAndActionEdit(
-                            viewModel = viewModel,
-                            item,
-                            onChangeImage = {
-                                viewModel.updateImage(item.copy(image = it), data.index)
-                            },
-                            onChangeAction = {
-                                viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
-                            }
-                        )
-                    }
+                    val item = circleMenuItems[data.index]
+                    ImageAndActionEdit(
+                        viewModel = viewModel,
+                        item,
+                        onChangeImage = {
+                            viewModel.updateImage(item.copy(image = it), data.index)
+                        },
+                        onChangeAction = {
+                            viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
+                        }
+                    )
                 }
             }
         }
@@ -342,37 +343,35 @@ fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
 private fun CircleMenuTitle(
     viewModel: EditCircleMenuScreenVM
 ) {
-    val circleMenu by viewModel.circleMenuForUI.collectAsState()
-    circleMenu?.let { menu ->
-        val fontSize = 24.sp
-        Box(
-            modifier = Modifier
-                .width(viewModel.size.dp)
-                .padding(horizontal = 15.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            if (menu.title.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.title),
-                    color = Color.Gray,
-                    fontSize = fontSize
-                )
-            }
-            BasicTextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                textStyle = TextStyle(
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.Black
-                ),
-                value = menu.title,
-                onValueChange = viewModel::changeTitle,
-                singleLine = true
+    val title by viewModel.circleMenuTitle.collectAsState()
+    val fontSize = 24.sp
+    Box(
+        modifier = Modifier
+            .width(viewModel.size.dp)
+            .padding(horizontal = 15.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (title.text.isEmpty()) {
+            Text(
+                text = stringResource(R.string.title),
+                color = Color.Gray,
+                fontSize = fontSize
             )
         }
+        BasicTextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+            textStyle = TextStyle(
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black
+            ),
+            value = title,
+            onValueChange = viewModel::changeTitle,
+            singleLine = true
+        )
     }
 }
 

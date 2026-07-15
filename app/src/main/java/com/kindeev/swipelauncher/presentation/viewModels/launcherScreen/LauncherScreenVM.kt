@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -163,7 +164,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
             is OpenCircleMenuAction -> {
                 offset?.let { newOffset ->
-                    var circleMenuForCheck =
+                    val circleMenuForCheck =
                         container.circleMenus.value.find { it.id == action.id }
                             ?: container.circleMenus.value.find { it.id == 0 }
                     var menuForUI = container.circleMenusForUI.value.find { it.id == action.id }
@@ -326,15 +327,15 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
 // Search Box
 
-    private val _searchText = MutableStateFlow("")
-    val searchText: StateFlow<String> = _searchText
+    private val _searchText = MutableStateFlow(TextFieldValue(""))
+    val searchText: StateFlow<TextFieldValue> = _searchText
 
-    fun search(text: String) {
-        _searchText.value = text
+    fun search(value: TextFieldValue) {
+        _searchText.value = value
     }
 
     fun clearSearch() {
-        _searchText.value = ""
+        _searchText.value = TextFieldValue("")
     }
 
     fun getSearchResults(applications: List<ApplicationInfo>): List<ApplicationInfo> {
@@ -342,7 +343,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             .filter {
                 it.title
                     .lowercase()
-                    .contains(searchText.value.lowercase().trim())
+                    .contains(searchText.value.text.lowercase().trim())
             }
     }
 
