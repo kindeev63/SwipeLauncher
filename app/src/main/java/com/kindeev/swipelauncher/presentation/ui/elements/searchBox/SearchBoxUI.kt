@@ -19,7 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.di.container
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.openApp
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
@@ -34,9 +34,7 @@ fun SearchBoxUI(
     BackHandler(onBack = onClose)
     val context = LocalContext.current
     val searchText by viewModel.searchText.collectAsState()
-    val applications by context.container.applicationsManager.applications.collectAsState()
-    val settings by context.container.settings.collectAsState()
-    val searchResults = viewModel.getSearchResults(applications)
+    val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
     var applicationInfoDialog by rememberSaveable {
         mutableStateOf<ApplicationInfo?>(null)
     }
@@ -47,19 +45,6 @@ fun SearchBoxUI(
             applicationInfo = applicationInfo,
             onDismissRequest = { applicationInfoDialog = null }
         )
-    }
-
-    if (searchResults.size == 1 && settings.openLastApp && searchText.text.firstOrNull() != ' '
-    ) {
-        searchResults.firstOrNull()?.let {
-            if (it.packageName == context.packageName) {
-                val intent = Intent(context, SettingsActivity::class.java)
-                context.startActivity(intent)
-            } else {
-                context.openApp(it.packageName)
-            }
-        }
-        onClose()
     }
     Column(
         modifier = Modifier.fillMaxSize()

@@ -1,6 +1,7 @@
 package com.kindeev.swipelauncher.presentation.viewModels.launcherScreen
 
 import android.content.Context
+import android.content.Intent
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
@@ -22,7 +23,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
@@ -30,9 +30,16 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
+import com.kindeev.swipelauncher.domain.utils.openApp
+import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuForUI
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
@@ -328,7 +335,40 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 // Search Box
 
     private val _searchText = MutableStateFlow(TextFieldValue(""))
-    val searchText: StateFlow<TextFieldValue> = _searchText
+    val searchText: StateFlow<TextFieldValue> = _searchText.asStateFlow()
+
+    val searchResults = _searchText.combine(container.applicationsManager.applications) { search, applications ->
+        applications
+            .filter {
+                it.title
+                    .lowercase()
+                    .contains(search.text.lowercase().trim())
+            }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchResults.collect { applications ->
+                if (container.settings.value.openLastApp && searchText.value.text.firstOrNull() != ' ' && applications.size == 1) {
+                    val app = applications.first()
+                    if (app.packageName == context.packageName) {
+                        val intent = Intent(context, SettingsActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    } else {
+                        context.openApp(app.packageName)
+                    }
+                    closeSearchBox()
+                }
+            }
+        }
+    }
+
 
     fun search(value: TextFieldValue) {
         _searchText.value = value
@@ -336,15 +376,6 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 
     fun clearSearch() {
         _searchText.value = TextFieldValue("")
-    }
-
-    fun getSearchResults(applications: List<ApplicationInfo>): List<ApplicationInfo> {
-        return applications
-            .filter {
-                it.title
-                    .lowercase()
-                    .contains(searchText.value.text.lowercase().trim())
-            }
     }
 
 // ApplicationInfoDialog
