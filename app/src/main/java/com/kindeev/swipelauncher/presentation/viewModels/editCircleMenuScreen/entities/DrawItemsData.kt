@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.evtities
+package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities
 
 import androidx.compose.ui.geometry.Offset
 

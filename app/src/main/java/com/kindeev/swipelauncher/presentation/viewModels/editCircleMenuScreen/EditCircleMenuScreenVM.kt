@@ -23,7 +23,8 @@ import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entit
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.evtities.DrawItemsData
+import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.DrawItemsData
+import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ItemBorders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +64,32 @@ class EditCircleMenuScreenVM(
 
     private val _drawItemsData = MutableStateFlow(DrawItemsData(size / 4, emptyList()))
     val drawItemsData: StateFlow<DrawItemsData> = _drawItemsData.asStateFlow()
+
+    private val itemBorders = drawItemsData.map { data ->
+        if (data.offsets.isEmpty()) {
+            emptyList()
+        } else {
+            val count = data.offsets.size
+            val alpha = 360f / count
+            (0 until count).map {
+                ((alpha * (0.5f + it) + startOffset) * PI / 180f).let { angle ->
+                    val x = size / 2f + sin(angle).toFloat() * (size / 2 - data.itemSize / 2) - data.itemSize / 2
+                    val y = size / 2f - cos(angle).toFloat() * (size / 2 - data.itemSize / 2) + data.itemSize / 2
+
+                    ItemBorders(
+                        xStart = x,
+                        xEnd = x + data.itemSize,
+                        yStart = y - data.itemSize,
+                        yEnd = y
+                    )
+                }
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
 
     private val _circleMenuTitle = MutableStateFlow(TextFieldValue("New"))
     val circleMenuTitle = _circleMenuTitle.asStateFlow()
@@ -218,7 +245,7 @@ class EditCircleMenuScreenVM(
         when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-                val ghostItem = getOffsets().getGhostItem(offset)
+                val ghostItem = getGhostItem(offset)
                 if (ghostItem != null) {
                     _ghostItem.value = ghostItem
                 } else {
@@ -329,52 +356,16 @@ class EditCircleMenuScreenVM(
         true
     }
 
-    private fun getOffsets(): List<CircleMenuItemWithOffset> {
-        if (circleMenuItems.value.isEmpty()) {
-            return emptyList()
-        }
-        val alpha = 360f / circleMenuItems.value.size
-        val offsets = mutableListOf<CircleMenuItemWithOffset>()
-        circleMenuItems.value.indices.forEach { index ->
-            val item = circleMenuItems.value[index]
-            val angle = (alpha * index + 0.5f * alpha + startOffset) * PI / 180f
-            val offset = Offset(
-                x = size / 2f + sin(angle).toFloat() * (size / 2 - drawItemsData.value.itemSize / 2) - drawItemsData.value.itemSize / 2,
-                y = size / 2f - cos(angle).toFloat() * (size / 2 - drawItemsData.value.itemSize / 2) + drawItemsData.value.itemSize / 2,
-            )
-            offsets.add(
-                CircleMenuItemWithOffset(
-                    index = index,
-                    circleMenuItem = item,
-                    xStart = offset.x,
-                    xEnd = offset.x + drawItemsData.value.itemSize,
-                    yStart = offset.y - drawItemsData.value.itemSize,
-                    yEnd = offset.y
-                )
-            )
-        }
-        return offsets
-    }
-
-    private data class CircleMenuItemWithOffset(
-        val index: Int,
-        val circleMenuItem: CircleMenuItem,
-        val xStart: Float,
-        val xEnd: Float,
-        val yStart: Float,
-        val yEnd: Float
-    )
-
-    private fun List<CircleMenuItemWithOffset>.getGhostItem(offset: Offset): GhostCircleMenuItem? {
-        forEach { item ->
-            if ((item.xStart <= offset.x && offset.x <= item.xEnd) && (item.yStart <= offset.y && offset.y <= item.yEnd)) {
+    private fun getGhostItem(offset: Offset): GhostCircleMenuItem? {
+        itemBorders.value.forEachIndexed { index, borders ->
+            if ((borders.xStart <= offset.x && offset.x <= borders.xEnd) && (borders.yStart <= offset.y && offset.y <= borders.yEnd)) {
                 val firstOffset = Offset(
-                    x = (item.xStart + drawItemsData.value.itemSize / 2) - offset.x,
-                    y = (item.yEnd - drawItemsData.value.itemSize / 2) - offset.y
+                    x = (borders.xStart + drawItemsData.value.itemSize / 2) - offset.x,
+                    y = (borders.yEnd - drawItemsData.value.itemSize / 2) - offset.y
                 )
                 return GhostCircleMenuItem(
-                    index = item.index,
-                    image = getImage(item.circleMenuItem.image) ?: return null,
+                    index = index,
+                    image = getImage(circleMenuItems.value[index].image) ?: return null,
                     offset = Offset(
                         x = offset.x + firstOffset.x,
                         y = offset.y + firstOffset.y
