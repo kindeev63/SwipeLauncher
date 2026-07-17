@@ -18,6 +18,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
@@ -195,6 +196,16 @@ class EditCircleMenuScreenVM(
         initialValue = null
     )
 
+    val selectedItem = selectedIndex.combine(circleMenuItems) { index, items ->
+        items.getOrNull(index)
+    }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
     // GhostItem
     private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
     val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
@@ -314,6 +325,7 @@ class EditCircleMenuScreenVM(
                                 offset = itemOffset,
                                 index = index
                             )
+                            selectedIndex.value = index
                         } else {
                             _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
                                 add(
@@ -468,29 +480,38 @@ class EditCircleMenuScreenVM(
         return container.applicationsManager.getApplication(packageName)
     }
 
-    fun updateCircleMenuItem(item: CircleMenuItem, index: Int) = viewModelScope.launch {
+    fun updateAction(action: CircleMenuAction) = viewModelScope.launch {
         _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-            this[index] = item
+            selectedItem.value?.let {
+                this[selectedIndex.value] = it.copy(action = action)
+            }
         }
     }
 
-    fun updateImage(item: CircleMenuItem, index: Int) = viewModelScope.launch {
-        val oldImage = circleMenuItems.value[index].image
-        if (container.settings.value.pickAppActionWithImage && item.image is AppImage) {
-            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                this[index] = item.copy(
-                    action = OpenAppAction(
-                        item.image.packageName
-                    )
-                )
+    fun updateImage(image: CircleMenuImage) = viewModelScope.launch {
+        selectedIndex.value.let { index ->
+            selectedItem.value?.let { item ->
+                val oldImage = circleMenuItems.value[index].image
+                if (container.settings.value.pickAppActionWithImage && image is AppImage) {
+                    _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
+                        this[index] = CircleMenuItem(
+                            image = image,
+                            action = OpenAppAction(
+                                image.packageName
+                            )
+                        )
+                    }
+                } else {
+                    _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
+                        this[index] = item.copy(
+                            image = image
+                        )
+                    }
+                }
+                if (oldImage !in circleMenuItems.value.map { it.image }) {
+                    images.remove(oldImage)
+                }
             }
-        } else {
-            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                this[index] = item.copy()
-            }
-        }
-        if (oldImage !in circleMenuItems.value.map { it.image }) {
-            images.remove(oldImage)
         }
     }
 

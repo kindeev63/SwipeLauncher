@@ -102,6 +102,7 @@ private fun LandscapeUI(
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val selectedItem by viewModel.selectedItem.collectAsState()
     val circleMenuItems by viewModel.circleMenuItems.collectAsState()
     val drawItemsData by viewModel.drawItemsData.collectAsState()
 
@@ -183,23 +184,18 @@ private fun LandscapeUI(
                 // Title
                 CircleMenuTitle(viewModel)
             }
-            selectedBoxData?.let { data ->
+            selectedItem?.let { item ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
                 ) {
-                    val item = circleMenuItems[data.index]
                     ImageAndActionEdit(
                         viewModel = viewModel,
-                        item,
-                        onChangeImage = {
-                            viewModel.updateImage(item.copy(image = it), data.index)
-                        },
-                        onChangeAction = {
-                            viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
-                        }
+                        circleMenuItem = item,
+                        onChangeImage = viewModel::updateImage,
+                        onChangeAction = viewModel::updateAction
                     )
                 }
             }
@@ -242,6 +238,7 @@ private fun PortraitUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenuItems by viewModel.circleMenuItems.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val selectedItem by viewModel.selectedItem.collectAsState()
     val drawItemsData by viewModel.drawItemsData.collectAsState()
 
     // UI
@@ -317,7 +314,7 @@ private fun PortraitUI(
             CircleMenuTitle(viewModel)
 
             // Item edit
-            selectedBoxData?.let { data ->
+            selectedItem?.let { item ->
 
                 Spacer(modifier = Modifier.height(40.dp))
                 Column(
@@ -326,16 +323,11 @@ private fun PortraitUI(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val item = circleMenuItems[data.index]
                     ImageAndActionEdit(
                         viewModel = viewModel,
-                        item,
-                        onChangeImage = {
-                            viewModel.updateImage(item.copy(image = it), data.index)
-                        },
-                        onChangeAction = {
-                            viewModel.updateCircleMenuItem(item.copy(action = it), data.index)
-                        }
+                        circleMenuItem = item,
+                        onChangeImage = viewModel::updateImage,
+                        onChangeAction = viewModel::updateAction
                     )
                 }
             }
