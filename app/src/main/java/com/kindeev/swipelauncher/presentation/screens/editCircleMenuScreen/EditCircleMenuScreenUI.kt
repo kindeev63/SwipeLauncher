@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -58,9 +59,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemForUI
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
@@ -165,6 +166,7 @@ private fun LandscapeUI(
                             itemsOffset = viewModel.getItemsOffsets(),
                             ghostIndex = ghostItem?.index,
                             items = circleMenuItems,
+                            getImage = viewModel::getImage,
                             itemSize = viewModel.itemSize.dp,
                         )
                     }
@@ -203,21 +205,24 @@ private fun LandscapeUI(
 fun CircleMenuItems(
     itemsOffset: List<DpOffset>,
     ghostIndex: Int?,
-    items: List<CircleMenuItemForUI>,
+    items: List<CircleMenuItem>,
+    getImage: (CircleMenuImage) -> ImageBitmap?,
     itemSize: Dp
 ) {
     items.forEachIndexed { index, item ->
         if (index != ghostIndex) {
-            Image(
-                bitmap = item.imageBitmap,
-                modifier = Modifier
-                    .offset(
-                        x = itemsOffset[index].x,
-                        y = itemsOffset[index].y
-                    )
-                    .size(itemSize),
-                contentDescription = null
-            )
+            getImage(item.image)?.let { imageBitmap ->
+                Image(
+                    bitmap = imageBitmap,
+                    modifier = Modifier
+                        .offset(
+                            x = itemsOffset[index].x,
+                            y = itemsOffset[index].y
+                        )
+                        .size(itemSize),
+                    contentDescription = null
+                )
+            }
         }
     }
 }
@@ -280,6 +285,7 @@ private fun PortraitUI(
                         itemsOffset = viewModel.getItemsOffsets(),
                         ghostIndex = ghostItem?.index,
                         items = circleMenuItems,
+                        getImage = viewModel::getImage,
                         itemSize = viewModel.itemSize.dp
                     )
                 }
@@ -396,7 +402,7 @@ private fun SelectedItemBox(
 @Composable
 private fun ImageAndActionEdit(
     viewModel: EditCircleMenuScreenVM,
-    circleMenuItem: CircleMenuItemForUI,
+    circleMenuItem: CircleMenuItem,
     onChangeImage: (CircleMenuImage) -> Unit,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
