@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.pow
@@ -72,9 +71,11 @@ class EditCircleMenuScreenVM(
             val count = data.offsets.size
             val alpha = 360f / count
             (0 until count).map {
-                ((alpha * (0.5f + it) + startOffset) * PI / 180f).let { angle ->
-                    val x = size / 2f + sin(angle).toFloat() * (size / 2 - data.itemSize / 2) - data.itemSize / 2
-                    val y = size / 2f - cos(angle).toFloat() * (size / 2 - data.itemSize / 2) + data.itemSize / 2
+                ((alpha * (0.5f + it) + -360 / data.offsets.size / 2f) * PI / 180f).let { angle ->
+                    val x =
+                        size / 2f + sin(angle).toFloat() * (size / 2 - data.itemSize / 2) - data.itemSize / 2
+                    val y =
+                        size / 2f - cos(angle).toFloat() * (size / 2 - data.itemSize / 2) + data.itemSize / 2
 
                     ItemBorders(
                         xStart = x,
@@ -84,6 +85,20 @@ class EditCircleMenuScreenVM(
                     )
                 }
             }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
+    private val itemAngles = drawItemsData.map { data ->
+        val count = data.offsets.size
+        if (count == 0) {
+            emptyList()
+        } else {
+            val startOffset = -360 / count / 2f
+            (1..count).map { 360f / count * it + startOffset }
         }
     }.stateIn(
         scope = viewModelScope,
@@ -153,28 +168,37 @@ class EditCircleMenuScreenVM(
         _circleMenuTitle.value = value
     }
 
-    val startOffset: Float
-        get() = getStartOffset(circleMenuItems.value.size)
-
     // SelectedBoxItem
-    private val _selectedBoxData = MutableStateFlow(getSelectedBoxData(0))
-    val selectedBoxData: StateFlow<SelectedItemBoxData?> = _selectedBoxData
+    private val selectedIndex = MutableStateFlow(0)
+    val selectedBoxData = selectedIndex.combine(drawItemsData) { index, data ->
+        if (data.offsets.isEmpty()) {
+            null
+        } else {
+            val offsets = data.offsets.getOrNull(index)
+            if (offsets == null) {
+                selectedIndex.value = 0
+                null
+            } else {
+                SelectedItemBoxData(
+                    index = index,
+                    offset = Offset(
+                        x = offsets.x - 5,
+                        y = offsets.y - 5
+                    ),
+                    size = data.itemSize + 10
+                )
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
 
     // GhostItem
     private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
     val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
 
-    // Radius
-    private val actionRadiusSq = drawItemsData.map {
-        val value = ((size - it.itemSize * 2) / 2).pow(2)
-        if (value > (size / 4).pow(2)) {
-            (size / 4).pow(2)
-        } else value
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = 0f
-    )
     private val swipeRadiusSq = drawItemsData.map { (size / 2 - it.itemSize / 2).pow(2) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -210,11 +234,20 @@ class EditCircleMenuScreenVM(
         initialValue = ActionItemData(size / 4, ActionItemState.Add)
     )
 
+    // Radius
+    private val actionRadiusSq = actionItemSize.map {
+        it.pow(2)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = 0f
+    )
+
     private fun updateDrawItemsData() {
-        if (circleMenuItems.value.isEmpty()) {
+        val count = circleMenuItems.value.size
+        if (count == 0) {
             _drawItemsData.value = DrawItemsData(size / 4, emptyList())
         } else {
-            val count = circleMenuItems.value.size
             val itemSize =
                 (sqrt((size / 2).pow(2) * (1 - cos(2 * PI / count))).toFloat() / 6 * 5).let {
                     if (it > 0 && it < size / 4) {
@@ -224,6 +257,7 @@ class EditCircleMenuScreenVM(
                     }
                 }
             val alpha = 360f / count
+            val startOffset = -360 / count / 2f
             val offsets = (0 until count).map {
                 Offset(
                     x = size / 2 + sin((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2,
@@ -339,15 +373,9 @@ class EditCircleMenuScreenVM(
                         _ghostItem.value = null
                         updateDrawItemsData()
 
-                        if (selectedBoxData.value?.index == item.index) {
-                            _selectedBoxData.value = getSelectedBoxData(0)
-                        } else {
-                            _selectedBoxData.value =
-                                getSelectedBoxData(selectedBoxData.value?.index ?: 0)
-                        }
                     } else {
-                        _selectedBoxData.value = getSelectedBoxData(item.index ?: 0)
                         _ghostItem.value = null
+                        item.index?.let { selectedIndex.value = it }
                     }
                     actionItemState.value = ActionItemState.Add
                 }
@@ -382,68 +410,37 @@ class EditCircleMenuScreenVM(
         offset: Offset
     ): Int? {
         if (offset.x.pow(2) + offset.y.pow(2) > swipeRadiusSq.value) {
-            if (circleMenuItems.value.isEmpty()) {
+            val angles = itemAngles.value
+            if (angles.isEmpty()) {
                 return 0
             }
-            val alpha = 360f / circleMenuItems.value.size
-            val angles = circleMenuItems.value.indices.map { alpha * it }
             val currentAngle = if (offset.y == 0f) {
-                ((if (offset.x > 0) 90 else 270) - startOffset) % 360
+                if (offset.x > 0) 90f else 270f
             } else {
-                offset.getAngle(abs((atan(offset.x / offset.y) / PI * 180)).toFloat())
+                offset.getAngle((atan(offset.x / offset.y) / PI * 180f).toFloat())
             }
-            angles.forEachIndexed { index, it ->
-                if (it > currentAngle) {
-                    return index - 1
-                }
+            angles.forEachIndexed { index, angle ->
+                if (currentAngle < angle) return index
             }
-            return circleMenuItems.value.size - 1
+            return 0
         }
         return null
     }
 
     private fun Offset.getAngle(angle: Float): Float {
-        return (if (x > 0) {
-            if (y < 0) {
-                angle - startOffset
-            } else {
-                90 - angle + 90 - startOffset
-            }
+        return if (y > 0) {
+            180 - angle
         } else {
-            if (y < 0) {
-                90 - angle + 270 - startOffset
+            if (angle > 0) {
+                360 - angle
             } else {
-                angle + 180 - startOffset
+                -angle
             }
-        }) % 360
+        }
     }
 
     private fun elementOnDeleteValue(offset: Offset): Boolean {
         return offset.x.pow(2) + offset.y.pow(2) < actionRadiusSq.value
-    }
-
-    private fun getSelectedBoxData(
-        index: Int
-    ): SelectedItemBoxData? {
-        if (circleMenuItems.value.isEmpty()) {
-            return null
-        }
-        val alpha = 360f / circleMenuItems.value.size
-        return SelectedItemBoxData(
-            index = index,
-            offset = Offset(
-                x = (size / 2 + sin((alpha * index + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - drawItemsData.value.itemSize / 2) - drawItemsData.value.itemSize / 2) - 5,
-                y = (size / 2 - cos((alpha * index + 0.5f * alpha + startOffset) * PI / 180f).toFloat() * (size / 2 - drawItemsData.value.itemSize / 2) - drawItemsData.value.itemSize / 2) - 5
-            ),
-            size = drawItemsData.value.itemSize + 10
-        )
-    }
-
-    private fun getStartOffset(elementsCount: Int): Float {
-        if (elementsCount == 0) {
-            return 0f
-        }
-        return -360 / elementsCount / 2f
     }
 
     private fun isClickOnAdd(offset: Offset): Boolean {
