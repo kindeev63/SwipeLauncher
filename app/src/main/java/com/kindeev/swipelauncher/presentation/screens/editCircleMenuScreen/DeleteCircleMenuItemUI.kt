@@ -12,22 +12,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.R
 
 @Composable
 fun DeleteCircleMenuItemUI(
+    menuSize: Float,
     size: Float,
-    actionItemData: ActionItemData
+    elementOnTop: Boolean,
 ) {
-    if (actionItemData.elementOnTop) {
+    if (elementOnTop) {
         Image(
             modifier = Modifier
                 .offset(
-                    x = size.dp / 2 - actionItemData.size.dp / 2,
-                    y = size.dp / 2 - actionItemData.size.dp / 2
+                    x = menuSize.dp / 2 - size.dp / 2,
+                    y = menuSize.dp / 2 - size.dp / 2
                 )
-                .size(actionItemData.size.dp)
+                .size(size.dp)
                 .clip(CircleShape)
                 .background(Color.Red),
             painter = painterResource(R.drawable.ic_delete),
@@ -38,10 +38,10 @@ fun DeleteCircleMenuItemUI(
         Image(
             modifier = Modifier
                 .offset(
-                    x = size.dp / 2 - actionItemData.size.dp / 2,
-                    y = size.dp / 2 - actionItemData.size.dp / 2
+                    x = menuSize.dp / 2 - size.dp / 2,
+                    y = menuSize.dp / 2 - size.dp / 2
                 )
-                .size(actionItemData.size.dp),
+                .size(size.dp),
             painter = painterResource(R.drawable.ic_delete),
             colorFilter = ColorFilter.tint(Color.Black),
             contentDescription = null

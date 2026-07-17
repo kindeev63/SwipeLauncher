@@ -42,6 +42,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -52,8 +53,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,7 +61,7 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemDataType
+import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
@@ -104,6 +103,7 @@ private fun LandscapeUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
     val circleMenuItems by viewModel.circleMenuItems.collectAsState()
+    val drawItemsData by viewModel.drawItemsData.collectAsState()
 
     // UI
     Scaffold(
@@ -143,18 +143,24 @@ private fun LandscapeUI(
                             )
                     ) {
                         val ghostItem by viewModel.ghostItem.collectAsState()
-                        actionItemData?.let {
-                            when (it.action) {
-                                ActionItemDataType.Add -> AddCircleMenuItemUI(
-                                    viewModel.size,
-                                    it.size
-                                )
+                        when (actionItemData.state) {
 
-                                ActionItemDataType.Delete -> DeleteCircleMenuItemUI(
-                                    viewModel.size,
-                                    it
-                                )
-                            }
+                            ActionItemState.Add -> AddCircleMenuItemUI(
+                                viewModel.size,
+                                actionItemData.size
+                            )
+
+                            ActionItemState.Delete -> DeleteCircleMenuItemUI(
+                                viewModel.size,
+                                actionItemData.size,
+                                false
+                            )
+
+                            ActionItemState.DeleteActive -> DeleteCircleMenuItemUI(
+                                viewModel.size,
+                                actionItemData.size,
+                                true
+                            )
                         }
                         ghostItem?.let { item ->
                             GhostCircleMenuItemUI(item = item)
@@ -163,11 +169,11 @@ private fun LandscapeUI(
                             selectedBoxData?.let { SelectedItemBox(data = it) }
                         }
                         CircleMenuItems(
-                            itemsOffset = viewModel.getItemsOffsets(),
+                            itemsOffset = drawItemsData.offsets,
                             ghostIndex = ghostItem?.index,
                             items = circleMenuItems,
                             getImage = viewModel::getImage,
-                            itemSize = viewModel.itemSize.dp,
+                            itemSize = drawItemsData.itemSize,
                         )
                     }
                 }
@@ -203,11 +209,11 @@ private fun LandscapeUI(
 
 @Composable
 fun CircleMenuItems(
-    itemsOffset: List<DpOffset>,
+    itemsOffset: List<Offset>,
     ghostIndex: Int?,
     items: List<CircleMenuItem>,
     getImage: (CircleMenuImage) -> ImageBitmap?,
-    itemSize: Dp
+    itemSize: Float
 ) {
     items.forEachIndexed { index, item ->
         if (index != ghostIndex) {
@@ -216,10 +222,10 @@ fun CircleMenuItems(
                     bitmap = imageBitmap,
                     modifier = Modifier
                         .offset(
-                            x = itemsOffset[index].x,
-                            y = itemsOffset[index].y
+                            x = itemsOffset[index].x.dp,
+                            y = itemsOffset[index].y.dp
                         )
-                        .size(itemSize),
+                        .size(itemSize.dp),
                     contentDescription = null
                 )
             }
@@ -236,6 +242,7 @@ private fun PortraitUI(
     val actionItemData by viewModel.actionItemData.collectAsState()
     val circleMenuItems by viewModel.circleMenuItems.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
+    val drawItemsData by viewModel.drawItemsData.collectAsState()
 
     // UI
     Scaffold(
@@ -269,11 +276,24 @@ private fun PortraitUI(
                         )
                 ) {
                     val ghostItem by viewModel.ghostItem.collectAsState()
-                    actionItemData?.let {
-                        when (it.action) {
-                            ActionItemDataType.Add -> AddCircleMenuItemUI(viewModel.size, it.size)
-                            ActionItemDataType.Delete -> DeleteCircleMenuItemUI(viewModel.size, it)
-                        }
+                    when (actionItemData.state) {
+
+                        ActionItemState.Add -> AddCircleMenuItemUI(
+                            viewModel.size,
+                            actionItemData.size
+                        )
+
+                        ActionItemState.Delete -> DeleteCircleMenuItemUI(
+                            viewModel.size,
+                            actionItemData.size,
+                            false
+                        )
+
+                        ActionItemState.DeleteActive -> DeleteCircleMenuItemUI(
+                            viewModel.size,
+                            actionItemData.size,
+                            true
+                        )
                     }
                     ghostItem?.let { item ->
                         GhostCircleMenuItemUI(item = item)
@@ -282,11 +302,11 @@ private fun PortraitUI(
                         selectedBoxData?.let { SelectedItemBox(data = it) }
                     }
                     CircleMenuItems(
-                        itemsOffset = viewModel.getItemsOffsets(),
+                        itemsOffset = drawItemsData.offsets,
                         ghostIndex = ghostItem?.index,
                         items = circleMenuItems,
                         getImage = viewModel::getImage,
-                        itemSize = viewModel.itemSize.dp
+                        itemSize = drawItemsData.itemSize
                     )
                 }
             }

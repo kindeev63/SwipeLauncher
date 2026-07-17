@@ -13,16 +13,16 @@ import com.kindeev.swipelauncher.R
 
 @Composable
 fun AddCircleMenuItemUI(
+    menuSize: Float,
     size: Float,
-    itemSize: Float,
 ) {
     Image(
         modifier = Modifier
             .offset(
-                x = size.dp / 2 - itemSize.dp / 2,
-                y = size.dp / 2 - itemSize.dp / 2
+                x = menuSize.dp / 2 - size.dp / 2,
+                y = menuSize.dp / 2 - size.dp / 2
             )
-            .size(itemSize.dp),
+            .size(size.dp),
         painter = painterResource(R.drawable.ic_add_circle),
         colorFilter = ColorFilter.tint(Color.Black),
         contentDescription = null
