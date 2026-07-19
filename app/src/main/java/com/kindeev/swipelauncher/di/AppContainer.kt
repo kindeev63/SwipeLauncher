@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val checkCircleMenuUseCase = CheckCircleMenuUseCase()
 
@@ -54,23 +54,25 @@ class AppContainer(context: Context) {
 
     val exportCircleMenusUseCase = ExportCircleMenusUseCase(userImagesRepository, appContext)
 
+    val saveCircleMenuWithDebounceUseCase = SaveCircleMenuWithDebounceUseCase(dataRepository, ioScope)
+
     val circleMenuForUIMapper = CircleMenuForUIMapper(userImagesRepository, appContext)
 
     val circleMenus = dataRepository.getAllCircleMenus().stateIn(
-        scope = appScope,
+        scope = ioScope,
         started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
     val circleMenusForUI =
         circleMenus.map { it.map { menu -> circleMenuForUIMapper.map(menu) } }.stateIn(
-            scope = appScope,
+            scope = ioScope,
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
     val settings = dataRepository.getSettings().stateIn(
-        scope = appScope,
+        scope = ioScope,
         started = SharingStarted.Eagerly,
         initialValue = Constants.defaultSettings
     )
@@ -81,14 +83,14 @@ class AppContainer(context: Context) {
         Constants.minScreenLength = appContext.getMinScreenLength()
         Constants.settingsTextSize = Constants.minScreenLength.sp / 20
 
-        appScope.launch(Dispatchers.IO) {
+        ioScope.launch(Dispatchers.IO) {
             launch {
                 val applications = appsRepository.loadApplications()
                 coilLoaderManager.prefetchApplicationImages(applications.map { it.packageName })
                 appsObserver.start(
                     onChange = {
                         if (appsRepository.applications.value.isNotEmpty()) {
-                            appScope.launch {
+                            ioScope.launch {
                                 dataRepository.insertCircleMenus(
                                     checkCircleMenuUseCase.getOnlyChanged(
                                         circleMenus = circleMenus.value,

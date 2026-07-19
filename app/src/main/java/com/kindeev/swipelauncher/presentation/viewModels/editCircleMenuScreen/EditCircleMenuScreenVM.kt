@@ -27,14 +27,13 @@ import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entit
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.DrawItemsData
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ItemBorders
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -45,7 +44,6 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.time.Duration.Companion.milliseconds
 
 class EditCircleMenuScreenVM(
     circleMenuId: Int?,
@@ -110,6 +108,23 @@ class EditCircleMenuScreenVM(
     private val _circleMenuTitle = MutableStateFlow(TextFieldValue("New"))
     val circleMenuTitle = _circleMenuTitle.asStateFlow()
 
+    var needSave = false
+
+
+    private fun saveCircleMenu() {
+        container.saveCircleMenuWithDebounceUseCase.save(
+            CircleMenu(
+                id = id,
+                title = circleMenuTitle.value.text,
+                items = circleMenuItems.value
+            )
+        )
+    }
+
+    private fun cancelSaving() {
+        container.saveCircleMenuWithDebounceUseCase.cancel()
+    }
+
     init {
         if (circleMenuId == null) {
             val allIds = container.circleMenus.value.map { it.id }
@@ -125,26 +140,15 @@ class EditCircleMenuScreenVM(
                 updateDrawItemsData()
             }
         }
-
         viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                @OptIn(FlowPreview::class)
-                _circleMenuTitle
-                    .map { it.text }
-                    .distinctUntilChanged()
-                    .debounce(500.milliseconds)
-                    .collect {
-                        updateCircleMenuInDatabase()
-                    }
-            }
-            launch {
-                @OptIn(FlowPreview::class)
-                _circleMenuItems
-                    .debounce(500.milliseconds)
-                    .collect {
-                        updateCircleMenuInDatabase()
-                    }
-            }
+            circleMenuTitle
+                .map { it.text }
+                .distinctUntilChanged()
+                .drop(1)
+                .collect {
+                    saveCircleMenu()
+                }
+
         }
     }
 
@@ -153,17 +157,6 @@ class EditCircleMenuScreenVM(
             images[image] = this
         }
     }
-
-    private fun updateCircleMenuInDatabase() =
-        viewModelScope.launch(Dispatchers.IO) {
-            container.dataRepository.insertCircleMenu(
-                CircleMenu(
-                    id = id,
-                    title = circleMenuTitle.value.text,
-                    items = circleMenuItems.value
-                )
-            )
-        }
 
     fun changeTitle(value: TextFieldValue) {
         _circleMenuTitle.value = value
@@ -290,6 +283,8 @@ class EditCircleMenuScreenVM(
         when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
+                needSave = container.saveCircleMenuWithDebounceUseCase.isActive()
+                if (needSave) cancelSaving()
                 val ghostItem = getGhostItem(offset)
                 if (ghostItem != null) {
                     _ghostItem.value = ghostItem
@@ -302,94 +297,105 @@ class EditCircleMenuScreenVM(
 
             MotionEvent.ACTION_MOVE -> {
                 ghostItem.value?.let { item ->
-                    val itemOffset = Offset(
-                        x = offset.x + item.firstOffset.x,
-                        y = offset.y + item.firstOffset.y
-                    )
-                    val index = getElementIndexOnCords(
-                        Offset(
-                            x = offset.x - size / 2,
-                            y = offset.y - size / 2
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val itemOffset = Offset(
+                            x = offset.x + item.firstOffset.x,
+                            y = offset.y + item.firstOffset.y
                         )
-                    )
-                    if (index != null && item.index != index) {
-                        if (item.index != null) {
-                            val itemOnIndex = circleMenuItems.value[index]
-                            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                                if (isNotEmpty()) {
-                                    this[index] = this[item.index]
-                                }
-                                this[item.index] = itemOnIndex
-                            }
-                            _ghostItem.value = ghostItem.value?.copy(
-                                offset = itemOffset,
-                                index = index
+                        launch {
+                            val index = getElementIndexOnCords(
+                                Offset(
+                                    x = offset.x - size / 2,
+                                    y = offset.y - size / 2
+                                )
                             )
-                            selectedIndex.value = index
-                        } else {
-                            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                                add(
-                                    index,
-                                    CircleMenuItem(
-                                        image = DefaultImage(DefaultImages.Build),
-                                        action = OpenSettingsAction
+                            if (index != null && item.index != index) {
+                                needSave = true
+                                _ghostItem.value = ghostItem.value?.copy(
+                                    offset = itemOffset,
+                                    index = index
+                                )
+                                if (item.index != null) {
+                                    _circleMenuItems.value =
+                                        circleMenuItems.value.toMutableList().apply {
+                                            if (isNotEmpty()) {
+                                                val indexItem = this[index]
+                                                this[index] = this[item.index]
+                                                this[item.index] = indexItem
+                                            }
+                                        }
+                                    selectedIndex.value = index
+                                } else {
+                                    _circleMenuItems.value =
+                                        circleMenuItems.value.toMutableList().apply {
+                                            add(
+                                                index,
+                                                CircleMenuItem(
+                                                    image = DefaultImage(DefaultImages.Build),
+                                                    action = OpenSettingsAction
+                                                )
+                                            )
+                                        }
+                                    updateDrawItemsData()
+                                }
+                            } else {
+                                _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
+                            }
+                        }
+                        launch {
+                            if (elementOnDeleteValue(
+                                    Offset(
+                                        x = itemOffset.x - size / 2,
+                                        y = itemOffset.y - size / 2
                                     )
                                 )
+                            ) {
+                                actionItemState.value = ActionItemState.DeleteActive
+                            } else {
+                                actionItemState.value = ActionItemState.Delete
                             }
-                            _ghostItem.value = ghostItem.value?.copy(
-                                offset = itemOffset,
-                                index = index
-                            )
-                            updateDrawItemsData()
                         }
-                    } else {
-                        _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
-                    }
-                    if (elementOnDeleteValue(
-                            Offset(
-                                x = itemOffset.x - size / 2,
-                                y = itemOffset.y - size / 2
-                            )
-                        )
-                    ) {
-                        actionItemState.value = ActionItemState.DeleteActive
-                    } else {
-                        actionItemState.value = ActionItemState.Delete
                     }
                 }
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                ghostItem.value?.let { item ->
-                    if (elementOnDeleteValue(
-                            Offset(
-                                x = offset.x + item.firstOffset.x - size / 2,
-                                y = offset.y + item.firstOffset.y - size / 2
-                            )
-                        ) && item.index != null
-                    ) {
+                viewModelScope.launch {
+                    ghostItem.value?.let { item ->
+                        if (elementOnDeleteValue(
+                                Offset(
+                                    x = offset.x + item.firstOffset.x - size / 2,
+                                    y = offset.y + item.firstOffset.y - size / 2
+                                )
+                            ) && item.index != null
+                        ) {
 
-                        // Delete element
-                        val oldImage = _circleMenuItems.value[item.index].image
-                        _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                            remove(this[item.index])
-                        }
-                        viewModelScope.launch(Dispatchers.IO) {
-                            if (oldImage !in circleMenuItems.value.map { it.image }) {
-                                images.remove(oldImage)
+                            // Delete element
+                            val oldImage = _circleMenuItems.value[item.index].image
+                            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
+                                remove(this[item.index])
                             }
+                            viewModelScope.launch(Dispatchers.IO) {
+                                if (oldImage !in circleMenuItems.value.map { it.image }) {
+                                    images.remove(oldImage)
+                                }
+                            }
+
+
+                            // Update variables
+                            _ghostItem.value = null
+                            updateDrawItemsData()
+
+                        } else {
+                            _ghostItem.value = null
+                            item.index?.let { selectedIndex.value = it }
                         }
-
-
-                        // Update variables
-                        _ghostItem.value = null
-                        updateDrawItemsData()
-
-                    } else {
-                        _ghostItem.value = null
-                        item.index?.let { selectedIndex.value = it }
                     }
                     actionItemState.value = ActionItemState.Add
+                    if (needSave) {
+                        saveCircleMenu()
+                        needSave = false
+                    }
                 }
             }
         }
@@ -486,6 +492,7 @@ class EditCircleMenuScreenVM(
                 this[selectedIndex.value] = it.copy(action = action)
             }
         }
+        saveCircleMenu()
     }
 
     fun updateImage(image: CircleMenuImage) = viewModelScope.launch {
@@ -513,6 +520,7 @@ class EditCircleMenuScreenVM(
                 }
             }
         }
+        saveCircleMenu()
     }
 
     suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {
