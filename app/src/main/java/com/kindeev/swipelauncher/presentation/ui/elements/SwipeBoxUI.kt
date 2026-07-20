@@ -21,7 +21,7 @@ fun SwipeBoxUI(
     viewModel: LauncherScreenVM
 ) {
     val size = Constants.minScreenLength / 3f * 2
-    val currentMenu by viewModel.currentMenu.collectAsState()
+    val currentMenuWithOffset by viewModel.currentMenuWithOffset.collectAsState()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -29,29 +29,26 @@ fun SwipeBoxUI(
                 onTouchEvent = viewModel.onSwipe()
             )
     ) {
-        currentMenu?.offset?.let { offset ->
+        currentMenuWithOffset?.let { menu ->
             Box(
                 modifier = Modifier
                     .size(size.dp)
                     .offset(
-                        x = offset.x.dp - size.dp / 2,
-                        y = offset.y.dp - size.dp / 2,
+                        x = menu.offset.x.dp - size.dp / 2,
+                        y = menu.offset.y.dp - size.dp / 2,
                     )
             ) {
-                currentMenu?.circleMenuForUI?.items?.let { items ->
-                    val itemsOffset = viewModel.getOffset()
-                    items.forEachIndexed { index, item ->
-                        Image(
-                            bitmap = item.imageBitmap,
-                            modifier = Modifier
-                                .offset(
-                                    x = itemsOffset[index].x,
-                                    y = itemsOffset[index].y
-                                )
-                                .size(viewModel.itemSize),
-                            contentDescription = null
-                        )
-                    }
+                menu.circleMenuToDraw.items.forEach { item ->
+                    Image(
+                        bitmap = item.image,
+                        modifier = Modifier
+                            .offset(
+                                x = item.offset.x.dp,
+                                y = item.offset.y.dp
+                            )
+                            .size(menu.circleMenuToDraw.itemSize.dp),
+                        contentDescription = null
+                    )
                 }
             }
         }

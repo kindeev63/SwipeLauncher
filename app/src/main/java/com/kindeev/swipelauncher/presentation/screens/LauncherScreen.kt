@@ -39,17 +39,6 @@ fun LauncherScreen() {
     )
     val screenState by viewModel.screenState.collectAsState()
     BackHandler {}
-    val scope = rememberCoroutineScope()
-    scope.launch {
-        context.container.circleMenusForUI.collect { allMenus ->
-            (allMenus.find { it.id == viewModel.currentMenu.value?.circleMenuForUI?.id }
-                ?: allMenus.find { it.id == 0 })?.let {
-                viewModel.setCircleMenu(it)
-            }
-            viewModel.setOffsets(allMenus)
-            viewModel.setSizes(allMenus)
-        }
-    }
 
     // UI
     Box(
