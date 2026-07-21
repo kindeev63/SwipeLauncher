@@ -203,7 +203,14 @@ class EditCircleMenuScreenVM(
     private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
     val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
 
-    private val swipeRadiusSq = drawItemsData.map { (size / 2 - it.itemSize / 2).pow(2) }.stateIn(
+    private val swipeRadiusSq = drawItemsData.map {
+        val value = size / 2 - it.itemSize / 2f
+        (if (value > size / 2) {
+            size / 2.5f
+        } else {
+            value
+        }).pow(2)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = 0f
@@ -291,111 +298,104 @@ class EditCircleMenuScreenVM(
                 } else {
                     if (isClickOnAdd(offset)) {
                         _ghostItem.value = getAddGhostItem(offset)
+                        actionItemState.value = ActionItemState.DeleteActive
                     }
                 }
             }
 
             MotionEvent.ACTION_MOVE -> {
                 ghostItem.value?.let { item ->
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val itemOffset = Offset(
-                            x = offset.x + item.firstOffset.x,
-                            y = offset.y + item.firstOffset.y
+                    val itemOffset = Offset(
+                        x = offset.x + item.firstOffset.x,
+                        y = offset.y + item.firstOffset.y
+                    )
+                    val index = getElementIndexOnCords(
+                        Offset(
+                            x = offset.x - size / 2,
+                            y = offset.y - size / 2
                         )
-                        launch {
-                            val index = getElementIndexOnCords(
-                                Offset(
-                                    x = offset.x - size / 2,
-                                    y = offset.y - size / 2
-                                )
-                            )
-                            if (index != null && item.index != index) {
-                                needSave = true
-                                _ghostItem.value = ghostItem.value?.copy(
-                                    offset = itemOffset,
-                                    index = index
-                                )
-                                if (item.index != null) {
-                                    _circleMenuItems.value =
-                                        circleMenuItems.value.toMutableList().apply {
-                                            if (isNotEmpty()) {
-                                                val indexItem = this[index]
-                                                this[index] = this[item.index]
-                                                this[item.index] = indexItem
-                                            }
-                                        }
-                                    selectedIndex.value = index
-                                } else {
-                                    _circleMenuItems.value =
-                                        circleMenuItems.value.toMutableList().apply {
-                                            add(
-                                                index,
-                                                CircleMenuItem(
-                                                    image = DefaultImage(DefaultImages.Build),
-                                                    action = OpenSettingsAction
-                                                )
-                                            )
-                                        }
-                                    updateDrawItemsData()
+                    )
+                    if (index != null && item.index != index) {
+                        needSave = true
+                        _ghostItem.value = ghostItem.value?.copy(
+                            offset = itemOffset,
+                            index = index
+                        )
+                        if (item.index != null) {
+                            _circleMenuItems.value =
+                                circleMenuItems.value.toMutableList().apply {
+                                    if (isNotEmpty()) {
+                                        val indexItem = this[index]
+                                        this[index] = this[item.index]
+                                        this[item.index] = indexItem
+                                    }
                                 }
-                            } else {
-                                _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
-                            }
-                        }
-                        launch {
-                            if (elementOnDeleteValue(
-                                    Offset(
-                                        x = itemOffset.x - size / 2,
-                                        y = itemOffset.y - size / 2
+                            selectedIndex.value = index
+                        } else {
+                            _circleMenuItems.value =
+                                circleMenuItems.value.toMutableList().apply {
+                                    add(
+                                        index,
+                                        CircleMenuItem(
+                                            image = DefaultImage(DefaultImages.Build),
+                                            action = OpenSettingsAction
+                                        )
                                     )
-                                )
-                            ) {
-                                actionItemState.value = ActionItemState.DeleteActive
-                            } else {
-                                actionItemState.value = ActionItemState.Delete
-                            }
+                                }
+                            updateDrawItemsData()
                         }
+                    } else {
+                        _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
+                    }
+                    if (elementOnDeleteValue(
+                            Offset(
+                                x = itemOffset.x - size / 2,
+                                y = itemOffset.y - size / 2
+                            )
+                        )
+                    ) {
+                        actionItemState.value = ActionItemState.DeleteActive
+                    } else {
+                        actionItemState.value = ActionItemState.Delete
                     }
                 }
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                viewModelScope.launch {
-                    ghostItem.value?.let { item ->
-                        if (elementOnDeleteValue(
-                                Offset(
-                                    x = offset.x + item.firstOffset.x - size / 2,
-                                    y = offset.y + item.firstOffset.y - size / 2
-                                )
-                            ) && item.index != null
-                        ) {
+                ghostItem.value?.let { item ->
+                    if (elementOnDeleteValue(
+                            Offset(
+                                x = offset.x + item.firstOffset.x - size / 2,
+                                y = offset.y + item.firstOffset.y - size / 2
+                            )
+                        ) && item.index != null
+                    ) {
 
-                            // Delete element
-                            val oldImage = _circleMenuItems.value[item.index].image
-                            _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
-                                remove(this[item.index])
-                            }
-                            viewModelScope.launch(Dispatchers.IO) {
-                                if (oldImage !in circleMenuItems.value.map { it.image }) {
-                                    images.remove(oldImage)
-                                }
-                            }
-
-
-                            // Update variables
-                            _ghostItem.value = null
-                            updateDrawItemsData()
-
-                        } else {
-                            _ghostItem.value = null
-                            item.index?.let { selectedIndex.value = it }
+                        // Delete element
+                        val oldImage = _circleMenuItems.value[item.index].image
+                        _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
+                            remove(this[item.index])
                         }
+                        viewModelScope.launch(Dispatchers.IO) {
+                            if (oldImage !in circleMenuItems.value.map { it.image }) {
+                                images.remove(oldImage)
+                            }
+                        }
+
+
+                        // Update variables
+                        _ghostItem.value = null
+                        updateDrawItemsData()
+
+                    } else {
+                        _ghostItem.value = null
+                        item.index?.let { selectedIndex.value = it }
                     }
-                    actionItemState.value = ActionItemState.Add
-                    if (needSave) {
-                        saveCircleMenu()
-                        needSave = false
-                    }
+                }
+                actionItemState.value = ActionItemState.Add
+                if (needSave) {
+                    saveCircleMenu()
+                    needSave = false
                 }
             }
         }
