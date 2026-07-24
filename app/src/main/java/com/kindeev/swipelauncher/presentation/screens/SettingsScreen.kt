@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
@@ -30,7 +31,9 @@ fun SettingsScreen() {
             )
         }
         composable<ScreensSettings.AllCircleMenusScreenObject> {
+            val viewModel: AllCircleMenusScreenVM = diViewModel()
             AllCircleMenusScreen(
+                viewModel = viewModel,
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
                 },

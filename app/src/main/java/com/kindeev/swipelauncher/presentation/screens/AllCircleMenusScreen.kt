@@ -57,13 +57,13 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AllCircleMenusScreen(
+    viewModel: AllCircleMenusScreenVM,
     navigateToCircleMenu: (Int?) -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -80,7 +80,6 @@ fun AllCircleMenusScreen(
         onBackPressed()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: AllCircleMenusScreenVM = diViewModel()
     val allCircleMenus by viewModel.circleMenuStateFlowUseCase.circleMenus.collectAsState()
     val allCircleMenusForUI by viewModel.circleMenuForUIStateFlowUseCase.circleMenusForUI.collectAsState()
     val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
