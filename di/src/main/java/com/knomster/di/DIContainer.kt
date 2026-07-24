@@ -22,10 +22,14 @@ class DIContainer {
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T: Any> getDependency(): T {
         val key = T::class
-        return dependencies.computeIfAbsent(key) {
+        if (dependencies.containsKey(key))
+            return dependencies[key] as T
+        synchronized(this) {
             val factory = dependencyFactories[key] as? () -> T ?: throw IllegalStateException("Not found dependency for ${T::class}")
-            factory()
-        } as T
+            val dependency = factory()
+            dependencies[key] = dependency
+            return dependency
+        }
     }
 
     inline fun <reified T: ViewModel> registerViewModel(noinline creator: (SavedStateHandle) -> T) {
