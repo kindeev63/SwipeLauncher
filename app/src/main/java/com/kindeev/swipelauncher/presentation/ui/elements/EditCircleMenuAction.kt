@@ -156,7 +156,7 @@ private fun OpenCircleMenuDataItem(
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-    val circleMenus = DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
+    val circleMenus = DI.container.getDependency<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
 
     circleMenus.value.find { it.id == action.id }?.let {
         Row(

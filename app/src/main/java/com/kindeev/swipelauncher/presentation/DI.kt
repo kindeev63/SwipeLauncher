@@ -47,192 +47,209 @@ object DI {
     }
 
     private fun initSingles(context: Context) {
-        initCoil(context)
-        initDatabase(context)
-        initUserImages(context)
-        initApplicationsRepository(context)
-        initDomainUseCases(context)
-        initBackupUseCases(context)
-        initPresentationUseCases(context)
+        initDataDependencies(context)
+        initDomainDependencies(context)
+        initPresentationDependencies(context)
     }
 
-    private fun initDatabase(context: Context) {
-        container.insertSingleAs<DataRepository>(
+    private fun initDataDependencies(context: Context) {
+        initDatabaseDependencies(context)
+        initCoilDependencies(context)
+        initUserImagesDependencies(context)
+        initBackupDependencies(context)
+        initApplicationsRepositoryDependencies(context)
+    }
+
+    private fun initDatabaseDependencies(context: Context) {
+        container.insertDependency<DataRepository> {
             AppDataBase.getDataBase(context).getRepository()
-        )
+        }
     }
 
-    private fun initCoil(context: Context) {
-        container.insertSingle(
+    private fun initCoilDependencies(context: Context) {
+        container.insertDependency {
             CoilLoaderManager(context)
-        )
+        }
     }
 
-    private fun initUserImages(context: Context) {
-        container.insertSingle(
+    private fun initUserImagesDependencies(context: Context) {
+        container.insertDependency {
             UserImagesStorage(context)
-        )
-        container.insertSingleAs<com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository>(
+        }
+        container.insertDependency<com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository> {
             UserImagesRepository(
-                storage = container.getSingle(),
-                coilLoaderManager = container.getSingle()
+                storage = container.getDependency(),
+                coilLoaderManager = container.getDependency()
             )
-        )
+        }
     }
 
-    private fun initApplicationsRepository(context: Context) {
+    private fun initApplicationsRepositoryDependencies(context: Context) {
         val appsRepository = AppsRepository(context)
-        container.insertSingleAs<ApplicationsManager>(
+        container.insertDependency<ApplicationsManager> {
             appsRepository
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             appsRepository
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             AppsObserver(
                 context = context,
-                applicationsRepository = container.getSingle(),
-                coilLoaderManager = container.getSingle()
+                applicationsRepository = container.getDependency(),
+                coilLoaderManager = container.getDependency(),
+                dataRepository = container.getDependency(),
+                checkCircleMenuUseCase = container.getDependency(),
+                circleMenuStateFlowUseCase = container.getDependency(),
+                userImagesRepository = container.getDependency(),
+                ioScope = ioScope,
             )
-        )
+        }
     }
 
-    private fun initBackupUseCases(context: Context) {
-        container.insertSingle(
+    private fun initBackupDependencies(context: Context) {
+        container.insertDependency {
             ExportCircleMenusUseCase(
-                userImagesRepository = container.getSingle(),
+                userImagesRepository = container.getDependency(),
                 context = context
             )
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             ImportCircleMenusUseCase(
-                userImagesRepository = container.getSingle(),
-                dataRepository = container.getSingle(),
-                checkCircleMenuUseCase = container.getSingle(),
-                applicationsManager = container.getSingle(),
+                userImagesRepository = container.getDependency(),
+                dataRepository = container.getDependency(),
+                checkCircleMenuUseCase = container.getDependency(),
+                applicationsManager = container.getDependency(),
                 context = context
             )
-        )
+        }
     }
 
-    private fun initDomainUseCases(context: Context) {
-        initCircleMenuActions(context)
-        initDomainStateFlows()
-        initOtherDomainUseCases(context)
+    private fun initDomainDependencies(context: Context) {
+        initCircleMenuActionDependencies(context)
+        initDomainStateFlowDependencies()
+        initOtherDomainDependencies(context)
     }
 
-    private fun initCircleMenuActions(context: Context) {
-        container.insertSingle(FlashLightUseCase(context))
-        container.insertSingle(OpenSettingsUseCase(context))
-        container.insertSingle(OpenUrlUseCase(context))
-        container.insertSingle(TelephoneUseCase(context))
+    private fun initCircleMenuActionDependencies(context: Context) {
+        container.insertDependency {
+            FlashLightUseCase(context)
+        }
+        container.insertDependency {
+            OpenSettingsUseCase(context)
+        }
+        container.insertDependency {
+            OpenUrlUseCase(context)
+        }
+        container.insertDependency {
+            TelephoneUseCase(context)
+        }
     }
 
-    private fun initDomainStateFlows() {
-        container.insertSingle(
+    private fun initDomainStateFlowDependencies() {
+        container.insertDependency {
             CircleMenuStateFlowUseCase(
-                dataRepository = container.getSingle(),
+                dataRepository = container.getDependency(),
                 ioScope = ioScope
             )
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             SettingsStateFlowUseCase(
-                dataRepository = container.getSingle(),
+                dataRepository = container.getDependency(),
                 ioScope = ioScope
             )
-        )
+        }
     }
 
-    private fun initOtherDomainUseCases(context: Context) {
-        container.insertSingle(
+    private fun initOtherDomainDependencies(context: Context) {
+        container.insertDependency {
             CheckCircleMenuUseCase()
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             GetRootCircleMenuUseCase(context)
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             SaveCircleMenuWithDebounceUseCase(
-                dataRepository = container.getSingle(),
+                dataRepository = container.getDependency(),
                 scope = ioScope
             )
-        )
+        }
     }
 
-    private fun initPresentationUseCases(context: Context) {
-        initOtherPresentationUseCases(context)
-        initPresentationStateFlows()
+    private fun initPresentationDependencies(context: Context) {
+        initOtherPresentationDependencies(context)
+        initPresentationStateFlowDependencies()
     }
 
-    private fun initOtherPresentationUseCases(context: Context) {
-        container.insertSingle(
+    private fun initOtherPresentationDependencies(context: Context) {
+        container.insertDependency {
             CircleMenuForUIMapper(
-                userImagesRepository = container.getSingle(),
+                userImagesRepository = container.getDependency(),
                 context = context
             )
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             GetSystemServiceUseCase(context)
-        )
-        container.insertSingle(
+        }
+        container.insertDependency {
             OpenAppUseCase(
                 context = context,
-                applicationsManager = container.getSingle(),
-                openSettingsUseCase = container.getSingle()
+                applicationsManager = container.getDependency(),
+                openSettingsUseCase = container.getDependency()
             )
-        )
+        }
     }
 
-    private fun initPresentationStateFlows() {
-        container.insertSingle(
+    private fun initPresentationStateFlowDependencies() {
+        container.insertDependency {
             CircleMenuForUIStateFlowUseCase(
-                circleMenuStateFlowUseCase = container.getSingle(),
-                circleMenuForUIMapper = container.getSingle(),
+                circleMenuStateFlowUseCase = container.getDependency(),
+                circleMenuForUIMapper = container.getDependency(),
                 ioScope = ioScope
-            ),
-        )
+            )
+        }
     }
 
     private fun initViewModels(context: Context) {
         container.registerViewModel {
             AllCircleMenusScreenVM(
-                dataRepository = container.getSingle(),
-                exportCircleMenusUseCase = container.getSingle(),
-                importCircleMenusUseCase = container.getSingle(),
-                circleMenuStateFlowUseCase = container.getSingle(),
-                circleMenuForUIStateFlowUseCase = container.getSingle()
+                dataRepository = container.getDependency(),
+                exportCircleMenusUseCase = container.getDependency(),
+                importCircleMenusUseCase = container.getDependency(),
+                circleMenuStateFlowUseCase = container.getDependency(),
+                circleMenuForUIStateFlowUseCase = container.getDependency()
             )
         }
         container.registerViewModel { savedStateHandle ->
             EditCircleMenuScreenVM(
                 circleMenuId = savedStateHandle["circleMenuId"],
-                circleMenuStateFlowUseCase = container.getSingle(),
-                saveCircleMenuWithDebounceUseCase = container.getSingle(),
-                userImagesRepository = container.getSingle(),
-                applicationsManager = container.getSingle(),
-                settingsStateFlowUseCase = container.getSingle(),
-                circleMenuForUIMapper = container.getSingle(),
+                circleMenuStateFlowUseCase = container.getDependency(),
+                saveCircleMenuWithDebounceUseCase = container.getDependency(),
+                userImagesRepository = container.getDependency(),
+                applicationsManager = container.getDependency(),
+                settingsStateFlowUseCase = container.getDependency(),
+                circleMenuForUIMapper = container.getDependency(),
                 density = context.resources.displayMetrics.density,
             )
         }
         container.registerViewModel {
             LauncherScreenVM(
-                telephoneUseCase = container.getSingle(),
-                openSettingsUseCase = container.getSingle(),
-                flashLightUseCase = container.getSingle(),
-                openUrlUseCase = container.getSingle(),
+                telephoneUseCase = container.getDependency(),
+                openSettingsUseCase = container.getDependency(),
+                flashLightUseCase = container.getDependency(),
+                openUrlUseCase = container.getDependency(),
                 density = context.resources.displayMetrics.density,
-                settingsStateFlowUseCase = container.getSingle(),
-                openAppUseCase = container.getSingle(),
-                getSystemServiceUseCase = container.getSingle(),
-                circleMenuForUIStateFlowUseCase = container.getSingle(),
-                applicationsManager = container.getSingle()
+                settingsStateFlowUseCase = container.getDependency(),
+                openAppUseCase = container.getDependency(),
+                getSystemServiceUseCase = container.getDependency(),
+                circleMenuForUIStateFlowUseCase = container.getDependency(),
+                applicationsManager = container.getDependency()
             )
         }
         container.registerViewModel {
             MainSettingsScreenVM(
-                applicationsManager = container.getSingle(),
-                settingsStateFlowUseCase = container.getSingle(),
-                dataRepository = container.getSingle()
+                applicationsManager = container.getDependency(),
+                settingsStateFlowUseCase = container.getDependency(),
+                dataRepository = container.getDependency()
             )
         }
     }

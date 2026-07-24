@@ -230,7 +230,7 @@ fun OpenCircleMenuActionData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
-    val circleMenusForUI by DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsStateWithLifecycle()
+    val circleMenusForUI by DI.container.getDependency<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsStateWithLifecycle()
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -291,7 +291,7 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val applications by DI.container.getSingle<ApplicationsManager>().applications.collectAsState()
+            val applications by DI.container.getDependency<ApplicationsManager>().applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

@@ -13,10 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
-/**
- * AppsRepository позволяет работать с приложениями на устройстве.
- * Он содержит список всех приложений в формате StateFlow.
- */
 class AppsRepository(context: Context) : ApplicationsManager {
     private val appContext = context.applicationContext
     private val launcherApps: LauncherApps =
@@ -29,13 +25,9 @@ class AppsRepository(context: Context) : ApplicationsManager {
     override val applications: StateFlow<List<ApplicationInfo>>
         get() = _applications.asStateFlow()
 
-    override fun getApplication(packageName: String) = _applications.value.find { it.packageName == packageName }
-
-    /**
-     * Загружает все приложения в applications - список всех приложений
-     */
-    suspend fun loadApplications() = withContext(Dispatchers.IO) {
-        launcherApps.getActivityList(null, userHandle)
+    suspend fun loadAllApplicationsToStateFlow() = withContext(Dispatchers.IO) {
+        val allApplications = launcherApps.getActivityList(null, userHandle)
+            .distinctBy { it.applicationInfo.packageName }
             .map { activityInfo ->
                 ApplicationInfo(
                     title = activityInfo.label.toString(),
@@ -43,49 +35,38 @@ class AppsRepository(context: Context) : ApplicationsManager {
                     componentName = activityInfo.componentName
                 )
             }
-            .distinctBy { it.packageName }
             .sortedBy { it.title.lowercase() }
-            .also {
-                _applications.value = it
-            }
+        _applications.value = allApplications
     }
 
-    private fun isInstalled(packageName: String): Boolean =
-        launcherApps.getActivityList(packageName, userHandle).isNotEmpty()
+    override fun getApplication(packageName: String): ApplicationInfo? =
+        _applications.value.find { it.packageName == packageName }
 
-    /**
-     * Отправляет Intent на удаление приложения
-     */
-    override fun delete(packageName: String) =
-        appContext.startActivity(
-            Intent(
-                Intent.ACTION_DELETE,
-                "package:$packageName".toUri()
-            ).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        )
-
-    /**
-     * Пробует открыть MainActivity приложения
-     */
     override fun open(packageName: String) {
-        launcherApps.getActivityList(packageName, userHandle)
-            .firstOrNull()?.componentName?.let { componentName ->
-                launcherApps.startMainActivity(
-                    componentName,
-                    Process.myUserHandle(),
-                    null,
-                    null
-                )
-            }
+        val applicationInfo = applications.value.find { it.packageName == packageName } ?: return
+        launcherApps.startMainActivity(
+            applicationInfo.componentName,
+            userHandle,
+            null,
+            null
+        )
     }
 
-    /**
-     * Отправляет Intent на переход к activity деталей приложения (в настройках)
-     */
+    override fun delete(packageName: String) {
+        if (isAppInstalled(packageName)) {
+            appContext.startActivity(
+                Intent(
+                    Intent.ACTION_DELETE,
+                    "package:$packageName".toUri()
+                ).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
+        }
+    }
+
     override fun openAppDetails(packageName: String) {
-        if (isInstalled(packageName)) {
+        if (isAppInstalled(packageName)) {
             appContext.startActivity(
                 Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -97,11 +78,10 @@ class AppsRepository(context: Context) : ApplicationsManager {
         }
     }
 
-    /**
-     * При установке нового приложения
-     * Добавляет его в список всех приложений
-     */
-    fun onAppAdded(packageName: String) {
+    private fun isAppInstalled(packageName: String): Boolean =
+        applications.value.any { it.packageName == packageName }
+
+    fun addAppByPackageName(packageName: String) {
         val activityInfo = launcherApps
             .getActivityList(packageName, userHandle)
             .firstOrNull() ?: return
@@ -115,21 +95,13 @@ class AppsRepository(context: Context) : ApplicationsManager {
             .sortedBy { it.title.lowercase() }
     }
 
-    /**
-     * При удалении приложения
-     * Удаляет его из списка всех приложений
-     */
-    fun onAppRemoved(packageName: String) {
+    fun removeAppByPackageName(packageName: String) {
         _applications.value = _applications.value
             .filterNot { it.packageName == packageName }
     }
 
-    /**
-     * При обновлении приложения
-     * Сначала удаляет старые данные, затем загружает новые
-     */
-    fun onAppChanged(packageName: String) {
-        onAppRemoved(packageName)
-        onAppAdded(packageName)
+    fun reloadAppByPackageName(packageName: String) {
+        removeAppByPackageName(packageName)
+        addAppByPackageName(packageName)
     }
 }

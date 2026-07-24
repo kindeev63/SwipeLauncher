@@ -7,16 +7,29 @@ import android.os.Looper
 import android.os.UserHandle
 import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
 import com.kindeev.swipelauncher.data.coil.appImageUri
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class AppsObserver(
-    context: Context,
     private val applicationsRepository: AppsRepository,
     private val coilLoaderManager: CoilLoaderManager,
+    private val dataRepository: DataRepository,
+    private val checkCircleMenuUseCase: CheckCircleMenuUseCase,
+    private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    private val userImagesRepository: UserImagesRepository,
+    private val ioScope: CoroutineScope,
+    context: Context
 ) {
-    private val launcherApps = context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private fun getCallback(onChange: () -> Unit) = object : LauncherApps.Callback() {
+    private val launcherApps =
+        context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+
+    private fun launcherAppsCallback() = object : LauncherApps.Callback() {
         override fun onPackageAdded(packageName: String, user: UserHandle) {
-            applicationsRepository.onAppAdded(packageName)
+            applicationsRepository.addAppByPackageName(packageName)
             coilLoaderManager.prefetch(
                 appImageUri(packageName),
                 "app_image_$packageName"
@@ -24,24 +37,28 @@ class AppsObserver(
         }
 
         override fun onPackageRemoved(packageName: String, user: UserHandle) {
-            applicationsRepository.onAppRemoved(packageName)
+            applicationsRepository.removeAppByPackageName(packageName)
             coilLoaderManager.remove("app_image_$packageName")
-            onChange()
+            updateCircleMenus()
         }
 
         override fun onPackageChanged(packageName: String, user: UserHandle) {
-            applicationsRepository.onAppChanged(packageName)
+            applicationsRepository.reloadAppByPackageName(packageName)
             coilLoaderManager.remove("app_image_$packageName")
             coilLoaderManager.prefetch(
                 appImageUri(packageName),
                 "app_image_$packageName"
             )
-            onChange()
+            updateCircleMenus()
         }
 
-        override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
+        override fun onPackagesAvailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
             packageNames.forEach { packageName ->
-                applicationsRepository.onAppAdded(packageName)
+                applicationsRepository.addAppByPackageName(packageName)
                 coilLoaderManager.prefetch(
                     appImageUri(packageName),
                     "app_image_$packageName"
@@ -49,17 +66,38 @@ class AppsObserver(
             }
         }
 
-        override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
+        override fun onPackagesUnavailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
             packageNames.forEach { packageName ->
-                applicationsRepository.onAppRemoved(packageName)
+                applicationsRepository.removeAppByPackageName(packageName)
                 coilLoaderManager.remove("app_image_$packageName")
             }
-            onChange()
+            updateCircleMenus()
         }
     }
 
-    fun start(onChange: () -> Unit) {
-        launcherApps.registerCallback(getCallback(onChange), Handler(Looper.getMainLooper()))
+    fun updateCircleMenus() {
+        if (applicationsRepository.applications.value.isNotEmpty()) {
+            ioScope.launch {
+                val changedCircleMenus =
+                    checkCircleMenuUseCase.getOnlyChanged(
+                        circleMenus = circleMenuStateFlowUseCase.circleMenus.value,
+                        allPackageNames = applicationsRepository.applications.value.map { it.packageName },
+                        userImageIds = userImagesRepository.getAllIds()
+                    )
+                if (changedCircleMenus.isNotEmpty())
+                    dataRepository.insertCircleMenus(changedCircleMenus)
+            }
+        }
     }
 
+    fun start() {
+        launcherApps.registerCallback(
+            launcherAppsCallback(),
+            Handler(Looper.getMainLooper())
+        )
+    }
 }

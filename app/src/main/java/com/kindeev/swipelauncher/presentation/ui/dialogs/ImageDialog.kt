@@ -210,7 +210,7 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val applications by DI.container.getSingle<ApplicationsManager>().applications.collectAsState()
+            val applications by DI.container.getDependency<ApplicationsManager>().applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

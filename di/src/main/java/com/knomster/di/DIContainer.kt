@@ -8,21 +8,24 @@ import kotlin.reflect.KClass
 class DIContainer {
 
     @PublishedApi
-    internal val singles = ConcurrentHashMap<KClass<*>, Any>()
+    internal val dependencies = ConcurrentHashMap<KClass<*>, Any>()
 
+    @PublishedApi
+    internal val dependencyFactories = ConcurrentHashMap<KClass<*>, () -> Any>()
     @PublishedApi
     internal val viewModelCreators = ConcurrentHashMap<KClass<out ViewModel>, (SavedStateHandle) -> ViewModel>()
 
-    inline fun <reified T: Any> insertSingle(single: T) {
-        singles[T::class] = single
+    inline fun <reified T: Any> insertDependency(noinline factory: () -> T) {
+        dependencyFactories[T::class] = factory
     }
 
-    inline fun <reified T: Any> insertSingleAs(single: T) {
-        singles[T::class] = single
-    }
-
-    inline fun <reified T> getSingle(): T {
-        return singles[T::class] as? T ?: throw IllegalStateException("Not found single for ${T::class}")
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T: Any> getDependency(): T {
+        val key = T::class
+        return dependencies.computeIfAbsent(key) {
+            val factory = dependencyFactories[key] as? () -> T ?: throw IllegalStateException("Not found dependency for ${T::class}")
+            factory()
+        } as T
     }
 
     inline fun <reified T: ViewModel> registerViewModel(noinline creator: (SavedStateHandle) -> T) {
