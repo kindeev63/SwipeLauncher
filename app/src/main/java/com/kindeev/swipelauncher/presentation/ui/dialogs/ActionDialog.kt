@@ -53,8 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
@@ -68,10 +69,12 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
+import com.kindeev.swipelauncher.presentation.DI
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 
 @Composable
 fun ActionDialog(
@@ -227,7 +230,7 @@ fun OpenCircleMenuActionData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
-    val context = LocalContext.current
+    val circleMenusForUI by DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsStateWithLifecycle()
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -249,7 +252,7 @@ fun OpenCircleMenuActionData(
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = context.container.circleMenusForUI.value.filter {
+                    items = circleMenusForUI.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     }
                 ) { circleMenu ->
@@ -276,7 +279,6 @@ fun OpenAppActionData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
-    val context = LocalContext.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -289,7 +291,7 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val applications by context.container.applicationsManager.applications.collectAsState()
+            val applications by DI.container.getSingle<ApplicationsManager>().applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

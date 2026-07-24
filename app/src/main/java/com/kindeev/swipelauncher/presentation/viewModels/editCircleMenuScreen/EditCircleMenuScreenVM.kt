@@ -3,7 +3,6 @@ package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
-import android.content.Context
 import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
@@ -11,7 +10,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.data.applications.ApplicationsManager
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
@@ -20,6 +20,11 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
+import com.kindeev.swipelauncher.domain.useCases.SaveCircleMenuWithDebounceUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuForUIMapper
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
@@ -47,11 +52,18 @@ import kotlin.math.sqrt
 
 class EditCircleMenuScreenVM(
     circleMenuId: Int?,
-    val size: Float,
-    context: Context
+    circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
+    private val userImagesRepository: UserImagesRepository,
+    private val applicationsManager: ApplicationsManager,
+    private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
+    private val circleMenuForUIMapper: CircleMenuForUIMapper,
+    private val density: Float,
 ) : ViewModel() {
 
-    private val container = context.container
+    private val _menuSize = MutableStateFlow(Constants.minScreenLength / 6 * 5f)
+    val menuSize: StateFlow<Float> = _menuSize.asStateFlow()
+
     private val id: Int
 
     private val images = mutableMapOf<CircleMenuImage, ImageBitmap>()
@@ -60,10 +72,14 @@ class EditCircleMenuScreenVM(
     private val _circleMenuItems = MutableStateFlow<List<CircleMenuItem>>(emptyList())
     val circleMenuItems: StateFlow<List<CircleMenuItem>> = _circleMenuItems.asStateFlow()
 
-    private val _drawItemsData = MutableStateFlow(DrawItemsData(size / 4, emptyList()))
+    private val _drawItemsData = MutableStateFlow(DrawItemsData(menuSize.value / 4, emptyList()))
     val drawItemsData: StateFlow<DrawItemsData> = _drawItemsData.asStateFlow()
 
-    private val itemBorders = drawItemsData.map { data ->
+    fun updateMenuSize(menuSize: Float) {
+        _menuSize.value = menuSize
+    }
+
+    private val itemBorders = drawItemsData.combine(menuSize) { data, menuSize ->
         if (data.offsets.isEmpty()) {
             emptyList()
         } else {
@@ -72,9 +88,9 @@ class EditCircleMenuScreenVM(
             (0 until count).map {
                 ((alpha * (0.5f + it) + -360 / data.offsets.size / 2f) * PI / 180f).let { angle ->
                     val x =
-                        size / 2f + sin(angle).toFloat() * (size / 2 - data.itemSize / 2) - data.itemSize / 2
+                        menuSize / 2f + sin(angle).toFloat() * (menuSize / 2 - data.itemSize / 2) - data.itemSize / 2
                     val y =
-                        size / 2f - cos(angle).toFloat() * (size / 2 - data.itemSize / 2) + data.itemSize / 2
+                        menuSize / 2f - cos(angle).toFloat() * (menuSize / 2 - data.itemSize / 2) + data.itemSize / 2
 
                     ItemBorders(
                         xStart = x,
@@ -112,7 +128,7 @@ class EditCircleMenuScreenVM(
 
 
     private fun saveCircleMenu() {
-        container.saveCircleMenuWithDebounceUseCase.save(
+        saveCircleMenuWithDebounceUseCase.save(
             CircleMenu(
                 id = id,
                 title = circleMenuTitle.value.text,
@@ -122,15 +138,15 @@ class EditCircleMenuScreenVM(
     }
 
     private fun cancelSaving() {
-        container.saveCircleMenuWithDebounceUseCase.cancel()
+        saveCircleMenuWithDebounceUseCase.cancel()
     }
 
     init {
         if (circleMenuId == null) {
-            val allIds = container.circleMenus.value.map { it.id }
+            val allIds = circleMenuStateFlowUseCase.circleMenus.value.map { it.id }
             id = generateSequence(1) { it + 1 }.first { it !in allIds }
         } else {
-            val menu = container.circleMenus.value.find { it.id == circleMenuId }
+            val menu = circleMenuStateFlowUseCase.circleMenus.value.find { it.id == circleMenuId }
             if (menu == null) {
                 id = 0
             } else {
@@ -153,7 +169,7 @@ class EditCircleMenuScreenVM(
     }
 
     fun getImage(image: CircleMenuImage): ImageBitmap? {
-        return images[image] ?: container.circleMenuForUIMapper.circleMenuImageToUI(image)?.apply {
+        return images[image] ?: circleMenuForUIMapper.circleMenuImageToUI(image)?.apply {
             images[image] = this
         }
     }
@@ -203,10 +219,10 @@ class EditCircleMenuScreenVM(
     private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
     val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
 
-    private val swipeRadiusSq = drawItemsData.map {
-        val value = size / 2 - it.itemSize / 2f
-        (if (value > size / 2) {
-            size / 2.5f
+    private val swipeRadiusSq = drawItemsData.combine(menuSize) { data, menuSize ->
+        val value = menuSize / 2 - data.itemSize / 2f
+        (if (value > menuSize / 2) {
+            menuSize / 2.5f
         } else {
             value
         }).pow(2)
@@ -216,21 +232,18 @@ class EditCircleMenuScreenVM(
         initialValue = 0f
     )
 
-    // Density
-    private val density = context.resources.displayMetrics.density
-
     // ActionItemData
-    private val actionItemSize = drawItemsData.map {
-        val value = size / 2 - it.itemSize
-        if (value > size / 2) {
-            size / 2
+    private val actionItemSize = drawItemsData.combine(menuSize) { data, menuSize ->
+        val value = menuSize / 2 - data.itemSize
+        if (value > menuSize / 2) {
+            menuSize / 2
         } else {
             value
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = size / 4
+        initialValue = menuSize.value / 4
     )
 
     private val actionItemState = MutableStateFlow<ActionItemState>(ActionItemState.Add)
@@ -242,7 +255,7 @@ class EditCircleMenuScreenVM(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = ActionItemData(size / 4, ActionItemState.Add)
+        initialValue = ActionItemData(menuSize.value / 4, ActionItemState.Add)
     )
 
     // Radius
@@ -257,22 +270,22 @@ class EditCircleMenuScreenVM(
     private fun updateDrawItemsData() {
         val count = circleMenuItems.value.size
         if (count == 0) {
-            _drawItemsData.value = DrawItemsData(size / 4, emptyList())
+            _drawItemsData.value = DrawItemsData(menuSize.value / 4, emptyList())
         } else {
             val itemSize =
-                (sqrt((size / 2).pow(2) * (1 - cos(2 * PI / count))).toFloat() / 6 * 5).let {
-                    if (it > 0 && it < size / 4) {
+                (sqrt((menuSize.value / 2).pow(2) * (1 - cos(2 * PI / count))).toFloat() / 6 * 5).let {
+                    if (it > 0 && it < menuSize.value / 4) {
                         it
                     } else {
-                        size / 4
+                        menuSize.value / 4
                     }
                 }
             val alpha = 360f / count
             val startOffset = -360 / count / 2f
             val offsets = (0 until count).map {
                 Offset(
-                    x = size / 2 + sin((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2,
-                    y = size / 2 - cos((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (size / 2 - itemSize / 2) - itemSize / 2,
+                    x = menuSize.value / 2 + sin((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (menuSize.value / 2 - itemSize / 2) - itemSize / 2,
+                    y = menuSize.value / 2 - cos((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (menuSize.value / 2 - itemSize / 2) - itemSize / 2,
                 )
             }
             _drawItemsData.value = DrawItemsData(itemSize, offsets)
@@ -280,7 +293,7 @@ class EditCircleMenuScreenVM(
     }
 
     fun getImageBitmap(circleMenuImage: CircleMenuImage): ImageBitmap? =
-        container.circleMenuForUIMapper.circleMenuImageToUI(circleMenuImage)
+        circleMenuForUIMapper.circleMenuImageToUI(circleMenuImage)
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -290,7 +303,7 @@ class EditCircleMenuScreenVM(
         when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-                needSave = container.saveCircleMenuWithDebounceUseCase.isActive()
+                needSave = saveCircleMenuWithDebounceUseCase.isActive()
                 if (needSave) cancelSaving()
                 val ghostItem = getGhostItem(offset)
                 if (ghostItem != null) {
@@ -311,8 +324,8 @@ class EditCircleMenuScreenVM(
                     )
                     val index = getElementIndexOnCords(
                         Offset(
-                            x = offset.x - size / 2,
-                            y = offset.y - size / 2
+                            x = offset.x - menuSize.value / 2,
+                            y = offset.y - menuSize.value / 2
                         )
                     )
                     if (index != null && item.index != index) {
@@ -349,8 +362,8 @@ class EditCircleMenuScreenVM(
                     }
                     if (elementOnDeleteValue(
                             Offset(
-                                x = itemOffset.x - size / 2,
-                                y = itemOffset.y - size / 2
+                                x = itemOffset.x - menuSize.value / 2,
+                                y = itemOffset.y - menuSize.value / 2
                             )
                         )
                     ) {
@@ -365,8 +378,8 @@ class EditCircleMenuScreenVM(
                 ghostItem.value?.let { item ->
                     if (elementOnDeleteValue(
                             Offset(
-                                x = offset.x + item.firstOffset.x - size / 2,
-                                y = offset.y + item.firstOffset.y - size / 2
+                                x = offset.x + item.firstOffset.x - menuSize.value / 2,
+                                y = offset.y + item.firstOffset.y - menuSize.value / 2
                             )
                         ) && item.index != null
                     ) {
@@ -386,6 +399,7 @@ class EditCircleMenuScreenVM(
                         // Update variables
                         _ghostItem.value = null
                         updateDrawItemsData()
+                        needSave = true
 
                     } else {
                         _ghostItem.value = null
@@ -462,13 +476,13 @@ class EditCircleMenuScreenVM(
     }
 
     private fun isClickOnAdd(offset: Offset): Boolean {
-        return (offset.x - size / 2).pow(2) + (offset.y - size / 2).pow(2) < actionRadiusSq.value
+        return (offset.x - menuSize.value / 2).pow(2) + (offset.y - menuSize.value / 2).pow(2) < actionRadiusSq.value
     }
 
     private fun getAddGhostItem(offset: Offset): GhostCircleMenuItem? {
         val firstOffset = Offset(
-            x = size / 2 - offset.x,
-            y = size / 2 - offset.y
+            x = menuSize.value / 2 - offset.x,
+            y = menuSize.value / 2 - offset.y
         )
         return GhostCircleMenuItem(
             index = null,
@@ -483,7 +497,7 @@ class EditCircleMenuScreenVM(
     }
 
     fun getApplicationInfo(packageName: String): ApplicationInfo? {
-        return container.applicationsManager.getApplication(packageName)
+        return applicationsManager.getApplication(packageName)
     }
 
     fun updateAction(action: CircleMenuAction) = viewModelScope.launch {
@@ -499,7 +513,7 @@ class EditCircleMenuScreenVM(
         selectedIndex.value.let { index ->
             selectedItem.value?.let { item ->
                 val oldImage = circleMenuItems.value[index].image
-                if (container.settings.value.pickAppActionWithImage && image is AppImage) {
+                if (settingsStateFlowUseCase.settings.value.pickAppActionWithImage && image is AppImage) {
                     _circleMenuItems.value = circleMenuItems.value.toMutableList().apply {
                         this[index] = CircleMenuItem(
                             image = image,
@@ -524,6 +538,6 @@ class EditCircleMenuScreenVM(
     }
 
     suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {
-        container.userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
+        userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
     }
 }

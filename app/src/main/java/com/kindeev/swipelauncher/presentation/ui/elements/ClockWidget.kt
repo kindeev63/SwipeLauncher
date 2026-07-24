@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -27,10 +25,9 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun ClockWidget(
+    textColor: Color
 ) {
     val context = LocalContext.current
-    val settings by context.container.settings.collectAsState()
-    val textColorOnWallpaper = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))
@@ -54,12 +51,12 @@ fun ClockWidget(
     ) {
         Text(
             text = time,
-            color = textColorOnWallpaper,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 5
         )
         Text(
             text = date,
-            color = textColorOnWallpaper,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }
@@ -67,11 +64,10 @@ fun ClockWidget(
 
 @Composable
 fun ClickableClockWidget(
+    textColor: Color,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val settings by context.container.settings.collectAsState()
-    val textColorOnWallpaper = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
     var time by remember {
         val locTime = LocalDateTime.now()
         mutableStateOf(getTime(locTime))
@@ -101,12 +97,12 @@ fun ClickableClockWidget(
     ) {
         Text(
             text = time,
-            color = textColorOnWallpaper,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 5
         )
         Text(
             text = date,
-            color = textColorOnWallpaper,
+            color = textColor,
             fontSize = Constants.minScreenLength.sp / 20
         )
     }

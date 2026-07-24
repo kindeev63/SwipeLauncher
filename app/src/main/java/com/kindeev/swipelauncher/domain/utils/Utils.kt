@@ -16,13 +16,11 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
@@ -50,10 +48,6 @@ fun Context.showLauncherSelection() {
     if (intent.resolveActivity(this.packageManager) != null) {
         this.startActivity(intent)
     }
-}
-
-fun DefaultImages.getResourceId(): Int {
-    return Constants.defaultImages.getOrDefault(this, 0)
 }
 
 fun Context.setActionAndImageTypes() {
@@ -167,8 +161,10 @@ fun Context.getMinScreenLength(): Float {
     ).toFloat()
 }
 
-fun Context.getLauncherStatusBarStyle(): SystemBarStyle {
-    return if (container.settings.value.blackTextColorOnWallpaper) {
+fun getLauncherStatusBarStyle(
+    blackTextColorOnWallpaper: Boolean
+): SystemBarStyle {
+    return if (blackTextColorOnWallpaper) {
         SystemBarStyle.light(
             Color.TRANSPARENT,
             Color.TRANSPARENT
@@ -176,11 +172,6 @@ fun Context.getLauncherStatusBarStyle(): SystemBarStyle {
     } else SystemBarStyle.dark(Color.TRANSPARENT)
 }
 
-fun Context.openApp(packageName: String) {
-    val intent =
-        this.packageManager.getLaunchIntentForPackage(packageName)
-    intent?.let { this.startActivity(it) }
-}
 
 fun AllActionTypes.getFlashlightAction(): CircleMenuAction {
     return when (this) {

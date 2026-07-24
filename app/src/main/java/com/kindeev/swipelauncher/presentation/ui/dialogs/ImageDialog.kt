@@ -41,13 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
+import com.kindeev.swipelauncher.presentation.DI
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import kotlinx.coroutines.launch
@@ -197,7 +198,6 @@ fun AppImageData(
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
-    val context = LocalContext.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -210,7 +210,7 @@ fun AppImageData(
                 .background(Color(0xFFBBDEFB))
                 .padding(20.dp)
         ) {
-            val applications by context.container.applicationsManager.applications.collectAsState()
+            val applications by DI.container.getSingle<ApplicationsManager>().applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

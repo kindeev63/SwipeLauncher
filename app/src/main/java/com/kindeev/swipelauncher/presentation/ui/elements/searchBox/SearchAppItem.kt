@@ -11,29 +11,24 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.data.coil.appImageUri
-import com.kindeev.swipelauncher.di.container
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchAppItem(
     title: String,
     packageName: String,
+    textColor: Color,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val settings by context.container.settings.collectAsState()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,7 +49,7 @@ fun SearchAppItem(
         Text(
             text = title,
             fontSize = 14.sp,
-            color = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White,
+            color = textColor,
             maxLines = 1
         )
     }

@@ -26,14 +26,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.domain.utils.spacer
-import com.kindeev.swipelauncher.presentation.viewModels.mainSettingsScreen.MainSettingsScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.mainSettingsScreen.MainSettingsScreenVMFactory
+import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.ClickableSettingItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settings.SwitchSettingItem
@@ -41,16 +38,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainSettingsScreen(
+    viewModel: MainSettingsScreenVM,
     navigateToAllCircleMenus: () -> Unit,
     navigateToTutorial: () -> Unit
 ) {
     val context = LocalContext.current
-    val container = context.container
-    val settings by container.settings.collectAsState()
+    val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
     val scope = rememberCoroutineScope()
-    val viewModel: MainSettingsScreenVM = viewModel(
-        factory = MainSettingsScreenVMFactory(context)
-    )
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -90,7 +84,7 @@ fun MainSettingsScreen(
                     value = settings.openLastApp,
                     onChangeValue = {
                         scope.launch {
-                            container.dataRepository.insertSettings(
+                            viewModel.dataRepository.insertSettings(
                                 settings.copy(
                                     openLastApp = it
                                 )
@@ -110,7 +104,7 @@ fun MainSettingsScreen(
                         value = settings.clickOnClock.enable,
                         onChangeValue = {
                             scope.launch {
-                                container.dataRepository.insertSettings(
+                                viewModel.dataRepository.insertSettings(
                                     settings.copy(
                                         clickOnClock = settings.clickOnClock.copy(
                                             enable = it
@@ -143,7 +137,7 @@ fun MainSettingsScreen(
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = {
                                     scope.launch {
-                                        container.dataRepository.insertSettings(
+                                        viewModel.dataRepository.insertSettings(
                                             settings.copy(
                                                 clickOnClock = settings.clickOnClock.copy(
                                                     action = it
@@ -167,7 +161,7 @@ fun MainSettingsScreen(
                     value = settings.blackTextColorOnWallpaper,
                     onChangeValue = {
                         scope.launch {
-                            container.dataRepository.insertSettings(
+                            viewModel.dataRepository.insertSettings(
                                 settings.copy(
                                     blackTextColorOnWallpaper = it
                                 )
@@ -186,7 +180,7 @@ fun MainSettingsScreen(
                     value = settings.pickAppActionWithImage,
                     onChangeValue = {
                         scope.launch {
-                            container.dataRepository.insertSettings(
+                            viewModel.dataRepository.insertSettings(
                                 settings.copy(
                                     pickAppActionWithImage = it
                                 )

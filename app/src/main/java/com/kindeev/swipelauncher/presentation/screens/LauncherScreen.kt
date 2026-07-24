@@ -14,15 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVMFactory
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI
@@ -32,11 +29,9 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun LauncherScreen() {
-    val context = LocalContext.current
-    val viewModel: LauncherScreenVM = viewModel(
-        factory = LauncherScreenVMFactory(context = context)
-    )
+fun LauncherScreen(
+    viewModel: LauncherScreenVM
+) {
     val screenState by viewModel.screenState.collectAsState()
     BackHandler {}
 
@@ -76,8 +71,7 @@ fun LauncherScreen() {
 
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
-    val context = LocalContext.current
-    val settings by context.container.settings.collectAsState()
+    val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
     val scope = rememberCoroutineScope()
     SwipeBoxUI(viewModel = viewModel)
     Column(
@@ -86,14 +80,20 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
     ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))
         if (settings.clickOnClock.enable) {
-            ClickableClockWidget {
+            ClickableClockWidget(
+                textColor =
+                    if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
+            ) {
                 scope.launch {
                     viewModel.executeAction(settings.clickOnClock.action)
                 }
 
             }
         } else {
-            ClockWidget()
+            ClockWidget(
+                textColor =
+                    if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
+            )
         }
     }
 }

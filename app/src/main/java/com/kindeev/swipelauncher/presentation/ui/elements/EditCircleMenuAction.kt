@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.coil.appImageUri
-import com.kindeev.swipelauncher.di.container
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
@@ -52,9 +51,11 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
+import com.kindeev.swipelauncher.presentation.DI
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
+import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 
 @Composable
 fun EditCircleMenuAction(
@@ -155,8 +156,7 @@ private fun OpenCircleMenuDataItem(
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-    val context = LocalContext.current
-    val circleMenus = context.container.circleMenusForUI.collectAsState()
+    val circleMenus = DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
 
     circleMenus.value.find { it.id == action.id }?.let {
         Row(

@@ -5,7 +5,7 @@ import android.content.Intent
 import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
 
 class OpenSettingsUseCase(private val context: Context) {
-    fun invoke() {
+    operator fun invoke() {
         val intent = Intent(
             context,
             SettingsActivity::class.java

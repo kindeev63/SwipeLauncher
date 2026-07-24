@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.mappers
+package com.kindeev.swipelauncher.presentation.useCases
 
 import android.content.Context
 import android.content.pm.LauncherApps

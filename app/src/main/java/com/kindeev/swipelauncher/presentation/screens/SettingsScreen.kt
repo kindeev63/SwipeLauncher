@@ -1,18 +1,26 @@
 package com.kindeev.swipelauncher.presentation.screens
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
-import com.kindeev.swipelauncher.presentation.navigation.SettingsMainGraph
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
 
 @Composable
 fun SettingsScreen() {
     val navigationState = rememberNavigationState()
-    SettingsMainGraph(
-        navHostController = navigationState.navHostController,
-        mainSettingsScreen = {
+    NavHost(
+        navController = navigationState.navHostController,
+        startDestination = ScreensSettings.MainSettingsScreenObject
+    ) {
+        composable<ScreensSettings.MainSettingsScreenObject> {
+            val viewModel: MainSettingsScreenVM = diViewModel()
             MainSettingsScreen(
+                viewModel = viewModel,
                 navigateToAllCircleMenus = {
                     navigationState.navigateTo(ScreensSettings.AllCircleMenusScreenObject)
                 },
@@ -20,8 +28,8 @@ fun SettingsScreen() {
                     navigationState.navigateTo(ScreensSettings.TutorialScreenObject)
                 }
             )
-        },
-        allCircleMenusScreen = {
+        }
+        composable<ScreensSettings.AllCircleMenusScreenObject> {
             AllCircleMenusScreen(
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
@@ -30,20 +38,21 @@ fun SettingsScreen() {
                     navigationState.navigateToEditCircleMenu(circleMenuId)
                 }
             )
-        },
-        editCircleMenuScreen = { circleMenuId ->
+        }
+        composable<ScreensSettings.EditCircleMenuScreenObject> {
+            val viewModel: EditCircleMenuScreenVM = diViewModel()
             EditCircleMenuScreenUI(
-                circleMenuId = circleMenuId,
+                viewModel = viewModel,
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
                 }
             )
-        },
-        tutorialScreen = {
+        }
+        composable<ScreensSettings.TutorialScreenObject> {
             OnboardingScreen(
                 onFinish = { navigationState.navHostController.popBackStack() }
             )
         }
-    )
+    }
 }
 

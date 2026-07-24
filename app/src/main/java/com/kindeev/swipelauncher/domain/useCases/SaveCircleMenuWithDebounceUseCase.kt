@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.di
+package com.kindeev.swipelauncher.domain.useCases
 
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository

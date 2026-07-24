@@ -1,18 +1,25 @@
-package com.kindeev.swipelauncher.presentation.viewModels.allCircleMenus
+package com.kindeev.swipelauncher.presentation.viewModels
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.data.backup.ExportCircleMenusUseCase
+import com.kindeev.swipelauncher.data.backup.ImportCircleMenusUseCase
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AllCircleMenusScreenVM(context: Context) : ViewModel() {
-
-    private val container = context.container
+class AllCircleMenusScreenVM(
+    private val dataRepository: DataRepository,
+    private val exportCircleMenusUseCase: ExportCircleMenusUseCase,
+    private val importCircleMenusUseCase: ImportCircleMenusUseCase,
+    val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    val circleMenuForUIStateFlowUseCase: CircleMenuForUIStateFlowUseCase
+): ViewModel() {
     private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
     val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
 
@@ -21,14 +28,14 @@ class AllCircleMenusScreenVM(context: Context) : ViewModel() {
     }
 
     fun deleteSelectedMenus(allMenus: List<CircleMenu>) = viewModelScope.launch {
-        container.dataRepository.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
+        dataRepository.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
             .filter { it.id != 0 })
         _selectedMenuIds.value = emptyList()
     }
 
     fun exportSelectedMenus(allMenus: List<CircleMenu>, onFinish: (Boolean) -> Unit) {
         onFinish(
-            container.exportCircleMenusUseCase.export(
+            exportCircleMenusUseCase.export(
                 allMenus.filter { selectedMenuIds.value.contains(it.id) }
             )
         )
@@ -37,7 +44,7 @@ class AllCircleMenusScreenVM(context: Context) : ViewModel() {
 
     fun importCircleMenus(uri: Uri, onFinish: (Boolean) -> Unit) = viewModelScope.launch {
         onFinish(
-            container.importCircleMenusUseCase.import(uri)
+            importCircleMenusUseCase.import(uri)
         )
     }
 

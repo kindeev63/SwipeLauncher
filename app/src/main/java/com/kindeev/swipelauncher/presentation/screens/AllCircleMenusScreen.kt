@@ -49,17 +49,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.di.container
-import com.kindeev.swipelauncher.presentation.viewModels.allCircleMenus.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.allCircleMenus.AllCircleMenusScreenVMFactory
+import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
+import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -82,11 +80,9 @@ fun AllCircleMenusScreen(
         onBackPressed()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val viewModel: AllCircleMenusScreenVM = viewModel(
-        factory = AllCircleMenusScreenVMFactory(context)
-    )
-    val allCircleMenus by context.container.circleMenus.collectAsState()
-    val allCircleMenusForUI by context.container.circleMenusForUI.collectAsState()
+    val viewModel: AllCircleMenusScreenVM = diViewModel()
+    val allCircleMenus by viewModel.circleMenuStateFlowUseCase.circleMenus.collectAsState()
+    val allCircleMenusForUI by viewModel.circleMenuForUIStateFlowUseCase.circleMenusForUI.collectAsState()
     val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
 
     val pickJsonFile = rememberLauncherForActivityResult(

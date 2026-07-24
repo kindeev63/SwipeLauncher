@@ -45,6 +45,7 @@
             android:theme="@style/Theme.SwipeLauncher" />
         <activity
             android:name=".presentation.activities.MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="nosensor"
             android:exported="true"
             android:theme="@style/Theme.SwipeLauncher">

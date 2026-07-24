@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +54,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
@@ -66,27 +65,20 @@ import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entit
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuVMFactory
 
 @Composable
 fun EditCircleMenuScreenUI(
-    circleMenuId: Int?,
+    viewModel: EditCircleMenuScreenVM,
     onBackPressed: () -> Unit
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT && Constants.minScreenLength / 6 * 5f * 1.5f < LocalConfiguration.current.screenHeightDp) {
-        val menuSize = Constants.minScreenLength / 6 * 5f
-        val viewModel: EditCircleMenuScreenVM = viewModel(
-            factory = EditCircleMenuVMFactory(circleMenuId, menuSize, LocalContext.current)
-        )
+        viewModel.updateMenuSize(Constants.minScreenLength / 6 * 5f)
         PortraitUI(
             viewModel = viewModel,
             onBackPressed = onBackPressed
         )
     } else {
-        val menuSize = (Constants.minScreenLength - 80) / 3 * 2f
-        val viewModel: EditCircleMenuScreenVM = viewModel(
-            factory = EditCircleMenuVMFactory(circleMenuId, menuSize, LocalContext.current)
-        )
+        viewModel.updateMenuSize((Constants.minScreenLength - 80) / 3 * 2f)
         LandscapeUI(
             viewModel = viewModel,
             onBackPressed = onBackPressed
@@ -105,6 +97,7 @@ private fun LandscapeUI(
     val selectedItem by viewModel.selectedItem.collectAsState()
     val circleMenuItems by viewModel.circleMenuItems.collectAsState()
     val drawItemsData by viewModel.drawItemsData.collectAsState()
+    val menuSize by viewModel.menuSize.collectAsStateWithLifecycle()
 
     // UI
     Scaffold(
@@ -138,7 +131,7 @@ private fun LandscapeUI(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(viewModel.size.dp)
+                            .size(menuSize.dp)
                             .pointerInteropFilter(
                                 onTouchEvent = viewModel.onSwipe()
                             )
@@ -147,18 +140,18 @@ private fun LandscapeUI(
                         when (actionItemData.state) {
 
                             ActionItemState.Add -> AddCircleMenuItemUI(
-                                viewModel.size,
+                                menuSize,
                                 actionItemData.size
                             )
 
                             ActionItemState.Delete -> DeleteCircleMenuItemUI(
-                                viewModel.size,
+                                menuSize,
                                 actionItemData.size,
                                 false
                             )
 
                             ActionItemState.DeleteActive -> DeleteCircleMenuItemUI(
-                                viewModel.size,
+                                menuSize,
                                 actionItemData.size,
                                 true
                             )
@@ -240,6 +233,7 @@ private fun PortraitUI(
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
     val selectedItem by viewModel.selectedItem.collectAsState()
     val drawItemsData by viewModel.drawItemsData.collectAsState()
+    val menuSize by viewModel.menuSize.collectAsStateWithLifecycle()
 
     // UI
     Scaffold(
@@ -267,7 +261,7 @@ private fun PortraitUI(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(viewModel.size.dp)
+                        .size(menuSize.dp)
                         .pointerInteropFilter(
                             onTouchEvent = viewModel.onSwipe()
                         )
@@ -276,18 +270,18 @@ private fun PortraitUI(
                     when (actionItemData.state) {
 
                         ActionItemState.Add -> AddCircleMenuItemUI(
-                            viewModel.size,
+                            menuSize,
                             actionItemData.size
                         )
 
                         ActionItemState.Delete -> DeleteCircleMenuItemUI(
-                            viewModel.size,
+                            menuSize,
                             actionItemData.size,
                             false
                         )
 
                         ActionItemState.DeleteActive -> DeleteCircleMenuItemUI(
-                            viewModel.size,
+                            menuSize,
                             actionItemData.size,
                             true
                         )
@@ -362,10 +356,11 @@ private fun CircleMenuTitle(
     viewModel: EditCircleMenuScreenVM
 ) {
     val title by viewModel.circleMenuTitle.collectAsState()
+    val menuSize by viewModel.menuSize.collectAsStateWithLifecycle()
     val fontSize = 24.sp
     Box(
         modifier = Modifier
-            .width(viewModel.size.dp)
+            .width(menuSize.dp)
             .padding(horizontal = 15.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -418,10 +413,11 @@ private fun ImageAndActionEdit(
     onChangeImage: (CircleMenuImage) -> Unit,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
+    val menuSize by viewModel.menuSize.collectAsStateWithLifecycle()
     Row(
         modifier = Modifier
-            .width(viewModel.size.dp + 20.dp)
-            .height((viewModel.size.dp + 20.dp) / 3)
+            .width(menuSize.dp + 20.dp)
+            .height((menuSize.dp + 20.dp) / 3)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFD3D3D3))
             .padding(10.dp)
@@ -436,7 +432,7 @@ private fun ImageAndActionEdit(
             Text(text = stringResource(R.string.image))
             ItemImage(
                 image = circleMenuItem.image,
-                size = viewModel.size / 5,
+                size = menuSize / 5,
                 viewModel = viewModel,
                 onChangeImage = onChangeImage
             )
@@ -460,7 +456,7 @@ private fun ImageAndActionEdit(
             EditCircleMenuAction(
                 action = circleMenuItem.action,
                 getApplicationInfo = viewModel::getApplicationInfo,
-                size = viewModel.size / 5,
+                size = menuSize / 5,
                 onChangeAction = onChangeAction
             )
         }

@@ -2,8 +2,6 @@ package com.kindeev.swipelauncher.presentation.activities
 
 import android.R.id.content
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
@@ -11,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -19,36 +16,29 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.checkDirs
-import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
-import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
-import com.kindeev.swipelauncher.domain.utils.setActionAndImageTypes
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
 import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
 import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import androidx.core.content.edit
-import com.kindeev.swipelauncher.data.userImages.getUsedImagesIds
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
+import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.DI
+import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
 class MainActivity : ComponentActivity() {
-
-    private val getRootCircleMenuUseCase = GetRootCircleMenuUseCase(this)
-    private val checkCircleMenuUseCase = CheckCircleMenuUseCase()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideNavigationBar()
         checkDirs()
-        setActionAndImageTypes()
         setContent {
-            val scope = rememberCoroutineScope()
             val context = LocalContext.current
             LauncherScreenTheme {
                 var startDestination by remember {
@@ -58,20 +48,12 @@ class MainActivity : ComponentActivity() {
                 OnBoardingNavGraph(
                     navHostController = navigationState.navHostController,
                     mainScreen = {
-                        LauncherScreen()
+                        val viewModel: LauncherScreenVM = diViewModel()
+                        LauncherScreen(viewModel)
                     },
                     onboardingScreen = {
                         OnboardingScreen(
                             onFinish = {
-                                scope.launch {
-                                    container.dataRepository.insertCircleMenu(
-                                        getRootCircleMenuUseCase.get(
-                                            context.resources.getString(
-                                                R.string.root
-                                            )
-                                        )
-                                    )
-                                }
                                 onBoardingComplete()
                                 navigationState.navHostController.popBackStack()
                                 navigationState.navigateTo(ScreensOnBoarding.MainScreenObject)
@@ -82,14 +64,8 @@ class MainActivity : ComponentActivity() {
                 )
                 LaunchedEffect(Unit) {
                     startDestination = if (isFirstRun()) {
+                        insertRootCircleMenu()
                         if (context.isMyLauncherDefault()) {
-                            container.dataRepository.insertCircleMenu(
-                                getRootCircleMenuUseCase.get(
-                                    context.resources.getString(
-                                        R.string.root
-                                    )
-                                )
-                            )
                             onBoardingComplete()
                             ScreensOnBoarding.MainScreenObject
                         } else {
@@ -99,31 +75,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            launch {
-                container.circleMenus.collect { allCircleMenus ->
-                    if (allCircleMenus.isEmpty()) return@collect
-                    container.userImagesRepository.removeUnused(
-                        allCircleMenus.getUsedImagesIds().toSet()
-                    )
-                    val changedCircleMenus =
-                        checkCircleMenuUseCase.getOnlyChanged(
-                            circleMenus = allCircleMenus,
-                            allPackageNames = container.applicationsManager.applications.value.map { it.packageName },
-                            userImageIds = container.userImagesRepository.getAllIds()
+    }
+
+    private suspend fun insertRootCircleMenu() {
+        DI.container.getSingle<DataRepository>()
+            .insertCircleMenu(
+                DI.container.getSingle<GetRootCircleMenuUseCase>()
+                    .get(
+                        resources.getString(
+                            R.string.root
                         )
-                    Handler(Looper.getMainLooper()).post {
-                        if (changedCircleMenus.isNotEmpty()) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                container.dataRepository.insertCircleMenus(
-                                    changedCircleMenus
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                    )
+            )
     }
 
     private fun isFirstRun(): Boolean {
@@ -140,7 +103,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        enableEdgeToEdge(statusBarStyle = getLauncherStatusBarStyle())
+        enableEdgeToEdge(
+            statusBarStyle = getLauncherStatusBarStyle(
+                DI.container.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
+            )
+        )
     }
 
     private fun hideNavigationBar() {

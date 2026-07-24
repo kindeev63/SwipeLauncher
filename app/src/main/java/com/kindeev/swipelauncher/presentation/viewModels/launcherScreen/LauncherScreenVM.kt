@@ -1,14 +1,13 @@
 package com.kindeev.swipelauncher.presentation.viewModels.launcherScreen
 
 import android.content.Context
-import android.content.Intent
 import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.di.container
+import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
@@ -26,8 +25,10 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
-import com.kindeev.swipelauncher.domain.utils.openApp
-import com.kindeev.swipelauncher.presentation.activities.SettingsActivity
+import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
+import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.mappers.toDraw
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.mappers.toDrawVM
 import kotlinx.coroutines.Dispatchers
@@ -43,17 +44,22 @@ import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.pow
 
-class LauncherScreenVM(context: Context) : ViewModel() {
-
-    private val container = context.container
-    private val telephoneUseCase = TelephoneUseCase(context)
-    private val openSettingsUseCase = OpenSettingsUseCase(context)
-    private val flashLightUseCase = FlashLightUseCase(context)
-    private val openUrlUseCase = OpenUrlUseCase(context)
+class LauncherScreenVM(
+    private val telephoneUseCase: TelephoneUseCase,
+    private val openSettingsUseCase: OpenSettingsUseCase,
+    private val flashLightUseCase: FlashLightUseCase,
+    private val openUrlUseCase: OpenUrlUseCase,
+    private val density: Float,
+    private val applicationsManager: ApplicationsManager,
+    val settingsStateFlowUseCase: SettingsStateFlowUseCase,
+    val openAppUseCase: OpenAppUseCase,
+    getSystemServiceUseCase: GetSystemServiceUseCase,
+    circleMenuForUIStateFlowUseCase: CircleMenuForUIStateFlowUseCase,
+) : ViewModel() {
 
     private val menuSize = Constants.minScreenLength / 3f * 2
 
-    private val circleMenusToDrawVM = container.circleMenusForUI.map { it.toDrawVM(menuSize) }
+    private val circleMenusToDrawVM = circleMenuForUIStateFlowUseCase.circleMenusForUI.map { it.toDrawVM(menuSize) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -85,8 +91,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     )
 
     private val vibrator =
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    private val density = context.resources.displayMetrics.density
+        getSystemServiceUseCase.get(Context.VIBRATOR_SERVICE) as Vibrator
 
     private val radiusSq = (menuSize * 0.3).pow(2)
 
@@ -164,30 +169,32 @@ class LauncherScreenVM(context: Context) : ViewModel() {
             }
 
             is OpenSettingsAction -> {
-                openSettingsUseCase.invoke()
+                openSettingsUseCase()
             }
 
             is OpenAppAction -> {
-                container.applicationsManager.open(action.packageName)
+                applicationsManager.open(action.packageName)
             }
 
             is FlashLightOnAction -> {
-                flashLightUseCase.on()
-                container.flashLightCondition = true
+                viewModelScope.launch {
+                    flashLightUseCase.on()
+                }
             }
 
             is FlashLightOffAction -> {
-                flashLightUseCase.off()
-                container.flashLightCondition = false
+                viewModelScope.launch {
+                    flashLightUseCase.off()
+                }
             }
 
             is ChangeFlashLightConditionAction -> {
-                if (container.flashLightCondition) {
-                    flashLightUseCase.off()
-                } else {
-                    flashLightUseCase.on()
+                viewModelScope.launch {
+                    when (flashLightUseCase.flashLightState) {
+                        FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
+                        FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
+                    }
                 }
-                container.flashLightCondition = !container.flashLightCondition
             }
 
             is CallAction -> {
@@ -244,7 +251,7 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     val searchText: StateFlow<TextFieldValue> = _searchText.asStateFlow()
 
     val searchResults =
-        _searchText.combine(container.applicationsManager.applications) { search, applications ->
+        _searchText.combine(applicationsManager.applications) { search, applications ->
             applications
                 .filter {
                     it.title
@@ -260,17 +267,10 @@ class LauncherScreenVM(context: Context) : ViewModel() {
     init {
         viewModelScope.launch(Dispatchers.IO) {
             searchResults.collect { applications ->
-                if (container.settings.value.openLastApp && searchText.value.text.firstOrNull() != ' ' && applications.size == 1) {
+                if (settingsStateFlowUseCase.settings.value.openLastApp && searchText.value.text.firstOrNull() != ' ' && applications.size == 1) {
                     _searchText.value = TextFieldValue("")
                     val app = applications.first()
-                    if (app.packageName == context.packageName) {
-                        val intent = Intent(context, SettingsActivity::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent)
-                    } else {
-                        context.openApp(app.packageName)
-                    }
+                    openAppUseCase.open(app.packageName)
                     closeSearchBox()
                 }
             }
@@ -289,11 +289,11 @@ class LauncherScreenVM(context: Context) : ViewModel() {
 // ApplicationInfoDialog
 
     fun getAppDetails(packageName: String) {
-        container.applicationsManager.openAppDetails(packageName)
+        applicationsManager.openAppDetails(packageName)
     }
 
     fun deleteApp(packageName: String) {
-        container.applicationsManager.delete(packageName)
+        applicationsManager.delete(packageName)
     }
 
 }
