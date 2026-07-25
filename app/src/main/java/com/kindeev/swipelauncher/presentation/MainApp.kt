@@ -8,7 +8,9 @@ import com.kindeev.swipelauncher.data.coil.CoilLoaderManager
 import com.kindeev.swipelauncher.data.coil.prefetchApplicationImages
 import com.kindeev.swipelauncher.data.userImages.getUsedImagesIds
 import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
+import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.utils.getMinScreenLength
 import com.kindeev.swipelauncher.domain.utils.setActionAndImageTypes
@@ -37,11 +39,27 @@ class MainApp : Application() {
         val appsObserver = DI.container.getDependency<AppsObserver>()
         val circleMenuStateFlowUseCase = DI.container.getDependency<CircleMenuStateFlowUseCase>()
         val userImagesRepository = DI.container.getDependency<UserImagesRepository>()
+        val dataRepository = DI.container.getDependency<DataRepository>()
+        val checkCircleMenuUseCase = DI.container.getDependency<CheckCircleMenuUseCase>()
         ioScope.launch {
             launch {
                 appsRepository.loadAllApplicationsToStateFlow()
                 coilLoaderManager.prefetchApplicationImages(appsRepository.applications.value.map { it.packageName })
-                appsObserver.start()
+                launch {
+                    appsObserver.start()
+                }
+                launch {
+                    ioScope.launch {
+                        val changedCircleMenus =
+                            checkCircleMenuUseCase.getOnlyChanged(
+                                circleMenus = circleMenuStateFlowUseCase.circleMenus.value,
+                                allPackageNames = appsRepository.applications.value.map { it.packageName },
+                                userImageIds = userImagesRepository.getAllIds()
+                            )
+                        if (changedCircleMenus.isNotEmpty())
+                            dataRepository.insertCircleMenus(changedCircleMenus)
+                    }
+                }
             }
             launch {
                 circleMenuStateFlowUseCase.circleMenus.collect { allCircleMenus ->
