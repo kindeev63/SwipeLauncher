@@ -4,9 +4,6 @@ package com.kindeev.swipelauncher.presentation.screens
 
 import android.app.Activity
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -95,14 +91,29 @@ fun OnboardingScreen(
             modifier = Modifier.weight(1f),
             pagerState = pagerState
         )
-        FinishButton(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                scope.launch { controller.isAppearanceLightStatusBars = false }
-                onFinish()
-            },
-            visible = pagerState.currentPage == 8
-        )
+        if (pagerState.currentPage == 8) {
+            NextButton(
+                modifier = Modifier.weight(1f),
+                text = stringResource(R.string.finish),
+                onClick = {
+                    scope.launch { controller.isAppearanceLightStatusBars = false }
+                    onFinish()
+                },
+            )
+        } else {
+            NextButton(
+                modifier = Modifier.weight(1f),
+                text = stringResource(R.string.next),
+                onClick = {
+                    scope.launch {
+                        val nextPage = pagerState.currentPage + 1
+                        if (nextPage < 9) {
+                            pagerState.animateScrollToPage(nextPage)
+                        }
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -248,6 +259,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         3 -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -292,6 +304,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         4 -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -336,6 +349,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         5 -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -380,6 +394,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         6 -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -425,6 +440,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         7 -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -469,6 +485,7 @@ private fun PageContentTablet(
                 }
             }
         }
+
         8 -> {
             val context = LocalContext.current
             Row(
@@ -622,6 +639,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         3 -> {
             Column(
                 modifier = Modifier
@@ -652,6 +670,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         4 -> {
             Column(
                 modifier = Modifier
@@ -682,6 +701,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         5 -> {
             Column(
                 modifier = Modifier
@@ -712,6 +732,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         6 -> {
             Column(
                 modifier = Modifier
@@ -743,6 +764,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         7 -> {
             Column(
                 modifier = Modifier
@@ -773,6 +795,7 @@ private fun PageContentPhone(
                 )
             }
         }
+
         8 -> {
             val context = LocalContext.current
             Column(
@@ -812,24 +835,17 @@ private fun PageContentPhone(
 }
 
 @Composable
-fun FinishButton(
+fun NextButton(
     modifier: Modifier,
+    text: String,
     onClick: () -> Unit,
-    visible: Boolean
 ) {
     Box(
         modifier = modifier.padding(horizontal = 40.dp),
         contentAlignment = Alignment.TopCenter
     ) {
-        AnimatedVisibility(
-            modifier = Modifier.fillMaxWidth(),
-            visible = visible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Button(onClick = onClick) {
-                Text(text = stringResource(id = R.string.finish))
-            }
+        Button(onClick = onClick) {
+            Text(text = text)
         }
     }
 }
