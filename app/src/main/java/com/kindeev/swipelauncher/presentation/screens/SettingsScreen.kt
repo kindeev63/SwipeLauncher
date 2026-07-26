@@ -3,9 +3,12 @@ package com.kindeev.swipelauncher.presentation.screens
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
+import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
@@ -18,8 +21,8 @@ fun SettingsScreen() {
         navController = navigationState.navHostController,
         startDestination = ScreensSettings.MainSettingsScreenObject
     ) {
-        composable<ScreensSettings.MainSettingsScreenObject> {
-            val viewModel: MainSettingsScreenVM = diViewModel()
+        composable<ScreensSettings.MainSettingsScreenObject> { entry ->
+            val viewModel: MainSettingsScreenVM = diViewModel(entry.savedStateHandle)
             MainSettingsScreen(
                 viewModel = viewModel,
                 navigateToAllCircleMenus = {
@@ -27,11 +30,14 @@ fun SettingsScreen() {
                 },
                 navigateToTutorial = {
                     navigationState.navigateTo(ScreensSettings.TutorialScreenObject)
+                },
+                openActionDialog = {
+                    navigationState.navigateTo(ScreensSettings.ActionDialog)
                 }
             )
         }
-        composable<ScreensSettings.AllCircleMenusScreenObject> {
-            val viewModel: AllCircleMenusScreenVM = diViewModel()
+        composable<ScreensSettings.AllCircleMenusScreenObject> { entry ->
+            val viewModel: AllCircleMenusScreenVM = diViewModel(entry.savedStateHandle)
             AllCircleMenusScreen(
                 viewModel = viewModel,
                 onBackPressed = {
@@ -42,10 +48,13 @@ fun SettingsScreen() {
                 }
             )
         }
-        composable<ScreensSettings.EditCircleMenuScreenObject> {
-            val viewModel: EditCircleMenuScreenVM = diViewModel()
+        composable<ScreensSettings.EditCircleMenuScreenObject> { entry ->
+            val viewModel: EditCircleMenuScreenVM = diViewModel(entry.savedStateHandle)
             EditCircleMenuScreenUI(
                 viewModel = viewModel,
+                openActionDialog = {
+                    navigationState.navigateTo(ScreensSettings.ActionDialog)
+                },
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
                 }
@@ -54,6 +63,21 @@ fun SettingsScreen() {
         composable<ScreensSettings.TutorialScreenObject> {
             OnboardingScreen(
                 onFinish = { navigationState.navHostController.popBackStack() }
+            )
+        }
+        dialog<ScreensSettings.ActionDialog> { entry ->
+            val viewModel: ActionDialogVM = diViewModel(entry.savedStateHandle)
+            ActionDialog(
+                viewModel = viewModel,
+                onDismissRequest = {
+                    navigationState.navHostController.popBackStack()
+                },
+                onPick = { action ->
+                    val savedStateHandle =
+                        navigationState.navHostController.previousBackStackEntry?.savedStateHandle
+                    if (savedStateHandle != null)
+                        savedStateHandle["pickedAction"] = action
+                }
             )
         }
     }

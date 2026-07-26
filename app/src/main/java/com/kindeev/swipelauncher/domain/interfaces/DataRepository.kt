@@ -18,6 +18,8 @@ interface DataRepository {
 
     suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>)
 
+    suspend fun deleteCircleMenuByIds(ids: Collection<Int>)
+
     suspend fun insertSettings(settings: LauncherSettings)
 
 }

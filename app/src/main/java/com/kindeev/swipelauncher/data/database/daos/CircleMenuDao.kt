@@ -26,4 +26,7 @@ interface CircleMenuDao {
     @Delete(CircleMenuTable::class)
     suspend fun deleteMany(entities: List<CircleMenuTable>)
 
+    @Query("DELETE FROM circle_menu WHERE id IN (:ids)")
+    suspend fun deleteManyByIds(ids: Collection<Int>)
+
 }

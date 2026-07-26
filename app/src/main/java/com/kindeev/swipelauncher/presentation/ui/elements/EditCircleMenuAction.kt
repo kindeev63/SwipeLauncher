@@ -52,7 +52,6 @@ import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
 import com.kindeev.swipelauncher.presentation.DI
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
 import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
@@ -60,33 +59,24 @@ import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForU
 @Composable
 fun EditCircleMenuAction(
     action: CircleMenuAction,
+    openActionDialog: () -> Unit,
     getApplicationInfo: (String) -> ApplicationInfo?,
     size: Float,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
-    var showActionDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    if (showActionDialog) {
-        ActionDialog(
-            onDismissRequest = { showActionDialog = false },
-            onPick = onChangeAction
-        )
-    }
     when (action) {
         is OpenCircleMenuAction -> {
             OpenCircleMenuDataItem(
                 size = size,
                 action = action,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
         is OpenSettingsAction -> {
             OpenSettingsDataItem(
                 size = size,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
@@ -95,28 +85,28 @@ fun EditCircleMenuAction(
                 getApplicationInfo = getApplicationInfo,
                 action = action,
                 size = size,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
         is FlashLightOnAction -> {
             FlashLightOnDataItem(
                 size = size,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
         is FlashLightOffAction -> {
             FlashLightOffDataItem(
                 size = size,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
         is ChangeFlashLightConditionAction -> {
             ChangeFlashlightConditionDataItem(
                 size = size,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
@@ -125,7 +115,7 @@ fun EditCircleMenuAction(
                 size = size,
                 action = action,
                 onChangeAction = onChangeAction,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
@@ -134,7 +124,7 @@ fun EditCircleMenuAction(
                 size = size,
                 action = action,
                 onChangeAction = onChangeAction,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
 
@@ -143,7 +133,7 @@ fun EditCircleMenuAction(
                 size = size,
                 action = action,
                 onChangeAction = onChangeAction,
-                changeAction = { showActionDialog = true }
+                changeAction = openActionDialog
             )
         }
     }
@@ -156,7 +146,8 @@ private fun OpenCircleMenuDataItem(
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-    val circleMenus = DI.container.getDependency<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
+    val circleMenus =
+        DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
 
     circleMenus.value.find { it.id == action.id }?.let {
         Row(

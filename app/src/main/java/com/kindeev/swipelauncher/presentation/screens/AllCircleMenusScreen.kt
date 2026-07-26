@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -67,6 +68,7 @@ fun AllCircleMenusScreen(
     navigateToCircleMenu: (Int?) -> Unit,
     onBackPressed: () -> Unit
 ) {
+    viewModel.setScreenWidth(LocalConfiguration.current.screenWidthDp)
     val context = LocalContext.current
     val window = (LocalContext.current as Activity).window
     val view = LocalView.current
@@ -80,8 +82,7 @@ fun AllCircleMenusScreen(
         onBackPressed()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    val allCircleMenus by viewModel.circleMenuStateFlowUseCase.circleMenus.collectAsState()
-    val allCircleMenusForUI by viewModel.circleMenuForUIStateFlowUseCase.circleMenusForUI.collectAsState()
+    val circleMenus by viewModel.circleMenus.collectAsStateWithLifecycle()
     val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
 
     val pickJsonFile = rememberLauncherForActivityResult(
@@ -102,7 +103,7 @@ fun AllCircleMenusScreen(
             text = stringResource(id = R.string.delete_circle_menus_question),
             onDismissRequest = { showDeleteMenusDialog = false },
             onClickYes = {
-                viewModel.deleteSelectedMenus(allCircleMenus)
+                viewModel.deleteSelectedMenus()
                 showDeleteMenusDialog = false
             }
         )
@@ -111,13 +112,13 @@ fun AllCircleMenusScreen(
     Scaffold(
         topBar = {
             AllCircleMenusToolbar(
-                selectedMenusText = if (selectedMenuIds.isEmpty()) null else "${selectedMenuIds.count()} / ${allCircleMenus.count()}",
-                onClickSelectAll = { viewModel.selectAllMenus(allCircleMenus) },
+                selectedMenusText = if (selectedMenuIds.isEmpty()) null else "${selectedMenuIds.count()} / ${circleMenus.count()}",
+                onClickSelectAll = { viewModel.selectAllMenus() },
                 onClickDelete = { showDeleteMenusDialog = true },
                 onClickImport = { pickJsonFile.launch("application/zip") },
                 onClickExport = {
                     if (permissionState.status.isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        viewModel.exportSelectedMenus(allCircleMenus) { result ->
+                        viewModel.exportSelectedMenus { result ->
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     context.resources.getString(
@@ -170,7 +171,7 @@ fun AllCircleMenusScreen(
             columns = GridCells.Fixed(2)
         ) {
             items(
-                items = allCircleMenusForUI
+                items = circleMenus
             ) { circleMenu ->
                 MiniCircleMenuItem(
                     size = LocalConfiguration.current.screenWidthDp / 2f,

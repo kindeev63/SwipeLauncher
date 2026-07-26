@@ -5,38 +5,83 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.backup.ExportCircleMenusUseCase
 import com.kindeev.swipelauncher.data.backup.ImportCircleMenusUseCase
-import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
+import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
-import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
+import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AllCircleMenusScreenVM(
     private val dataRepository: DataRepository,
     private val exportCircleMenusUseCase: ExportCircleMenusUseCase,
     private val importCircleMenusUseCase: ImportCircleMenusUseCase,
-    val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
-    val circleMenuForUIStateFlowUseCase: CircleMenuForUIStateFlowUseCase
-): ViewModel() {
+    private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
+    private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
+) : ViewModel() {
+
+    private val menuSize = MutableStateFlow(((Constants.minScreenLength / 2f) - 6) * 2 / 3)
+
+    val circleMenus = combine(
+        circleMenuStateFlowUseCase.circleMenus,
+        circleMenuImageToImageBitmap.mapper,
+        menuSize
+    ) { menus, imageMapper, menuSize ->
+        menus.map { menu ->
+            val parameters =
+                circleMenuParametersUseCase.getParametersGenerator(menu.items.size)(menuSize)
+            CircleMenuToDraw(
+                id = menu.id,
+                title = menu.title,
+                menuSize = menuSize,
+                itemSize = parameters.itemSize,
+                items = menu.items.mapIndexed { index, item ->
+                    parameters.offsets[index]?.let { offset ->
+                        imageMapper[item.image]?.let { imageBitmap ->
+                            CircleMenuItemToDraw(
+                                offset = offset,
+                                imageBitmap = imageBitmap
+                            )
+                        }
+                    }
+                }.filterNotNull()
+            )
+        }
+    }.distinctUntilChanged().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
     private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
     val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
 
-    fun selectAllMenus(allMenus: List<CircleMenu>) {
-        _selectedMenuIds.value = allMenus.map { it.id }
+    fun setScreenWidth(screenWidth: Int) {
+        menuSize.value = ((screenWidth / 2f) - 6) * 2 / 3
     }
 
-    fun deleteSelectedMenus(allMenus: List<CircleMenu>) = viewModelScope.launch {
-        dataRepository.deleteCircleMenus(allMenus.filter { selectedMenuIds.value.contains(it.id) }
-            .filter { it.id != 0 })
+    fun selectAllMenus() {
+        _selectedMenuIds.value = circleMenus.value.map { it.id }
+    }
+
+    fun deleteSelectedMenus() = viewModelScope.launch {
+        dataRepository.deleteCircleMenuByIds(selectedMenuIds.value.filter { it != 0 })
         _selectedMenuIds.value = emptyList()
     }
 
-    fun exportSelectedMenus(allMenus: List<CircleMenu>, onFinish: (Boolean) -> Unit) {
+    fun exportSelectedMenus(onFinish: (Boolean) -> Unit) {
         onFinish(
             exportCircleMenusUseCase.export(
-                allMenus.filter { selectedMenuIds.value.contains(it.id) }
+                circleMenuStateFlowUseCase.circleMenus.value.filter { selectedMenuIds.value.contains(it.id) }
             )
         )
         _selectedMenuIds.value = emptyList()

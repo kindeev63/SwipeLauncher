@@ -21,4 +21,6 @@ class CircleMenuRepository(private val dao: CircleMenuDao) {
 
     suspend fun deleteMany(circleMenus: List<CircleMenu>) =
         dao.deleteMany(circleMenus.map { it.toTable() })
+
+    suspend fun deleteManyByIds(ids: Collection<Int>) = dao.deleteManyByIds(ids)
 }

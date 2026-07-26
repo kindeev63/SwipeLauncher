@@ -2,7 +2,6 @@ package com.kindeev.swipelauncher.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
@@ -12,10 +11,6 @@ class NavigationState(
     fun navigateTo(screen: Any) {
         navHostController.navigate(screen) {
             launchSingleTop = true
-            popUpTo(navHostController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            restoreState = true
         }
     }
 

@@ -15,4 +15,7 @@ sealed class ScreensSettings {
 
     @Serializable
     data class EditCircleMenuScreenObject(val circleMenuId: Int? = null): ScreensSettings()
+
+    @Serializable
+    object ActionDialog: ScreensSettings()
 }

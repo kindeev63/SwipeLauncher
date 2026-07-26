@@ -32,7 +32,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -55,9 +54,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.utils.CallPermission
 import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
@@ -69,18 +68,21 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
-import com.kindeev.swipelauncher.presentation.DI
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 
 @Composable
 fun ActionDialog(
+    viewModel: ActionDialogVM,
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
+    val circleMenus by viewModel.circleMenus.collectAsStateWithLifecycle()
+    val applications by viewModel.applicationsManager.applications.collectAsStateWithLifecycle()
     var actionCategory by rememberSaveable {
         mutableStateOf<ActionCategories?>(null)
     }
@@ -91,6 +93,7 @@ fun ActionDialog(
     when (actionCategory) {
         ActionCategories.OpenCircleMenu -> {
             OpenCircleMenuActionData(
+                circleMenusToDraw = circleMenus,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -101,6 +104,7 @@ fun ActionDialog(
 
         ActionCategories.OpenApp -> {
             OpenAppActionData(
+                applications = applications,
                 onPick = {
                     onPick(it)
                     onDismissRequest()
@@ -227,10 +231,10 @@ private fun ActionTypeElement(
 @Composable
 fun OpenCircleMenuActionData(
     onPick: (CircleMenuAction) -> Unit,
+    circleMenusToDraw: List<CircleMenuToDraw>,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
-    val circleMenusForUI by DI.container.getDependency<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsStateWithLifecycle()
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -247,20 +251,17 @@ fun OpenCircleMenuActionData(
                 mutableStateOf("")
             }
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2)
+                columns = GridCells.Adaptive((Constants.minScreenLength - 20f).dp / 3)
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = circleMenusForUI.filter {
+                    items = circleMenusToDraw.filter {
                         it.title.lowercase().contains(searchText.lowercase())
                     }
                 ) { circleMenu ->
                     MiniCircleMenuItem(
-                        size = (Integer.min(
-                            LocalConfiguration.current.screenWidthDp,
-                            LocalConfiguration.current.screenHeightDp
-                        ) - 20f) / 3,
+                        size = (Constants.minScreenLength - 20f) / 3,
                         circleMenu = circleMenu
                     ) {
                         onPick(OpenCircleMenuAction(id = circleMenu.id))
@@ -276,6 +277,7 @@ fun OpenCircleMenuActionData(
 @Composable
 fun OpenAppActionData(
     onPick: (CircleMenuAction) -> Unit,
+    applications: List<ApplicationInfo>,
     onDismissRequest: () -> Unit
 ) {
     val screenConfiguration = LocalConfiguration.current
@@ -291,7 +293,6 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            val applications by DI.container.getDependency<ApplicationsManager>().applications.collectAsState()
             var searchText by rememberSaveable {
                 mutableStateOf("")
             }

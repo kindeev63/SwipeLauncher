@@ -34,13 +34,13 @@ class MainApp : Application() {
         Constants.settingsTextSize = Constants.minScreenLength.sp / 20
         setActionAndImageTypes()
         val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        val appsRepository = DI.container.getDependency<AppsRepository>()
-        val coilLoaderManager = DI.container.getDependency<CoilLoaderManager>()
-        val appsObserver = DI.container.getDependency<AppsObserver>()
-        val circleMenuStateFlowUseCase = DI.container.getDependency<CircleMenuStateFlowUseCase>()
-        val userImagesRepository = DI.container.getDependency<UserImagesRepository>()
-        val dataRepository = DI.container.getDependency<DataRepository>()
-        val checkCircleMenuUseCase = DI.container.getDependency<CheckCircleMenuUseCase>()
+        val appsRepository = DI.container.getSingle<AppsRepository>()
+        val coilLoaderManager = DI.container.getSingle<CoilLoaderManager>()
+        val appsObserver = DI.container.getSingle<AppsObserver>()
+        val circleMenuStateFlowUseCase = DI.container.getSingle<CircleMenuStateFlowUseCase>()
+        val userImagesRepository = DI.container.getSingle<UserImagesRepository>()
+        val dataRepository = DI.container.getSingle<DataRepository>()
+        val checkCircleMenuUseCase = DI.container.getSingle<CheckCircleMenuUseCase>()
         ioScope.launch {
             launch {
                 appsRepository.loadAllApplicationsToStateFlow()

@@ -25,24 +25,27 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUse
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseCase
-import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
+import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
+import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
-import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.mappers.toDraw
-import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.mappers.toDrawVM
+import com.kindeev.swipelauncher.presentation.useCases.menuParameters.corsOutRadiusGenerator
+import com.kindeev.swipelauncher.presentation.useCases.menuParameters.getSwipeRadius
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.math.PI
-import kotlin.math.atan
-import kotlin.math.pow
 
 class LauncherScreenVM(
     private val telephoneUseCase: TelephoneUseCase,
@@ -51,40 +54,72 @@ class LauncherScreenVM(
     private val openUrlUseCase: OpenUrlUseCase,
     private val density: Float,
     private val applicationsManager: ApplicationsManager,
+    private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
+    private val circleMenuItemIndexOnCordsUseCase: CircleMenuItemIndexOnCordsUseCase,
     val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     val openAppUseCase: OpenAppUseCase,
+    circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
     getSystemServiceUseCase: GetSystemServiceUseCase,
-    circleMenuForUIStateFlowUseCase: CircleMenuForUIStateFlowUseCase,
+    circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase
 ) : ViewModel() {
 
     private val menuSize = Constants.minScreenLength / 3f * 2
-
-    private val circleMenusToDrawVM = circleMenuForUIStateFlowUseCase.circleMenusForUI.map { it.toDrawVM(menuSize) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = emptyMap()
-        )
+    private val cordsOutRadius = corsOutRadiusGenerator(menuSize, ::getSwipeRadius)
 
     private val currentMenuId = MutableStateFlow(0)
 
-    private val currentMenu = currentMenuId.combine(circleMenusToDrawVM) { id, menus ->
-        menus[id]
+    private val currentMenu =
+        currentMenuId.combine(circleMenuStateFlowUseCase.circleMenus) { id, menus ->
+            menus[id]
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
+    private val itemIndexOnCords = currentMenu.map { menu ->
+        if (menu == null) {
+            { _ -> 0 }
+        } else {
+            circleMenuItemIndexOnCordsUseCase.getItemIndexOnCordsGenerator(menu.items.size)
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = null
+        initialValue = { _ -> 0 }
     )
 
     private val currentMenuOffset = MutableStateFlow<Offset?>(null)
 
-    val currentMenuWithOffset = currentMenu.combine(currentMenuOffset) { menu, offset ->
-        menu?.let {
-            offset?.let {
-                CircleMenuWithOffset(menu.toDraw(), offset)
-            }
-        }
-    }.stateIn(
+    val currentMenuWithOffset = combine(
+        currentMenu,
+        circleMenuImageToImageBitmap.mapper,
+        currentMenuOffset
+    ) { menu, imageMapper, offset ->
+        if (menu == null || offset == null) return@combine null
+        val parameters =
+            circleMenuParametersUseCase.getParametersGenerator(menu.items.size)(menuSize)
+        CircleMenuWithOffset(
+            offset = offset,
+            circleMenuToDraw =
+                CircleMenuToDraw(
+                    id = menu.id,
+                    title = menu.title,
+                    menuSize = menuSize,
+                    itemSize = parameters.itemSize,
+                    items = menu.items.mapIndexed { index, item ->
+                        parameters.offsets[index]?.let { offset ->
+                            imageMapper[item.image]?.let { imageBitmap ->
+                                CircleMenuItemToDraw(
+                                    offset = offset,
+                                    imageBitmap = imageBitmap
+                                )
+                            }
+                        }
+                    }.filterNotNull()
+                )
+        )
+    }.distinctUntilChanged().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = null
@@ -93,7 +128,6 @@ class LauncherScreenVM(
     private val vibrator =
         getSystemServiceUseCase.get(Context.VIBRATOR_SERVICE) as Vibrator
 
-    private val radiusSq = (menuSize * 0.3).pow(2)
 
     private var clickTime = 0L
     private var actionInProgress = false
@@ -128,13 +162,12 @@ class LauncherScreenVM(
                 if (!actionInProgress) {
                     actionInProgress = true
                     currentMenuOffset.value?.let { menuOffset ->
-                        val index = getElementIndexOnCords(
-                            offset = Offset(
-                                x = offset.x - menuOffset.x,
-                                y = offset.y - menuOffset.y,
-                            )
+                        val swipeOffset = Offset(
+                            x = offset.x - menuOffset.x,
+                            y = offset.y - menuOffset.y,
                         )
-                        index?.let {
+                        if (cordsOutRadius(swipeOffset)) {
+                            val index = itemIndexOnCords.value(swipeOffset)
                             currentMenu.value?.items?.getOrNull(index)?.let { item ->
                                 viewModelScope.launch {
                                     executeAction(item.action, offset)
@@ -207,39 +240,6 @@ class LauncherScreenVM(
 
             is OpenUrlAction -> {
                 openUrlUseCase.open(action.url)
-            }
-        }
-    }
-
-    private fun getElementIndexOnCords(
-        offset: Offset
-    ): Int? {
-        if (offset.x.pow(2) + offset.y.pow(2) > radiusSq) {
-            val angles = currentMenu.value?.angles
-            if (angles?.isEmpty() ?: true) {
-                return 0
-            }
-            val currentAngle = if (offset.y == 0f) {
-                if (offset.x > 0) 90f else 270f
-            } else {
-                offset.getAngle((atan(offset.x / offset.y) / PI * 180f).toFloat())
-            }
-            angles.forEachIndexed { index, angle ->
-                if (currentAngle < angle) return index
-            }
-            return 0
-        }
-        return null
-    }
-
-    private fun Offset.getAngle(angle: Float): Float {
-        return if (y > 0) {
-            180 - angle
-        } else {
-            if (angle > 0) {
-                360 - angle
-            } else {
-                -angle
             }
         }
     }

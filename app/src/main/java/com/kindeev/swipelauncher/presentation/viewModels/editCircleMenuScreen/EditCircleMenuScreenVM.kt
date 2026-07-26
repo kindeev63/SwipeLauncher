@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -51,7 +53,6 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 class EditCircleMenuScreenVM(
-    circleMenuId: Int?,
     circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
     private val userImagesRepository: UserImagesRepository,
@@ -59,6 +60,7 @@ class EditCircleMenuScreenVM(
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     private val circleMenuForUIMapper: CircleMenuForUIMapper,
     private val density: Float,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _menuSize = MutableStateFlow(Constants.minScreenLength / 6 * 5f)
@@ -126,7 +128,6 @@ class EditCircleMenuScreenVM(
 
     var needSave = false
 
-
     private fun saveCircleMenu() {
         saveCircleMenuWithDebounceUseCase.save(
             CircleMenu(
@@ -142,6 +143,7 @@ class EditCircleMenuScreenVM(
     }
 
     init {
+        val circleMenuId = savedStateHandle.get<Int>("circleMenuId")
         if (circleMenuId == null) {
             val allIds = circleMenuStateFlowUseCase.circleMenus.value.map { it.id }
             id = generateSequence(1) { it + 1 }.first { it !in allIds }
@@ -157,14 +159,22 @@ class EditCircleMenuScreenVM(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            circleMenuTitle
-                .map { it.text }
-                .distinctUntilChanged()
-                .drop(1)
-                .collect {
-                    saveCircleMenu()
-                }
-
+            launch {
+                circleMenuTitle
+                    .map { it.text }
+                    .distinctUntilChanged()
+                    .drop(1)
+                    .collect {
+                        saveCircleMenu()
+                    }
+            }
+            launch {
+                savedStateHandle.getStateFlow<CircleMenuAction?>("pickedAction", null)
+                    .filterNotNull().collect { action ->
+                        updateAction(action)
+                        savedStateHandle["picked_action"] = null
+                    }
+            }
         }
     }
 

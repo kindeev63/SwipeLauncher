@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemForUI
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -33,6 +34,30 @@ fun CircleMenuItems(
                     .offset(
                         x = itemsOffset[index].x,
                         y = itemsOffset[index].y
+                    )
+                    .size(itemSize.dp),
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun CircleMenuItems(
+    modifier: Modifier,
+    items: List<CircleMenuItemToDraw>,
+    itemSize: Float,
+) {
+    Box(
+        modifier = modifier
+    ) {
+        items.forEach { item ->
+            Image(
+                bitmap = item.imageBitmap,
+                modifier = Modifier
+                    .offset(
+                        x = item.offset.x.dp,
+                        y = item.offset.y.dp
                     )
                     .size(itemSize.dp),
                 contentDescription = null

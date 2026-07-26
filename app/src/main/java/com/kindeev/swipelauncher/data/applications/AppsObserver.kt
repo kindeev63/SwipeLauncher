@@ -11,6 +11,7 @@ import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -21,6 +22,7 @@ class AppsObserver(
     private val checkCircleMenuUseCase: CheckCircleMenuUseCase,
     private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     private val userImagesRepository: UserImagesRepository,
+    private val circleMenuImageToImageBitmapUseCase: CircleMenuImageToImageBitmapUseCase,
     private val ioScope: CoroutineScope,
     context: Context
 ) {
@@ -39,7 +41,9 @@ class AppsObserver(
         override fun onPackageRemoved(packageName: String, user: UserHandle) {
             applicationsRepository.removeAppByPackageName(packageName)
             coilLoaderManager.remove("app_image_$packageName")
-            updateCircleMenus()
+            ioScope.launch {
+                updateCircleMenus()
+            }
         }
 
         override fun onPackageChanged(packageName: String, user: UserHandle) {
@@ -49,7 +53,9 @@ class AppsObserver(
                 appImageUri(packageName),
                 "app_image_$packageName"
             )
-            updateCircleMenus()
+            ioScope.launch {
+                updateCircleMenuImageForPackageName(packageName)
+            }
         }
 
         override fun onPackagesAvailable(
@@ -75,22 +81,26 @@ class AppsObserver(
                 applicationsRepository.removeAppByPackageName(packageName)
                 coilLoaderManager.remove("app_image_$packageName")
             }
-            updateCircleMenus()
+            ioScope.launch {
+                updateCircleMenus()
+            }
         }
     }
 
-    fun updateCircleMenus() {
+    private suspend fun updateCircleMenuImageForPackageName(packageName: String) {
+        circleMenuImageToImageBitmapUseCase.updateImageForPackageName(packageName)
+    }
+
+    private suspend fun updateCircleMenus() {
         if (applicationsRepository.applications.value.isNotEmpty()) {
-            ioScope.launch {
-                val changedCircleMenus =
-                    checkCircleMenuUseCase.getOnlyChanged(
-                        circleMenus = circleMenuStateFlowUseCase.circleMenus.value,
-                        allPackageNames = applicationsRepository.applications.value.map { it.packageName },
-                        userImageIds = userImagesRepository.getAllIds()
-                    )
-                if (changedCircleMenus.isNotEmpty())
-                    dataRepository.insertCircleMenus(changedCircleMenus)
-            }
+            val changedCircleMenus =
+                checkCircleMenuUseCase.getOnlyChanged(
+                    circleMenus = circleMenuStateFlowUseCase.circleMenus.value,
+                    allPackageNames = applicationsRepository.applications.value.map { it.packageName },
+                    userImageIds = userImagesRepository.getAllIds()
+                )
+            if (changedCircleMenus.isNotEmpty())
+                dataRepository.insertCircleMenus(changedCircleMenus)
         }
     }
 

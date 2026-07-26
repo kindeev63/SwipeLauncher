@@ -40,7 +40,8 @@ import kotlinx.coroutines.launch
 fun MainSettingsScreen(
     viewModel: MainSettingsScreenVM,
     navigateToAllCircleMenus: () -> Unit,
-    navigateToTutorial: () -> Unit
+    navigateToTutorial: () -> Unit,
+    openActionDialog: () -> Unit
 ) {
     val context = LocalContext.current
     val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
@@ -133,19 +134,10 @@ fun MainSettingsScreen(
                             )
                             EditCircleMenuAction(
                                 action = settings.clickOnClock.action,
+                                openActionDialog = openActionDialog,
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 size = Constants.minScreenLength / 6f,
-                                onChangeAction = {
-                                    scope.launch {
-                                        viewModel.dataRepository.insertSettings(
-                                            settings.copy(
-                                                clickOnClock = settings.clickOnClock.copy(
-                                                    action = it
-                                                )
-                                            )
-                                        )
-                                    }
-                                }
+                                onChangeAction = viewModel::changeClickOnClockAction
                             )
                         }
                     }

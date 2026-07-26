@@ -78,9 +78,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun insertRootCircleMenu() {
-        DI.container.getDependency<DataRepository>()
+        DI.container.getSingle<DataRepository>()
             .insertCircleMenu(
-                DI.container.getDependency<GetRootCircleMenuUseCase>()
+                DI.container.getSingle<GetRootCircleMenuUseCase>()
                     .get(
                         resources.getString(
                             R.string.root
@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         enableEdgeToEdge(
             statusBarStyle = getLauncherStatusBarStyle(
-                DI.container.getDependency<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
+                DI.container.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
             )
         )
     }

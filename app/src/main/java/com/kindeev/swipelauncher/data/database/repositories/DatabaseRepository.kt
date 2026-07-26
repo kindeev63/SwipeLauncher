@@ -24,6 +24,9 @@ class DatabaseRepository(
     override suspend fun deleteCircleMenus(circleMenus: List<CircleMenu>) =
         circleMenuRepository.deleteMany(circleMenus)
 
+    override suspend fun deleteCircleMenuByIds(ids: Collection<Int>) =
+        circleMenuRepository.deleteManyByIds(ids)
+
     override suspend fun insertSettings(settings: LauncherSettings) =
         settingsRepository.insert(settings)
 

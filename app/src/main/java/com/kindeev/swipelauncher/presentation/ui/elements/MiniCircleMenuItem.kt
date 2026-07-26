@@ -19,13 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kindeev.swipelauncher.presentation.entities.CircleMenuForUI
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiniCircleMenuItem(
     size: Float,
-    circleMenu: CircleMenuForUI,
+    circleMenu: CircleMenuToDraw,
     onClick: () -> Unit
 ) {
     Box(
@@ -47,8 +47,9 @@ fun MiniCircleMenuItem(
                 contentAlignment = Alignment.Center
             ) {
                 CircleMenuItems(
+                    modifier = Modifier.size(circleMenu.menuSize.dp),
                     items = circleMenu.items,
-                    menuSize = (size - 6) * 4 / 6f,
+                    itemSize = circleMenu.itemSize
                 )
             }
             Box(
@@ -73,7 +74,7 @@ fun MiniCircleMenuItem(
     size: Float,
     root: Boolean = false,
     selected: Boolean,
-    circleMenu: CircleMenuForUI,
+    circleMenu: CircleMenuToDraw,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -101,8 +102,9 @@ fun MiniCircleMenuItem(
                 contentAlignment = Alignment.Center
             ) {
                 CircleMenuItems(
+                    modifier = Modifier.size(circleMenu.menuSize.dp),
                     items = circleMenu.items,
-                    menuSize = (size - 6) * 4 / 6f,
+                    itemSize = circleMenu.itemSize
                 )
             }
             Box(

@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.kindeev.swipelauncher"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.kindeev.swipelauncher"
