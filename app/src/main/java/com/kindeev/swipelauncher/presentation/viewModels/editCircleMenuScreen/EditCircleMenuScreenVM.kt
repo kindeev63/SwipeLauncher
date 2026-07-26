@@ -27,14 +27,17 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowU
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
-import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
-import com.kindeev.swipelauncher.presentation.useCases.CircleMenuForUIMapper
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDrawParameters
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.DrawItemsData
+import com.kindeev.swipelauncher.presentation.useCases.menuParameters.corsOutRadiusGenerator
+import com.kindeev.swipelauncher.presentation.useCases.menuParameters.getSwipeRadius
+import com.kindeev.swipelauncher.presentation.useCases.menuParameters.makeCircleMenuParametersGenerator
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ItemBorders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,27 +54,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.collections.filterNotNull
 import kotlin.math.PI
-import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 class EditCircleMenuScreenVM(
     private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
-    private val circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
+    private val circleMenuItemIndexOnCordsUseCase: CircleMenuItemIndexOnCordsUseCase,
+    private val circleMenuImageToImageBitmapUseCase: CircleMenuImageToImageBitmapUseCase,
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
     private val userImagesRepository: UserImagesRepository,
     private val applicationsManager: ApplicationsManager,
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
-    private val circleMenuForUIMapper: CircleMenuForUIMapper,
     private val density: Float,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _menuSize = MutableStateFlow(Constants.minScreenLength / 6 * 5f)
     val menuSize: StateFlow<Float> = _menuSize.asStateFlow()
+
+    private val cordsOutRadius =
+        menuSize.map { menuSize -> corsOutRadiusGenerator(menuSize, ::getSwipeRadius) }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = { _ -> false }
+        )
 
     private val id: Int
 
@@ -81,8 +89,60 @@ class EditCircleMenuScreenVM(
     private val _circleMenuItems = MutableStateFlow<List<CircleMenuItem>>(emptyList())
     val circleMenuItems: StateFlow<List<CircleMenuItem>> = _circleMenuItems.asStateFlow()
 
-    private val _drawItemsData = MutableStateFlow(DrawItemsData(menuSize.value / 4, emptyList()))
-    val drawItemsData: StateFlow<DrawItemsData> = _drawItemsData.asStateFlow()
+    private val drawItemsData = circleMenuItems
+        .map { it.size }
+        .distinctUntilChanged()
+        .combine(menuSize) { itemsCount, menuSize ->
+            makeCircleMenuParametersGenerator(itemsCount)(menuSize)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = CircleMenuToDrawParameters(emptyMap(), 0f)
+        )
+
+    private val itemIndexOnCords = drawItemsData.map { data ->
+        circleMenuItemIndexOnCordsUseCase.getItemIndexOnCordsGenerator(data.offsets.size)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = { _ -> 0 }
+    )
+    private val _circleMenuTitle = MutableStateFlow(TextFieldValue("New"))
+    val circleMenuTitle = _circleMenuTitle.asStateFlow()
+
+    private val circleMenuTitleText =
+        circleMenuTitle.map { it.text }.distinctUntilChanged().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = ""
+        )
+
+    val circleMenuToDraw =
+        combine(circleMenuItems, circleMenuTitleText, menuSize) { items, title, menuSize ->
+            val parameters =
+                circleMenuParametersUseCase.getParametersGenerator(items.size)(menuSize)
+            CircleMenuToDraw(
+                id = id,
+                title = title,
+                menuSize = menuSize,
+                itemSize = parameters.itemSize,
+                items = items.mapIndexed { index, item ->
+                    parameters.offsets[index]?.let { offset ->
+                        getImageBitmap(item.image)?.let { imageBitmap ->
+                            CircleMenuItemToDraw(
+                                offset = offset,
+                                imageBitmap = imageBitmap
+                            )
+                        }
+                    }
+                }.filterNotNull()
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = CircleMenuToDraw(0, "", 0f, 0f, emptyList())
+        )
 
     fun updateMenuSize(menuSize: Float) {
         _menuSize.value = menuSize
@@ -90,7 +150,7 @@ class EditCircleMenuScreenVM(
 
     fun getCircleMenuToDrawForEditAction(id: Int): CircleMenuToDraw? {
         val menuSize = menuSize.value / 5 - 10
-        val imageMapper = circleMenuImageToImageBitmap.mapper.value
+        val imageMapper = circleMenuImageToImageBitmapUseCase.mapper.value
         return circleMenuStateFlowUseCase.circleMenus.value.find { it.id == id }?.let { menu ->
             val parameters =
                 circleMenuParametersUseCase.getParametersGenerator(menu.items.size)(menuSize)
@@ -141,30 +201,13 @@ class EditCircleMenuScreenVM(
         initialValue = emptyList()
     )
 
-    private val itemAngles = drawItemsData.map { data ->
-        val count = data.offsets.size
-        if (count == 0) {
-            emptyList()
-        } else {
-            val startOffset = -360 / count / 2f
-            (1..count).map { 360f / count * it + startOffset }
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = emptyList()
-    )
-
-    private val _circleMenuTitle = MutableStateFlow(TextFieldValue("New"))
-    val circleMenuTitle = _circleMenuTitle.asStateFlow()
-
     var needSave = false
 
     private fun saveCircleMenu() {
         saveCircleMenuWithDebounceUseCase.save(
             CircleMenu(
                 id = id,
-                title = circleMenuTitle.value.text,
+                title = circleMenuTitleText.value,
                 items = circleMenuItems.value
             )
         )
@@ -187,14 +230,11 @@ class EditCircleMenuScreenVM(
                 id = menu.id
                 _circleMenuItems.value = menu.items
                 _circleMenuTitle.value = TextFieldValue(menu.title)
-                updateDrawItemsData()
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
             launch {
-                circleMenuTitle
-                    .map { it.text }
-                    .distinctUntilChanged()
+                circleMenuTitleText
                     .drop(1)
                     .collect {
                         saveCircleMenu()
@@ -210,8 +250,8 @@ class EditCircleMenuScreenVM(
         }
     }
 
-    fun getImage(image: CircleMenuImage): ImageBitmap? {
-        return images[image] ?: circleMenuForUIMapper.circleMenuImageToUI(image)?.apply {
+    fun getImageBitmap(image: CircleMenuImage): ImageBitmap? {
+        return images[image] ?: circleMenuImageToImageBitmapUseCase.getImageBitmap(image)?.apply {
             images[image] = this
         }
     }
@@ -226,7 +266,7 @@ class EditCircleMenuScreenVM(
         if (data.offsets.isEmpty()) {
             null
         } else {
-            val offsets = data.offsets.getOrNull(index)
+            val offsets = data.offsets[index]
             if (offsets == null) {
                 selectedIndex.value = 0
                 null
@@ -261,31 +301,13 @@ class EditCircleMenuScreenVM(
     private val _ghostItem = MutableStateFlow<GhostCircleMenuItem?>(null)
     val ghostItem: StateFlow<GhostCircleMenuItem?> = _ghostItem
 
-    private val swipeRadiusSq = drawItemsData.combine(menuSize) { data, menuSize ->
-        val value = menuSize / 2 - data.itemSize / 2f
-        (if (value > menuSize / 2) {
-            menuSize / 2.5f
-        } else {
-            value
-        }).pow(2)
+    // ActionItemData
+    private val actionItemSize = menuSize.map { menuSize ->
+        menuSize / 4
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = 0f
-    )
-
-    // ActionItemData
-    private val actionItemSize = drawItemsData.combine(menuSize) { data, menuSize ->
-        val value = menuSize / 2 - data.itemSize
-        if (value > menuSize / 2) {
-            menuSize / 2
-        } else {
-            value
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = menuSize.value / 4
     )
 
     private val actionItemState = MutableStateFlow<ActionItemState>(ActionItemState.Add)
@@ -308,34 +330,6 @@ class EditCircleMenuScreenVM(
         started = SharingStarted.Eagerly,
         initialValue = 0f
     )
-
-    private fun updateDrawItemsData() {
-        val count = circleMenuItems.value.size
-        if (count == 0) {
-            _drawItemsData.value = DrawItemsData(menuSize.value / 4, emptyList())
-        } else {
-            val itemSize =
-                (sqrt((menuSize.value / 2).pow(2) * (1 - cos(2 * PI / count))).toFloat() / 6 * 5).let {
-                    if (it > 0 && it < menuSize.value / 4) {
-                        it
-                    } else {
-                        menuSize.value / 4
-                    }
-                }
-            val alpha = 360f / count
-            val startOffset = -360 / count / 2f
-            val offsets = (0 until count).map {
-                Offset(
-                    x = menuSize.value / 2 + sin((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (menuSize.value / 2 - itemSize / 2) - itemSize / 2,
-                    y = menuSize.value / 2 - cos((alpha * (it + 0.5f) + startOffset) * PI / 180f).toFloat() * (menuSize.value / 2 - itemSize / 2) - itemSize / 2,
-                )
-            }
-            _drawItemsData.value = DrawItemsData(itemSize, offsets)
-        }
-    }
-
-    fun getImageBitmap(circleMenuImage: CircleMenuImage): ImageBitmap? =
-        circleMenuForUIMapper.circleMenuImageToUI(circleMenuImage)
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
         val offset = Offset(
@@ -364,40 +358,42 @@ class EditCircleMenuScreenVM(
                         x = offset.x + item.firstOffset.x,
                         y = offset.y + item.firstOffset.y
                     )
-                    val index = getElementIndexOnCords(
-                        Offset(
-                            x = offset.x - menuSize.value / 2,
-                            y = offset.y - menuSize.value / 2
-                        )
+                    val swipeOffset = Offset(
+                        x = offset.x - menuSize.value / 2,
+                        y = offset.y - menuSize.value / 2
                     )
-                    if (index != null && item.index != index) {
-                        needSave = true
-                        _ghostItem.value = ghostItem.value?.copy(
-                            offset = itemOffset,
-                            index = index
-                        )
-                        if (item.index != null) {
-                            _circleMenuItems.value =
-                                circleMenuItems.value.toMutableList().apply {
-                                    if (isNotEmpty()) {
-                                        val indexItem = this[index]
-                                        this[index] = this[item.index]
-                                        this[item.index] = indexItem
+                    if (cordsOutRadius.value(swipeOffset)) {
+                        val index = itemIndexOnCords.value(swipeOffset)
+                        if (index != item.index) {
+                            needSave = true
+                            _ghostItem.value = ghostItem.value?.copy(
+                                offset = itemOffset,
+                                index = index
+                            )
+                            if (item.index != null) {
+                                _circleMenuItems.value =
+                                    circleMenuItems.value.toMutableList().apply {
+                                        if (isNotEmpty()) {
+                                            val indexItem = this[index]
+                                            this[index] = this[item.index]
+                                            this[item.index] = indexItem
+                                        }
                                     }
-                                }
-                            selectedIndex.value = index
-                        } else {
-                            _circleMenuItems.value =
-                                circleMenuItems.value.toMutableList().apply {
-                                    add(
-                                        index,
-                                        CircleMenuItem(
-                                            image = DefaultImage(DefaultImages.Build),
-                                            action = OpenSettingsAction
+                                selectedIndex.value = index
+                            } else {
+                                _circleMenuItems.value =
+                                    circleMenuItems.value.toMutableList().apply {
+                                        add(
+                                            index,
+                                            CircleMenuItem(
+                                                image = DefaultImage(DefaultImages.Build),
+                                                action = OpenSettingsAction
+                                            )
                                         )
-                                    )
-                                }
-                            updateDrawItemsData()
+                                    }
+                            }
+                        } else {
+                            _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
                         }
                     } else {
                         _ghostItem.value = ghostItem.value?.copy(offset = itemOffset)
@@ -440,7 +436,6 @@ class EditCircleMenuScreenVM(
 
                         // Update variables
                         _ghostItem.value = null
-                        updateDrawItemsData()
                         needSave = true
 
                     } else {
@@ -467,7 +462,7 @@ class EditCircleMenuScreenVM(
                 )
                 return GhostCircleMenuItem(
                     index = index,
-                    image = getImage(circleMenuItems.value[index].image) ?: return null,
+                    image = getImageBitmap(circleMenuItems.value[index].image) ?: return null,
                     offset = Offset(
                         x = offset.x + firstOffset.x,
                         y = offset.y + firstOffset.y
@@ -478,39 +473,6 @@ class EditCircleMenuScreenVM(
             }
         }
         return null
-    }
-
-    private fun getElementIndexOnCords(
-        offset: Offset
-    ): Int? {
-        if (offset.x.pow(2) + offset.y.pow(2) > swipeRadiusSq.value) {
-            val angles = itemAngles.value
-            if (angles.isEmpty()) {
-                return 0
-            }
-            val currentAngle = if (offset.y == 0f) {
-                if (offset.x > 0) 90f else 270f
-            } else {
-                offset.getAngle((atan(offset.x / offset.y) / PI * 180f).toFloat())
-            }
-            angles.forEachIndexed { index, angle ->
-                if (currentAngle < angle) return index
-            }
-            return 0
-        }
-        return null
-    }
-
-    private fun Offset.getAngle(angle: Float): Float {
-        return if (y > 0) {
-            180 - angle
-        } else {
-            if (angle > 0) {
-                360 - angle
-            } else {
-                -angle
-            }
-        }
     }
 
     private fun elementOnDeleteValue(offset: Offset): Boolean {
@@ -528,7 +490,7 @@ class EditCircleMenuScreenVM(
         )
         return GhostCircleMenuItem(
             index = null,
-            image = getImage(DefaultImage(DefaultImages.Build)) ?: return null,
+            image = getImageBitmap(DefaultImage(DefaultImages.Build)) ?: return null,
             offset = Offset(
                 x = offset.x + firstOffset.x,
                 y = offset.y + firstOffset.y

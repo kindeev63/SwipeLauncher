@@ -287,10 +287,10 @@ object DI {
                 userImagesRepository = container.getSingle(),
                 applicationsManager = container.getSingle(),
                 settingsStateFlowUseCase = container.getSingle(),
-                circleMenuForUIMapper = container.getSingle(),
                 density = container.getSingle<Context>().resources.displayMetrics.density,
                 circleMenuParametersUseCase = container.getSingle(),
-                circleMenuImageToImageBitmap = container.getSingle(),
+                circleMenuImageToImageBitmapUseCase = container.getSingle(),
+                circleMenuItemIndexOnCordsUseCase = container.getSingle(),
             )
         }
         container.registerViewModel {

@@ -54,7 +54,7 @@ class CircleMenuImageToImageBitmapUseCase(
                             menu.items
                         }
                         .mapNotNull { item ->
-                            item.image.getImageBitmap()?.let { imageBitmap ->
+                            item.image.getImageBitmapInterface()?.let { imageBitmap ->
                                 item.image to imageBitmap
                             }
                         }
@@ -80,7 +80,10 @@ class CircleMenuImageToImageBitmapUseCase(
         }
     }
 
-    private fun CircleMenuImage.getImageBitmap(): ImageBitmap? {
+    fun getImageBitmap(circleMenuImage: CircleMenuImage): ImageBitmap? =
+        mapper.value[circleMenuImage] ?: circleMenuImage.getImageBitmapInterface()
+
+    private fun CircleMenuImage.getImageBitmapInterface(): ImageBitmap? {
         return when (this) {
             is AppImage -> getAppImageBitmap()
 
