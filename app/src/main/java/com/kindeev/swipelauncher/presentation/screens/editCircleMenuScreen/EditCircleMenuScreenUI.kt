@@ -464,6 +464,7 @@ private fun ImageAndActionEdit(
             EditCircleMenuAction(
                 action = circleMenuItem.action,
                 openActionDialog = openActionDialog,
+                getCircleMenuToDraw = viewModel::getCircleMenuToDrawForEditAction,
                 getApplicationInfo = viewModel::getApplicationInfo,
                 size = menuSize / 5,
                 onChangeAction = onChangeAction,

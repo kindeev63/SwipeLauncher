@@ -289,6 +289,8 @@ object DI {
                 settingsStateFlowUseCase = container.getSingle(),
                 circleMenuForUIMapper = container.getSingle(),
                 density = container.getSingle<Context>().resources.displayMetrics.density,
+                circleMenuParametersUseCase = container.getSingle(),
+                circleMenuImageToImageBitmap = container.getSingle(),
             )
         }
         container.registerViewModel {
@@ -313,7 +315,10 @@ object DI {
                 savedStateHandle = savedStateHandle,
                 applicationsManager = container.getSingle(),
                 settingsStateFlowUseCase = container.getSingle(),
-                dataRepository = container.getSingle()
+                dataRepository = container.getSingle(),
+                circleMenuParametersUseCase = container.getSingle(),
+                circleMenuStateFlowUseCase = container.getSingle(),
+                circleMenuImageToImageBitmap = container.getSingle()
             )
         }
         container.registerViewModel {

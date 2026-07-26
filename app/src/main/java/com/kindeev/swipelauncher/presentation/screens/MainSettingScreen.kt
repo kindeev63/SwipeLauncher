@@ -136,6 +136,7 @@ fun MainSettingsScreen(
                                 action = settings.clickOnClock.action,
                                 openActionDialog = openActionDialog,
                                 getApplicationInfo = viewModel::getApplicationInfo,
+                                getCircleMenuToDraw = viewModel::getCircleMenuToDraw,
                                 size = Constants.minScreenLength / 6f,
                                 onChangeAction = viewModel::changeClickOnClockAction
                             )

@@ -25,11 +25,15 @@ import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.domain.useCases.SaveCircleMenuWithDebounceUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
+import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuForUIMapper
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.DrawItemsData
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ItemBorders
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +49,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.filterNotNull
 import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.cos
@@ -53,7 +58,9 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 class EditCircleMenuScreenVM(
-    circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
+    private val circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
     private val userImagesRepository: UserImagesRepository,
     private val applicationsManager: ApplicationsManager,
@@ -79,6 +86,31 @@ class EditCircleMenuScreenVM(
 
     fun updateMenuSize(menuSize: Float) {
         _menuSize.value = menuSize
+    }
+
+    fun getCircleMenuToDrawForEditAction(id: Int): CircleMenuToDraw? {
+        val menuSize = menuSize.value / 5 - 10
+        val imageMapper = circleMenuImageToImageBitmap.mapper.value
+        return circleMenuStateFlowUseCase.circleMenus.value.find { it.id == id }?.let { menu ->
+            val parameters =
+                circleMenuParametersUseCase.getParametersGenerator(menu.items.size)(menuSize)
+            CircleMenuToDraw(
+                id = menu.id,
+                title = menu.title,
+                menuSize = menuSize,
+                itemSize = parameters.itemSize,
+                items = menu.items.mapIndexed { index, item ->
+                    parameters.offsets[index]?.let { offset ->
+                        imageMapper[item.image]?.let { imageBitmap ->
+                            CircleMenuItemToDraw(
+                                offset = offset,
+                                imageBitmap = imageBitmap
+                            )
+                        }
+                    }
+                }.filterNotNull()
+            )
+        }
     }
 
     private val itemBorders = drawItemsData.combine(menuSize) { data, menuSize ->

@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,16 +50,16 @@ import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
-import com.kindeev.swipelauncher.presentation.DI
+import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
-import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 
 @Composable
 fun EditCircleMenuAction(
     action: CircleMenuAction,
     openActionDialog: () -> Unit,
     getApplicationInfo: (String) -> ApplicationInfo?,
+    getCircleMenuToDraw: (Int) -> CircleMenuToDraw?,
     size: Float,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
@@ -69,7 +68,8 @@ fun EditCircleMenuAction(
             OpenCircleMenuDataItem(
                 size = size,
                 action = action,
-                changeAction = openActionDialog
+                changeAction = openActionDialog,
+                getCircleMenuToDraw = getCircleMenuToDraw
             )
         }
 
@@ -143,13 +143,11 @@ fun EditCircleMenuAction(
 @Composable
 private fun OpenCircleMenuDataItem(
     size: Float,
+    getCircleMenuToDraw: (Int) -> CircleMenuToDraw?,
     action: OpenCircleMenuAction,
     changeAction: () -> Unit
 ) {
-    val circleMenus =
-        DI.container.getSingle<CircleMenuForUIStateFlowUseCase>().circleMenusForUI.collectAsState()
-
-    circleMenus.value.find { it.id == action.id }?.let {
+    getCircleMenuToDraw(action.id)?.let {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,8 +163,9 @@ private fun OpenCircleMenuDataItem(
                 contentAlignment = Alignment.Center
             ) {
                 CircleMenuItems(
+                    modifier = Modifier.size(it.menuSize.dp),
                     items = it.items,
-                    menuSize = size - 10,
+                    itemSize = it.itemSize
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
