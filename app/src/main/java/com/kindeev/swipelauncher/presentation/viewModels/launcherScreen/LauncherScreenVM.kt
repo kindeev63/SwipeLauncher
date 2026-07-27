@@ -70,7 +70,7 @@ class LauncherScreenVM(
 
     private val currentMenu =
         currentMenuId.combine(circleMenuStateFlowUseCase.circleMenus) { id, menus ->
-            menus[id]
+            menus.getOrNull(id)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,

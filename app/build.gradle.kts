@@ -1,15 +1,18 @@
+import com.android.build.api.dsl.ApplicationExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
-    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
+    id("com.google.devtools.ksp") version "2.3.2"
     id("kotlin-parcelize")
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.kindeev.swipelauncher"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.kindeev.swipelauncher"
@@ -37,11 +40,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 

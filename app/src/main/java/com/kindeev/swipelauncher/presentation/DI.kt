@@ -22,13 +22,11 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseC
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
-import com.kindeev.swipelauncher.presentation.useCases.CircleMenuForUIMapper
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
-import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
@@ -214,12 +212,6 @@ object DI {
 
     private fun initOtherPresentationDependencies() {
         container.insertSingle {
-            CircleMenuForUIMapper(
-                userImagesRepository = container.getSingle(),
-                context = container.getSingle()
-            )
-        }
-        container.insertSingle {
             GetSystemServiceUseCase(
                 context = container.getSingle()
             )
@@ -246,13 +238,6 @@ object DI {
     }
 
     private fun initPresentationStateFlowDependencies() {
-        container.insertSingle {
-            CircleMenuForUIStateFlowUseCase(
-                circleMenuStateFlowUseCase = container.getSingle(),
-                circleMenuForUIMapper = container.getSingle(),
-                ioScope = container.getSingle()
-            )
-        }
         val circleMenuImageToImageBitmap =
             CircleMenuImageToImageBitmapUseCase(
                 userImagesRepository = container.getSingle(),
