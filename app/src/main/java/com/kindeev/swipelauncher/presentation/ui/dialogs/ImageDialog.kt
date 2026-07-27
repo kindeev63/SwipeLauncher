@@ -45,19 +45,18 @@ import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.presentation.DI
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
+import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
 import kotlinx.coroutines.launch
 
 @Composable
 fun ImageDialog(
+    viewModel: ImageDialogVM,
     onDismissRequest: () -> Unit,
-    addUserImage: suspend (Uri) -> UserImage?,
-    onLaunchGetUserImage: () -> Unit = {},
     onPick: (CircleMenuImage) -> Unit
 ) {
     val context = LocalContext.current
@@ -68,7 +67,7 @@ fun ImageDialog(
     ) { uri: Uri? ->
         uri?.let {
             scope.launch {
-                val userImage = addUserImage(uri)
+                val userImage = viewModel.addUserImage(uri)
                 if (userImage == null) {
                     Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
                 } else {
@@ -84,7 +83,6 @@ fun ImageDialog(
     AllImageTypes(
         onPick = {
             if (it == AllImageTypes.UserImage) {
-                onLaunchGetUserImage()
                 launcher.launch("image/*")
             } else {
                 imageType = it

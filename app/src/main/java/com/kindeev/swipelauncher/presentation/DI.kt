@@ -31,6 +31,7 @@ import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.useCases.stateFlows.CircleMenuForUIStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
@@ -284,7 +285,6 @@ object DI {
                 savedStateHandle = savedStateHandle,
                 circleMenuStateFlowUseCase = container.getSingle(),
                 saveCircleMenuWithDebounceUseCase = container.getSingle(),
-                userImagesRepository = container.getSingle(),
                 applicationsManager = container.getSingle(),
                 settingsStateFlowUseCase = container.getSingle(),
                 density = container.getSingle<Context>().resources.displayMetrics.density,
@@ -327,6 +327,11 @@ object DI {
                 applicationsManager = container.getSingle(),
                 circleMenuStateFlowUseCase = container.getSingle(),
                 circleMenuImageToImageBitmap = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            ImageDialogVM(
+                userImagesRepository = container.getSingle()
             )
         }
     }

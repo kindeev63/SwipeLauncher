@@ -34,9 +34,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -60,7 +57,6 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
-import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
@@ -69,6 +65,7 @@ import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.Ed
 fun EditCircleMenuScreenUI(
     viewModel: EditCircleMenuScreenVM,
     openActionDialog: () -> Unit,
+    openImageDialog: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT && Constants.minScreenLength / 6 * 5f * 1.5f < LocalConfiguration.current.screenHeightDp) {
@@ -76,6 +73,7 @@ fun EditCircleMenuScreenUI(
         PortraitUI(
             viewModel = viewModel,
             openActionDialog = openActionDialog,
+            openImageDialog = openImageDialog,
             onBackPressed = onBackPressed
         )
     } else {
@@ -83,6 +81,7 @@ fun EditCircleMenuScreenUI(
         LandscapeUI(
             viewModel = viewModel,
             openActionDialog = openActionDialog,
+            openImageDialog = openImageDialog,
             onBackPressed = onBackPressed
         )
     }
@@ -93,6 +92,7 @@ fun EditCircleMenuScreenUI(
 private fun LandscapeUI(
     viewModel: EditCircleMenuScreenVM,
     openActionDialog: () -> Unit,
+    openImageDialog: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
@@ -187,7 +187,7 @@ private fun LandscapeUI(
                         viewModel = viewModel,
                         circleMenuItem = item,
                         openActionDialog = openActionDialog,
-                        onChangeImage = viewModel::updateImage,
+                        openImageDialog = openImageDialog,
                         onChangeAction = viewModel::updateAction
                     )
                 }
@@ -201,6 +201,7 @@ private fun LandscapeUI(
 private fun PortraitUI(
     viewModel: EditCircleMenuScreenVM,
     openActionDialog: () -> Unit,
+    openImageDialog: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
@@ -292,7 +293,7 @@ private fun PortraitUI(
                         viewModel = viewModel,
                         circleMenuItem = item,
                         openActionDialog = openActionDialog,
-                        onChangeImage = viewModel::updateImage,
+                        openImageDialog = openImageDialog,
                         onChangeAction = viewModel::updateAction
                     )
                 }
@@ -383,7 +384,7 @@ private fun ImageAndActionEdit(
     viewModel: EditCircleMenuScreenVM,
     circleMenuItem: CircleMenuItem,
     openActionDialog: () -> Unit,
-    onChangeImage: (CircleMenuImage) -> Unit,
+    openImageDialog: () -> Unit,
     onChangeAction: (CircleMenuAction) -> Unit
 ) {
     val menuSize by viewModel.menuSize.collectAsStateWithLifecycle()
@@ -407,7 +408,7 @@ private fun ImageAndActionEdit(
                 image = circleMenuItem.image,
                 size = menuSize / 5,
                 viewModel = viewModel,
-                onChangeImage = onChangeImage
+                openImageDialog = openImageDialog
             )
         }
 
@@ -443,26 +444,15 @@ fun ItemImage(
     image: CircleMenuImage,
     size: Float,
     viewModel: EditCircleMenuScreenVM,
-    onChangeImage: (CircleMenuImage) -> Unit
+    openImageDialog: () -> Unit,
 ) {
-    var showImageDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    if (showImageDialog) {
-        ImageDialog(
-            addUserImage = viewModel::addUserImage,
-            onDismissRequest = { showImageDialog = false },
-            onPick = onChangeImage
-        )
-    }
     viewModel.getImageBitmap(image)?.let {
         Image(
             bitmap = it,
             modifier = Modifier
                 .size(size.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { showImageDialog = true }
+                .clickable(onClick = openImageDialog)
                 .padding(5.dp),
             contentDescription = null
         )

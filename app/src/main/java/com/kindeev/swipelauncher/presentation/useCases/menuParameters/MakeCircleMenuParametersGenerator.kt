@@ -50,7 +50,7 @@ private fun itemSizeGenerator(itemsCount: ItemsCount): (MenuSize) -> Float {
             menuSize / 4
         }
     }
-    if (itemsCount in 2..7) {
+    if (itemsCount <= 7) {
         return { menuSize ->
             menuSize / 4
         }

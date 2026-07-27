@@ -18,4 +18,7 @@ sealed class ScreensSettings {
 
     @Serializable
     object ActionDialog: ScreensSettings()
+
+    @Serializable
+    object ImageDialog: ScreensSettings()
 }

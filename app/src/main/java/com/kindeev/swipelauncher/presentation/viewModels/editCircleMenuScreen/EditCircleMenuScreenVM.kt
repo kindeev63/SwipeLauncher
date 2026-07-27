@@ -3,7 +3,6 @@ package com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
-import android.net.Uri
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -17,11 +16,9 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
-import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.domain.useCases.SaveCircleMenuWithDebounceUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
@@ -51,7 +48,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.collections.filterNotNull
 import kotlin.math.PI
 import kotlin.math.cos
@@ -64,7 +60,6 @@ class EditCircleMenuScreenVM(
     private val circleMenuItemIndexOnCordsUseCase: CircleMenuItemIndexOnCordsUseCase,
     private val circleMenuImageToImageBitmapUseCase: CircleMenuImageToImageBitmapUseCase,
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
-    private val userImagesRepository: UserImagesRepository,
     private val applicationsManager: ApplicationsManager,
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     private val density: Float,
@@ -244,7 +239,14 @@ class EditCircleMenuScreenVM(
                 savedStateHandle.getStateFlow<CircleMenuAction?>("pickedAction", null)
                     .filterNotNull().collect { action ->
                         updateAction(action)
-                        savedStateHandle["picked_action"] = null
+                        savedStateHandle["pickedAction"] = null
+                    }
+            }
+            launch {
+                savedStateHandle.getStateFlow<CircleMenuImage?>("pickedImage", null)
+                    .filterNotNull().collect { image ->
+                        updateImage(image)
+                        savedStateHandle["pickedImage"] = null
                     }
             }
         }
@@ -541,7 +543,4 @@ class EditCircleMenuScreenVM(
         saveCircleMenu()
     }
 
-    suspend fun addUserImage(uri: Uri): UserImage? = withContext(Dispatchers.IO) {
-        userImagesRepository.insert(uri = uri)?.let { UserImage(it) }
-    }
 }

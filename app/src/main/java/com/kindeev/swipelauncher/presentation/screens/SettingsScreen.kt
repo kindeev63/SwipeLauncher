@@ -8,8 +8,10 @@ import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
+import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
@@ -55,6 +57,9 @@ fun SettingsScreen() {
                 openActionDialog = {
                     navigationState.navigateTo(ScreensSettings.ActionDialog)
                 },
+                openImageDialog = {
+                    navigationState.navigateTo(ScreensSettings.ImageDialog)
+                },
                 onBackPressed = {
                     navigationState.navHostController.popBackStack()
                 }
@@ -79,6 +84,22 @@ fun SettingsScreen() {
                         savedStateHandle["pickedAction"] = action
                 }
             )
+        }
+        dialog<ScreensSettings.ImageDialog> { entry ->
+            val viewModel: ImageDialogVM = diViewModel(entry.savedStateHandle)
+            ImageDialog(
+                viewModel = viewModel,
+                onDismissRequest = {
+                    navigationState.navHostController.popBackStack()
+                },
+                onPick = { image ->
+                    val savedStateHandle =
+                        navigationState.navHostController.previousBackStackEntry?.savedStateHandle
+                    if (savedStateHandle != null)
+                        savedStateHandle["pickedImage"] = image
+                },
+            )
+
         }
     }
 }
