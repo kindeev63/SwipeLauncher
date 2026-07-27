@@ -28,8 +28,8 @@ private fun offsetsGenerator(
     val pairs = buildMap {
         (0 until itemsCount).forEach { index ->
             this[index] = Pair(
-                first = (1 + sin((360 / itemsCount * index) * PI / 180f)).toFloat() / 2,
-                second = (1 - cos((360 / itemsCount * index) * PI / 180f)).toFloat() / 2,
+                first = (1 + sin((360f / itemsCount * index) * PI / 180f)).toFloat() / 2,
+                second = (1 - cos((360f / itemsCount * index) * PI / 180f)).toFloat() / 2,
             )
         }
     }
