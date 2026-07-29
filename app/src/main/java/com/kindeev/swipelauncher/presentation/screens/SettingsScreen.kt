@@ -11,7 +11,7 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM

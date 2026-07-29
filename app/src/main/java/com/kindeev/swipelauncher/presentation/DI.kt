@@ -29,7 +29,7 @@ import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
@@ -316,7 +316,8 @@ object DI {
         }
         container.registerViewModel {
             ImageDialogVM(
-                userImagesRepository = container.getSingle()
+                userImagesRepository = container.getSingle(),
+                applicationsManager = container.getSingle()
             )
         }
     }

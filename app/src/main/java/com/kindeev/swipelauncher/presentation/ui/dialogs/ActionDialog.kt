@@ -34,18 +34,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -157,28 +159,28 @@ private fun AllActionTypes(
     onPick: (ActionCategories) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by rememberSaveable {
-                mutableStateOf("")
+            var searchText by remember {
+                mutableStateOf(TextFieldValue(""))
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(items = Constants.actionCategories.filter {
-                    it.name.lowercase().contains(searchText.lowercase())
+                    it.name.lowercase().contains(searchText.text.lowercase())
                 }) { actionType ->
                     ActionTypeElement(
                         name = actionType.name,
@@ -234,21 +236,21 @@ fun OpenCircleMenuActionData(
     circleMenusToDraw: List<CircleMenuToDraw>,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by rememberSaveable {
-                mutableStateOf("")
+            var searchText by remember {
+                mutableStateOf(TextFieldValue(""))
             }
             LazyVerticalGrid(
                 columns = GridCells.Adaptive((Constants.minScreenLength - 20f).dp / 3)
@@ -257,7 +259,7 @@ fun OpenCircleMenuActionData(
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
                     items = circleMenusToDraw.filter {
-                        it.title.lowercase().contains(searchText.lowercase())
+                        it.title.lowercase().contains(searchText.text.lowercase())
                     }
                 ) { circleMenu ->
                     MiniCircleMenuItem(
@@ -280,27 +282,27 @@ fun OpenAppActionData(
     applications: List<ApplicationInfo>,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by rememberSaveable {
-                mutableStateOf("")
+            var searchText by remember {
+                mutableStateOf(TextFieldValue(""))
             }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
                     items = applications.filter {
-                        it.title.lowercase().contains(searchText.lowercase())
+                        it.title.lowercase().contains(searchText.text.lowercase())
                     },
                     key = { it.packageName }
                 ) { applicationInfo ->
@@ -324,28 +326,28 @@ fun FlashlightActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by rememberSaveable {
-                mutableStateOf("")
+            var searchText by remember {
+                mutableStateOf(TextFieldValue(""))
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(items = Constants.flashlightActionCategoryItems.filter {
-                    it.name.lowercase().contains(searchText.lowercase())
+                    it.name.lowercase().contains(searchText.text.lowercase())
                 }) { flashlightActionType ->
                     ActionTypeElement(
                         name = flashlightActionType.name,
@@ -367,15 +369,15 @@ fun TelephoneActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height((screenConfiguration.screenHeightDp / 3 * 2).dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
@@ -422,15 +424,15 @@ fun TelephoneActionData(
                 else -> {}
             }
 
-            var searchText by rememberSaveable {
-                mutableStateOf("")
+            var searchText by remember {
+                mutableStateOf(TextFieldValue(""))
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(items = Constants.telephoneActionCategoryItems.filter {
-                    it.name.lowercase().contains(searchText.lowercase())
+                    it.name.lowercase().contains(searchText.text.lowercase())
                 }) { telephoneActionType ->
                     ActionTypeElement(
                         name = telephoneActionType.name,
@@ -452,7 +454,6 @@ fun EnterNumberDialog(
     onEnter: (String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
     val context = LocalContext.current
 
     var phoneNumber by rememberSaveable {
@@ -502,14 +503,15 @@ fun EnterNumberDialog(
         }
     )
 
+    val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Column(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .height(screenConfiguration.screenWidthDp.dp / 2)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .height(windowInfo.containerDpSize.width / 2)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp)
@@ -538,7 +540,7 @@ fun EnterNumberDialog(
                     ),
                     textStyle = TextStyle.Default.copy(
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = screenConfiguration.screenWidthDp.sp / 15
+                        fontSize = 18.sp
                     )
                 )
                 if (hasReadContactsPermission == true) {
@@ -564,8 +566,8 @@ fun EnterNumberDialog(
             {
                 Box(
                     modifier = Modifier
-                        .width((screenConfiguration.screenWidthDp / 3).dp)
-                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .width(windowInfo.containerDpSize.width / 3)
+                        .height(windowInfo.containerDpSize.width / 9)
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable { onDismissRequest() }
@@ -589,8 +591,8 @@ fun EnterNumberDialog(
                 }
                 Box(
                     modifier = Modifier
-                        .width((screenConfiguration.screenWidthDp / 3).dp)
-                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .width(windowInfo.containerDpSize.width / 3)
+                        .height(windowInfo.containerDpSize.width / 9)
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable {
@@ -618,7 +620,7 @@ fun OpenUrlActionData(
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val screenConfiguration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
     var url by rememberSaveable {
         mutableStateOf(defUrl)
     }
@@ -628,8 +630,8 @@ fun OpenUrlActionData(
     ) {
         Column(
             modifier = Modifier
-                .width(screenConfiguration.screenWidthDp.dp - 20.dp)
-                .heightIn(max = screenConfiguration.screenWidthDp.dp)
+                .width(windowInfo.containerDpSize.width - 20.dp)
+                .heightIn(max = windowInfo.containerDpSize.width)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
@@ -652,7 +654,7 @@ fun OpenUrlActionData(
                     onValueChange = { url = it },
                     textStyle = TextStyle.Default.copy(
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = screenConfiguration.screenWidthDp.sp / 20,
+                        fontSize = 16.sp,
                         textAlign = TextAlign.Center
                     )
                 )
@@ -667,8 +669,8 @@ fun OpenUrlActionData(
             {
                 Box(
                     modifier = Modifier
-                        .width((screenConfiguration.screenWidthDp / 3).dp)
-                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .width(windowInfo.containerDpSize.width / 3)
+                        .height(windowInfo.containerDpSize.width / 9)
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable { onDismissRequest() }
@@ -692,8 +694,8 @@ fun OpenUrlActionData(
                 }
                 Box(
                     modifier = Modifier
-                        .width((screenConfiguration.screenWidthDp / 3).dp)
-                        .height((screenConfiguration.screenWidthDp / 9).dp)
+                        .width(windowInfo.containerDpSize.width / 3)
+                        .height(windowInfo.containerDpSize.width / 9)
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable {

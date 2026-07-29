@@ -22,12 +22,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.R
 import kotlinx.coroutines.launch
 
 @Composable
-fun DialogSearchElement(searchText: String, onTextChange: (String) -> Unit) {
+fun DialogSearchElement(searchText: TextFieldValue, onTextChange: (TextFieldValue) -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
     Box(
@@ -46,7 +47,7 @@ fun DialogSearchElement(searchText: String, onTextChange: (String) -> Unit) {
                 .padding(horizontal = 15.dp, vertical = 5.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            if (searchText.isEmpty()) {
+            if (searchText.text.isEmpty()) {
                 Text(
                     text = stringResource(id = R.string.search),
                     color = MaterialTheme.colorScheme.onPrimary
