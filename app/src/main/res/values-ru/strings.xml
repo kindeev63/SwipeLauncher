@@ -86,6 +86,8 @@
     <string name="open_url_action">Открыть ссылку</string>
     <string name="successfully">Успешно</string>
     <string name="write_storage_denied">Отказано в разрешении на запись файлов</string>
+    <string name="call_denied">Отказано в разрешении на звонки</string>
+    <string name="read_contacts_denied">Отказано в разрешении на чтение контактов</string>
     <string name="backup_successfuly">Успешно сохранено в загрузках (backup.zip)</string>
     <string name="title">Заголовок</string>
     <string name="show_app_question">Вы хотите показать приложение?</string>

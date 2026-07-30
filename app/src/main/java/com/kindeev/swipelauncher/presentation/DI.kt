@@ -27,7 +27,7 @@ import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCord
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
-import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM

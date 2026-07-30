@@ -2,9 +2,10 @@ package com.kindeev.swipelauncher.domain
 
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
+import com.kindeev.swipelauncher.domain.entities.actionTypes.FlashlightActionType
+import com.kindeev.swipelauncher.domain.entities.actionTypes.TelephoneActionType
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
-import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 import com.kindeev.swipelauncher.domain.entities.settings.ClickOnClock
@@ -12,10 +13,10 @@ import com.kindeev.swipelauncher.domain.entities.settings.LauncherSettings
 
 object Constants {
     const val USER_IMAGES_DIR = "UserImages"
-    var actionCategories = listOf<ActionCategory>()
     var imageTypes = listOf<ImageType>()
-    var flashlightActionCategoryItems = listOf<ActionCategoryItem>()
-    var telephoneActionCategoryItems = listOf<ActionCategoryItem>()
+    var actionCategories = listOf<ActionCategory>()
+    var telephoneActionTypes = listOf<TelephoneActionType>()
+    var flashlightActionTypes = listOf<FlashlightActionType>()
     var minScreenLength = 0f
     var settingsTextSize = 0.sp
     val defaultSettings = LauncherSettings(

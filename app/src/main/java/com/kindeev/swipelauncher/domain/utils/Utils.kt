@@ -22,10 +22,11 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
+import com.kindeev.swipelauncher.domain.entities.actionTypes.FlashlightActionType
+import com.kindeev.swipelauncher.domain.entities.actionTypes.TelephoneActionType
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
-import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.actionCategoryItem.ActionCategoryItem
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 
 fun Context.isMyLauncherDefault(): Boolean {
@@ -83,34 +84,35 @@ fun Context.setActionAndImageTypes() {
             type = ActionCategories.OpenUrl
         ),
     )
-    Constants.flashlightActionCategoryItems = listOf(
-        ActionCategoryItem(
+    Constants.flashlightActionTypes = listOf(
+
+        FlashlightActionType(
             name = this.resources.getString(R.string.on_flashlight_action),
             imageResId = R.drawable.on_flashlight_image,
             type = AllActionTypes.FlashLightOn
         ),
-        ActionCategoryItem(
+        FlashlightActionType(
             name = this.resources.getString(R.string.off_flashlight_action),
             imageResId = R.drawable.off_flashlight_image,
             type = AllActionTypes.FlashLightOff
         ),
-        ActionCategoryItem(
+        FlashlightActionType(
             name = this.resources.getString(R.string.change_condition_flashlight_action),
             imageResId = R.drawable.change_condition_flashlight_image,
             type = AllActionTypes.ChangeFlashLightCondition
         ),
     )
-    Constants.telephoneActionCategoryItems = listOf(
-        ActionCategoryItem(
+    Constants.telephoneActionTypes = listOf(
+        TelephoneActionType(
             name = this.resources.getString(R.string.call_telephone_action),
             imageResId = R.drawable.call_telephone_image,
             type = AllActionTypes.Call
         ),
-        ActionCategoryItem(
+        TelephoneActionType(
             name = this.resources.getString(R.string.dial_telephone_action),
             imageResId = R.drawable.dial_telephone_image,
             type = AllActionTypes.Dial
-        ),
+        )
     )
     Constants.imageTypes = listOf(
         ImageType(

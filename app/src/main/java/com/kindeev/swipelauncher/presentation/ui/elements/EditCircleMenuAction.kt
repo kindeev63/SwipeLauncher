@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,8 @@ import com.kindeev.swipelauncher.domain.utils.formatPhoneNumber
 import com.kindeev.swipelauncher.domain.utils.getContactName
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
-import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlActionData
+import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlCategory
+import com.kindeev.swipelauncher.presentation.ui.dialogs.pickContactLauncher
 
 @Composable
 fun EditCircleMenuAction(
@@ -308,9 +311,23 @@ private fun CallDataItem(
         mutableStateOf(false)
     }
     if (showEnterNumberDialog) {
+        var phoneNumber by rememberSaveable {
+            mutableStateOf(data.phoneNumber)
+        }
+        val pickContact = pickContactLauncher(
+            onPick = { phoneNumber = it }
+        )
         EnterNumberDialog(
-            defNumber = data.phoneNumber,
-            onEnter = { onChangeAction(CallAction(it)) },
+            phoneNumber = phoneNumber,
+            onEnter = {
+                onChangeAction(CallAction(phoneNumber))
+            },
+            onChangeNumber = { phoneNumber = it },
+            pickContact = {
+                if (hasReadContactsPermission == true) {
+                    pickContact.launch(null)
+                }
+            },
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
@@ -414,13 +431,26 @@ private fun DialDataItem(
         mutableStateOf(false)
     }
     if (showEnterNumberDialog) {
+        var phoneNumber by rememberSaveable {
+            mutableStateOf(data.phoneNumber)
+        }
+        val pickContact = pickContactLauncher(
+            onPick = { phoneNumber = it }
+        )
         EnterNumberDialog(
-            defNumber = data.phoneNumber,
-            onEnter = { onChangeAction(DialAction(it)) },
+            phoneNumber = phoneNumber,
+            onEnter = {
+                onChangeAction(DialAction(phoneNumber))
+            },
+            onChangeNumber = { phoneNumber = it },
+            pickContact = {
+                if (hasReadContactsPermission == true) {
+                    pickContact.launch(null)
+                }
+            },
             onDismissRequest = { showEnterNumberDialog = false }
         )
     }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -498,9 +528,13 @@ private fun OpenUrlDataItem(
         mutableStateOf(false)
     }
     if (showOpenUrlDialog) {
-        OpenUrlActionData(
-            defUrl = action.url,
+        var url by remember {
+            mutableStateOf(TextFieldValue(action.url))
+        }
+        OpenUrlCategory(
+            url = url,
             onPick = onChangeAction,
+            onChangeUrl = { url = it },
             onDismissRequest = { showOpenUrlDialog = false }
         )
     }

@@ -1,6 +1,9 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
+import android.net.Uri
 import android.provider.ContactsContract
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -32,11 +35,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,21 +61,23 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.utils.ReadContactsPermission
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenCircleMenuAction
-import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
 import com.kindeev.swipelauncher.domain.entities.actionTypes.AllActionTypes
+import com.kindeev.swipelauncher.domain.entities.actionTypes.FlashlightActionType
+import com.kindeev.swipelauncher.domain.entities.actionTypes.TelephoneActionType
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
+import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
 import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.entities.ActionDialogState
+import kotlinx.coroutines.launch
 
 @Composable
 fun ActionDialog(
@@ -83,79 +85,126 @@ fun ActionDialog(
     onDismissRequest: () -> Unit,
     onPick: (CircleMenuAction) -> Unit
 ) {
-    val circleMenus by viewModel.circleMenus.collectAsStateWithLifecycle()
-    val applications by viewModel.applicationsManager.applications.collectAsStateWithLifecycle()
-    var actionCategory by rememberSaveable {
-        mutableStateOf<ActionCategories?>(null)
+    val pickContact = pickContactLauncher(onPick = viewModel::onPickContact)
+    LaunchedEffect(Unit) {
+        launch {
+            viewModel.pickAction.collect { action ->
+                onPick(action)
+                onDismissRequest()
+            }
+        }
+        launch {
+            viewModel.pickContact.collect {
+                pickContact.launch(null)
+            }
+        }
     }
-    AllActionTypes(
-        onPick = { actionCategory = it },
-        onDismissRequest = onDismissRequest
-    )
-    when (actionCategory) {
-        ActionCategories.OpenCircleMenu -> {
-            OpenCircleMenuActionData(
-                circleMenusToDraw = circleMenus,
-                onPick = {
-                    onPick(it)
-                    onDismissRequest()
-                },
-                onDismissRequest = { actionCategory = null }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    when (val currentState = state) {
+        is ActionDialogState.PickCategory -> {
+            PickCategory(
+                searchText = currentState.searchText,
+                categories = currentState.actionCategories,
+                onSearch = viewModel::search,
+                onPick = viewModel::pickCategory,
+                onDismissRequest = onDismissRequest
             )
         }
 
-        ActionCategories.OpenApp -> {
-            OpenAppActionData(
-                applications = applications,
-                onPick = {
-                    onPick(it)
-                    onDismissRequest()
-                },
-                onDismissRequest = { actionCategory = null }
+        is ActionDialogState.OpenAppCategory -> {
+            OpenAppCategory(
+                searchText = currentState.searchText,
+                applications = currentState.applications,
+                onSearch = viewModel::search,
+                onPick = viewModel::pickAction,
+                onDismissRequest = viewModel::openPickCategory
             )
         }
 
-        ActionCategories.Flashlight -> {
-            FlashlightActionData(
-                onPick = {
-                    onPick(it)
-                    onDismissRequest()
-                },
-                onDismissRequest = { actionCategory = null }
+        is ActionDialogState.OpenCircleMenuCategory -> {
+            OpenCircleMenuCategory(
+                searchText = currentState.searchText,
+                circleMenus = currentState.circleMenus,
+                onSearch = viewModel::search,
+                onPick = viewModel::pickAction,
+                onDismissRequest = viewModel::openPickCategory
             )
         }
 
-        ActionCategories.Telephone -> {
+        is ActionDialogState.FlashlightCategory -> {
+            FlashlightCategory(
+                searchText = currentState.searchText,
+                actionTypes = currentState.flashlightActionTypes,
+                onSearch = viewModel::search,
+                onPick = viewModel::pickAction,
+                onDismissRequest = viewModel::openPickCategory
+            )
+        }
+
+        is ActionDialogState.TelephoneCategory -> {
+            if (currentState.requestCallPermission) {
+                val context = LocalContext.current
+                CallPermission(
+                    result = { result ->
+                        if (!result) {
+                            Toast.makeText(context, R.string.call_denied, Toast.LENGTH_LONG).show()
+                        }
+                        viewModel.callPermissionResult(result)
+                    }
+                )
+            }
             TelephoneActionData(
-                onPick = {
-                    onPick(it)
-                    onDismissRequest()
+                searchText = currentState.searchText,
+                actionTypes = currentState.telephoneActionTypes,
+                onSearch = viewModel::search,
+                onPick = { actionType ->
+                    when (actionType) {
+                        AllActionTypes.Call -> viewModel.openCallActionWithPermission()
+                        AllActionTypes.Dial -> viewModel.openEnterNumberDialog(actionType)
+                        else -> throw IllegalStateException("Illegal telephone action type")
+                    }
                 },
-                onDismissRequest = { actionCategory = null }
+                onDismissRequest = viewModel::openPickCategory
             )
         }
 
-        ActionCategories.OpenSettings -> {
-            onPick(OpenSettingsAction)
-            onDismissRequest()
-        }
-
-        ActionCategories.OpenUrl -> {
-            OpenUrlActionData(
-                onPick = {
-                    onPick(it)
-                    onDismissRequest()
-                },
-                onDismissRequest = { actionCategory = null }
+        is ActionDialogState.OpenUrlCategory -> {
+            OpenUrlCategory(
+                url = currentState.url,
+                onChangeUrl = viewModel::changeUrl,
+                onPick = viewModel::pickAction,
+                onDismissRequest = viewModel::openPickCategory
             )
         }
 
-        null -> {}
+        is ActionDialogState.EnterNumberDialog -> {
+            if (currentState.requestReadContactsPermission) {
+                val context = LocalContext.current
+                ReadContactsPermission(
+                    result = { result ->
+                        if (!result) {
+                            Toast.makeText(context, R.string.read_contacts_denied, Toast.LENGTH_LONG).show()
+                        }
+                        viewModel.readContactsPermissionResult(result)
+                    }
+                )
+            }
+            EnterNumberDialog(
+                phoneNumber = currentState.phoneNumber,
+                onChangeNumber = viewModel::onChangeNumber,
+                pickContact = viewModel::pickContact,
+                onEnter = viewModel::pickTelephoneAction,
+                onDismissRequest = viewModel::openTelephoneActions
+            )
+        }
     }
 }
 
 @Composable
-private fun AllActionTypes(
+private fun PickCategory(
+    searchText: TextFieldValue,
+    categories: List<ActionCategory>,
+    onSearch: (TextFieldValue) -> Unit,
     onPick: (ActionCategories) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -172,30 +221,25 @@ private fun AllActionTypes(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by remember {
-                mutableStateOf(TextFieldValue(""))
-            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.actionCategories.filter {
-                    it.name.lowercase().contains(searchText.text.lowercase())
-                }) { actionType ->
-                    ActionTypeElement(
-                        name = actionType.name,
-                        imageResId = actionType.imageResId,
-                        onClick = { onPick(actionType.type) }
+                items(items = categories) { actionCategory ->
+                    ActionCategoryElement(
+                        name = actionCategory.name,
+                        imageResId = actionCategory.imageResId,
+                        onClick = { onPick(actionCategory.type) }
                     )
                 }
             }
-            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = onSearch)
         }
     }
 }
 
 @Composable
-private fun ActionTypeElement(
+private fun ActionCategoryElement(
     name: String,
     imageResId: Int,
     onClick: () -> Unit
@@ -231,9 +275,11 @@ private fun ActionTypeElement(
 
 
 @Composable
-fun OpenCircleMenuActionData(
+fun OpenCircleMenuCategory(
+    searchText: TextFieldValue,
+    circleMenus: List<CircleMenuToDraw>,
+    onSearch: (TextFieldValue) -> Unit,
     onPick: (CircleMenuAction) -> Unit,
-    circleMenusToDraw: List<CircleMenuToDraw>,
     onDismissRequest: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
@@ -249,18 +295,13 @@ fun OpenCircleMenuActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by remember {
-                mutableStateOf(TextFieldValue(""))
-            }
             LazyVerticalGrid(
                 columns = GridCells.Adaptive((Constants.minScreenLength - 20f).dp / 3)
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 item { Spacer(modifier = Modifier.height(50.dp)) }
                 items(
-                    items = circleMenusToDraw.filter {
-                        it.title.lowercase().contains(searchText.text.lowercase())
-                    }
+                    items = circleMenus
                 ) { circleMenu ->
                     MiniCircleMenuItem(
                         size = (Constants.minScreenLength - 20f) / 3,
@@ -271,15 +312,17 @@ fun OpenCircleMenuActionData(
                     }
                 }
             }
-            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = onSearch)
         }
     }
 }
 
 @Composable
-fun OpenAppActionData(
-    onPick: (CircleMenuAction) -> Unit,
+fun OpenAppCategory(
+    searchText: TextFieldValue,
     applications: List<ApplicationInfo>,
+    onSearch: (TextFieldValue) -> Unit,
+    onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
@@ -295,15 +338,10 @@ fun OpenAppActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by remember {
-                mutableStateOf(TextFieldValue(""))
-            }
             LazyColumn {
                 item { Spacer(modifier = Modifier.height(40.dp)) }
                 items(
-                    items = applications.filter {
-                        it.title.lowercase().contains(searchText.text.lowercase())
-                    },
+                    items = applications,
                     key = { it.packageName }
                 ) { applicationInfo ->
                     AppItem(
@@ -316,13 +354,16 @@ fun OpenAppActionData(
                 }
 
             }
-            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = onSearch)
         }
     }
 }
 
 @Composable
-fun FlashlightActionData(
+fun FlashlightCategory(
+    searchText: TextFieldValue,
+    actionTypes: List<FlashlightActionType>,
+    onSearch: (TextFieldValue) -> Unit,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -339,17 +380,12 @@ fun FlashlightActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var searchText by remember {
-                mutableStateOf(TextFieldValue(""))
-            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.flashlightActionCategoryItems.filter {
-                    it.name.lowercase().contains(searchText.text.lowercase())
-                }) { flashlightActionType ->
-                    ActionTypeElement(
+                items(items = actionTypes) { flashlightActionType ->
+                    ActionCategoryElement(
                         name = flashlightActionType.name,
                         imageResId = flashlightActionType.imageResId,
                         onClick = {
@@ -359,14 +395,17 @@ fun FlashlightActionData(
                     )
                 }
             }
-            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = onSearch)
         }
     }
 }
 
 @Composable
 fun TelephoneActionData(
-    onPick: (CircleMenuAction) -> Unit,
+    searchText: TextFieldValue,
+    actionTypes: List<TelephoneActionType>,
+    onSearch: (TextFieldValue) -> Unit,
+    onPick: (AllActionTypes) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
@@ -382,92 +421,29 @@ fun TelephoneActionData(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
-            var actionType by rememberSaveable {
-                mutableStateOf<AllActionTypes?>(null)
-            }
-            when (actionType) {
-                AllActionTypes.Call -> {
-                    var hasCallPermission by rememberSaveable {
-                        mutableStateOf<Boolean?>(null)
-                    }
-                    if (hasCallPermission == null) {
-                        CallPermission { hasCallPermission = it }
-                    } else {
-                        if (hasCallPermission == true) {
-                            EnterNumberDialog(
-                                onEnter = {
-                                    onPick(CallAction(it))
-                                    onDismissRequest()
-                                },
-                                onDismissRequest = {
-                                    actionType = null
-                                }
-                            )
-                        } else {
-                            actionType = null
-                        }
-                    }
-                }
-
-                AllActionTypes.Dial -> {
-                    EnterNumberDialog(
-                        onEnter = {
-                            onPick(DialAction(it))
-                            onDismissRequest()
-                        },
-                        onDismissRequest = {
-                            actionType = null
-                        }
-                    )
-                }
-
-                else -> {}
-            }
-
-            var searchText by remember {
-                mutableStateOf(TextFieldValue(""))
-            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item { Spacer(modifier = Modifier.height(50.dp)) }
-                items(items = Constants.telephoneActionCategoryItems.filter {
-                    it.name.lowercase().contains(searchText.text.lowercase())
-                }) { telephoneActionType ->
-                    ActionTypeElement(
+                items(items = actionTypes) { telephoneActionType ->
+                    ActionCategoryElement(
                         name = telephoneActionType.name,
                         imageResId = telephoneActionType.imageResId,
                         onClick = {
-                            actionType = telephoneActionType.type
+                            onPick(telephoneActionType.type)
                         }
                     )
                 }
             }
-            DialogSearchElement(searchText = searchText, onTextChange = { searchText = it })
+            DialogSearchElement(searchText = searchText, onTextChange = onSearch)
         }
     }
 }
 
 @Composable
-fun EnterNumberDialog(
-    defNumber: String = "",
-    onEnter: (String) -> Unit,
-    onDismissRequest: () -> Unit
-) {
+fun pickContactLauncher(onPick: (String) -> Unit): ManagedActivityResultLauncher<Void?, Uri?> {
     val context = LocalContext.current
-
-    var phoneNumber by rememberSaveable {
-        mutableStateOf(defNumber)
-    }
-    var hasReadContactsPermission by rememberSaveable {
-        mutableStateOf<Boolean?>(null)
-    }
-    if (hasReadContactsPermission == null) {
-        ReadContactsPermission {
-            hasReadContactsPermission = it
-        }
-    }
-    val pickContactLauncher = rememberLauncherForActivityResult(
+    return rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickContact(),
         onResult = { uri ->
             if (uri != null) {
@@ -494,7 +470,7 @@ fun EnterNumberDialog(
                                 val contactNumberIndex =
                                     cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                                 val contactNumber = cursor2.getString(contactNumberIndex)
-                                phoneNumber = contactNumber.replace("+7", "8")
+                                onPick(contactNumber.replace("+7", "8"))
                             }
                         }
                     }
@@ -502,7 +478,16 @@ fun EnterNumberDialog(
             }
         }
     )
+}
 
+@Composable
+fun EnterNumberDialog(
+    phoneNumber: String,
+    onChangeNumber: (String) -> Unit,
+    pickContact: () -> Unit,
+    onEnter: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
     val windowInfo = LocalWindowInfo.current
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -530,7 +515,7 @@ fun EnterNumberDialog(
                         .padding(horizontal = 25.dp, vertical = 10.dp),
                     value = phoneNumber,
                     onValueChange = { value ->
-                        phoneNumber = value.filter { it.isDigit() }
+                        onChangeNumber(value.filter { it.isDigit() })
                     },
                     singleLine = true,
                     visualTransformation = if (phoneNumber.length <= 11) PhoneNumberVisualTransformation else VisualTransformation.None,
@@ -543,19 +528,15 @@ fun EnterNumberDialog(
                         fontSize = 18.sp
                     )
                 )
-                if (hasReadContactsPermission == true) {
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Image(
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable {
-                                pickContactLauncher.launch(null)
-                            },
-                        painter = painterResource(id = R.drawable.contact_image),
-                        contentDescription = "Contact image"
-                    )
-                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Image(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable(onClick = pickContact),
+                    painter = painterResource(id = R.drawable.contact_image),
+                    contentDescription = "Contact image"
+                )
             }
             Row(
                 modifier = Modifier
@@ -597,7 +578,7 @@ fun EnterNumberDialog(
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable {
                             if (phoneNumber.isNotEmpty()) {
-                                onEnter(phoneNumber)
+                                onEnter()
                                 onDismissRequest()
                             }
                         },
@@ -615,15 +596,13 @@ fun EnterNumberDialog(
 }
 
 @Composable
-fun OpenUrlActionData(
-    defUrl: String = "",
+fun OpenUrlCategory(
+    url: TextFieldValue,
+    onChangeUrl: (TextFieldValue) -> Unit,
     onPick: (CircleMenuAction) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
-    var url by rememberSaveable {
-        mutableStateOf(defUrl)
-    }
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -651,7 +630,7 @@ fun OpenUrlActionData(
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 25.dp, vertical = 10.dp),
                     value = url,
-                    onValueChange = { url = it },
+                    onValueChange = onChangeUrl,
                     textStyle = TextStyle.Default.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 16.sp,
@@ -699,8 +678,8 @@ fun OpenUrlActionData(
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable {
-                            if (url.isNotEmpty()) {
-                                onPick(OpenUrlAction(url))
+                            if (url.text.isNotEmpty()) {
+                                onPick(OpenUrlAction(url.text))
                                 onDismissRequest()
                             }
                         },
@@ -716,4 +695,3 @@ fun OpenUrlActionData(
         }
     }
 }
-

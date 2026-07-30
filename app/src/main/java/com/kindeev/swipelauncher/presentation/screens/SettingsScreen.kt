@@ -9,7 +9,7 @@ import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
-import com.kindeev.swipelauncher.presentation.viewModels.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
