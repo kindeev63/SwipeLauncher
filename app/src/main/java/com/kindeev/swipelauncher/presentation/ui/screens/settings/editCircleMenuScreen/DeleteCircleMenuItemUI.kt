@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
+package com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

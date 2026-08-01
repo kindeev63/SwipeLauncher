@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.screens
+package com.kindeev.swipelauncher.presentation.ui.screens.settings
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -6,9 +6,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import com.kindeev.swipelauncher.presentation.navigation.ScreensSettings
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.EditCircleMenuScreenUI
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
+import com.kindeev.swipelauncher.presentation.ui.screens.OnboardingScreen
 import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM

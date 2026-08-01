@@ -10,8 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
-import com.kindeev.swipelauncher.presentation.screens.SettingsScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.SettingsScreen
+import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
 
 class SettingsActivity : ComponentActivity() {
 
@@ -20,7 +20,7 @@ class SettingsActivity : ComponentActivity() {
         hideNavigationBar()
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT))
         setContent {
-            SettingsScreenTheme {
+            LauncherTheme {
                 SettingsScreen()
             }
         }

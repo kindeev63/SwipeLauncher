@@ -25,10 +25,10 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUse
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDrawParameters
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemData
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.ActionItemState
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemData
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemState
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.GhostCircleMenuItem
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase

@@ -119,4 +119,16 @@
     <string name="title">Title</string>
     <string name="show_app_question">Do you want to show the app?</string>
 
+    <string name="settings">Settings</string>
+
+<!--    Settings Items-->
+    <string name="general_header">General</string>
+    <string name="circle_menu_category_title">CircleMenu</string>
+    <string name="circle_menu_category_description">Edit your CircleMenus</string>
+    <string name="app_list_category_title">App list</string>
+    <string name="app_list_category_description">Customize the appearance and functions of the app list</string>
+    <string name="additionally_header">Additionally</string>
+    <string name="pick_launcher_category_title">Pick default launcher</string>
+    <string name="tutorial_category_title">Tutorial</string>
+    <string name="tutorial_category_description">Understand the functionality</string>
 </resources>

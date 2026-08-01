@@ -92,4 +92,16 @@
     <string name="title">Заголовок</string>
     <string name="show_app_question">Вы хотите показать приложение?</string>
 
+    <string name="settings">Настройки</string>
+
+    <!--    Settings Items-->
+    <string name="general_header">Основное</string>
+    <string name="circle_menu_category_title">CircleMenu</string>
+    <string name="circle_menu_category_description">Измените ваши CircleMenus</string>
+    <string name="app_list_category_title">Список приложений</string>
+    <string name="app_list_category_description">Настройте внешний вид и функции списка приложений</string>
+    <string name="additionally_header">Дополнительно</string>
+    <string name="pick_launcher_category_title">Выбрать лаунчер по умолчанию</string>
+    <string name="tutorial_category_title">Обучение</string>
+    <string name="tutorial_category_description">Разберитесь в функционале</string>
 </resources>

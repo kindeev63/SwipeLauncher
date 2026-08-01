@@ -21,14 +21,14 @@ import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
 import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
 import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
 import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
-import com.kindeev.swipelauncher.presentation.ui.theme.LauncherScreenTheme
-import com.kindeev.swipelauncher.presentation.screens.LauncherScreen
-import com.kindeev.swipelauncher.presentation.screens.OnboardingScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.LauncherScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.OnboardingScreen
 import androidx.core.content.edit
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.DI
+import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         checkDirs()
         setContent {
             val context = LocalContext.current
-            LauncherScreenTheme {
+            LauncherTheme {
                 var startDestination by remember {
                     mutableStateOf<ScreensOnBoarding>(ScreensOnBoarding.MainScreenObject)
                 }

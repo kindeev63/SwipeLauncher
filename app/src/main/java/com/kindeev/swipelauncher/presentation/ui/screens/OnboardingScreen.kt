@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.kindeev.swipelauncher.presentation.screens
+package com.kindeev.swipelauncher.presentation.ui.screens
 
 import android.app.Activity
 import android.content.res.Configuration

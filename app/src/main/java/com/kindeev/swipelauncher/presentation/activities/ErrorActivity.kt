@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
 import com.kindeev.swipelauncher.presentation.GlobalExceptionHandler
-import com.kindeev.swipelauncher.presentation.ui.theme.SettingsScreenTheme
+import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -30,7 +30,7 @@ class ErrorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SettingsScreenTheme {
+            LauncherTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.screens
+package com.kindeev.swipelauncher.presentation.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically

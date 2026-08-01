@@ -1,4 +1,4 @@
-package com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen
+package com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kindeev.swipelauncher.presentation.screens.editCircleMenuScreen.entities.GhostCircleMenuItem
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.GhostCircleMenuItem
 
 @Composable
 fun GhostCircleMenuItemUI(
