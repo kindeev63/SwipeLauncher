@@ -3,10 +3,11 @@ package com.kindeev.swipelauncher.presentation.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class ScreensOnBoarding {
-    @Serializable
-    object OnBoardingScreenObject: ScreensOnBoarding()
+sealed class MainActivityNav {
 
     @Serializable
-    object MainScreenObject: ScreensOnBoarding()
+    object Launcher: MainActivityNav()
+
+    @Serializable
+    object OnBoarding: MainActivityNav()
 }

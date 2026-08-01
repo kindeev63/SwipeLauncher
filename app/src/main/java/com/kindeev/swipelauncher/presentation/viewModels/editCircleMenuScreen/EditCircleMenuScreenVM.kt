@@ -7,7 +7,6 @@ import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
@@ -25,6 +24,7 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUse
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDrawParameters
+import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemState
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.GhostCircleMenuItem
@@ -36,6 +36,7 @@ import com.kindeev.swipelauncher.presentation.useCases.menuParameters.corsOutRad
 import com.kindeev.swipelauncher.presentation.useCases.menuParameters.getSwipeRadius
 import com.kindeev.swipelauncher.presentation.useCases.menuParameters.makeCircleMenuParametersGenerator
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.entities.ItemBorders
+import com.knomster.navigation_component.NavigationComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -44,7 +45,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -62,8 +62,9 @@ class EditCircleMenuScreenVM(
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
     private val applicationsManager: ApplicationsManager,
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
+    private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     private val density: Float,
-    savedStateHandle: SavedStateHandle
+    circleMenuId: Int?
 ) : ViewModel() {
 
     private val _menuSize = MutableStateFlow(Constants.minScreenLength / 6 * 5f)
@@ -213,7 +214,6 @@ class EditCircleMenuScreenVM(
     }
 
     init {
-        val circleMenuId = savedStateHandle.get<Int>("circleMenuId")
         if (circleMenuId == null) {
             val allIds = circleMenuStateFlowUseCase.circleMenus.value.map { it.id }
             id = generateSequence(1) { it + 1 }.first { it !in allIds }
@@ -233,20 +233,6 @@ class EditCircleMenuScreenVM(
                     .drop(1)
                     .collect {
                         saveCircleMenu()
-                    }
-            }
-            launch {
-                savedStateHandle.getStateFlow<CircleMenuAction?>("pickedAction", null)
-                    .filterNotNull().collect { action ->
-                        updateAction(action)
-                        savedStateHandle["pickedAction"] = null
-                    }
-            }
-            launch {
-                savedStateHandle.getStateFlow<CircleMenuImage?>("pickedImage", null)
-                    .filterNotNull().collect { image ->
-                        updateImage(image)
-                        savedStateHandle["pickedImage"] = null
                     }
             }
         }
@@ -543,4 +529,28 @@ class EditCircleMenuScreenVM(
         saveCircleMenu()
     }
 
+    fun openActionDialog() {
+        navigationComponent.addToBackStack(
+            SettingsActivityNav.ActionDialog(
+                onPick = { action ->
+                    updateAction(action)
+                }
+            )
+        )
+    }
+
+    fun openImageDialog() {
+
+        navigationComponent.addToBackStack(
+            SettingsActivityNav.ImageDialog(
+                onPick = { image ->
+                    updateImage(image)
+                }
+            )
+        )
+    }
+
+    fun onBackPressed() {
+        navigationComponent.popUpBackStack()
+    }
 }

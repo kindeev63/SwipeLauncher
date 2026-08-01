@@ -64,36 +64,20 @@ import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.Ed
 @Composable
 fun EditCircleMenuScreenUI(
     viewModel: EditCircleMenuScreenVM,
-    openActionDialog: () -> Unit,
-    openImageDialog: () -> Unit,
-    onBackPressed: () -> Unit
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT && Constants.minScreenLength / 6 * 5f * 1.5f < LocalConfiguration.current.screenHeightDp) {
         viewModel.updateMenuSize(Constants.minScreenLength / 6 * 5f)
-        PortraitUI(
-            viewModel = viewModel,
-            openActionDialog = openActionDialog,
-            openImageDialog = openImageDialog,
-            onBackPressed = onBackPressed
-        )
+        PortraitUI(viewModel = viewModel)
     } else {
         viewModel.updateMenuSize((Constants.minScreenLength - 80) / 3 * 2f)
-        LandscapeUI(
-            viewModel = viewModel,
-            openActionDialog = openActionDialog,
-            openImageDialog = openImageDialog,
-            onBackPressed = onBackPressed
-        )
+        LandscapeUI(viewModel = viewModel)
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LandscapeUI(
-    viewModel: EditCircleMenuScreenVM,
-    openActionDialog: () -> Unit,
-    openImageDialog: () -> Unit,
-    onBackPressed: () -> Unit
+    viewModel: EditCircleMenuScreenVM
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
@@ -105,7 +89,7 @@ private fun LandscapeUI(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             EditCircleMenuToolbarUI(
-                onBackPressed = onBackPressed
+                onBackPressed = viewModel::onBackPressed
             )
         }
     ) { paddingValues ->
@@ -186,8 +170,8 @@ private fun LandscapeUI(
                     ImageAndActionEdit(
                         viewModel = viewModel,
                         circleMenuItem = item,
-                        openActionDialog = openActionDialog,
-                        openImageDialog = openImageDialog,
+                        openActionDialog = viewModel::openActionDialog,
+                        openImageDialog = viewModel::openImageDialog,
                         onChangeAction = viewModel::updateAction
                     )
                 }
@@ -199,10 +183,7 @@ private fun LandscapeUI(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PortraitUI(
-    viewModel: EditCircleMenuScreenVM,
-    openActionDialog: () -> Unit,
-    openImageDialog: () -> Unit,
-    onBackPressed: () -> Unit
+    viewModel: EditCircleMenuScreenVM
 ) {
     val actionItemData by viewModel.actionItemData.collectAsState()
     val selectedBoxData by viewModel.selectedBoxData.collectAsState()
@@ -214,7 +195,7 @@ private fun PortraitUI(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             EditCircleMenuToolbarUI(
-                onBackPressed = onBackPressed
+                onBackPressed = viewModel::onBackPressed
             )
         }
     ) { paddingValues ->
@@ -292,8 +273,8 @@ private fun PortraitUI(
                     ImageAndActionEdit(
                         viewModel = viewModel,
                         circleMenuItem = item,
-                        openActionDialog = openActionDialog,
-                        openImageDialog = openImageDialog,
+                        openActionDialog = viewModel::openActionDialog,
+                        openImageDialog = viewModel::openImageDialog,
                         onChangeAction = viewModel::updateAction
                     )
                 }

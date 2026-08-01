@@ -5,30 +5,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.checkDirs
 import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
-import com.kindeev.swipelauncher.domain.utils.isMyLauncherDefault
-import com.kindeev.swipelauncher.presentation.navigation.OnBoardingNavGraph
-import com.kindeev.swipelauncher.presentation.navigation.ScreensOnBoarding
-import com.kindeev.swipelauncher.presentation.navigation.rememberNavigationState
 import com.kindeev.swipelauncher.presentation.ui.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.ui.screens.OnboardingScreen
-import androidx.core.content.edit
-import com.kindeev.swipelauncher.domain.interfaces.DataRepository
-import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.DI
+import com.kindeev.swipelauncher.presentation.navigation.MainActivityNav
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
+import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
@@ -39,65 +33,29 @@ class MainActivity : ComponentActivity() {
         hideNavigationBar()
         checkDirs()
         setContent {
-            val context = LocalContext.current
             LauncherTheme {
-                var startDestination by remember {
-                    mutableStateOf<ScreensOnBoarding>(ScreensOnBoarding.MainScreenObject)
-                }
-                val navigationState = rememberNavigationState()
-                OnBoardingNavGraph(
-                    navHostController = navigationState.navHostController,
-                    mainScreen = {
-                        val viewModel: LauncherScreenVM = diViewModel()
-                        LauncherScreen(viewModel)
-                    },
-                    onboardingScreen = {
-                        OnboardingScreen(
-                            onFinish = {
-                                onBoardingComplete()
-                                navigationState.navHostController.popBackStack()
-                                navigationState.navigateTo(ScreensOnBoarding.MainScreenObject)
-                            }
-                        )
-                    },
-                    startDestination = startDestination
-                )
-                LaunchedEffect(Unit) {
-                    startDestination = if (isFirstRun()) {
-                        insertRootCircleMenu()
-                        if (context.isMyLauncherDefault()) {
-                            onBoardingComplete()
-                            ScreensOnBoarding.MainScreenObject
-                        } else {
-                            ScreensOnBoarding.OnBoardingScreenObject
+                val viewModel: MainActivityVM = diViewModel()
+                val navigationBackStack by viewModel.navigationBackStack.collectAsStateWithLifecycle()
+                NavDisplay(
+                    backStack = navigationBackStack,
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
+                    onBack = viewModel::navigationOnBack,
+                    entryProvider = entryProvider {
+                        entry<MainActivityNav.Launcher> {
+                            val viewModel: LauncherScreenVM = diViewModel()
+                            LauncherScreen(viewModel)
                         }
-                    } else ScreensOnBoarding.MainScreenObject
-                }
+                        entry<MainActivityNav.OnBoarding> {
+                            OnboardingScreen(
+                                onFinish = viewModel::onCompleteOnBoarding
+                            )
+                        }
+                    }
+                )
             }
-        }
-    }
-
-    private suspend fun insertRootCircleMenu() {
-        DI.container.getSingle<DataRepository>()
-            .insertCircleMenu(
-                DI.container.getSingle<GetRootCircleMenuUseCase>()
-                    .get(
-                        resources.getString(
-                            R.string.root
-                        )
-                    )
-            )
-    }
-
-    private fun isFirstRun(): Boolean {
-        val prefs = getSharedPreferences("data", MODE_PRIVATE)
-        return !prefs.contains("first_run")
-    }
-
-    private fun onBoardingComplete() {
-        val prefs = getSharedPreferences("data", MODE_PRIVATE)
-        prefs.edit {
-            putString("first_run", "false")
         }
     }
 

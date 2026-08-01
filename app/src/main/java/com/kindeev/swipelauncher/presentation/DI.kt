@@ -22,6 +22,8 @@ import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.TelephoneUseC
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.navigation.MainActivityNav
+import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
@@ -29,17 +31,24 @@ import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.SettingsActivityVM
 import com.knomster.di.DIContainer
+import com.knomster.di.DIKey
+import com.knomster.navigation_component.NavigationComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 object DI {
     val container = DIContainer()
+
+    const val MAIN_NAVIGATION_COMPONENT_KEY: DIKey = "main"
+    const val SETTINGS_NAVIGATION_COMPONENT_KEY: DIKey = "settings"
 
 
     fun init(context: Context) {
@@ -208,6 +217,20 @@ object DI {
     private fun initPresentationDependencies() {
         initOtherPresentationDependencies()
         initPresentationStateFlowDependencies()
+        initNavigationDependencies()
+    }
+
+    private fun initNavigationDependencies() {
+        container.insertSingle<NavigationComponent<MainActivityNav>>(
+            key = MAIN_NAVIGATION_COMPONENT_KEY
+        ) {
+            NavigationComponent(MainActivityNav.Launcher)
+        }
+        container.insertSingle<NavigationComponent<SettingsActivityNav>>(
+            key = SETTINGS_NAVIGATION_COMPONENT_KEY
+        ) {
+            NavigationComponent(SettingsActivityNav.Main)
+        }
     }
 
     private fun initOtherPresentationDependencies() {
@@ -262,12 +285,13 @@ object DI {
                 importCircleMenusUseCase = container.getSingle(),
                 circleMenuStateFlowUseCase = container.getSingle(),
                 circleMenuParametersUseCase = container.getSingle(),
-                circleMenuImageToImageBitmap = container.getSingle()
+                circleMenuImageToImageBitmap = container.getSingle(),
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY)
             )
         }
-        container.registerViewModel { savedStateHandle ->
+        container.registerViewModel { parameters ->
             EditCircleMenuScreenVM(
-                savedStateHandle = savedStateHandle,
+                circleMenuId = parameters.get("circleMenuId"),
                 circleMenuStateFlowUseCase = container.getSingle(),
                 saveCircleMenuWithDebounceUseCase = container.getSingle(),
                 applicationsManager = container.getSingle(),
@@ -276,6 +300,7 @@ object DI {
                 circleMenuParametersUseCase = container.getSingle(),
                 circleMenuImageToImageBitmapUseCase = container.getSingle(),
                 circleMenuItemIndexOnCordsUseCase = container.getSingle(),
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
             )
         }
         container.registerViewModel {
@@ -295,15 +320,15 @@ object DI {
                 circleMenuParametersUseCase = container.getSingle()
             )
         }
-        container.registerViewModel { savedStateHandle ->
+        container.registerViewModel {
             MainSettingsScreenVM(
-                savedStateHandle = savedStateHandle,
                 applicationsManager = container.getSingle(),
                 settingsStateFlowUseCase = container.getSingle(),
                 dataRepository = container.getSingle(),
                 circleMenuParametersUseCase = container.getSingle(),
                 circleMenuStateFlowUseCase = container.getSingle(),
-                circleMenuImageToImageBitmap = container.getSingle()
+                circleMenuImageToImageBitmap = container.getSingle(),
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY)
             )
         }
         container.registerViewModel {
@@ -318,6 +343,19 @@ object DI {
             ImageDialogVM(
                 userImagesRepository = container.getSingle(),
                 applicationsManager = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            MainActivityVM(
+                navigationComponent = container.getSingle(key = MAIN_NAVIGATION_COMPONENT_KEY),
+                getRootCircleMenuUseCase = container.getSingle(),
+                dataRepository = container.getSingle(),
+                context = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            SettingsActivityVM(
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY)
             )
         }
     }

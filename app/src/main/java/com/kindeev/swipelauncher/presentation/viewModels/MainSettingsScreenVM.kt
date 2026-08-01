@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.viewModels
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
@@ -13,9 +12,9 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUse
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterNotNull
+import com.knomster.navigation_component.NavigationComponent
 import kotlinx.coroutines.launch
 import kotlin.collections.filterNotNull
 
@@ -24,9 +23,9 @@ class MainSettingsScreenVM(
     private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
     private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     private val circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
+    private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     val dataRepository: DataRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val menuSize = Constants.minScreenLength / 6f - 10
@@ -55,18 +54,6 @@ class MainSettingsScreenVM(
         }
     }
 
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            savedStateHandle.getStateFlow<CircleMenuAction?>("pickedAction", null)
-                .filterNotNull()
-                .collect { action ->
-                    changeClickOnClockAction(action)
-                    savedStateHandle["pickedAction"] = null
-                }
-        }
-    }
-
     fun getApplicationInfo(packageName: String): ApplicationInfo? {
         return applicationsManager.getApplication(packageName)
     }
@@ -82,4 +69,21 @@ class MainSettingsScreenVM(
         )
     }
 
+    fun navigateToAllCircleMenus() {
+        navigationComponent.addToBackStack(SettingsActivityNav.CircleMenus)
+    }
+
+    fun navigateToTutorial() {
+        navigationComponent.addToBackStack(SettingsActivityNav.Tutorial)
+    }
+
+    fun openActionDialog() {
+        navigationComponent.addToBackStack(
+            SettingsActivityNav.ActionDialog(
+                onPick = { action ->
+                    changeClickOnClockAction(action)
+                }
+            )
+        )
+    }
 }

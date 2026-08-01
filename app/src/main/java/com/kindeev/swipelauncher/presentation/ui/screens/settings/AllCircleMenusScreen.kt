@@ -1,10 +1,9 @@
 package com.kindeev.swipelauncher.presentation.ui.screens.settings
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,12 +31,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -60,17 +56,14 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.QuestionDialog
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
 import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AllCircleMenusScreen(
     viewModel: AllCircleMenusScreenVM,
-    navigateToCircleMenu: (Int?) -> Unit,
-    onBackPressed: () -> Unit
 ) {
     viewModel.setScreenWidth(LocalConfiguration.current.screenWidthDp)
     val context = LocalContext.current
-    val window = (LocalContext.current as Activity).window
+    val window = LocalActivity.current!!.window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
     val scope = rememberCoroutineScope()
@@ -78,12 +71,16 @@ fun AllCircleMenusScreen(
         controller.isAppearanceLightStatusBars = false
     }
     BackHandler {
-        scope.launch { controller.isAppearanceLightStatusBars = true }
-        onBackPressed()
+        viewModel.onBackPressed(
+            changeStatusBar = {
+                controller.isAppearanceLightStatusBars = true
+            }
+        )
     }
     val snackbarHostState = remember { SnackbarHostState() }
     val circleMenus by viewModel.circleMenus.collectAsStateWithLifecycle()
-    val selectedMenuIds by viewModel.selectedMenuIds.collectAsState()
+    val selectedMenuIds by viewModel.selectedMenuIds.collectAsStateWithLifecycle()
+    val showDeleteMenusDialog by viewModel.showDeleteCircleMenusDialog.collectAsStateWithLifecycle()
 
     val pickJsonFile = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -95,17 +92,11 @@ fun AllCircleMenusScreen(
             }
         }
     )
-    var showDeleteMenusDialog by remember {
-        mutableStateOf(false)
-    }
     if (showDeleteMenusDialog) {
         QuestionDialog(
             text = stringResource(id = R.string.delete_circle_menus_question),
-            onDismissRequest = { showDeleteMenusDialog = false },
-            onClickYes = {
-                viewModel.deleteSelectedMenus()
-                showDeleteMenusDialog = false
-            }
+            onDismissRequest = viewModel::closeDeleteCircleMenusDialog,
+            onClickYes = viewModel::deleteSelectedMenus
         )
     }
     val permissionState = rememberPermissionState(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -114,7 +105,7 @@ fun AllCircleMenusScreen(
             AllCircleMenusToolbar(
                 selectedMenusText = if (selectedMenuIds.isEmpty()) null else "${selectedMenuIds.count()} / ${circleMenus.count()}",
                 onClickSelectAll = { viewModel.selectAllMenus() },
-                onClickDelete = { showDeleteMenusDialog = true },
+                onClickDelete = viewModel::showDeleteCircleMenusDialog,
                 onClickImport = { pickJsonFile.launch("application/zip") },
                 onClickExport = {
                     if (permissionState.status.isGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -142,8 +133,11 @@ fun AllCircleMenusScreen(
                 },
                 onClickClose = { viewModel.finishSelect() },
                 onBackPressed = {
-                    scope.launch { controller.isAppearanceLightStatusBars = true }
-                    onBackPressed()
+                    viewModel.onBackPressed(
+                        changeStatusBar = {
+                            controller.isAppearanceLightStatusBars = true
+                        }
+                    )
                 }
             )
         },
@@ -152,7 +146,7 @@ fun AllCircleMenusScreen(
             FloatingActionButton(
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                onClick = { navigateToCircleMenu(null) }
+                onClick = viewModel::addNewCircleMenu
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
@@ -179,14 +173,10 @@ fun AllCircleMenusScreen(
                     root = circleMenu.id == 0,
                     circleMenu = circleMenu,
                     onClick = {
-                        if (selectedMenuIds.isEmpty()) {
-                            navigateToCircleMenu(circleMenu.id)
-                        } else {
-                            viewModel.changeSelectionStateOf(circleMenu.id)
-                        }
+                        viewModel.clickOnCircleMenuItem(circleMenu.id)
                     },
                     onLongClick = {
-                        viewModel.changeSelectionStateOf(circleMenu.id)
+                        viewModel.longClickOnCircleMenuItem(circleMenu.id)
                     }
                 )
             }

@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "SwipeLauncher"
 include(":app")
 include(":di")
+include(":navigation-component")

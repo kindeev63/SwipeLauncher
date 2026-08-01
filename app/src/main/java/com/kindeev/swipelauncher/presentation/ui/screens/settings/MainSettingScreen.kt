@@ -39,9 +39,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainSettingsScreen(
     viewModel: MainSettingsScreenVM,
-    navigateToAllCircleMenus: () -> Unit,
-    navigateToTutorial: () -> Unit,
-    openActionDialog: () -> Unit
 ) {
     val context = LocalContext.current
     val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
@@ -62,7 +59,7 @@ fun MainSettingsScreen(
             item {
                 ClickableSettingItem(
                     text = stringResource(id = R.string.setting_all_circle_menus),
-                    onClick = navigateToAllCircleMenus
+                    onClick = viewModel::navigateToAllCircleMenus
                 )
             }
 
@@ -134,7 +131,7 @@ fun MainSettingsScreen(
                             )
                             EditCircleMenuAction(
                                 action = settings.clickOnClock.action,
-                                openActionDialog = openActionDialog,
+                                openActionDialog = viewModel::openActionDialog,
                                 getApplicationInfo = viewModel::getApplicationInfo,
                                 getCircleMenuToDraw = viewModel::getCircleMenuToDraw,
                                 size = Constants.minScreenLength / 6f,
@@ -189,7 +186,7 @@ fun MainSettingsScreen(
             item {
                 ClickableSettingItem(
                     text = stringResource(id = R.string.setting_tutorial),
-                    onClick = { navigateToTutorial() }
+                    onClick = viewModel::navigateToTutorial
                 )
             }
         }

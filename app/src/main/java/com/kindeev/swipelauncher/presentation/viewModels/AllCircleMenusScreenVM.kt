@@ -11,10 +11,13 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowU
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
+import com.knomster.navigation_component.NavigationComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -26,10 +29,14 @@ class AllCircleMenusScreenVM(
     private val importCircleMenusUseCase: ImportCircleMenusUseCase,
     private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
     private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
+    private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
 ) : ViewModel() {
 
     private val menuSize = MutableStateFlow(((Constants.minScreenLength / 2f) - 6) * 2 / 3)
+
+    private val _showDeleteCircleMenusDialog = MutableStateFlow(false)
+    val showDeleteCircleMenusDialog: StateFlow<Boolean> = _showDeleteCircleMenusDialog.asStateFlow()
 
     val circleMenus = combine(
         circleMenuStateFlowUseCase.circleMenus,
@@ -62,6 +69,21 @@ class AllCircleMenusScreenVM(
         initialValue = emptyList()
     )
 
+    fun onBackPressed(changeStatusBar: suspend () -> Unit) {
+        if (selectedMenuIds.value.isNotEmpty()) {
+            finishSelect()
+        } else {
+            viewModelScope.launch {
+                changeStatusBar()
+            }
+            navigationComponent.popUpBackStack()
+        }
+    }
+
+    fun addNewCircleMenu() {
+        navigationComponent.addToBackStack(SettingsActivityNav.EditCircleMenu(null))
+    }
+
     private val _selectedMenuIds = MutableStateFlow<List<Int>>(emptyList())
     val selectedMenuIds: StateFlow<List<Int>> = _selectedMenuIds
 
@@ -75,7 +97,8 @@ class AllCircleMenusScreenVM(
 
     fun deleteSelectedMenus() = viewModelScope.launch {
         dataRepository.deleteCircleMenuByIds(selectedMenuIds.value.filter { it != 0 })
-        _selectedMenuIds.value = emptyList()
+        finishSelect()
+        closeDeleteCircleMenusDialog()
     }
 
     fun exportSelectedMenus(onFinish: (Boolean) -> Unit) {
@@ -84,7 +107,7 @@ class AllCircleMenusScreenVM(
                 circleMenuStateFlowUseCase.circleMenus.value.filter { selectedMenuIds.value.contains(it.id) }
             )
         )
-        _selectedMenuIds.value = emptyList()
+        finishSelect()
     }
 
     fun importCircleMenus(uri: Uri, onFinish: (Boolean) -> Unit) = viewModelScope.launch {
@@ -97,7 +120,7 @@ class AllCircleMenusScreenVM(
         _selectedMenuIds.value = emptyList()
     }
 
-    fun changeSelectionStateOf(id: Int) {
+    private fun changeSelectionStateOf(id: Int) {
         _selectedMenuIds.value =
             selectedMenuIds.value.toMutableList().apply {
                 if (contains(id)) {
@@ -107,4 +130,26 @@ class AllCircleMenusScreenVM(
                 }
             }
     }
+
+
+    fun clickOnCircleMenuItem(id: Int) {
+        if (selectedMenuIds.value.isEmpty()) {
+            navigationComponent.addToBackStack(SettingsActivityNav.EditCircleMenu(id))
+        } else {
+            changeSelectionStateOf(id)
+        }
+    }
+
+    fun longClickOnCircleMenuItem(id: Int) {
+        changeSelectionStateOf(id)
+    }
+
+    fun showDeleteCircleMenusDialog() {
+        _showDeleteCircleMenusDialog.value = true
+    }
+
+    fun closeDeleteCircleMenusDialog() {
+        _showDeleteCircleMenusDialog.value = false
+    }
+
 }
