@@ -59,7 +59,7 @@ import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenu
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
 
 @Composable
 fun EditCircleMenuScreenUI(

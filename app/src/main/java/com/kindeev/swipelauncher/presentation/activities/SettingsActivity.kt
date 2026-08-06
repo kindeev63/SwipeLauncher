@@ -22,17 +22,23 @@ import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ActionDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.ImageDialog
 import com.kindeev.swipelauncher.presentation.ui.screens.OnboardingScreen
-import com.kindeev.swipelauncher.presentation.ui.screens.settings.AllCircleMenusScreen
-import com.kindeev.swipelauncher.presentation.ui.screens.settings.MainSettingsScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.additionalSettingsScreen.AdditionalSettingsScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.allCircleMenusScreen.AllCircleMenusScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.appListSettingsScreen.AppListSettingsScreen
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.EditCircleMenuScreenUI
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.launcherSettingsScreen.LauncherSettingsScreen
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.mainSettingsScreen.MainSettingsScreen
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
-import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.SettingsActivityVM
-import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.SettingsActivityVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen.AdditionalSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.appListSettingsScreen.AppListSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.launcherSettingsScreen.LauncherSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen.MainSettingsScreenVM
 
 class SettingsActivity : ComponentActivity() {
 
@@ -111,6 +117,18 @@ class SettingsActivity : ComponentActivity() {
                                     route.onPick(image)
                                 }
                             )
+                        }
+                        entry<SettingsActivityNav.Additional> {
+                            val viewModel: AdditionalSettingsScreenVM = diViewModel()
+                            AdditionalSettingsScreen(viewModel = viewModel)
+                        }
+                        entry<SettingsActivityNav.AppList> {
+                            val viewModel: AppListSettingsScreenVM = diViewModel()
+                            AppListSettingsScreen(viewModel = viewModel)
+                        }
+                        entry<SettingsActivityNav.Launcher> {
+                            val viewModel: LauncherSettingsScreenVM = diViewModel()
+                            LauncherSettingsScreen(viewModel = viewModel)
                         }
                     }
                 )

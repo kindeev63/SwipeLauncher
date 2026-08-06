@@ -24,4 +24,11 @@ sealed class SettingsActivityNav {
 
     @Serializable
     data class EditCircleMenu(val circleMenuId: Int?): SettingsActivityNav()
+
+    @Serializable
+    object Additional: SettingsActivityNav()
+    @Serializable
+    object AppList: SettingsActivityNav()
+    @Serializable
+    object Launcher: SettingsActivityNav()
 }

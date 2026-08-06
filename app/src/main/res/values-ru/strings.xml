@@ -98,10 +98,25 @@
     <string name="general_header">Основное</string>
     <string name="circle_menu_category_title">CircleMenu</string>
     <string name="circle_menu_category_description">Измените ваши CircleMenus</string>
+    <string name="main_screen_category_title">Главный экран</string>
+    <string name="main_screen_category_description">Функции и внешний вид</string>
     <string name="app_list_category_title">Список приложений</string>
-    <string name="app_list_category_description">Настройте внешний вид и функции списка приложений</string>
+    <string name="app_list_category_description">Функции и внешний вид</string>
     <string name="additionally_header">Дополнительно</string>
     <string name="pick_launcher_category_title">Выбрать лаунчер по умолчанию</string>
     <string name="tutorial_category_title">Обучение</string>
     <string name="tutorial_category_description">Разберитесь в функционале</string>
+    <string name="additional_category_title">Дополнительные настройки</string>
+    <string name="additional_category_description">Дополнительные функции</string>
+
+    <string name="open_last_app_title">Открыть последнее приложение</string>
+    <string name="open_last_app_description">Если при поиске осталось только оно</string>
+
+    <string name="click_on_clock_title">Действие при нажатии на часы</string>
+    <string name="click_on_clock_description">Выполнить действие</string>
+    <string name="black_text_color_title">Тёмный текст на обоях</string>
+    <string name="black_text_color_description">Цвет виджета часов</string>
+
+    <string name="open_app_action_with_image_title">Выбрать действие открыть приложение при выборе картинки приложения</string>
+    <string name="open_app_action_with_image_description">Для экрана редактирования CircleMenu</string>
 </resources>

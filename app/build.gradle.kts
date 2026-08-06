@@ -63,9 +63,6 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Permissions
-    implementation(libs.accompanist.permissions)
-
     // Pager
     implementation(libs.accompanist.pager)
     implementation(libs.accompanist.pager.indicators)

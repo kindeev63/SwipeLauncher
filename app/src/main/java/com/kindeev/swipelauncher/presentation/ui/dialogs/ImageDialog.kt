@@ -48,8 +48,8 @@ import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.entities.imageTypes.ImageType
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
-import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.entities.ImageDialogState
-import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.entities.ImageDialogState
+import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.ImageDialogVM
 
 @Composable
 fun ImageDialog(

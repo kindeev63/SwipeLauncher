@@ -24,19 +24,23 @@ import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUse
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
 import com.kindeev.swipelauncher.presentation.navigation.MainActivityNav
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
+import com.kindeev.swipelauncher.presentation.useCases.ActionItemDataUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
-import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
-import com.kindeev.swipelauncher.presentation.viewModels.AllCircleMenusScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
-import com.kindeev.swipelauncher.presentation.viewModels.imageDialog.ImageDialogVM
-import com.kindeev.swipelauncher.presentation.viewModels.editCircleMenuScreen.EditCircleMenuScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.ImageDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.MainSettingsScreenVM
-import com.kindeev.swipelauncher.presentation.viewModels.SettingsActivityVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.SettingsActivityVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen.AdditionalSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.appListSettingsScreen.AppListSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.launcherSettingsScreen.LauncherSettingsScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen.MainSettingsScreenVM
 import com.knomster.di.DIContainer
 import com.knomster.di.DIKey
 import com.knomster.navigation_component.NavigationComponent
@@ -258,6 +262,14 @@ object DI {
                 ioScope = container.getSingle()
             )
         }
+        container.insertSingle {
+            ActionItemDataUseCase(
+                applicationsManager = container.getSingle(),
+                circleMenuStateFlowUseCase = container.getSingle(),
+                circleMenuParametersUseCase = container.getSingle(),
+                circleMenuImageToImageBitmapUseCase = container.getSingle()
+            )
+        }
     }
 
     private fun initPresentationStateFlowDependencies() {
@@ -321,17 +333,6 @@ object DI {
             )
         }
         container.registerViewModel {
-            MainSettingsScreenVM(
-                applicationsManager = container.getSingle(),
-                settingsStateFlowUseCase = container.getSingle(),
-                dataRepository = container.getSingle(),
-                circleMenuParametersUseCase = container.getSingle(),
-                circleMenuStateFlowUseCase = container.getSingle(),
-                circleMenuImageToImageBitmap = container.getSingle(),
-                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY)
-            )
-        }
-        container.registerViewModel {
             ActionDialogVM(
                 circleMenuParametersUseCase = container.getSingle(),
                 applicationsManager = container.getSingle(),
@@ -356,6 +357,37 @@ object DI {
         container.registerViewModel {
             SettingsActivityVM(
                 navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY)
+            )
+        }
+        container.registerViewModel {
+            AdditionalSettingsScreenVM(
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
+                settingsStateFlowUseCase = container.getSingle(),
+                dataRepository = container.getSingle(),
+                context = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            AppListSettingsScreenVM(
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
+                settingsStateFlowUseCase = container.getSingle(),
+                dataRepository = container.getSingle(),
+                context = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            LauncherSettingsScreenVM(
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
+                dataRepository = container.getSingle(),
+                settingsStateFlowUseCase = container.getSingle(),
+                actionItemDataUseCase = container.getSingle(),
+                context = container.getSingle()
+            )
+        }
+        container.registerViewModel {
+            MainSettingsScreenVM(
+                navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
+                context = container.getSingle()
             )
         }
     }

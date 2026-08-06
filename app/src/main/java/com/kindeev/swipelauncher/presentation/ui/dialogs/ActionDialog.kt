@@ -75,8 +75,8 @@ import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransfor
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.ui.elements.MiniCircleMenuItem
-import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.ActionDialogVM
-import com.kindeev.swipelauncher.presentation.viewModels.actionDialog.entities.ActionDialogState
+import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
+import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.entities.ActionDialogState
 import kotlinx.coroutines.launch
 
 @Composable

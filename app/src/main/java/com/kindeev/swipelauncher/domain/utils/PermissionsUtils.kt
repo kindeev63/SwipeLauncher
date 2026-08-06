@@ -1,47 +1,62 @@
 package com.kindeev.swipelauncher.domain.utils
 
 import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ReadContactsPermission(
     result: (Boolean) -> Unit
 ) {
-    val permissionState = rememberPermissionState(Manifest.permission.READ_CONTACTS)
-    if (permissionState.status.isGranted) {
-        result(true)
-    } else {
-        if (permissionState.status.shouldShowRationale) {
-            result(false)
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        result(isGranted)
+    }
+
+    LaunchedEffect(Unit) {
+        val isGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (isGranted) {
+            result(true)
         } else {
-            LaunchedEffect(permissionState) {
-                permissionState.launchPermissionRequest()
-            }
+            launcher.launch(Manifest.permission.READ_CONTACTS)
         }
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CallPermission(
     result: (Boolean) -> Unit
 ) {
-    val permissionState = rememberPermissionState(Manifest.permission.CALL_PHONE)
-    if (permissionState.status.isGranted) {
-        result(true)
-    } else {
-        if (permissionState.status.shouldShowRationale) {
-            result(false)
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        result(isGranted)
+    }
+
+    LaunchedEffect(Unit) {
+        val isGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (isGranted) {
+            result(true)
         } else {
-            LaunchedEffect(permissionState) {
-                permissionState.launchPermissionRequest()
-            }
+            launcher.launch(Manifest.permission.CALL_PHONE)
         }
     }
 }

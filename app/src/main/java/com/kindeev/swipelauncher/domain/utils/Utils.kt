@@ -45,7 +45,9 @@ fun Context.isMyLauncherDefault(): Boolean {
 }
 
 fun Context.showLauncherSelection() {
-    val intent = Intent(Settings.ACTION_HOME_SETTINGS)
+    val intent = Intent(Settings.ACTION_HOME_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
     if (intent.resolveActivity(this.packageManager) != null) {
         this.startActivity(intent)
     }

@@ -15,7 +15,6 @@ import com.kindeev.swipelauncher.R
 fun MainSettingsTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) {
-    @OptIn(ExperimentalMaterial3Api::class)
     LargeTopAppBar(
         title = {
             Text(
