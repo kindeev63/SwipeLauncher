@@ -2,8 +2,8 @@
 
 package com.kindeev.swipelauncher.presentation.ui.screens
 
-import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 fun OnboardingScreen(
     onFinish: () -> Unit
 ) {
-    val window = (LocalContext.current as Activity).window
+    val window = LocalActivity.current!!.window
     val view = LocalView.current
     val controller = WindowInsetsControllerCompat(window, view)
     val scope = rememberCoroutineScope()
@@ -126,7 +126,9 @@ private fun PageContentTablet(
     when (page) {
         0 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -146,6 +148,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_first_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -162,6 +165,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_first_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -171,7 +175,9 @@ private fun PageContentTablet(
 
         1 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -192,6 +198,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_second_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -208,6 +215,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_second_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -217,7 +225,9 @@ private fun PageContentTablet(
 
         2 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -237,6 +247,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_third_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -253,6 +264,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_third_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -262,7 +274,9 @@ private fun PageContentTablet(
 
         3 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -282,6 +296,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_fourth_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -298,6 +313,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_fourth_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -307,7 +323,9 @@ private fun PageContentTablet(
 
         4 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -327,6 +345,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_fifth_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -343,6 +362,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_fifth_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -352,7 +372,9 @@ private fun PageContentTablet(
 
         5 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -372,6 +394,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_sixth_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -388,6 +411,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_sixth_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -397,7 +421,9 @@ private fun PageContentTablet(
 
         6 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -418,6 +444,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_seventh_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -434,6 +461,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_seventh_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -443,7 +471,9 @@ private fun PageContentTablet(
 
         7 -> {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -463,6 +493,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_eighth_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -479,6 +510,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_eighth_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -489,7 +521,9 @@ private fun PageContentTablet(
         8 -> {
             val context = LocalContext.current
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Box(
                     modifier = Modifier
@@ -509,6 +543,7 @@ private fun PageContentTablet(
                         Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                         Text(
                             text = stringResource(id = R.string.on_boarding_ninth_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = screenWidth.sp / 20,
                             lineHeight = screenWidth.sp / 20,
                             textAlign = TextAlign.Center,
@@ -526,6 +561,7 @@ private fun PageContentTablet(
                 ) {
                     Text(
                         text = stringResource(id = R.string.on_boarding_ninth_desc),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = screenWidth.sp / 25,
                         lineHeight = screenWidth.sp / 25
                     )
@@ -550,6 +586,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -563,6 +600,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_first_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -571,6 +609,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_first_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -581,6 +620,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -595,6 +635,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_second_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -603,6 +644,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_second_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -613,6 +655,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -626,6 +669,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_third_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -634,6 +678,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_third_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -644,6 +689,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -657,6 +703,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_fourth_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -665,6 +712,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_fourth_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -675,6 +723,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -688,6 +737,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_fifth_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -696,6 +746,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_fifth_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -706,6 +757,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -719,6 +771,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_sixth_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -727,6 +780,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_sixth_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -737,6 +791,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -751,6 +806,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_seventh_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -759,6 +815,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_seventh_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -769,6 +826,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -782,6 +840,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_eighth_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
@@ -790,6 +849,7 @@ private fun PageContentPhone(
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_eighth_desc),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = screenWidth.sp / 25,
                     lineHeight = screenWidth.sp / 25
                 )
@@ -801,6 +861,7 @@ private fun PageContentPhone(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = screenWidth.dp / 7),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -817,13 +878,15 @@ private fun PageContentPhone(
                     fontSize = screenWidth.sp / 15,
                     lineHeight = screenWidth.sp / 15,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Text(
                     text = stringResource(id = R.string.on_boarding_ninth_desc),
                     fontSize = screenWidth.sp / 25,
-                    lineHeight = screenWidth.sp / 25
+                    lineHeight = screenWidth.sp / 25,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
                 Button(onClick = { context.showLauncherSelection() }) {

@@ -321,7 +321,7 @@ private fun CircleMenuTitle(
         if (title.text.isEmpty()) {
             Text(
                 text = stringResource(R.string.title),
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = fontSize
             )
         }
@@ -330,7 +330,7 @@ private fun CircleMenuTitle(
                 .fillMaxWidth(),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             textStyle = TextStyle(
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 fontSize = fontSize,
                 fontWeight = FontWeight.Black
