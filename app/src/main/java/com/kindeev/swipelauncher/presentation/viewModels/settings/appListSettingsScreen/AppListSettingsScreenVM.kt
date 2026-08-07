@@ -52,6 +52,6 @@ class AppListSettingsScreenVM(
     }
 
     fun onBackPressed() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 }

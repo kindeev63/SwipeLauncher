@@ -551,6 +551,6 @@ class EditCircleMenuScreenVM(
     }
 
     fun onBackPressed() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 }

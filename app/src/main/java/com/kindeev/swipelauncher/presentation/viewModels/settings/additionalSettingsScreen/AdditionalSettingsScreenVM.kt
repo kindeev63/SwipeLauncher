@@ -53,6 +53,6 @@ class AdditionalSettingsScreenVM(
     }
 
     fun onBackPressed() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 }

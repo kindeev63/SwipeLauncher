@@ -14,8 +14,11 @@ class NavigationComponent<T>(val startDestination: T) {
         changeBackStack { it.add(screen) }
     }
 
-    fun popUpBackStack() {
-        changeBackStack { it.removeLastOrNull() }
+    fun popUpBackStackSafe() {
+        changeBackStack {
+            if (it.size > 1)
+            it.removeLastOrNull()
+        }
     }
 
     fun clearBackStack() {

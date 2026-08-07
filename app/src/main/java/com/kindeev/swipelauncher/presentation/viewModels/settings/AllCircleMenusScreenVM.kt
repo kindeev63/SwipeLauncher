@@ -76,7 +76,7 @@ class AllCircleMenusScreenVM(
             viewModelScope.launch {
                 changeStatusBar()
             }
-            navigationComponent.popUpBackStack()
+            navigationComponent.popUpBackStackSafe()
         }
     }
 

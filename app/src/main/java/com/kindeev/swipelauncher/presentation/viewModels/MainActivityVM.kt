@@ -41,7 +41,7 @@ class MainActivityVM(
     }
 
     fun navigationOnBack() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 
     fun onCompleteOnBoarding() {

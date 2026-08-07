@@ -10,6 +10,6 @@ class SettingsActivityVM(
     val navigationBackStack = navigationComponent.backStack
 
     fun navigationOnBack() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 }

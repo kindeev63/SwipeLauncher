@@ -98,6 +98,6 @@ class LauncherSettingsScreenVM(
     }
 
     fun onBackPressed() {
-        navigationComponent.popUpBackStack()
+        navigationComponent.popUpBackStackSafe()
     }
 }
