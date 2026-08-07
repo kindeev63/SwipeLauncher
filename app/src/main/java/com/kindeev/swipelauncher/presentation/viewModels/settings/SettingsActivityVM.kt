@@ -9,6 +9,10 @@ class SettingsActivityVM(
 ): ViewModel() {
     val navigationBackStack = navigationComponent.backStack
 
+    init {
+        navigationComponent.clearBackStack()
+    }
+
     fun navigationOnBack() {
         navigationComponent.popUpBackStackSafe()
     }

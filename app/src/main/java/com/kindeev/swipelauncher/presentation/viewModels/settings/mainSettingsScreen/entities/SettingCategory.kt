@@ -6,5 +6,6 @@ enum class SettingCategory {
     AppList,
     PickLauncher,
     Tutorial,
-    Additional
+    Additional,
+    Channel
 }

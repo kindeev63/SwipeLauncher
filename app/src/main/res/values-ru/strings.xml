@@ -108,6 +108,8 @@
     <string name="tutorial_category_description">Разберитесь в функционале</string>
     <string name="additional_category_title">Дополнительные настройки</string>
     <string name="additional_category_description">Дополнительные функции</string>
+    <string name="channel_category_title">Канал приложения</string>
+    <string name="chanel_category_description">Голосуйте за новые функции</string>
 
     <string name="open_last_app_title">Открыть последнее приложение</string>
     <string name="open_last_app_description">Если при поиске осталось только оно</string>

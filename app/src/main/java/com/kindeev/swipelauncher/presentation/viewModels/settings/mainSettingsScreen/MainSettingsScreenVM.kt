@@ -6,11 +6,13 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
+import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen.entities.SettingCategory
 import com.knomster.navigation_component.NavigationComponent
 
 class MainSettingsScreenVM(
     private val navigationComponent: NavigationComponent<SettingsActivityNav>,
+    private val openChannelUseCase: OpenChannelUseCase,
     context: Context
 ): ViewModel() {
 
@@ -56,6 +58,12 @@ class MainSettingsScreenVM(
             title = context.getString(R.string.additional_category_title),
             description = context.getString(R.string.additional_category_description),
             iconUnicode = "\ue87b"
+        ),
+        SettingsListItem.Category(
+            id = SettingCategory.Channel,
+            title = context.getString(R.string.channel_category_title),
+            description = context.getString(R.string.chanel_category_description),
+            iconUnicode = "\ue163"
         )
     )
 
@@ -79,6 +87,10 @@ class MainSettingsScreenVM(
 
             SettingCategory.Additional -> {
                 navigationComponent.addToBackStack(SettingsActivityNav.Additional)
+            }
+
+            SettingCategory.Channel -> {
+                openChannelUseCase.open()
             }
         }
     }
