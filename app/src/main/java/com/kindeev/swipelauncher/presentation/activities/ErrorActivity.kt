@@ -19,11 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.gson.Gson
 import com.kindeev.swipelauncher.presentation.GlobalExceptionHandler
 import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
-import java.io.PrintWriter
-import java.io.StringWriter
 
 
 class ErrorActivity : ComponentActivity() {
@@ -35,14 +32,7 @@ class ErrorActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val error = try {
-                        Gson().fromJson(
-                            intent.getStringExtra(GlobalExceptionHandler.THROWABLE_KEY),
-                            Throwable::class.java
-                        )
-                    } catch (_: Exception) {
-                        null
-                    }
+                    val error = intent.getStringExtra(GlobalExceptionHandler.THROWABLE_KEY)
                     Column(
                         modifier = Modifier
                             .padding(20.dp)
@@ -51,7 +41,7 @@ class ErrorActivity : ComponentActivity() {
                     ) {
                         Text("ERROR:")
                         error?.let {
-                            Text(text = printStackTraceToString(it))
+                            Text(text = it)
                         }
                         Button(onClick = {
                             restart()
@@ -65,7 +55,7 @@ class ErrorActivity : ComponentActivity() {
                         }
                         error?.let {
                             Button(onClick = {
-                                copyTextToClipboard(printStackTraceToString(it))
+                                copyTextToClipboard(it)
                             }) {
                                 Text(text = "Copy error")
                             }
@@ -91,12 +81,6 @@ class ErrorActivity : ComponentActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         }
-    }
-
-    private fun printStackTraceToString(throwable: Throwable): String {
-        val sw = StringWriter()
-        throwable.printStackTrace(PrintWriter(sw))
-        return sw.toString()
     }
 
     private fun copyTextToClipboard(text: String) {

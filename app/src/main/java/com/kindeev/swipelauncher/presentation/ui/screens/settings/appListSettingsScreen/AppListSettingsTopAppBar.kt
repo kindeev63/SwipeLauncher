@@ -47,9 +47,9 @@ fun AppListSettingsTopAppBar(
             }
         },
         scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     )
 }

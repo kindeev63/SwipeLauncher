@@ -16,20 +16,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,10 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -59,13 +57,14 @@ import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenu
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.SelectedItemBoxData
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 import com.kindeev.swipelauncher.presentation.ui.elements.EditCircleMenuAction
+import com.kindeev.swipelauncher.presentation.ui.elements.MaterialIcon
 import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
 
 @Composable
 fun EditCircleMenuScreenUI(
     viewModel: EditCircleMenuScreenVM,
 ) {
-    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT && Constants.minScreenLength / 6 * 5f * 1.5f < LocalConfiguration.current.screenHeightDp) {
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT && (Constants.minScreenLength / 6 * 5f * 1.5f).dp < LocalWindowInfo.current.containerDpSize.height) {
         viewModel.updateMenuSize(Constants.minScreenLength / 6 * 5f)
         PortraitUI(viewModel = viewModel)
     } else {
@@ -283,26 +282,27 @@ private fun PortraitUI(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCircleMenuToolbarUI(onBackPressed: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .background(MaterialTheme.colorScheme.primary)
-            .shadow(elevation = 1.dp)
-            .statusBarsPadding(),
-    ) {
-        IconButton(
-            onClick = onBackPressed
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                contentDescription = null
-            )
+    TopAppBar(
+        title = {},
+        navigationIcon = {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onBackPressed),
+                contentAlignment = Alignment.Center
+            ) {
+                MaterialIcon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    unicode = "\ue5c4"
+                )
+            }
         }
-    }
+    )
 }
 
 @Composable
