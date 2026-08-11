@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -137,7 +137,7 @@ private fun PickType(
                 .width(windowInfo.containerDpSize.width - 20.dp)
                 .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             LazyColumn(
@@ -175,7 +175,7 @@ private fun ImageTypeElement(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF1976D2))
+                .background(MaterialTheme.colorScheme.primary)
                 .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -188,7 +188,7 @@ private fun ImageTypeElement(
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = name,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -212,7 +212,7 @@ private fun PickAppImage(
                 .width(windowInfo.containerDpSize.width - 20.dp)
                 .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             LazyColumn {
@@ -253,7 +253,7 @@ private fun PickDefaultImage(
                 .width(windowInfo.containerDpSize.width - 20.dp)
                 .height(windowInfo.containerDpSize.height / 3 * 2)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBBDEFB))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp)
         ) {
             LazyVerticalGrid(

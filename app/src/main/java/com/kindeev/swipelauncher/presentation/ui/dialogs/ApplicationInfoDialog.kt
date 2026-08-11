@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.dialogs
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,17 +21,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
-import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
+import com.kindeev.swipelauncher.presentation.ui.elements.MaterialIcon
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 
 @Composable
@@ -51,7 +48,7 @@ fun ApplicationInfoDialog(
                 .heightIn(max = (Constants.minScreenLength / 3 * 2).dp)
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -73,7 +70,7 @@ fun ApplicationInfoDialog(
                 Text(
                     modifier = Modifier
                         .weight(1f),
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 20.sp,
                     text = applicationInfo.title
                 )
@@ -95,27 +92,29 @@ fun ApplicationInfoDialog(
                             .clickable { viewModel.getAppDetails(applicationInfo.packageName) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Image(
-                            modifier = Modifier.size(Constants.minScreenLength.dp / 12),
-                            painter = painterResource(id = R.drawable.info_image),
-                            contentDescription = "App info"
+                        MaterialIcon(
+                            modifier = Modifier
+                                .size(24.dp),
+                            unicode = "\ue88e",
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     Box(
                         modifier = Modifier
                             .size(Constants.minScreenLength.dp / 10)
                             .clip(RoundedCornerShape(7.dp))
-                            .background(Color.Red)
+                            .background(MaterialTheme.colorScheme.error)
                             .clickable {
                                 viewModel.deleteApp(applicationInfo.packageName)
                                 onDismissRequest()
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Image(
-                            modifier = Modifier.size(Constants.minScreenLength.dp / 12),
-                            painter = painterResource(id = R.drawable.delete_image),
-                            contentDescription = "Delete app"
+                        MaterialIcon(
+                            modifier = Modifier
+                                .size(24.dp),
+                            unicode = "\ue872",
+                            color = MaterialTheme.colorScheme.onError
                         )
                     }
                 }
