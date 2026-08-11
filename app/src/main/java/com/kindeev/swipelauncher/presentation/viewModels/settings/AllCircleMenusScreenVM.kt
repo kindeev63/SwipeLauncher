@@ -69,13 +69,10 @@ class AllCircleMenusScreenVM(
         initialValue = emptyList()
     )
 
-    fun onBackPressed(changeStatusBar: suspend () -> Unit) {
+    fun onBackPressed() {
         if (selectedMenuIds.value.isNotEmpty()) {
             finishSelect()
         } else {
-            viewModelScope.launch {
-                changeStatusBar()
-            }
             navigationComponent.popUpBackStackSafe()
         }
     }

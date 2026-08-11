@@ -75,7 +75,8 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
     val scope = rememberCoroutineScope()
     SwipeBoxUI(viewModel = viewModel)
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))

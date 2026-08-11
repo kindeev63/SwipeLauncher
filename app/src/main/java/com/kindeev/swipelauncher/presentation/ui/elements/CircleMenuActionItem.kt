@@ -46,11 +46,11 @@ fun CircleMenuActionItem(
         }
         ActionItemData.FlashlightOff -> FlashlightOffActionItem(
             textColor = textColor,
-            onClick = {}
+            onClick = changeAction
         )
         ActionItemData.FlashlightOn -> FlashlightOnActionItem(
             textColor = textColor,
-            onClick = {}
+            onClick = changeAction
         )
         is ActionItemData.OpenApp -> {
             OpenAppActionItem(

@@ -3,7 +3,6 @@
 package com.kindeev.swipelauncher.presentation.ui.screens
 
 import android.content.res.Configuration
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,21 +23,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowInsetsControllerCompat
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -53,16 +49,10 @@ import kotlinx.coroutines.launch
 fun OnboardingScreen(
     onFinish: () -> Unit
 ) {
-    val window = LocalActivity.current!!.window
-    val view = LocalView.current
-    val controller = WindowInsetsControllerCompat(window, view)
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val orientationPhone = remember {
         configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-    }
-    LaunchedEffect(Unit) {
-        controller.isAppearanceLightStatusBars = true
     }
     val pagerState = rememberPagerState()
     Column(
@@ -96,7 +86,6 @@ fun OnboardingScreen(
                 modifier = Modifier.weight(1f),
                 text = stringResource(R.string.finish),
                 onClick = {
-                    scope.launch { controller.isAppearanceLightStatusBars = false }
                     onFinish()
                 },
             )

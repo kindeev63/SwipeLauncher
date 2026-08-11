@@ -1,8 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.elements.settingsListItems
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,8 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
@@ -41,7 +39,9 @@ private sealed class UrlActionDialog: Serializable {
 fun CircleMenuActionListItem(
     actionItemData: ActionItemData,
     changeAction: (CircleMenuAction) -> Unit,
-    openActionDialog: () -> Unit
+    openActionDialog: () -> Unit,
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var editPhoneNumberDialog by rememberSaveable {
         mutableStateOf<PhoneActionDialog>(PhoneActionDialog.Hide)
@@ -134,14 +134,12 @@ fun CircleMenuActionListItem(
         UrlActionDialog.Hide -> {}
     }
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         CircleMenuActionItem(
             actionItemData = actionItemData,
-            textColor = MaterialTheme.colorScheme.onSurface,
+            textColor = textColor,
             changeAction = openActionDialog,
             changePhoneNumber = {
                 when (actionItemData) {

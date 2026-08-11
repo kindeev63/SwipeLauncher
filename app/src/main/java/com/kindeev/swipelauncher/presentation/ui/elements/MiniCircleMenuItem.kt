@@ -1,9 +1,10 @@
 package com.kindeev.swipelauncher.presentation.ui.elements
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
@@ -36,7 +37,7 @@ fun MiniCircleMenuItem(
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onTertiary
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
             onClick = onClick
         ) {
@@ -72,53 +73,51 @@ fun MiniCircleMenuItem(
 @Composable
 fun MiniCircleMenuItem(
     size: Float,
-    root: Boolean = false,
     selected: Boolean,
     circleMenu: CircleMenuToDraw,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .size(size.dp)
             .padding(3.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(
+                if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.inversePrimary
+                }
+            )
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
-        Card(
+        Box(
             modifier = Modifier
-                .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = onLongClick
-                ),
-            colors = CardDefaults.cardColors(
-                containerColor = if (root) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            border = if (selected) BorderStroke(2.dp, Color.Black) else null
+                .fillMaxWidth()
+                .fillMaxHeight(5 / 6f),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(5 / 6f),
-                contentAlignment = Alignment.Center
-            ) {
-                CircleMenuItems(
-                    modifier = Modifier.size(circleMenu.menuSize.dp),
-                    items = circleMenu.items,
-                    itemSize = circleMenu.itemSize
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Text(
-                    text = circleMenu.title,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = (size / 12).sp
-                )
-            }
+            CircleMenuItems(
+                modifier = Modifier.size(circleMenu.menuSize.dp),
+                items = circleMenu.items,
+                itemSize = circleMenu.itemSize
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Text(
+                text = circleMenu.title,
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = (size / 12).sp
+            )
         }
     }
 }

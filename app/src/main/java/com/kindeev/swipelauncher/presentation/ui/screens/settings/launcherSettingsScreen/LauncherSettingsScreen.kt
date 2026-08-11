@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
 import com.kindeev.swipelauncher.presentation.ui.elements.settingsListItems.CircleMenuActionListItem
@@ -70,6 +71,9 @@ fun LauncherSettingsScreen(
                                     visible = item.checked
                                 ) {
                                     CircleMenuActionListItem(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 12.dp),
                                         actionItemData = item.actionItemData,
                                         changeAction = viewModel::changeClickOnClockAction,
                                         openActionDialog = viewModel::pickActionForClickOnClock

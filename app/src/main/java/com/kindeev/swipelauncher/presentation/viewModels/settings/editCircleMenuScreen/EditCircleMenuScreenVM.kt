@@ -9,13 +9,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
-import com.kindeev.swipelauncher.domain.entities.ApplicationInfo
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.useCases.SaveCircleMenuWithDebounceUseCase
@@ -27,8 +25,10 @@ import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDrawParameter
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.ActionItemState
+import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.CircleMenuItemForEdit
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.GhostCircleMenuItem
 import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenuScreen.entities.SelectedItemBoxData
+import com.kindeev.swipelauncher.presentation.useCases.ActionItemDataUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
@@ -55,15 +55,15 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 class EditCircleMenuScreenVM(
-    private val circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     private val circleMenuParametersUseCase: CircleMenuParametersUseCase,
     private val circleMenuItemIndexOnCordsUseCase: CircleMenuItemIndexOnCordsUseCase,
     private val circleMenuImageToImageBitmapUseCase: CircleMenuImageToImageBitmapUseCase,
     private val saveCircleMenuWithDebounceUseCase: SaveCircleMenuWithDebounceUseCase,
-    private val applicationsManager: ApplicationsManager,
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
+    private val actionItemDataUseCase: ActionItemDataUseCase,
     private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     private val density: Float,
+    circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase,
     circleMenuId: Int?
 ) : ViewModel() {
 
@@ -142,31 +142,6 @@ class EditCircleMenuScreenVM(
 
     fun updateMenuSize(menuSize: Float) {
         _menuSize.value = menuSize
-    }
-
-    fun getCircleMenuToDrawForEditAction(id: Int): CircleMenuToDraw? {
-        val menuSize = menuSize.value / 5 - 10
-        val imageMapper = circleMenuImageToImageBitmapUseCase.mapper.value
-        return circleMenuStateFlowUseCase.circleMenus.value.find { it.id == id }?.let { menu ->
-            val parameters =
-                circleMenuParametersUseCase.getParametersGenerator(menu.items.size)(menuSize)
-            CircleMenuToDraw(
-                id = menu.id,
-                title = menu.title,
-                menuSize = menuSize,
-                itemSize = parameters.itemSize,
-                items = menu.items.mapIndexed { index, item ->
-                    parameters.offsets[index]?.let { offset ->
-                        imageMapper[item.image]?.let { imageBitmap ->
-                            CircleMenuItemToDraw(
-                                offset = offset,
-                                imageBitmap = imageBitmap
-                            )
-                        }
-                    }
-                }.filterNotNull()
-            )
-        }
     }
 
     private val itemBorders = drawItemsData.combine(menuSize) { data, menuSize ->
@@ -275,8 +250,23 @@ class EditCircleMenuScreenVM(
         initialValue = null
     )
 
-    val selectedItem = selectedIndex.combine(circleMenuItems) { index, items ->
+    private val selectedItem = selectedIndex.combine(circleMenuItems) { index, items ->
         items.getOrNull(index)
+    }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+    val selectedItemForEdit = selectedItem.map { item ->
+        if (item == null) return@map null
+        val image = getImageBitmap(item.image) ?: return@map null
+        val action = actionItemDataUseCase.getActionItem(item.action) ?: return@map null
+        CircleMenuItemForEdit(
+            image = image,
+            action = action
+        )
     }
         .distinctUntilChanged()
         .stateIn(
@@ -486,10 +476,6 @@ class EditCircleMenuScreenVM(
             firstOffset = firstOffset,
             size = drawItemsData.value.itemSize
         )
-    }
-
-    fun getApplicationInfo(packageName: String): ApplicationInfo? {
-        return applicationsManager.getApplication(packageName)
     }
 
     fun updateAction(action: CircleMenuAction) = viewModelScope.launch {

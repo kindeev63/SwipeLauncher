@@ -312,13 +312,13 @@ object DI {
                 circleMenuId = parameters.get("circleMenuId"),
                 circleMenuStateFlowUseCase = container.getSingle(),
                 saveCircleMenuWithDebounceUseCase = container.getSingle(),
-                applicationsManager = container.getSingle(),
                 settingsStateFlowUseCase = container.getSingle(),
                 density = container.getSingle<Context>().resources.displayMetrics.density,
                 circleMenuParametersUseCase = container.getSingle(),
                 circleMenuImageToImageBitmapUseCase = container.getSingle(),
                 circleMenuItemIndexOnCordsUseCase = container.getSingle(),
                 navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
+                actionItemDataUseCase = container.getSingle(),
             )
         }
         container.registerViewModel {
