@@ -368,7 +368,8 @@ private fun ImageAndActionEdit(
             .width(menuSize.dp + 20.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(10.dp)
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
         // Image
@@ -394,6 +395,7 @@ private fun ImageAndActionEdit(
 
         Spacer(modifier = Modifier.width(10.dp))
         VerticalDivider(
+            modifier = Modifier.height(80.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.width(10.dp))
