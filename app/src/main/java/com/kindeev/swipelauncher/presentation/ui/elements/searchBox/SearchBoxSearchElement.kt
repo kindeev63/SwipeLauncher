@@ -6,15 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -24,13 +20,9 @@ import androidx.compose.ui.unit.sp
 fun SearchBoxSearchElement(
     searchText: TextFieldValue,
     textColor: Color,
+    focusRequester: FocusRequester,
     onChangeText: (TextFieldValue) -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -38,14 +30,7 @@ fun SearchBoxSearchElement(
         BasicTextField(
             modifier = Modifier
                 .weight(0.85f)
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused) {
-                        keyboardController?.show()
-                    } else {
-                        keyboardController?.hide()
-                    }
-                },
+                .focusRequester(focusRequester),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             textStyle = TextStyle(
                 color = textColor,
