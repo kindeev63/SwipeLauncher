@@ -30,7 +30,14 @@ class AppListSettingsScreenVM(
                 description = context.resources.getString(R.string.open_last_app_description),
                 iconUnicode = "\ue913",
                 checked = settings.openLastApp,
-            )
+            ),
+            SettingsListItem.Switch(
+                id = AppListSettingCategory.OpenKeyboard,
+                title = context.resources.getString(R.string.show_keyboard_title),
+                description = context.resources.getString(R.string.show_keyboard_description),
+                iconUnicode = "\ue312",
+                checked = settings.showKeyboardOnStartSearch,
+            ),
         )
     }.stateIn(
         scope = viewModelScope,
@@ -45,6 +52,15 @@ class AppListSettingsScreenVM(
                 dataRepository.insertSettings(
                     settings.copy(
                         openLastApp = value
+                    )
+                )
+            }
+
+            AppListSettingCategory.OpenKeyboard -> viewModelScope.launch(Dispatchers.IO) {
+                val settings = settingsStateFlowUseCase.settings.value
+                dataRepository.insertSettings(
+                    settings.copy(
+                        showKeyboardOnStartSearch = value
                     )
                 )
             }

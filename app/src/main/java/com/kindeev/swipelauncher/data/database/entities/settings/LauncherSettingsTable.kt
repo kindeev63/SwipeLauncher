@@ -10,5 +10,6 @@ data class LauncherSettingsTable(
     val blackTextColorOnWallpaper: Boolean,
     val clickOnClock: ClickOnClockEntity,
     val openLastApp: Boolean,
-    val pickAppActionWithImage: Boolean
+    val pickAppActionWithImage: Boolean,
+    val showKeyboardOnStartSearch: Boolean
 )

@@ -118,7 +118,9 @@ fun SearchBoxUI(
         }
     }
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+        if (settings.showKeyboardOnStartSearch) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
 }

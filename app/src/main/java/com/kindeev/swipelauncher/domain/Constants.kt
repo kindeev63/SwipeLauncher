@@ -26,7 +26,8 @@ object Constants {
             OpenSettingsAction
         ),
         openLastApp = true,
-        pickAppActionWithImage = true
+        pickAppActionWithImage = true,
+        showKeyboardOnStartSearch = true
     )
 
     val defaultImages = mapOf(

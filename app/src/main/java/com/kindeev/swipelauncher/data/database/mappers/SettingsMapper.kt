@@ -12,7 +12,8 @@ fun LauncherSettings.toTable(): LauncherSettingsTable =
         blackTextColorOnWallpaper = blackTextColorOnWallpaper,
         clickOnClock = clickOnClock.toTable(),
         openLastApp = openLastApp,
-        pickAppActionWithImage = pickAppActionWithImage
+        pickAppActionWithImage = pickAppActionWithImage,
+        showKeyboardOnStartSearch = showKeyboardOnStartSearch
     )
 
 fun LauncherSettingsTable.fromTable(): LauncherSettings =
@@ -20,7 +21,8 @@ fun LauncherSettingsTable.fromTable(): LauncherSettings =
         blackTextColorOnWallpaper = blackTextColorOnWallpaper,
         clickOnClock = clickOnClock.fromTable(),
         openLastApp = openLastApp,
-        pickAppActionWithImage = pickAppActionWithImage
+        pickAppActionWithImage = pickAppActionWithImage,
+        showKeyboardOnStartSearch = showKeyboardOnStartSearch
     )
 
 fun ClickOnClock.toTable(): ClickOnClockEntity =

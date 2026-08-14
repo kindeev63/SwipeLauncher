@@ -113,6 +113,8 @@
 
     <string name="open_last_app_title">Открыть последнее приложение</string>
     <string name="open_last_app_description">Если при поиске осталось только оно</string>
+    <string name="show_keyboard_title">Показать клавиатуру в начале поиска</string>
+    <string name="show_keyboard_description">При открытии списка приложений</string>
 
     <string name="click_on_clock_title">Действие при нажатии на часы</string>
     <string name="click_on_clock_description">Выполнить действие</string>

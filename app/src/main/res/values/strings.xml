@@ -140,6 +140,8 @@
 
     <string name="open_last_app_title">Open last app</string>
     <string name="open_last_app_description">If it\'s the only one left in the search</string>
+    <string name="show_keyboard_title">Show the keyboard at the beginning of the search</string>
+    <string name="show_keyboard_description">When opening the app list</string>
 
     <string name="click_on_clock_title">The action when pressing the clock</string>
     <string name="click_on_clock_description">Execute action</string>
