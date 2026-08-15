@@ -3,9 +3,7 @@ package com.kindeev.swipelauncher.presentation.ui.elements.searchBox
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -75,7 +73,7 @@ fun SearchBoxUI(
                 )
             }
         },
-        containerColor = Color.Black.copy(alpha = 0.2f)
+        containerColor = Color.Black.copy(alpha = 0.6f)
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -84,13 +82,11 @@ fun SearchBoxUI(
         ) {
             Spacer(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.1f)
+                    .height(16.dp)
             )
             SearchBoxSearchElement(
                 searchText = searchText,
                 focusRequester= focusRequester,
-                textColor = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White,
                 onChangeText = viewModel::search
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -104,7 +100,6 @@ fun SearchBoxUI(
                     SearchAppItem(
                         title = applicationInfo.title,
                         packageName = applicationInfo.packageName,
-                        textColor = if (settings.blackTextColorOnWallpaper) Color.Black else Color.White,
                         onClick = {
                             viewModel.openAppUseCase.open(applicationInfo.packageName)
                             onClose()

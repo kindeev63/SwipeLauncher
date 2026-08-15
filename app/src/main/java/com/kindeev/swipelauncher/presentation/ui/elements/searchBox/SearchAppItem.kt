@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kindeev.swipelauncher.data.coil.appImageUri
 
@@ -25,7 +24,6 @@ import com.kindeev.swipelauncher.data.coil.appImageUri
 fun SearchAppItem(
     title: String,
     packageName: String,
-    textColor: Color,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
@@ -50,8 +48,7 @@ fun SearchAppItem(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
-            fontSize = 14.sp,
-            color = textColor,
+            color = Color.White,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
