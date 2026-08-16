@@ -81,7 +81,7 @@ fun AllCircleMenusScreen(
                scope.launch {
                    snackbarHostState.showSnackbar(
                        context.resources.getString(
-                           if (result) R.string.backup_successfuly else R.string.error
+                           if (result) R.string.backup_successfully else R.string.error
                        )
                    )
                }
@@ -110,7 +110,7 @@ fun AllCircleMenusScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     context.resources.getString(
-                                        if (result) R.string.backup_successfuly else R.string.error
+                                        if (result) R.string.backup_successfully else R.string.error
                                     )
                                 )
                             }
