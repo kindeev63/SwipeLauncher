@@ -7,5 +7,6 @@ enum class SettingCategory {
     PickLauncher,
     Tutorial,
     Additional,
-    Channel
+    Channel,
+    Code
 }

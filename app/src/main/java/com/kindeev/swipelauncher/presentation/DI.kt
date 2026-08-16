@@ -31,6 +31,7 @@ import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCa
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
+import com.kindeev.swipelauncher.presentation.useCases.OpenSourceCodeUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
@@ -276,6 +277,11 @@ object DI {
                 context = container.getSingle()
             )
         }
+        container.insertSingle {
+            OpenSourceCodeUseCase(
+                context = container.getSingle()
+            )
+        }
     }
 
     private fun initPresentationStateFlowDependencies() {
@@ -394,6 +400,7 @@ object DI {
             MainSettingsScreenVM(
                 navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
                 openChannelUseCase = container.getSingle(),
+                openSourceCodeUseCase = container.getSingle(),
                 context = container.getSingle()
             )
         }

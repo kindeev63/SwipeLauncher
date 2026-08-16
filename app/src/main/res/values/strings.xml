@@ -137,6 +137,8 @@
     <string name="additional_category_description">Additional features</string>
     <string name="channel_category_title">App channel</string>
     <string name="chanel_category_description">Vote for new features</string>
+    <string name="code_category_title">Source code</string>
+    <string name="code_category_description">View the application’s source code</string>
 
     <string name="open_last_app_title">Open last app</string>
     <string name="open_last_app_description">If it\'s the only one left in the search</string>
