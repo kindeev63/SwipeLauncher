@@ -112,6 +112,8 @@
     <string name="chanel_category_description">Голосуйте за новые функции</string>
     <string name="code_category_title">Исходный код</string>
     <string name="code_category_description">Посмотреть исходный код лаунчера</string>
+    <string name="donation_category_title">Поддержать разработчика</string>
+    <string name="donation_category_description">Это мотивирует улучшать лаунчер</string>
 
     <string name="open_last_app_title">Открыть последнее приложение</string>
     <string name="open_last_app_description">Если при поиске осталось только оно</string>

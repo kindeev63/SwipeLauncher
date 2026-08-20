@@ -8,5 +8,6 @@ enum class SettingCategory {
     Tutorial,
     Additional,
     Channel,
-    Code
+    Code,
+    Donation
 }

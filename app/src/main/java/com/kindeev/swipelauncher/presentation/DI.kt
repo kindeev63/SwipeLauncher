@@ -29,6 +29,7 @@ import com.kindeev.swipelauncher.presentation.useCases.ActionItemDataUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuImageToImageBitmapUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
+import com.kindeev.swipelauncher.presentation.useCases.DonationUseCase
 import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
@@ -288,6 +289,11 @@ object DI {
                 context = container.getSingle()
             )
         }
+        container.insertSingle {
+            DonationUseCase(
+                context = container.getSingle()
+            )
+        }
     }
 
     private fun initPresentationStateFlowDependencies() {
@@ -407,6 +413,7 @@ object DI {
                 navigationComponent = container.getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
                 openChannelUseCase = container.getSingle(),
                 openSourceCodeUseCase = container.getSingle(),
+                donationUseCase = container.getSingle(),
                 context = container.getSingle()
             )
         }

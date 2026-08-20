@@ -139,6 +139,8 @@
     <string name="chanel_category_description">Vote for new features</string>
     <string name="code_category_title">Source code</string>
     <string name="code_category_description">View the application’s source code</string>
+    <string name="donation_category_title">Donation</string>
+    <string name="donation_category_description">This motivates me to improve the launcher</string>
 
     <string name="open_last_app_title">Open last app</string>
     <string name="open_last_app_description">If it\'s the only one left in the search</string>

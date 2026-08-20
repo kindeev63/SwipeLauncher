@@ -6,6 +6,7 @@ import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
+import com.kindeev.swipelauncher.presentation.useCases.DonationUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenSourceCodeUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen.entities.SettingCategory
@@ -15,6 +16,7 @@ class MainSettingsScreenVM(
     private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     private val openChannelUseCase: OpenChannelUseCase,
     private val openSourceCodeUseCase: OpenSourceCodeUseCase,
+    private val donationUseCase: DonationUseCase,
     context: Context
 ): ViewModel() {
 
@@ -72,7 +74,13 @@ class MainSettingsScreenVM(
             title = context.getString(R.string.code_category_title),
             description = context.getString(R.string.code_category_description),
             iconUnicode = "\ue86f"
-        )
+        ),
+        SettingsListItem.Category(
+            id = SettingCategory.Donation,
+            title = context.getString(R.string.donation_category_title),
+            description = context.getString(R.string.donation_category_description),
+            iconUnicode = "\uea70"
+        ),
     )
 
     fun clickOnCategory(category: SettingCategory) {
@@ -103,6 +111,10 @@ class MainSettingsScreenVM(
 
             SettingCategory.Code -> {
                 openSourceCodeUseCase.open()
+            }
+
+            SettingCategory.Donation -> {
+                donationUseCase.open()
             }
         }
     }
