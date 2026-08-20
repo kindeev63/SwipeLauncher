@@ -33,20 +33,17 @@
         <activity
             android:name=".presentation.activities.ErrorActivity"
             android:exported="false"
-            android:screenOrientation="nosensor"
             android:label="@string/title_activity_error"
             android:theme="@style/Theme.SwipeLauncher" />
         <activity
             android:name=".presentation.activities.SettingsActivity"
             android:documentLaunchMode="intoExisting"
-            android:screenOrientation="nosensor"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".presentation.activities.MainActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="nosensor"
             android:exported="true"
             android:theme="@style/Theme.SwipeLauncher">
             <intent-filter>
