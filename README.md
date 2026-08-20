@@ -40,3 +40,6 @@ SwipeLauncher - это лаунчер для Android, созданный для 
 Лаунчер опубликован в RuStore - https://www.rustore.ru/catalog/app/com.kindeev.swipelauncher
 
 Идеи, предложения и найденные баги можете присылать в сообщения канала приложения ([ссылка](https://telegram.me/swipelauncher))
+
+Поддержать разработчика:
+https://pay.cloudtips.ru/p/bb5cc208
