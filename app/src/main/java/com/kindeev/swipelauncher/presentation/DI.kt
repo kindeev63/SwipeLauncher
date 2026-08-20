@@ -15,6 +15,7 @@ import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.useCases.CheckCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.domain.useCases.SaveCircleMenuWithDebounceUseCase
+import com.kindeev.swipelauncher.domain.useCases.VibrateUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
@@ -218,6 +219,11 @@ object DI {
                 scope = container.getSingle()
             )
         }
+        container.insertSingle {
+            VibrateUseCase(
+                context = container.getSingle()
+            )
+        }
     }
 
     private fun initPresentationDependencies() {
@@ -336,7 +342,7 @@ object DI {
                 density = container.getSingle<Context>().resources.displayMetrics.density,
                 settingsStateFlowUseCase = container.getSingle(),
                 openAppUseCase = container.getSingle(),
-                getSystemServiceUseCase = container.getSingle(),
+                vibrateUseCase = container.getSingle(),
                 circleMenuStateFlowUseCase = container.getSingle(),
                 applicationsManager = container.getSingle(),
                 circleMenuImageToImageBitmap = container.getSingle(),

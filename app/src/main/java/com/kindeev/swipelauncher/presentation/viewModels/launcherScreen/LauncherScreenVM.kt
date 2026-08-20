@@ -1,7 +1,5 @@
 package com.kindeev.swipelauncher.presentation.viewModels.launcherScreen
 
-import android.content.Context
-import android.os.Vibrator
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,6 +19,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenUrlAction
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.entities.CircleMenuWithOffset
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
+import com.kindeev.swipelauncher.domain.useCases.VibrateUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.FlashLightUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenSettingsUseCase
 import com.kindeev.swipelauncher.domain.useCases.circleMenuActions.OpenUrlUseCase
@@ -32,7 +31,6 @@ import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuItemIndexOnCordsUseCase
 import com.kindeev.swipelauncher.presentation.useCases.CircleMenuParametersUseCase
-import com.kindeev.swipelauncher.presentation.useCases.GetSystemServiceUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.useCases.menuParameters.corsOutRadiusGenerator
 import com.kindeev.swipelauncher.presentation.useCases.menuParameters.getSwipeRadius
@@ -59,7 +57,7 @@ class LauncherScreenVM(
     val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     val openAppUseCase: OpenAppUseCase,
     circleMenuImageToImageBitmap: CircleMenuImageToImageBitmap,
-    getSystemServiceUseCase: GetSystemServiceUseCase,
+    private val vibrateUseCase: VibrateUseCase,
     circleMenuStateFlowUseCase: CircleMenuStateFlowUseCase
 ) : ViewModel() {
 
@@ -124,9 +122,6 @@ class LauncherScreenVM(
         started = SharingStarted.Eagerly,
         initialValue = null
     )
-
-    private val vibrator =
-        getSystemServiceUseCase.get(Context.VIBRATOR_SERVICE) as Vibrator
 
 
     private var clickTime = 0L
@@ -197,7 +192,7 @@ class LauncherScreenVM(
                 offset?.let { newOffset ->
                     currentMenuId.value = action.id
                     currentMenuOffset.value = newOffset
-                    vibrator.vibrate(20)
+                    vibrateUseCase.vibrate()
                 }
             }
 
