@@ -17,7 +17,8 @@ import com.kindeev.swipelauncher.data.database.typeConverters.SettingsTypeConver
         CircleMenuTable::class,
         LauncherSettingsTable::class,
     ],
-    version = 4
+    version = 4,
+    exportSchema = false
 )
 @TypeConverters(
     CircleMenuTypeConverter::class,
@@ -40,8 +41,7 @@ abstract class AppDataBase : RoomDatabase() {
                     klass = AppDataBase::class.java,
                     name = "database.db"
                 )
-                    .fallbackToDestructiveMigration(true)
-                    .fallbackToDestructiveMigrationOnDowngrade(true)
+                    .fallbackToDestructiveMigrationFrom(false, 1, 2, 3)
                     .build().apply {
                         INSTANCE = this
                     }

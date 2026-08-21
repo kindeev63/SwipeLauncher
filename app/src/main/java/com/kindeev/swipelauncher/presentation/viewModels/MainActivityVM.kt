@@ -9,6 +9,7 @@ import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.presentation.navigation.MainActivityNav
 import com.knomster.navigation_component.NavigationComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivityVM(
@@ -28,7 +29,9 @@ class MainActivityVM(
                 backStack.clear()
                 backStack.add(MainActivityNav.OnBoarding)
             }
-            viewModelScope.launch {
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (dataRepository.getCircleMenus().isEmpty()) {
                 dataRepository.insertCircleMenu(
                     getRootCircleMenuUseCase.get(
                         context.resources.getString(
