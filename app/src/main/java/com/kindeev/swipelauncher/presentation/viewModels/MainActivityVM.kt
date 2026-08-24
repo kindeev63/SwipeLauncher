@@ -4,18 +4,12 @@ import android.content.Context
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.interfaces.DataRepository
-import com.kindeev.swipelauncher.domain.useCases.GetRootCircleMenuUseCase
 import com.kindeev.swipelauncher.presentation.navigation.MainActivityNav
 import com.knomster.navigation_component.NavigationComponent
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivityVM(
     private val navigationComponent: NavigationComponent<MainActivityNav>,
-    getRootCircleMenuUseCase: GetRootCircleMenuUseCase,
-    dataRepository: DataRepository,
     context: Context
 ) : ViewModel() {
 
@@ -28,17 +22,6 @@ class MainActivityVM(
             navigationComponent.changeBackStack { backStack ->
                 backStack.clear()
                 backStack.add(MainActivityNav.OnBoarding)
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            if (dataRepository.getCircleMenus().isEmpty()) {
-                dataRepository.insertCircleMenu(
-                    getRootCircleMenuUseCase.get(
-                        context.resources.getString(
-                            R.string.root
-                        )
-                    )
-                )
             }
         }
     }

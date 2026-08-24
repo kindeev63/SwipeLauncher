@@ -39,8 +39,8 @@ class UserImagesRepository(
         ids.map { delete(it) }.all { it }
     }
 
-    override suspend fun removeUnused(usedIds: Set<Int>): Boolean = withContext(Dispatchers.IO) {
-        deleteMany(getAllIds().toSet() - usedIds)
+    override suspend fun removeUnused(usedIds: Collection<Int>): Boolean = withContext(Dispatchers.IO) {
+        deleteMany(getAllIds().toSet() - usedIds.toSet())
     }
 
     override suspend fun prefetchAll(): Unit = withContext(Dispatchers.IO) {

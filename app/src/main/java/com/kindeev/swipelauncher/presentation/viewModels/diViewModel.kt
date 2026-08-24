@@ -12,7 +12,7 @@ import com.knomster.di.InsertParameters
 inline fun <reified T: ViewModel> diViewModel(insertParameters: (InsertParameters) -> Unit = {}): T {
     val diParameters = DIParameters()
     insertParameters(diParameters)
-    val creator = DI.container.getViewModelCreator<T>()
+    val creator = DI.getViewModelCreator<T>()
 
     val factory = viewModelFactory {
         addInitializer(T::class) { creator(diParameters) }

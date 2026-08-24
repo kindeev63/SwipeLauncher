@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.domain
 
-import androidx.compose.ui.unit.sp
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.entities.actionTypes.FlashlightActionType
 import com.kindeev.swipelauncher.domain.entities.actionTypes.TelephoneActionType
@@ -18,7 +17,6 @@ object Constants {
     var telephoneActionTypes = listOf<TelephoneActionType>()
     var flashlightActionTypes = listOf<FlashlightActionType>()
     var minScreenLength = 0f
-    var settingsTextSize = 0.sp
     val defaultSettings = LauncherSettings(
         blackTextColorOnWallpaper = false,
         clickOnClock = ClickOnClock(

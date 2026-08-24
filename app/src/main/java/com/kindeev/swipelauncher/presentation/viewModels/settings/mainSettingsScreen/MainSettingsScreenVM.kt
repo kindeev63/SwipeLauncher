@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
+import com.kindeev.swipelauncher.presentation.interfaces.StringGetter
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.useCases.DonationUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
@@ -17,68 +18,69 @@ class MainSettingsScreenVM(
     private val openChannelUseCase: OpenChannelUseCase,
     private val openSourceCodeUseCase: OpenSourceCodeUseCase,
     private val donationUseCase: DonationUseCase,
+    stringGetter: StringGetter,
     context: Context
 ): ViewModel() {
 
     private val pickLauncher = context::showLauncherSelection
     val settingCategories = listOf(
         SettingsListItem.Header(
-            header = context.getString(R.string.general_header)
+            header = stringGetter.getString(R.string.general_header)
         ),
         SettingsListItem.Category(
             id = SettingCategory.CircleMenu,
-            title = context.getString(R.string.circle_menu_category_title),
-            description = context.getString(R.string.circle_menu_category_description),
+            title = stringGetter.getString(R.string.circle_menu_category_title),
+            description = stringGetter.getString(R.string.circle_menu_category_description),
             iconUnicode = "\uebd5",
         ),
         SettingsListItem.Category(
             id = SettingCategory.LauncherScreen,
-            title = context.getString(R.string.main_screen_category_title),
-            description = context.getString(R.string.main_screen_category_description),
+            title = stringGetter.getString(R.string.main_screen_category_title),
+            description = stringGetter.getString(R.string.main_screen_category_description),
             iconUnicode = "\ue88a",
         ),
         SettingsListItem.Category(
             id = SettingCategory.AppList,
-            title = context.getString(R.string.app_list_category_title),
-            description = context.getString(R.string.app_list_category_description),
+            title = stringGetter.getString(R.string.app_list_category_title),
+            description = stringGetter.getString(R.string.app_list_category_description),
             iconUnicode = "\ue5c3",
         ),
         SettingsListItem.Header(
-            header = context.getString(R.string.additionally_header)
+            header = stringGetter.getString(R.string.additionally_header)
         ),
         SettingsListItem.Category(
             id = SettingCategory.PickLauncher,
-            title = context.getString(R.string.pick_launcher_category_title),
+            title = stringGetter.getString(R.string.pick_launcher_category_title),
             iconUnicode = "\ueb9b",
         ),
         SettingsListItem.Category(
             id = SettingCategory.Tutorial,
-            title = context.getString(R.string.tutorial_category_title),
-            description = context.getString(R.string.tutorial_category_description),
+            title = stringGetter.getString(R.string.tutorial_category_title),
+            description = stringGetter.getString(R.string.tutorial_category_description),
             iconUnicode = "\uea19",
         ),
         SettingsListItem.Category(
             id = SettingCategory.Additional,
-            title = context.getString(R.string.additional_category_title),
-            description = context.getString(R.string.additional_category_description),
+            title = stringGetter.getString(R.string.additional_category_title),
+            description = stringGetter.getString(R.string.additional_category_description),
             iconUnicode = "\ue87b"
         ),
         SettingsListItem.Category(
             id = SettingCategory.Channel,
-            title = context.getString(R.string.channel_category_title),
-            description = context.getString(R.string.chanel_category_description),
+            title = stringGetter.getString(R.string.channel_category_title),
+            description = stringGetter.getString(R.string.chanel_category_description),
             iconUnicode = "\ue163"
         ),
         SettingsListItem.Category(
             id = SettingCategory.Code,
-            title = context.getString(R.string.code_category_title),
-            description = context.getString(R.string.code_category_description),
+            title = stringGetter.getString(R.string.code_category_title),
+            description = stringGetter.getString(R.string.code_category_description),
             iconUnicode = "\ue86f"
         ),
         SettingsListItem.Category(
             id = SettingCategory.Donation,
-            title = context.getString(R.string.donation_category_title),
-            description = context.getString(R.string.donation_category_description),
+            title = stringGetter.getString(R.string.donation_category_title),
+            description = stringGetter.getString(R.string.donation_category_description),
             iconUnicode = "\uea70"
         ),
     )

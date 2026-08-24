@@ -1,12 +1,12 @@
 package com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.SettingsStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
+import com.kindeev.swipelauncher.presentation.interfaces.StringGetter
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen.entities.AdditionalSettingsCategory
 import com.knomster.navigation_component.NavigationComponent
@@ -20,15 +20,15 @@ class AdditionalSettingsScreenVM(
     private val navigationComponent: NavigationComponent<SettingsActivityNav>,
     private val settingsStateFlowUseCase: SettingsStateFlowUseCase,
     private val dataRepository: DataRepository,
-    context: Context
+    private val stringGetter: StringGetter
 ): ViewModel() {
 
     val settingsList = settingsStateFlowUseCase.settings.map { settings ->
         listOf<SettingsListItem<AdditionalSettingsCategory>>(
             SettingsListItem.Switch(
                 id = AdditionalSettingsCategory.OpenAppActionWithImage,
-                title = context.getString(R.string.open_app_action_with_image_title),
-                description = context.getString(R.string.open_app_action_with_image_description),
+                title = stringGetter.getString(R.string.open_app_action_with_image_title),
+                description = stringGetter.getString(R.string.open_app_action_with_image_description),
                 iconUnicode = "\uef40",
                 checked = settings.pickAppActionWithImage
             )

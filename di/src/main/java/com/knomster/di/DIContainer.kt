@@ -16,6 +16,8 @@ class DIContainer {
     @PublishedApi
     internal val singleFactories = ConcurrentHashMap<Pair<DIKey?, KClass<*>>, () -> Any>()
     @PublishedApi
+    internal val factories = ConcurrentHashMap<Pair<DIKey?, KClass<*>>, () -> Any>()
+    @PublishedApi
     internal val viewModelCreators = ConcurrentHashMap<KClass<out ViewModel>, (GetParameters) -> ViewModel>()
 
     inline fun <reified T: Any> insertSingle(noinline factory: () -> T) {
@@ -24,6 +26,14 @@ class DIContainer {
 
     inline fun <reified T: Any> insertSingle(key: DIKey, noinline factory: () -> T) {
         singleFactories[getKey(key, T::class)] = factory
+    }
+
+    inline fun <reified T: Any> insertFactory(noinline factory: () -> T) {
+        factories[getDefaultKey(T::class)] = factory
+    }
+
+    inline fun <reified T: Any> insertFactory(key: DIKey, noinline factory: () -> T) {
+        factories[getKey(key, T::class)] = factory
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -52,6 +62,20 @@ class DIContainer {
             singles[key] = dependency
             return dependency
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T: Any> getFactory(): T {
+        val key = getDefaultKey(T::class)
+        val factory = factories[key] as? () -> T ?: throw IllegalStateException("Not found factory for ${T::class}")
+        return factory()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T: Any> getFactory(key: DIKey): T {
+        val key = getKey(key, T::class)
+        val factory = factories[key] as? () -> T ?: throw IllegalStateException("Not found factory for ${T::class}")
+        return factory()
     }
 
     inline fun <reified T: ViewModel> registerViewModel(noinline creator: (GetParameters) -> T) {

@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         enableEdgeToEdge(
             statusBarStyle = getLauncherStatusBarStyle(
-                DI.container.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
+                DI.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
             )
         )
     }

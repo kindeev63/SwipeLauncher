@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.os.Process
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
@@ -17,6 +16,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
 import com.kindeev.swipelauncher.presentation.interfaces.CircleMenuImageToImageBitmap
+import com.kindeev.swipelauncher.presentation.interfaces.DrawableGetter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,10 +30,11 @@ import kotlinx.coroutines.withContext
 
 class CircleMenuImageToImageBitmapUseCase(
     private val userImagesRepository: UserImagesRepository,
+    private val drawableGetter: DrawableGetter,
     context: Context,
     ioScope: CoroutineScope,
     dataRepository: DataRepository,
-    getSystemServiceUseCase: GetSystemServiceUseCase
+    getSystemServiceUseCase: GetSystemServiceUseCase,
 ) : CircleMenuImageToImageBitmap {
 
     private val appContext = context.applicationContext
@@ -102,10 +103,8 @@ class CircleMenuImageToImageBitmapUseCase(
             .loadIcon(appContext.packageManager).toBitmap().asImageBitmap()
 
     private fun DefaultImage.getDefaultImageBitmap(): ImageBitmap? {
-        return ResourcesCompat.getDrawable(
-            appContext.resources,
+        return drawableGetter.getDrawable(
             Constants.defaultImages[data] ?: return null,
-            appContext.theme
         )?.toBitmap()?.asImageBitmap()
     }
 

@@ -14,7 +14,7 @@ interface UserImagesRepository {
 
     suspend fun deleteMany(ids: Collection<Int>): Boolean
 
-    suspend fun removeUnused(usedIds: Set<Int>): Boolean
+    suspend fun removeUnused(usedIds: Collection<Int>): Boolean
 
     suspend fun prefetchAll()
 }
