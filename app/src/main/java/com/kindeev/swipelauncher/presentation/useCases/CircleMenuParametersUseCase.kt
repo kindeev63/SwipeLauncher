@@ -14,12 +14,12 @@ class CircleMenuParametersUseCase(
     dataRepository: DataRepository,
     ioScope: CoroutineScope
 ) {
-    private var parameters = emptyMap<ItemsCount, (MenuSize) -> CircleMenuToDrawParameters>()
+    private val parameters = mutableMapOf<ItemsCount, (MenuSize) -> CircleMenuToDrawParameters>()
 
     fun getParametersGenerator(itemsCount: ItemsCount): (MenuSize) -> CircleMenuToDrawParameters {
         return parameters.getOrElse(itemsCount) {
             val newGenerator = makeCircleMenuParametersGenerator(itemsCount)
-            parameters += itemsCount to newGenerator
+            parameters[itemsCount] = newGenerator
             newGenerator
         }
     }
@@ -31,8 +31,9 @@ class CircleMenuParametersUseCase(
                 .map { it.map { menu -> menu.items.size }.toSet() }
                 .distinctUntilChanged()
                 .collect { itemsCounts ->
-                    parameters =
-                        itemsCounts.associateWith { itemsCount -> makeCircleMenuParametersGenerator(itemsCount) }
+                    for (itemsCount in itemsCounts) {
+                        parameters[itemsCount] = makeCircleMenuParametersGenerator(itemsCount)
+                    }
                 }
         }
     }

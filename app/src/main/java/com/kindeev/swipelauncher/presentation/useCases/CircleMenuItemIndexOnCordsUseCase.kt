@@ -14,12 +14,12 @@ class CircleMenuItemIndexOnCordsUseCase(
     dataRepository: DataRepository,
     ioScope: CoroutineScope
 ) {
-    private var generators = emptyMap<ItemsCount, (Offset) -> Int>()
+    private val generators = mutableMapOf<ItemsCount, (Offset) -> Int>()
 
-    fun getItemIndexOnCordsGenerator(itemsCount: ItemsCount):  (Offset) -> Int {
+    fun getItemIndexOnCordsGenerator(itemsCount: ItemsCount): (Offset) -> Int {
         return generators.getOrElse(itemsCount) {
             val newGenerator = itemIndexOnCordsGenerator(getAngles(itemsCount))
-            generators += itemsCount to newGenerator
+            generators[itemsCount] = newGenerator
             newGenerator
         }
     }
@@ -31,7 +31,9 @@ class CircleMenuItemIndexOnCordsUseCase(
                 .map { it.map { menu -> menu.items.size }.toSet() }
                 .distinctUntilChanged()
                 .collect { itemsCounts ->
-                    generators = itemsCounts.associateWith { itemsCounts -> itemIndexOnCordsGenerator(getAngles(itemsCounts)) }
+                    for (itemsCount in itemsCounts) {
+                        generators[itemsCount] = itemIndexOnCordsGenerator(getAngles(itemsCount))
+                    }
                 }
         }
     }
