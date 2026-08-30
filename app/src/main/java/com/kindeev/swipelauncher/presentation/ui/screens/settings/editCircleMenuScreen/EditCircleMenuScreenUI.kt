@@ -145,7 +145,7 @@ private fun LandscapeUI(
                         }
                         CircleMenuItems(
                             modifier = Modifier.size(circleMenuToDraw.menuSize.dp),
-                            items = circleMenuToDraw.items.filterIndexed { index, _ -> index != ghostItem?.index },
+                            items = circleMenuToDraw.items,
                             itemSize = circleMenuToDraw.itemSize
                         )
                     }
@@ -244,7 +244,7 @@ private fun PortraitUI(
                         }
                         CircleMenuItems(
                             modifier = Modifier.size(circleMenuToDraw.menuSize.dp),
-                            items = circleMenuToDraw.items.filterIndexed { index, _ -> index != ghostItem?.index },
+                            items = circleMenuToDraw.items,
                             itemSize = circleMenuToDraw.itemSize
                         )
                     }

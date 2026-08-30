@@ -6,6 +6,7 @@ import com.kindeev.swipelauncher.presentation.entities.ActionItemData
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.CallActionItem
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.ChangeFlashlightConditionActionItem
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.DialActionItem
+import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.EmptyActionItem
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.FlashlightOffActionItem
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.FlashlightOnActionItem
 import com.kindeev.swipelauncher.presentation.ui.elements.actionItems.OpenAppActionItem
@@ -80,6 +81,13 @@ fun CircleMenuActionItem(
                 url = actionItemData.url,
                 clickOnImage = changeAction,
                 clickOnUrl = changeUrl
+            )
+        }
+
+        ActionItemData.Empty -> {
+            EmptyActionItem(
+                textColor = textColor,
+                onClick = changeAction
             )
         }
     }

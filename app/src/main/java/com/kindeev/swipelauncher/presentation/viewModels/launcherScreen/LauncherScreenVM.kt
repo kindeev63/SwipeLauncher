@@ -11,6 +11,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.EmptyAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
@@ -125,7 +126,6 @@ class LauncherScreenVM(
 
 
     private var clickTime = 0L
-    private var actionInProgress = false
 
     private val _screenState = MutableStateFlow(LauncherScreenState.SwipeBox)
     val screenState: StateFlow<LauncherScreenState> = _screenState
@@ -150,12 +150,9 @@ class LauncherScreenVM(
                     currentMenuOffset.value = offset
                 }
                 clickTime = event.eventTime
-                actionInProgress = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (!actionInProgress) {
-                    actionInProgress = true
                     currentMenuOffset.value?.let { menuOffset ->
                         val swipeOffset = Offset(
                             x = offset.x - menuOffset.x,
@@ -170,8 +167,6 @@ class LauncherScreenVM(
                             }
                         }
                     }
-                    actionInProgress = false
-                }
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
@@ -236,6 +231,8 @@ class LauncherScreenVM(
             is OpenUrlAction -> {
                 openUrlUseCase.open(action.url)
             }
+
+            EmptyAction -> {}
         }
     }
 

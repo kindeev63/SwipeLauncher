@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kindeev.swipelauncher.data.applications.ApplicationsManager
 import com.kindeev.swipelauncher.domain.Constants
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.EmptyImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.imageTypes.AllImageTypes
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
@@ -31,6 +33,9 @@ class ImageDialogVM(
 
     private val _pickUserImage = MutableSharedFlow<Boolean>()
     val pickUserImage: SharedFlow<Boolean> = _pickUserImage.asSharedFlow()
+
+    private val _pickImage = MutableSharedFlow<CircleMenuImage>()
+    val pickImage: SharedFlow<CircleMenuImage> = _pickImage.asSharedFlow()
 
     fun openPickType() {
         _state.value = ImageDialogState.PickType(TextFieldValue(""), Constants.imageTypes)
@@ -58,6 +63,12 @@ class ImageDialogVM(
         }
     }
 
+    fun pickImage(image: CircleMenuImage) {
+        viewModelScope.launch {
+            _pickImage.emit(image)
+        }
+    }
+
     fun pickType(type: AllImageTypes) {
         when (type) {
             AllImageTypes.AppImage -> {
@@ -74,10 +85,16 @@ class ImageDialogVM(
                     _pickUserImage.emit(true)
                 }
             }
+
+            AllImageTypes.Empty -> {
+                viewModelScope.launch {
+                    _pickImage.emit(EmptyImage)
+                }
+            }
         }
     }
 
-    fun onPickUserImage(uri: Uri?, onSuccess: (UserImage) -> Unit, onError: () -> Unit) {
+    fun onPickUserImage(uri: Uri?, onError: () -> Unit) {
         if (uri == null) {
             return
         }
@@ -86,7 +103,9 @@ class ImageDialogVM(
             if (id == null) {
                 onError()
             } else {
-                onSuccess(UserImage(id))
+                viewModelScope.launch {
+                    _pickImage.emit(UserImage(id))
+                }
             }
         }
     }

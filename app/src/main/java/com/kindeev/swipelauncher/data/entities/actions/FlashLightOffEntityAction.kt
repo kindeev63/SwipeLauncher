@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("flashlight_off")
-object FlashLightOffEntityAction: CircleMenuEntityAction
+data object FlashLightOffEntityAction: CircleMenuEntityAction

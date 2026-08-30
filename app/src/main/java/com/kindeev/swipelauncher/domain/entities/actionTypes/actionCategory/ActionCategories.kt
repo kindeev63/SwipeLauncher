@@ -6,5 +6,6 @@ enum class ActionCategories {
     Flashlight,
     Telephone,
     OpenSettings,
-    OpenUrl
+    OpenUrl,
+    Empty
 }

@@ -1,3 +1,3 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction
 
-object FlashLightOnAction: CircleMenuAction
+data object FlashLightOnAction: CircleMenuAction

@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("open_settings")
-object OpenSettingsEntityAction: CircleMenuEntityAction
+data object OpenSettingsEntityAction: CircleMenuEntityAction

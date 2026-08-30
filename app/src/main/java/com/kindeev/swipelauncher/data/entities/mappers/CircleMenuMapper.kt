@@ -6,6 +6,7 @@ import com.kindeev.swipelauncher.data.entities.actions.CallEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.ChangeFlashLightConditionEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.CircleMenuEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.DialEntityAction
+import com.kindeev.swipelauncher.data.entities.actions.EmptyEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.FlashLightOffEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.FlashLightOnEntityAction
 import com.kindeev.swipelauncher.data.entities.actions.OpenAppEntityAction
@@ -16,6 +17,7 @@ import com.kindeev.swipelauncher.data.entities.images.AppEntityImage
 import com.kindeev.swipelauncher.data.entities.images.CircleMenuEntityImage
 import com.kindeev.swipelauncher.data.entities.images.DefaultEntityImage
 import com.kindeev.swipelauncher.data.entities.images.DefaultEntityImages
+import com.kindeev.swipelauncher.data.entities.images.EmptyEntityImage
 import com.kindeev.swipelauncher.data.entities.images.UserEntityImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.CircleMenu
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.CircleMenuItem
@@ -23,6 +25,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.EmptyAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
@@ -34,6 +37,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImages
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.EmptyImage
 
 fun CircleMenu.toEntity(): CircleMenuEntity =
     CircleMenuEntity(
@@ -66,6 +70,7 @@ internal fun CircleMenuEntityAction.fromEntity(): CircleMenuAction =
         is OpenCircleMenuEntityAction -> OpenCircleMenuAction(id)
         OpenSettingsEntityAction -> OpenSettingsAction
         is OpenUrlEntityAction -> OpenUrlAction(url)
+        EmptyEntityAction -> EmptyAction
     }
 
 internal fun CircleMenuEntityImage.fromEntity(): CircleMenuImage =
@@ -73,6 +78,7 @@ internal fun CircleMenuEntityImage.fromEntity(): CircleMenuImage =
         is AppEntityImage -> AppImage(packageName)
         is DefaultEntityImage -> DefaultImage(DefaultImages.valueOf(data.name))
         is UserEntityImage -> UserImage(id)
+        EmptyEntityImage -> EmptyImage
     }
 
 internal fun CircleMenuItem.toEntity(): CircleMenuItemEntity =
@@ -86,6 +92,7 @@ internal fun CircleMenuImage.toEntity(): CircleMenuEntityImage =
         is AppImage -> AppEntityImage(packageName)
         is DefaultImage -> DefaultEntityImage(DefaultEntityImages.valueOf(data.name))
         is UserImage -> UserEntityImage(id)
+        EmptyImage -> EmptyEntityImage
     }
 
 internal fun CircleMenuAction.toEntity(): CircleMenuEntityAction =
@@ -99,4 +106,5 @@ internal fun CircleMenuAction.toEntity(): CircleMenuEntityAction =
         is OpenCircleMenuAction -> OpenCircleMenuEntityAction(id)
         OpenSettingsAction -> OpenSettingsEntityAction
         is OpenUrlAction -> OpenUrlEntityAction(url)
+        EmptyAction -> EmptyEntityAction
     }

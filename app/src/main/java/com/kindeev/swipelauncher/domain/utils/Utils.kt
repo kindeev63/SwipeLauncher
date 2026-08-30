@@ -85,6 +85,11 @@ fun Context.setActionAndImageTypes() {
             imageResId = R.drawable.open_url_image,
             type = ActionCategories.OpenUrl
         ),
+        ActionCategory(
+            name = this.resources.getString(R.string.empty_action),
+            imageResId = R.drawable.ic_empty,
+            type = ActionCategories.Empty
+        ),
     )
     Constants.flashlightActionTypes = listOf(
 
@@ -131,6 +136,11 @@ fun Context.setActionAndImageTypes() {
             name = this.resources.getString(R.string.user_image),
             imageResId = R.drawable.user_image,
             type = AllImageTypes.UserImage
+        ),
+        ImageType(
+            name = this.resources.getString(R.string.empty_image),
+            imageResId = R.drawable.ic_empty,
+            type = AllImageTypes.Empty
         ),
     )
 }
