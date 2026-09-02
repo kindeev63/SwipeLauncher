@@ -153,20 +153,18 @@ class LauncherScreenVM(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                    currentMenuOffset.value?.let { menuOffset ->
-                        val swipeOffset = Offset(
-                            x = offset.x - menuOffset.x,
-                            y = offset.y - menuOffset.y,
-                        )
-                        if (cordsOutRadius(swipeOffset)) {
-                            val index = itemIndexOnCords.value(swipeOffset)
-                            currentMenu.value?.items?.getOrNull(index)?.let { item ->
-                                viewModelScope.launch {
-                                    executeAction(item.action, offset)
-                                }
-                            }
+                currentMenuOffset.value?.let { menuOffset ->
+                    val swipeOffset = Offset(
+                        x = offset.x - menuOffset.x,
+                        y = offset.y - menuOffset.y,
+                    )
+                    if (cordsOutRadius(swipeOffset)) {
+                        val index = itemIndexOnCords.value(swipeOffset)
+                        currentMenu.value?.items?.getOrNull(index)?.let { item ->
+                            executeAction(item.action, offset)
                         }
                     }
+                }
             }
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
@@ -181,58 +179,59 @@ class LauncherScreenVM(
         action: CircleMenuAction,
         offset: Offset? = null
     ) {
-        when (action) {
-
-            is OpenCircleMenuAction -> {
-                offset?.let { newOffset ->
-                    currentMenuId.value = action.id
-                    currentMenuOffset.value = newOffset
-                    vibrateUseCase.vibrate()
-                }
-            }
-
-            is OpenSettingsAction -> {
-                openSettingsUseCase()
-            }
-
-            is OpenAppAction -> {
-                applicationsManager.open(action.packageName)
-            }
-
-            is FlashLightOnAction -> {
-                viewModelScope.launch {
-                    flashLightUseCase.on()
-                }
-            }
-
-            is FlashLightOffAction -> {
-                viewModelScope.launch {
-                    flashLightUseCase.off()
-                }
-            }
-
-            is ChangeFlashLightConditionAction -> {
-                viewModelScope.launch {
-                    when (flashLightUseCase.flashLightState) {
-                        FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
-                        FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
+        viewModelScope.launch {
+            when (action) {
+                is OpenCircleMenuAction -> {
+                    offset?.let { newOffset ->
+                        currentMenuId.value = action.id
+                        currentMenuOffset.value = newOffset
+                        vibrateUseCase.vibrate()
                     }
                 }
-            }
 
-            is CallAction -> {
-                telephoneUseCase.call(action.phoneNumber)
-            }
+                is OpenSettingsAction -> {
+                    openSettingsUseCase()
+                }
 
-            is DialAction -> {
-                telephoneUseCase.dial(action.phoneNumber)
-            }
+                is OpenAppAction -> {
+                    applicationsManager.open(action.packageName)
+                }
 
-            is OpenUrlAction -> {
-                openUrlUseCase.open(action.url)
-            }
+                is FlashLightOnAction -> {
+                    viewModelScope.launch {
+                        flashLightUseCase.on()
+                    }
+                }
 
-            EmptyAction -> {}
+                is FlashLightOffAction -> {
+                    viewModelScope.launch {
+                        flashLightUseCase.off()
+                    }
+                }
+
+                is ChangeFlashLightConditionAction -> {
+                    viewModelScope.launch {
+                        when (flashLightUseCase.flashLightState) {
+                            FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
+                            FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
+                        }
+                    }
+                }
+
+                is CallAction -> {
+                    telephoneUseCase.call(action.phoneNumber)
+                }
+
+                is DialAction -> {
+                    telephoneUseCase.dial(action.phoneNumber)
+                }
+
+                is OpenUrlAction -> {
+                    openUrlUseCase.open(action.url)
+                }
+
+                EmptyAction -> {}
+            }
         }
     }
 
