@@ -51,6 +51,7 @@
     <string name="app_image">Иконка приложение</string>
     <string name="default_image">Из коллекции</string>
     <string name="user_image">Из файла</string>
+    <string name="empty_image">Без изображения</string>
     <string name="setting_open_last_app">Открыть последнее оставшееся приложение</string>
     <string name="setting_all_circle_menus">Все меню</string>
     <string name="setting_change_default_launcher">Изменить лаунчер по умолчанию</string>
@@ -84,6 +85,7 @@
     <string name="next">Далее</string>
     <string name="setting_tutorial">Обучение</string>
     <string name="open_url_action">Открыть ссылку</string>
+    <string name="empty_action">Без действия</string>
     <string name="successfully">Успешно</string>
     <string name="write_storage_denied">Отказано в разрешении на запись файлов</string>
     <string name="call_denied">Отказано в разрешении на звонки</string>

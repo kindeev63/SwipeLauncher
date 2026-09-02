@@ -10,6 +10,7 @@ import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.Acti
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CircleMenuAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.EmptyAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenSettingsAction
 import com.kindeev.swipelauncher.domain.useCases.stateFlows.CircleMenuStateFlowUseCase
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuItemToDraw
@@ -120,6 +121,12 @@ class ActionDialogVM(
                     url = TextFieldValue()
                 )
             }
+
+            ActionCategories.Empty ->
+                viewModelScope.launch {
+                    _pickAction.emit(EmptyAction)
+                }
+
         }
     }
 

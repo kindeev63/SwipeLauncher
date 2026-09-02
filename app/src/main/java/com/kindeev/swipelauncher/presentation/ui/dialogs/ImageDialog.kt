@@ -50,6 +50,7 @@ import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
 import com.kindeev.swipelauncher.presentation.ui.elements.DialogSearchElement
 import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.entities.ImageDialogState
 import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.ImageDialogVM
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageDialog(
@@ -64,10 +65,6 @@ fun ImageDialog(
         onResult = { uri ->
             viewModel.onPickUserImage(
                 uri = uri,
-                onSuccess = { userImage ->
-                    onPick(userImage)
-                    onDismissRequest()
-                },
                 onError = {
                     Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
                 }
@@ -75,8 +72,16 @@ fun ImageDialog(
         }
     )
     LaunchedEffect(Unit) {
-        viewModel.pickUserImage.collect {
-            launcher.launch("image/*")
+        launch {
+            viewModel.pickUserImage.collect {
+                launcher.launch("image/*")
+            }
+        }
+        launch {
+            viewModel.pickImage.collect { image ->
+                onPick(image)
+                onDismissRequest()
+            }
         }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -96,10 +101,7 @@ fun ImageDialog(
                 searchText = currentState.searchText,
                 onSearch = viewModel::search,
                 applications = currentState.applications,
-                onPick = { image ->
-                    onPick(image)
-                    onDismissRequest()
-                },
+                onPick = viewModel::pickImage,
                 onDismissRequest = viewModel::openPickType,
             )
         }
@@ -109,10 +111,7 @@ fun ImageDialog(
                 searchText = currentState.searchText,
                 onSearch = viewModel::search,
                 defaultImages = currentState.defaultImages,
-                onPick = { image ->
-                    onPick(image)
-                    onDismissRequest()
-                },
+                onPick = viewModel::pickImage,
                 onDismissRequest = viewModel::openPickType
             )
         }

@@ -77,6 +77,7 @@
     <string name="app_image">App image</string>
     <string name="default_image">Default image</string>
     <string name="user_image">User image</string>
+    <string name="empty_image">No image</string>
     <string name="setting_open_last_app">Open last app</string>
     <string name="setting_all_circle_menus">All circle menus</string>
     <string name="setting_change_default_launcher">Change default launcher</string>
@@ -111,6 +112,7 @@
     <string name="next">Next</string>
     <string name="setting_tutorial">Tutorial</string>
     <string name="open_url_action">Open url</string>
+    <string name="empty_action">No action</string>
     <string name="successfully">Successfully</string>
     <string name="write_storage_denied">Permission to write files has denied</string>
     <string name="call_denied">Permission to call has denied</string>

@@ -395,6 +395,7 @@ object DI {
                 circleMenuItemIndexOnCordsUseCase = getSingle(),
                 navigationComponent = getSingle(key = SETTINGS_NAVIGATION_COMPONENT_KEY),
                 actionItemDataUseCase = getSingle(),
+                drawableGetter = getSingle(),
             )
         }
         registerViewModel {

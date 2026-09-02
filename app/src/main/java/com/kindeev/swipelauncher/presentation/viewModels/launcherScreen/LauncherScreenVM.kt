@@ -11,6 +11,7 @@ import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circl
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.CallAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.ChangeFlashLightConditionAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.DialAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.EmptyAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.OpenAppAction
@@ -125,7 +126,6 @@ class LauncherScreenVM(
 
 
     private var clickTime = 0L
-    private var actionInProgress = false
 
     private val _screenState = MutableStateFlow(LauncherScreenState.SwipeBox)
     val screenState: StateFlow<LauncherScreenState> = _screenState
@@ -150,27 +150,20 @@ class LauncherScreenVM(
                     currentMenuOffset.value = offset
                 }
                 clickTime = event.eventTime
-                actionInProgress = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (!actionInProgress) {
-                    actionInProgress = true
-                    currentMenuOffset.value?.let { menuOffset ->
-                        val swipeOffset = Offset(
-                            x = offset.x - menuOffset.x,
-                            y = offset.y - menuOffset.y,
-                        )
-                        if (cordsOutRadius(swipeOffset)) {
-                            val index = itemIndexOnCords.value(swipeOffset)
-                            currentMenu.value?.items?.getOrNull(index)?.let { item ->
-                                viewModelScope.launch {
-                                    executeAction(item.action, offset)
-                                }
-                            }
+                currentMenuOffset.value?.let { menuOffset ->
+                    val swipeOffset = Offset(
+                        x = offset.x - menuOffset.x,
+                        y = offset.y - menuOffset.y,
+                    )
+                    if (cordsOutRadius(swipeOffset)) {
+                        val index = itemIndexOnCords.value(swipeOffset)
+                        currentMenu.value?.items?.getOrNull(index)?.let { item ->
+                            executeAction(item.action, offset)
                         }
                     }
-                    actionInProgress = false
                 }
             }
 
@@ -186,55 +179,58 @@ class LauncherScreenVM(
         action: CircleMenuAction,
         offset: Offset? = null
     ) {
-        when (action) {
-
-            is OpenCircleMenuAction -> {
-                offset?.let { newOffset ->
-                    currentMenuId.value = action.id
-                    currentMenuOffset.value = newOffset
-                    vibrateUseCase.vibrate()
-                }
-            }
-
-            is OpenSettingsAction -> {
-                openSettingsUseCase()
-            }
-
-            is OpenAppAction -> {
-                applicationsManager.open(action.packageName)
-            }
-
-            is FlashLightOnAction -> {
-                viewModelScope.launch {
-                    flashLightUseCase.on()
-                }
-            }
-
-            is FlashLightOffAction -> {
-                viewModelScope.launch {
-                    flashLightUseCase.off()
-                }
-            }
-
-            is ChangeFlashLightConditionAction -> {
-                viewModelScope.launch {
-                    when (flashLightUseCase.flashLightState) {
-                        FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
-                        FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
+        viewModelScope.launch {
+            when (action) {
+                is OpenCircleMenuAction -> {
+                    offset?.let { newOffset ->
+                        currentMenuId.value = action.id
+                        currentMenuOffset.value = newOffset
+                        vibrateUseCase.vibrate()
                     }
                 }
-            }
 
-            is CallAction -> {
-                telephoneUseCase.call(action.phoneNumber)
-            }
+                is OpenSettingsAction -> {
+                    openSettingsUseCase()
+                }
 
-            is DialAction -> {
-                telephoneUseCase.dial(action.phoneNumber)
-            }
+                is OpenAppAction -> {
+                    applicationsManager.open(action.packageName)
+                }
 
-            is OpenUrlAction -> {
-                openUrlUseCase.open(action.url)
+                is FlashLightOnAction -> {
+                    viewModelScope.launch {
+                        flashLightUseCase.on()
+                    }
+                }
+
+                is FlashLightOffAction -> {
+                    viewModelScope.launch {
+                        flashLightUseCase.off()
+                    }
+                }
+
+                is ChangeFlashLightConditionAction -> {
+                    viewModelScope.launch {
+                        when (flashLightUseCase.flashLightState) {
+                            FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
+                            FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
+                        }
+                    }
+                }
+
+                is CallAction -> {
+                    telephoneUseCase.call(action.phoneNumber)
+                }
+
+                is DialAction -> {
+                    telephoneUseCase.dial(action.phoneNumber)
+                }
+
+                is OpenUrlAction -> {
+                    openUrlUseCase.open(action.url)
+                }
+
+                EmptyAction -> {}
             }
         }
     }
@@ -275,6 +271,14 @@ class LauncherScreenVM(
 
     fun search(value: TextFieldValue) {
         _searchText.value = value
+    }
+
+    fun pickFirstItem() {
+        searchResults.value.firstOrNull()?.let { application ->
+            openAppUseCase.open(application.packageName)
+            _searchText.value = TextFieldValue("")
+            closeSearchBox()
+        }
     }
 
     fun clearSearch() {

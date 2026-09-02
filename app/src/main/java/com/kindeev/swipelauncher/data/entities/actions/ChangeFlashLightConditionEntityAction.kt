@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("change_flashlight_condition")
-object ChangeFlashLightConditionEntityAction: CircleMenuEntityAction
+data object ChangeFlashLightConditionEntityAction: CircleMenuEntityAction

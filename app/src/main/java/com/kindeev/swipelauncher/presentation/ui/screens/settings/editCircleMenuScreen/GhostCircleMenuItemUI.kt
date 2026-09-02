@@ -12,14 +12,16 @@ import com.kindeev.swipelauncher.presentation.ui.screens.settings.editCircleMenu
 fun GhostCircleMenuItemUI(
     item: GhostCircleMenuItem
 ) {
-    Image(
-        bitmap = item.image,
-        modifier = Modifier
-            .offset(
-                x = item.offset.x.dp - item.size.dp / 2,
-                y = item.offset.y.dp - item.size.dp / 2
-            )
-            .size(item.size.dp),
-        contentDescription = null
-    )
+    if (item.image != null) {
+        Image(
+            bitmap = item.image,
+            modifier = Modifier
+                .offset(
+                    x = item.offset.x.dp - item.size.dp / 2,
+                    y = item.offset.y.dp - item.size.dp / 2
+                )
+                .size(item.size.dp),
+            contentDescription = null
+        )
+    }
 }

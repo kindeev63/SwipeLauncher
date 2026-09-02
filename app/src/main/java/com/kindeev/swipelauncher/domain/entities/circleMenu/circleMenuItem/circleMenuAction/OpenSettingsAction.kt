@@ -1,3 +1,3 @@
 package com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction
 
-object OpenSettingsAction: CircleMenuAction
+data object OpenSettingsAction: CircleMenuAction

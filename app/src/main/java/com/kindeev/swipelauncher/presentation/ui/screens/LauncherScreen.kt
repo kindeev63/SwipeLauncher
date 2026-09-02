@@ -7,24 +7,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.kindeev.swipelauncher.domain.screenStates.LauncherScreenState
+import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuItems
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
 import com.kindeev.swipelauncher.presentation.ui.elements.ClickableClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
-import com.kindeev.swipelauncher.presentation.ui.elements.SwipeBoxUI
 import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
-import kotlinx.coroutines.launch
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -72,8 +74,13 @@ fun LauncherScreen(
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
-    val scope = rememberCoroutineScope()
-    SwipeBoxUI(viewModel = viewModel)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInteropFilter(
+                onTouchEvent = viewModel.onSwipe()
+            )
+    )
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -85,10 +92,7 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
                 textColor =
                     if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
             ) {
-                scope.launch {
-                    viewModel.executeAction(settings.clickOnClock.action)
-                }
-
+                viewModel.executeAction(settings.clickOnClock.action)
             }
         } else {
             ClockWidget(
@@ -96,5 +100,18 @@ private fun ScreenContent(viewModel: LauncherScreenVM) {
                     if (settings.blackTextColorOnWallpaper) Color.Black else Color.White
             )
         }
+    }
+    val currentMenuWithOffset by viewModel.currentMenuWithOffset.collectAsState()
+    currentMenuWithOffset?.let { menu ->
+        CircleMenuItems(
+            modifier = Modifier
+                .size(menu.circleMenuToDraw.menuSize.dp)
+                .offset(
+                    x = menu.offset.x.dp - menu.circleMenuToDraw.menuSize.dp / 2,
+                    y = menu.offset.y.dp - menu.circleMenuToDraw.menuSize.dp / 2,
+                ),
+            items = menu.circleMenuToDraw.items,
+            itemSize = menu.circleMenuToDraw.itemSize
+        )
     }
 }

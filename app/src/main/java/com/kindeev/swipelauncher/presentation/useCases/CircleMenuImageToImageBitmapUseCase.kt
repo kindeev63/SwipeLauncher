@@ -12,6 +12,7 @@ import com.kindeev.swipelauncher.domain.Constants
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.AppImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.CircleMenuImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.DefaultImage
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.EmptyImage
 import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuImage.UserImage
 import com.kindeev.swipelauncher.domain.interfaces.DataRepository
 import com.kindeev.swipelauncher.domain.interfaces.UserImagesRepository
@@ -91,6 +92,8 @@ class CircleMenuImageToImageBitmapUseCase(
             is DefaultImage -> getDefaultImageBitmap()
 
             is UserImage -> getUserImageBitmap()
+
+            EmptyImage -> null
         }
     }
 

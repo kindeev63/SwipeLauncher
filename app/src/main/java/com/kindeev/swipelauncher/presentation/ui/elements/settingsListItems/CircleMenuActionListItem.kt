@@ -1,5 +1,6 @@
 package com.kindeev.swipelauncher.presentation.ui.elements.settingsListItems
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -22,16 +23,19 @@ import com.kindeev.swipelauncher.presentation.ui.dialogs.EnterNumberDialog
 import com.kindeev.swipelauncher.presentation.ui.dialogs.OpenUrlCategory
 import com.kindeev.swipelauncher.presentation.ui.dialogs.pickContactLauncher
 import com.kindeev.swipelauncher.presentation.ui.elements.CircleMenuActionItem
-import java.io.Serializable
+import kotlinx.parcelize.Parcelize
 
-private sealed class PhoneActionDialog: Serializable {
-    object Hide : PhoneActionDialog()
+@Parcelize
+private sealed class PhoneActionDialog: Parcelable {
+    data object Hide : PhoneActionDialog()
+
     data class Call(val phoneNumber: String) : PhoneActionDialog()
     data class Dial(val phoneNumber: String) : PhoneActionDialog()
 }
 
-private sealed class UrlActionDialog: Serializable {
-    object Hide : UrlActionDialog()
+@Parcelize
+private sealed class UrlActionDialog: Parcelable {
+    data object Hide : UrlActionDialog()
     data class Show(val url: String) : UrlActionDialog()
 }
 
@@ -113,7 +117,7 @@ fun CircleMenuActionListItem(
                 }
             )
         }
-        PhoneActionDialog.Hide -> {}
+        else -> {}
     }
     when (val data = editUrlDialog) {
         is UrlActionDialog.Show -> {
@@ -131,7 +135,7 @@ fun CircleMenuActionListItem(
                 }
             )
         }
-        UrlActionDialog.Hide -> {}
+        else -> {}
     }
     Box(
         modifier = modifier,

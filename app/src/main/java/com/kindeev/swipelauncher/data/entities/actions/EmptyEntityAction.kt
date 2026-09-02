@@ -4,5 +4,5 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("flashlight_on")
-data object FlashLightOnEntityAction: CircleMenuEntityAction
+@SerialName("empty")
+data object EmptyEntityAction: CircleMenuEntityAction
