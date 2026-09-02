@@ -87,6 +87,7 @@ fun SearchBoxUI(
             SearchBoxSearchElement(
                 searchText = searchText,
                 focusRequester= focusRequester,
+                pickFirstItem = viewModel::pickFirstItem,
                 onChangeText = viewModel::search
             )
             Spacer(modifier = Modifier.height(10.dp))

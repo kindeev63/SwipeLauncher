@@ -273,6 +273,14 @@ class LauncherScreenVM(
         _searchText.value = value
     }
 
+    fun pickFirstItem() {
+        searchResults.value.firstOrNull()?.let { application ->
+            openAppUseCase.open(application.packageName)
+            _searchText.value = TextFieldValue("")
+            closeSearchBox()
+        }
+    }
+
     fun clearSearch() {
         _searchText.value = TextFieldValue("")
     }
