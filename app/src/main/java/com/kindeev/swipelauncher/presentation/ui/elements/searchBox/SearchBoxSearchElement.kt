@@ -35,7 +35,7 @@ fun SearchBoxSearchElement(
         textStyle = MaterialTheme.typography.headlineMedium.copy(
             color = Color.White
         ),
-        maxLines = 1,
+        singleLine = true,
         keyboardActions = KeyboardActions(
             onGo = {
                 pickFirstItem()

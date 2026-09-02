@@ -1,6 +1,5 @@
 package com.kindeev.swipelauncher.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import com.kindeev.swipelauncher.presentation.ui.elements.ClockWidget
 import com.kindeev.swipelauncher.presentation.ui.elements.searchBox.SearchBoxUI
 
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LauncherScreen(
     viewModel: LauncherScreenVM

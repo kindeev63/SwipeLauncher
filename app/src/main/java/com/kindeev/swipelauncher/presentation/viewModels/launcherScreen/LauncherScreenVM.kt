@@ -131,8 +131,8 @@ class LauncherScreenVM(
     val screenState: StateFlow<LauncherScreenState> = _screenState
 
     fun closeSearchBox() {
-        _screenState.value = LauncherScreenState.SwipeBox
         clearSearch()
+        _screenState.value = LauncherScreenState.SwipeBox
     }
 
     fun onSwipe(): (MotionEvent) -> Boolean = { event ->
@@ -198,23 +198,17 @@ class LauncherScreenVM(
                 }
 
                 is FlashLightOnAction -> {
-                    viewModelScope.launch {
-                        flashLightUseCase.on()
-                    }
+                    flashLightUseCase.on()
                 }
 
                 is FlashLightOffAction -> {
-                    viewModelScope.launch {
-                        flashLightUseCase.off()
-                    }
+                    flashLightUseCase.off()
                 }
 
                 is ChangeFlashLightConditionAction -> {
-                    viewModelScope.launch {
-                        when (flashLightUseCase.flashLightState) {
-                            FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
-                            FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
-                        }
+                    when (flashLightUseCase.flashLightState) {
+                        FlashLightUseCase.FlashLightState.On -> flashLightUseCase.off()
+                        FlashLightUseCase.FlashLightState.Off -> flashLightUseCase.on()
                     }
                 }
 
@@ -259,10 +253,9 @@ class LauncherScreenVM(
         viewModelScope.launch(Dispatchers.IO) {
             searchResults.collect { applications ->
                 if (settingsStateFlowUseCase.settings.value.openLastApp && searchText.value.text.firstOrNull() != ' ' && applications.size == 1) {
-                    _searchText.value = TextFieldValue("")
                     val app = applications.first()
-                    openAppUseCase.open(app.packageName)
                     closeSearchBox()
+                    openAppUseCase.open(app.packageName)
                 }
             }
         }
@@ -276,7 +269,6 @@ class LauncherScreenVM(
     fun pickFirstItem() {
         searchResults.value.firstOrNull()?.let { application ->
             openAppUseCase.open(application.packageName)
-            _searchText.value = TextFieldValue("")
             closeSearchBox()
         }
     }
