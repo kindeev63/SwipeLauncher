@@ -1,15 +1,14 @@
 package com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.kindeev.swipelauncher.R
-import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
 import com.kindeev.swipelauncher.presentation.entities.SettingsListItem
 import com.kindeev.swipelauncher.presentation.interfaces.StringGetter
 import com.kindeev.swipelauncher.presentation.navigation.SettingsActivityNav
 import com.kindeev.swipelauncher.presentation.useCases.DonationUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenSourceCodeUseCase
+import com.kindeev.swipelauncher.presentation.useCases.ShowLauncherSelectionUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.settings.mainSettingsScreen.entities.SettingCategory
 import com.knomster.navigation_component.NavigationComponent
 
@@ -18,11 +17,10 @@ class MainSettingsScreenVM(
     private val openChannelUseCase: OpenChannelUseCase,
     private val openSourceCodeUseCase: OpenSourceCodeUseCase,
     private val donationUseCase: DonationUseCase,
-    stringGetter: StringGetter,
-    context: Context
+    private val showLauncherSelectionUseCase: ShowLauncherSelectionUseCase,
+    stringGetter: StringGetter
 ): ViewModel() {
 
-    private val pickLauncher = context::showLauncherSelection
     val settingCategories = listOf(
         SettingsListItem.Header(
             header = stringGetter.getString(R.string.general_header)
@@ -97,7 +95,7 @@ class MainSettingsScreenVM(
                 navigationComponent.addToBackStack(SettingsActivityNav.AppList)
             }
             SettingCategory.PickLauncher -> {
-                pickLauncher()
+                showLauncherSelectionUseCase.show()
             }
             SettingCategory.Tutorial -> {
                 navigationComponent.addToBackStack(SettingsActivityNav.Tutorial)

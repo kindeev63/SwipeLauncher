@@ -72,16 +72,10 @@ fun LauncherScreen(
 @Composable
 private fun ScreenContent(viewModel: LauncherScreenVM) {
     val settings by viewModel.settingsStateFlowUseCase.settings.collectAsState()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInteropFilter(
-                onTouchEvent = viewModel.onSwipe()
-            )
-    )
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .pointerInteropFilter(onTouchEvent = viewModel.onSwipe()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.15f))

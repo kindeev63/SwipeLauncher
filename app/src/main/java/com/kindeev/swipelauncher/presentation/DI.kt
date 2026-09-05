@@ -39,12 +39,14 @@ import com.kindeev.swipelauncher.presentation.useCases.OpenAppUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenChannelUseCase
 import com.kindeev.swipelauncher.presentation.useCases.OpenSourceCodeUseCase
 import com.kindeev.swipelauncher.presentation.useCases.ResourcesGetter
+import com.kindeev.swipelauncher.presentation.useCases.ShowLauncherSelectionUseCase
 import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.AllCircleMenusScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.imageDialog.ImageDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.onBoardingScreen.OnBoardingScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.SettingsActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen.AdditionalSettingsScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.appListSettingsScreen.AppListSettingsScreenVM
@@ -287,7 +289,8 @@ object DI {
                 appsObserver = getSingle(),
                 dataRepository = getSingle(),
                 getRootCircleMenuUseCase = getSingle(),
-                context = getSingle()
+                stringGetter = getSingle(),
+                resources = getSingle<Context>().resources
             )
         }
     }
@@ -350,6 +353,11 @@ object DI {
         }
         insertSingle {
             DonationUseCase(
+                context = getSingle()
+            )
+        }
+        insertSingle {
+            ShowLauncherSelectionUseCase(
                 context = getSingle()
             )
         }
@@ -471,8 +479,15 @@ object DI {
                 openChannelUseCase = getSingle(),
                 openSourceCodeUseCase = getSingle(),
                 donationUseCase = getSingle(),
-                context = getSingle(),
+                showLauncherSelectionUseCase = getSingle(),
                 stringGetter = getSingle()
+            )
+        }
+        registerViewModel { parameters ->
+            OnBoardingScreenVM(
+                showLauncherSelectionUseCase = getSingle(),
+                stringGetter = getSingle(),
+                onFinish = parameters.get("onFinish")
             )
         }
     }

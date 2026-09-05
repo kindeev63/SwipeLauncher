@@ -2,8 +2,10 @@ package com.kindeev.swipelauncher.presentation.activities
 
 import android.R.id.content
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -11,7 +13,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.kindeev.swipelauncher.domain.utils.checkDirs
-import com.kindeev.swipelauncher.domain.utils.getLauncherStatusBarStyle
 import com.kindeev.swipelauncher.presentation.ui.screens.LauncherScreen
 import com.kindeev.swipelauncher.presentation.ui.screens.OnboardingScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +27,7 @@ import com.kindeev.swipelauncher.presentation.ui.theme.LauncherTheme
 import com.kindeev.swipelauncher.presentation.viewModels.MainActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
 import com.kindeev.swipelauncher.presentation.viewModels.launcherScreen.LauncherScreenVM
+import com.kindeev.swipelauncher.presentation.viewModels.onBoardingScreen.OnBoardingScreenVM
 
 class MainActivity : ComponentActivity() {
 
@@ -36,23 +38,26 @@ class MainActivity : ComponentActivity() {
         checkDirs()
         setContent {
             LauncherTheme {
-                val viewModel: MainActivityVM = diViewModel()
-                val navigationBackStack by viewModel.navigationBackStack.collectAsStateWithLifecycle()
+                val mainActivityViewModel: MainActivityVM = diViewModel()
+                val navigationBackStack by mainActivityViewModel.navigationBackStack.collectAsStateWithLifecycle()
                 NavDisplay(
                     backStack = navigationBackStack,
                     entryDecorators = listOf(
                         rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator()
                     ),
-                    onBack = viewModel::navigationOnBack,
+                    onBack = mainActivityViewModel::navigationOnBack,
                     entryProvider = entryProvider {
                         entry<MainActivityNav.Launcher> {
                             val viewModel: LauncherScreenVM = diViewModel()
                             LauncherScreen(viewModel)
                         }
                         entry<MainActivityNav.OnBoarding> {
+                            val viewModel: OnBoardingScreenVM = diViewModel { parameters ->
+                                parameters.insert("onFinish", mainActivityViewModel::onCompleteOnBoarding)
+                            }
                             OnboardingScreen(
-                                onFinish = viewModel::onCompleteOnBoarding
+                                viewModel = viewModel
                             )
                         }
                     }
@@ -72,11 +77,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        enableEdgeToEdge(
-            statusBarStyle = getLauncherStatusBarStyle(
-                DI.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
-            )
-        )
+        val blackTextColorOnWallpaper =
+            DI.getSingle<SettingsStateFlowUseCase>().settings.value.blackTextColorOnWallpaper
+        val statusBarStyle = if (blackTextColorOnWallpaper) {
+            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+        } else {
+            SystemBarStyle.dark(Color.TRANSPARENT)
+        }
+        enableEdgeToEdge(statusBarStyle = statusBarStyle)
     }
 
     private fun hideNavigationBar() {

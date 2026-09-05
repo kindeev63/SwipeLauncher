@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,23 +37,19 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 import com.kindeev.swipelauncher.R
 import com.kindeev.swipelauncher.data.coil.appImageUri
 import com.kindeev.swipelauncher.domain.Constants
-import com.kindeev.swipelauncher.domain.utils.showLauncherSelection
-import kotlinx.coroutines.launch
+import com.kindeev.swipelauncher.presentation.viewModels.onBoardingScreen.OnBoardingScreenVM
 
 @Composable
 fun OnboardingScreen(
-    onFinish: () -> Unit
+    viewModel: OnBoardingScreenVM,
 ) {
-    val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val orientationPhone = remember {
         configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
-    val pagerState = rememberPagerState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,50 +59,36 @@ fun OnboardingScreen(
     ) {
         HorizontalPager(
             modifier = Modifier.weight(10f),
-            state = pagerState,
+            state = viewModel.pagerState,
             count = 9
         ) { page ->
             if (orientationPhone) {
                 PageContentPhone(
-                    page = page,
+                    viewModel = viewModel,
+                    page = page
                 )
             } else {
                 PageContentTablet(
-                    page = page,
+                    viewModel = viewModel,
+                    page = page
                 )
             }
         }
         HorizontalPagerIndicator(
             modifier = Modifier.weight(1f),
-            pagerState = pagerState
+            pagerState = viewModel.pagerState
         )
-        if (pagerState.currentPage == 8) {
-            NextButton(
-                modifier = Modifier.weight(1f),
-                text = stringResource(R.string.finish),
-                onClick = {
-                    onFinish()
-                },
-            )
-        } else {
-            NextButton(
-                modifier = Modifier.weight(1f),
-                text = stringResource(R.string.next),
-                onClick = {
-                    scope.launch {
-                        val nextPage = pagerState.currentPage + 1
-                        if (nextPage < 9) {
-                            pagerState.animateScrollToPage(nextPage)
-                        }
-                    }
-                },
-            )
-        }
+        NextButton(
+            modifier = Modifier.weight(1f),
+            text = viewModel.nextButtonText(),
+            onClick = viewModel::clickNextButton,
+        )
     }
 }
 
 @Composable
 private fun PageContentTablet(
+    viewModel: OnBoardingScreenVM,
     page: Int,
 ) {
     val screenWidth = Constants.minScreenLength
@@ -508,7 +489,6 @@ private fun PageContentTablet(
         }
 
         8 -> {
-            val context = LocalContext.current
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -555,7 +535,7 @@ private fun PageContentTablet(
                         lineHeight = screenWidth.sp / 25
                     )
                     Spacer(modifier = Modifier.height(screenWidth.dp / 20))
-                    Button(onClick = { context.showLauncherSelection() }) {
+                    Button(onClick = viewModel::showLauncherSelection) {
                         Text(text = stringResource(id = R.string.go_to_settings))
                     }
                 }
@@ -566,7 +546,8 @@ private fun PageContentTablet(
 
 @Composable
 private fun PageContentPhone(
-    page: Int,
+    viewModel: OnBoardingScreenVM,
+    page: Int
 ) {
     val screenWidth = Constants.minScreenLength
     val context = LocalContext.current
@@ -846,7 +827,6 @@ private fun PageContentPhone(
         }
 
         8 -> {
-            val context = LocalContext.current
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -878,7 +858,7 @@ private fun PageContentPhone(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(screenWidth.dp / 20))
-                Button(onClick = { context.showLauncherSelection() }) {
+                Button(onClick = viewModel::showLauncherSelection) {
                     Text(text = stringResource(id = R.string.go_to_settings))
                 }
             }

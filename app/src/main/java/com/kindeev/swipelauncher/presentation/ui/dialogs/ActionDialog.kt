@@ -69,7 +69,8 @@ import com.kindeev.swipelauncher.domain.entities.actionTypes.FlashlightActionTyp
 import com.kindeev.swipelauncher.domain.entities.actionTypes.TelephoneActionType
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategories
 import com.kindeev.swipelauncher.domain.entities.actionTypes.actionCategory.ActionCategory
-import com.kindeev.swipelauncher.domain.utils.getFlashlightAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOffAction
+import com.kindeev.swipelauncher.domain.entities.circleMenu.circleMenuItem.circleMenuAction.FlashLightOnAction
 import com.kindeev.swipelauncher.presentation.entities.CircleMenuToDraw
 import com.kindeev.swipelauncher.presentation.entities.PhoneNumberVisualTransformation
 import com.kindeev.swipelauncher.presentation.ui.elements.AppItem
@@ -136,7 +137,14 @@ fun ActionDialog(
                 searchText = currentState.searchText,
                 actionTypes = currentState.flashlightActionTypes,
                 onSearch = viewModel::search,
-                onPick = viewModel::pickAction,
+                onPick = { actionType ->
+                    when (actionType) {
+                        AllActionTypes.FlashLightOn -> viewModel.pickAction(FlashLightOnAction)
+                        AllActionTypes.FlashLightOff -> viewModel.pickAction(FlashLightOffAction)
+                        AllActionTypes.ChangeFlashLightCondition -> viewModel.pickAction(FlashLightOffAction)
+                        else -> throw IllegalStateException("Illegal flashlight action type")
+                    }
+                },
                 onDismissRequest = viewModel::openPickCategory
             )
         }
@@ -364,7 +372,7 @@ fun FlashlightCategory(
     searchText: TextFieldValue,
     actionTypes: List<FlashlightActionType>,
     onSearch: (TextFieldValue) -> Unit,
-    onPick: (CircleMenuAction) -> Unit,
+    onPick: (AllActionTypes) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
@@ -389,7 +397,7 @@ fun FlashlightCategory(
                         name = flashlightActionType.name,
                         imageResId = flashlightActionType.imageResId,
                         onClick = {
-                            onPick(flashlightActionType.type.getFlashlightAction())
+                            onPick(flashlightActionType.type)
                             onDismissRequest()
                         }
                     )

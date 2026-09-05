@@ -33,6 +33,7 @@ import com.kindeev.swipelauncher.presentation.viewModels.settings.AllCircleMenus
 import com.kindeev.swipelauncher.presentation.viewModels.settings.SettingsActivityVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.actionDialog.ActionDialogVM
 import com.kindeev.swipelauncher.presentation.viewModels.diViewModel
+import com.kindeev.swipelauncher.presentation.viewModels.onBoardingScreen.OnBoardingScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.additionalSettingsScreen.AdditionalSettingsScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.appListSettingsScreen.AppListSettingsScreenVM
 import com.kindeev.swipelauncher.presentation.viewModels.settings.editCircleMenuScreen.EditCircleMenuScreenVM
@@ -76,10 +77,11 @@ class SettingsActivity : ComponentActivity() {
                             AllCircleMenusScreen(viewModel = viewModel)
                         }
                         entry<SettingsActivityNav.Tutorial> {
+                            val viewModel: OnBoardingScreenVM = diViewModel { parameters ->
+                                parameters.insert("onFinish", settingsViewModel::navigationOnBack)
+                            }
                             OnboardingScreen(
-                                onFinish = {
-                                    settingsViewModel.navigationOnBack()
-                                }
+                                viewModel = viewModel
                             )
                         }
                         entry<SettingsActivityNav.EditCircleMenu> { route ->
